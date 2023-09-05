@@ -292,7 +292,7 @@ class TaskViewHolder internal constructor(
         setTopPadding(rowPaddingPx, nameView, completeBox, dueDate)
         setBottomPadding(rowPaddingPx, completeBox, dueDate)
         nameView.textSize = fontSize.toFloat()
-        description.textSize = fontSize.toFloat()
+        description.textSize = (fontSize-2).toFloat() /* TODO(control fonsize in more regular way) */
         val fontSizeDetails = max(10, fontSize - 2)
         dueDate.textSize = fontSizeDetails.toFloat()
         with(binding.root) {

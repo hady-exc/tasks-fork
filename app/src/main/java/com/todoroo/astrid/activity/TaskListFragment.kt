@@ -71,6 +71,7 @@ import org.tasks.analytics.Firebase
 import org.tasks.billing.PurchaseActivity
 import org.tasks.caldav.BaseCaldavCalendarSettingsActivity
 import org.tasks.compose.SubscriptionNagBanner
+import org.tasks.compose.InputPanel
 import org.tasks.data.CaldavDao
 import org.tasks.data.TagDataDao
 import org.tasks.data.TaskContainer
@@ -239,6 +240,8 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             .launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
+    var inputPannelVisible = mutableStateOf( false )
+
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentTaskListBinding.inflate(inflater, container, false)
@@ -248,8 +251,15 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             emptyRefreshLayout = bodyEmpty.swipeLayoutEmpty
             coordinatorLayout = taskListCoordinator
             recyclerView = bodyStandard.recyclerView
-            fab.setOnClickListener { createNewTask() }
+            fab.setOnClickListener { inputPannelVisible.value = true; /*createNewTask()*/ }
             fab.isVisible = filter.isWritable
+            inputHost.setContent {
+                InputPanel(inputPannelVisible, taskListCoordinator) {
+                    lifecycleScope.launch {
+                        saveTask(addTask(it))
+                    }
+                }
+            }
         }
         themeColor = if (filter.tint != 0) colorProvider.getThemeColor(filter.tint, true) else defaultThemeColor
         filter.setFilterQueryOverride(null)
@@ -512,16 +522,22 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         context?.toast(R.string.delete_multiple_tasks_confirmation, locale.formatNumber(count))
     }
 
-    private fun createNewTask() {
+    private fun createNewTask(title: String = "") {
         lifecycleScope.launch {
             shortcutManager.reportShortcutUsed(ShortcutManager.SHORTCUT_NEW_TASK)
-            onTaskListItemClicked(addTask(""))
+            onTaskListItemClicked(addTask(title))
             firebase.addTask("fab")
         }
     }
 
     private suspend fun addTask(title: String): Task {
         return taskCreator.createWithValues(filter, title)
+    }
+
+    private suspend fun saveTask(task: Task) {
+        taskDao.createNew(task)
+        taskDao.save(task)
+        taskMover.move(listOf(task.id), if (::filter.isInitialized) filter else getFilter() )
     }
 
     private fun setupRefresh(layout: SwipeRefreshLayout) {
