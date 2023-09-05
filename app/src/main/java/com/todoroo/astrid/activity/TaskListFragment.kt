@@ -7,7 +7,6 @@ package com.todoroo.astrid.activity
 
 import android.Manifest
 import android.app.Activity
-import android.app.Activity.RESULT_OK
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -90,6 +89,7 @@ import org.tasks.compose.FilterSelectionActivity.Companion.launch
 import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPickerResult
 import org.tasks.compose.NotificationsDisabledBanner
 import org.tasks.compose.SubscriptionNagBanner
+import org.tasks.compose.InputPanel
 import org.tasks.compose.rememberReminderPermissionState
 import org.tasks.data.TaskContainer
 import org.tasks.data.dao.CaldavDao
@@ -155,6 +155,7 @@ import kotlin.math.max
 class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickListener,
         MenuItem.OnActionExpandListener, SearchView.OnQueryTextListener, ActionMode.Callback,
         TaskViewHolder.ViewHolderCallbacks {
+    private val refreshReceiver = RefreshReceiver()
     private val repeatConfirmationReceiver = RepeatConfirmationReceiver()
 
     @Inject lateinit var syncAdapters: SyncAdapters
@@ -187,9 +188,12 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     private lateinit var taskAdapter: TaskAdapter
     private var recyclerAdapter: DragAndDropRecyclerAdapter? = null
     private lateinit var filter: Filter
+    private var searchJob: Job? = null
     private lateinit var search: MenuItem
+    private var searchQuery: String? = null
     private var mode: ActionMode? = null
     lateinit var themeColor: ThemeColor
+    private lateinit var callbacks: TaskListFragmentCallbackHandler
     private lateinit var binding: FragmentTaskListBinding
     private val listPickerLauncher = registerForListPickerResult {
         val selected = taskAdapter.getSelected()
@@ -267,7 +271,15 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             .launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
-    @OptIn(ExperimentalAnimationApi::class, ExperimentalPermissionsApi::class)
+    var inputPannelVisible = mutableStateOf( false )
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        requireActivity().onBackPressedDispatcher.addCallback(requireActivity(), onBackPressed)
+    }
+
+    @OptIn(ExperimentalAnimationApi::class)
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         requireActivity().onBackPressedDispatcher.addCallback(owner = viewLifecycleOwner) {
@@ -291,8 +303,15 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             swipeRefreshLayout = bodyStandard.swipeLayout
             emptyRefreshLayout = bodyEmpty.swipeLayoutEmpty
             recyclerView = bodyStandard.recyclerView
-            fab.setOnClickListener { createNewTask() }
+            fab.setOnClickListener { inputPannelVisible.value = true; /*createNewTask()*/ }
             fab.isVisible = filter.isWritable
+            inputHost.setContent {
+                InputPanel(inputPannelVisible, taskListCoordinator) {
+                    lifecycleScope.launch {
+                        saveTask(addTask(it))
+                    }
+                }
+            }
         }
         themeColor = if (filter.tint != 0) colorProvider.getThemeColor(filter.tint, true) else defaultThemeColor
         (filter as? AstridOrderingFilter)?.filterOverride = null
@@ -511,12 +530,14 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 item.isChecked = !item.isChecked
                 preferences.showHidden = item.isChecked
                 loadTaskListContent()
+                localBroadcastManager.broadcastRefresh()
                 true
             }
             R.id.menu_show_completed -> {
                 item.isChecked = !item.isChecked
                 preferences.showCompleted = item.isChecked
                 loadTaskListContent()
+                localBroadcastManager.broadcastRefresh()
                 true
             }
             R.id.menu_clear_completed -> {
@@ -613,16 +634,28 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         }
     }
 
+    private fun clearCompleted() = lifecycleScope.launch {
+        val count = taskDeleter.clearCompleted(filter)
+        context?.toast(R.string.delete_multiple_tasks_confirmation, locale.formatNumber(count))
+    }
+
+    private fun createNewTask(title: String = "") {
     private fun createNewTask() {
         lifecycleScope.launch {
             shortcutManager.reportShortcutUsed(ShortcutManager.SHORTCUT_NEW_TASK)
-            onTaskListItemClicked(addTask(""))
+            onTaskListItemClicked(addTask(title))
             firebase.addTask("fab")
         }
     }
 
     private suspend fun addTask(title: String): Task {
         return taskCreator.createWithValues(filter, title)
+    }
+
+    private suspend fun saveTask(task: Task) {
+        taskDao.createNew(task)
+        taskDao.save(task)
+        taskMover.move(listOf(task.id), if (::filter.isInitialized) filter else getFilter() )
     }
 
     private fun setupRefresh(layout: SwipeRefreshLayout) {
