@@ -1,16 +1,10 @@
 package org.tasks.compose
 
 import android.content.res.Configuration
-import android.graphics.drawable.Icon
-import android.view.View
-import android.widget.EditText
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,32 +15,28 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldColors
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.DoneAll
-import androidx.compose.material.icons.outlined.List
-import androidx.compose.material.icons.rounded.MenuOpen
+import androidx.compose.material.icons.outlined.Done
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
@@ -54,7 +44,6 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.isVisible
 import androidx.viewbinding.ViewBindings
 import com.google.android.material.bottomappbar.BottomAppBar
-import com.google.android.material.composethemeadapter.MdcTheme
 import org.tasks.R
 
 class WindowBottomPositionProvider(
@@ -76,7 +65,8 @@ class WindowBottomPositionProvider(
 @Composable
 fun InputPanel(control: MutableState<Boolean>?,
                rootView: CoordinatorLayout?,
-               callback: (String) -> Unit) {
+               save: (String) -> Unit,
+               edit: (String) -> Unit) {
     val popupVisible = control
     if ( popupVisible!!.value ) {
         MaterialTheme {
@@ -88,15 +78,19 @@ fun InputPanel(control: MutableState<Boolean>?,
                     dismissOnClickOutside = true )
             )
             {
-                PopupContent(callback)
+                PopupContent(save, { edit(it); popupVisible.value = false })
                 // Composable content to be shown in the Popup
             }
         }
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-private fun PopupContent(callback: (String) -> Unit = {}) {
+private fun PopupContent(save: (String) -> Unit = {},
+                         edit: (String) -> Unit = {}) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     Card(
         backgroundColor = Color.LightGray,
         shape = RoundedCornerShape(
@@ -112,46 +106,64 @@ private fun PopupContent(callback: (String) -> Unit = {}) {
         ) {
             val text = remember { mutableStateOf("") }
             val requester = remember { FocusRequester() }
-            /*Text(
-                modifier = Modifier.padding(16.dp),
-                text = "Some label",
-                style = MaterialTheme.typography.h6
-            )*/
+
+            val doSave = {
+                if (text.value != "") save(text.value)
+                text.value = ""
+            }
+            val doEdit = {
+                if (text.value != "") edit(text.value)
+                text.value = ""
+            }
+
             TextField(
                 value = text.value,
                 onValueChange = { changed: String -> text.value = changed },
                 modifier = Modifier
                     .fillMaxWidth()
-                    //.padding(8.dp)
+                    .padding(8.dp)
+                    .onFocusChanged {
+                        if (it.hasFocus || it.isFocused) keyboardController!!.show()
+                    }
                     .focusRequester(requester),
                 singleLine = true,
                 enabled = true,
                 readOnly = false,
                 placeholder = { Text("Title") },
                 keyboardActions = KeyboardActions(onDone =  {
-                    if (text.value != "") callback(text.value)
-                    text.value = ""
-                }
+                    doSave()
+                } ),
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = Color.LightGray,
+                    focusedIndicatorColor = Color.DarkGray
                 )
             )
+
             LaunchedEffect(Unit) {
                 requester.requestFocus()
             }
             Row (
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start
             )
             {
                 IconButton(
-                    //modifier = Modifier.padding(10.dp),
-                    onClick = { }
+                    modifier = Modifier.padding(8.dp, 0.dp),
+                    onClick = { doEdit() }
                 ) {
-                    Icon(Icons.Outlined.List, contentDescription = "Details")
+                    Icon(Icons.Outlined.Edit, contentDescription = "Details")
                 }
-                IconButton(
-                    //modifier = Modifier.padding(10.dp),
-                    onClick = { callback("This is a new task (DEBUG)") }
-                ) {
-                    Icon(Icons.Outlined.DoneAll, contentDescription = "Done")
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                {
+                    IconButton(
+                        modifier = Modifier.padding(8.dp, 0.dp),
+                        onClick = { doSave() }
+                    ) {
+                        Icon(Icons.Outlined.Done, contentDescription = "Done")
+                    }
                 }
             }
         }
