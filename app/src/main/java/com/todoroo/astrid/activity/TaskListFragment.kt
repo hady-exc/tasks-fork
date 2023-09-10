@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.speech.RecognizerIntent
 import android.view.*
+import android.view.inputmethod.InputMethodManager
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
@@ -25,6 +26,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.view.forEach
 import androidx.core.view.isVisible
 import androidx.core.view.setMargins
@@ -251,14 +253,23 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             emptyRefreshLayout = bodyEmpty.swipeLayoutEmpty
             coordinatorLayout = taskListCoordinator
             recyclerView = bodyStandard.recyclerView
-            fab.setOnClickListener { inputPannelVisible.value = true; /*createNewTask()*/ }
+            fab.setOnClickListener {
+                inputPannelVisible.value = true
+                // following does not work
+                //val imm = getSystemService(requireContext(), InputMethodManager::class.java)
+                //imm!!.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+                /*createNewTask()*/
+            }
             fab.isVisible = filter.isWritable
             inputHost.setContent {
-                InputPanel(inputPannelVisible, taskListCoordinator) {
+                InputPanel(inputPannelVisible, taskListCoordinator,
+                    save = {
                     lifecycleScope.launch {
                         saveTask(addTask(it))
-                    }
-                }
+                        }
+                    },
+                    edit = { createNewTask(it) }
+                )
             }
         }
         themeColor = if (filter.tint != 0) colorProvider.getThemeColor(filter.tint, true) else defaultThemeColor
