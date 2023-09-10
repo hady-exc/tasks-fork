@@ -20,6 +20,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
+import android.view.*
+import android.view.inputmethod.InputMethodManager
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
@@ -30,6 +32,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
 import androidx.core.content.IntentCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.view.forEach
 import androidx.core.view.isVisible
 import androidx.core.view.setMargins
@@ -157,6 +160,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     @Inject lateinit var caldavDao: CaldavDao
     @Inject lateinit var defaultThemeColor: ThemeColor
     @Inject lateinit var colorProvider: ColorProvider
+    @Inject lateinit var notificationManager: NotificationManager
     @Inject lateinit var shortcutManager: ShortcutManager
     @Inject lateinit var taskCompleter: TaskCompleter
     @Inject lateinit var locale: Locale
@@ -272,14 +276,23 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             swipeRefreshLayout = bodyStandard.swipeLayout
             emptyRefreshLayout = bodyEmpty.swipeLayoutEmpty
             recyclerView = bodyStandard.recyclerView
-            fab.setOnClickListener { inputPannelVisible.value = true; /*createNewTask()*/ }
+            fab.setOnClickListener {
+                inputPannelVisible.value = true
+                // following does not work
+                //val imm = getSystemService(requireContext(), InputMethodManager::class.java)
+                //imm!!.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+                /*createNewTask()*/
+            }
             fab.isVisible = filter.isWritable
             inputHost.setContent {
-                InputPanel(inputPannelVisible, taskListCoordinator) {
+                InputPanel(inputPannelVisible, taskListCoordinator,
+                    save = {
                     lifecycleScope.launch {
                         saveTask(addTask(it))
-                    }
-                }
+                        }
+                    },
+                    edit = { createNewTask(it) }
+                )
             }
         }
         themeColor = if (filter.tint != 0) colorProvider.getThemeColor(filter.tint, true) else defaultThemeColor
