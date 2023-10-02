@@ -26,6 +26,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Done
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.runtime.Composable
@@ -175,8 +176,7 @@ private fun PopupContent(save: (String) -> Unit = {},
                     .padding(8.dp, 8.dp, 8.dp, 0.dp)
                     .onFocusChanged {
                         if (it.hasFocus || it.isFocused) keyboardController!!.show()
-                    }
-                    .focusRequester(requester),
+                    }*/,
                 singleLine = true,
                 enabled = true,
                 readOnly = false,
@@ -258,7 +258,6 @@ fun keyboardHeight(): State<Dp> {
 }
 
 @Preview(showBackground = true, widthDp = 320)
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, widthDp = 320)
 @Composable
 fun InputPanelPreview()
 {
