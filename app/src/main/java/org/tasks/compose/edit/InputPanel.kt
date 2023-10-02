@@ -1,6 +1,5 @@
 package org.tasks.compose
 
-import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +16,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Done
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.runtime.Composable
@@ -44,6 +44,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.isVisible
 import androidx.viewbinding.ViewBindings
 import com.google.android.material.bottomappbar.BottomAppBar
+import com.google.android.material.internal.ContextUtils.getActivity
 import org.tasks.R
 
 class WindowBottomPositionProvider(
@@ -56,10 +57,8 @@ class WindowBottomPositionProvider(
         popupContentSize: IntSize
     ): IntOffset {
         val bottomBar = ViewBindings.findChildViewById<BottomAppBar>(rootView, R.id.bottomAppBar)
-        val by = if ( bottomBar!!.isVisible ) bottomBar!!.height else 154
-        //return IntOffset(0, (windowSize.height - popupContentSize.height + (bottomBar?.height ?: 150) ) )
+        val by = if ( bottomBar!!.isVisible ) bottomBar!!.height else 154  /* TODO(find bottom bar height) */
         return IntOffset(0, (windowSize.height - popupContentSize.height + by ) )
-        //return IntOffset(0, (by) )
     }
 }
 @Composable
@@ -78,7 +77,7 @@ fun InputPanel(control: MutableState<Boolean>?,
                     dismissOnClickOutside = true )
             )
             {
-                PopupContent(save, { edit(it); popupVisible.value = false })
+                PopupContent(save, { popupVisible.value = false; edit(it) }, { popupVisible.value = false } )
                 // Composable content to be shown in the Popup
             }
         }
@@ -88,14 +87,15 @@ fun InputPanel(control: MutableState<Boolean>?,
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun PopupContent(save: (String) -> Unit = {},
-                         edit: (String) -> Unit = {}) {
+                         edit: (String) -> Unit = {},
+                         close: () -> Unit = {}) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Card(
         backgroundColor = Color.LightGray,
         shape = RoundedCornerShape(
-            topStart = 12.dp,
-            topEnd = 12.dp
+            topStart = 9.dp,
+            topEnd = 9.dp
         )
     ) {
         Column(
@@ -118,18 +118,18 @@ private fun PopupContent(save: (String) -> Unit = {},
 
             TextField(
                 value = text.value,
-                onValueChange = { changed: String -> text.value = changed },
+                onValueChange = { text.value = it },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp)
-                    .onFocusChanged {
+                    .padding(8.dp,8.dp,8.dp,0.dp)
+                    .focusRequester(requester)
+                    /*.onFocusChanged {
                         if (it.hasFocus || it.isFocused) keyboardController!!.show()
-                    }
-                    .focusRequester(requester),
+                    }*/,
                 singleLine = true,
                 enabled = true,
                 readOnly = false,
-                placeholder = { Text("Title") },
+                placeholder = { Text("Task name") },
                 keyboardActions = KeyboardActions(onDone =  {
                     doSave()
                 } ),
@@ -142,27 +142,35 @@ private fun PopupContent(save: (String) -> Unit = {},
             LaunchedEffect(Unit) {
                 requester.requestFocus()
             }
+
             Row (
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Start
             )
             {
                 IconButton(
-                    modifier = Modifier.padding(8.dp, 0.dp),
+                    modifier = Modifier.padding(8.dp,0.dp,8.dp,8.dp),  //(8.dp, 8.dp),
                     onClick = { doEdit() }
                 ) {
                     Icon(Icons.Outlined.Edit, contentDescription = "Details")
                 }
-                Row(
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Row(horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth() )
                 {
-                    IconButton(
-                        modifier = Modifier.padding(8.dp, 0.dp),
-                        onClick = { doSave() }
-                    ) {
-                        Icon(Icons.Outlined.Done, contentDescription = "Done")
+                    if (text.value == "") {
+                        IconButton(
+                            modifier = Modifier.padding(8.dp,0.dp,8.dp,8.dp),
+                            onClick = { close() }
+                        ) {
+                            Icon(Icons.Outlined.Clear, contentDescription = "Close")
+                        }
+                    } else {
+                        IconButton(
+                            modifier = Modifier.padding(8.dp,0.dp,8.dp,8.dp),
+                            onClick = { doSave() }
+                        ) {
+                            Icon(Icons.Outlined.Done, contentDescription = "Done")
+                        }
                     }
                 }
             }
@@ -171,7 +179,6 @@ private fun PopupContent(save: (String) -> Unit = {},
 }
 
 @Preview(showBackground = true, widthDp = 320)
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, widthDp = 320)
 @Composable
 fun InputPanelPreview()
 {
