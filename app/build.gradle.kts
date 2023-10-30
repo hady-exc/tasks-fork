@@ -73,10 +73,15 @@ android {
 
     signingConfigs {
         getByName("debug") {
-            storeFile = file("C:\\Users\\hady\\Documents\\GnuPG\\android-hady.jks")
-            storePassword = "3tyd990"
-            keyAlias = "Android-hady-key0"
-            keyPassword = "3tyd990"
+            val tasksKeyAlias: String? by project
+            val tasksStoreFile: String? by project
+            val tasksStorePassword: String? by project
+            val tasksKeyPassword: String? by project
+
+            keyAlias = tasksKeyAlias
+            storeFile = file(tasksStoreFile ?: "none")
+            storePassword = tasksStorePassword
+            keyPassword = tasksKeyPassword
         }
         create("release") {
             val tasksKeyAlias: String? by project
@@ -84,10 +89,10 @@ android {
             val tasksStorePassword: String? by project
             val tasksKeyPassword: String? by project
 
-            keyAlias = "Android-hady-key0"
-            storeFile = file(tasksStoreFile ?: """C:\Users\hady\Documents\GnuPG\android-hady.jks""")
-            storePassword = "3tyd990"
-            keyPassword = "3tyd990"
+            keyAlias = tasksKeyAlias
+            storeFile = file(tasksStoreFile ?: "none")
+            storePassword = tasksStorePassword
+            keyPassword = tasksKeyPassword
         }
     }
 
