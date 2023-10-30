@@ -32,6 +32,7 @@ repositories {
 }
 
 android {
+    namespace = "org.tasks"
     bundle {
         language {
             enableSplit = false
@@ -55,7 +56,7 @@ android {
 
     defaultConfig {
         testApplicationId = "org.tasks.test"
-        applicationId = "org.tasks"
+        applicationId = "org.tasks.ak"
         versionCode = 130206
         versionName = "13.2.3"
         targetSdk = 33
@@ -71,16 +72,22 @@ android {
     }
 
     signingConfigs {
+        getByName("debug") {
+            storeFile = file("C:\\Users\\hady\\Documents\\GnuPG\\android-hady.jks")
+            storePassword = "3tyd990"
+            keyAlias = "Android-hady-key0"
+            keyPassword = "3tyd990"
+        }
         create("release") {
             val tasksKeyAlias: String? by project
             val tasksStoreFile: String? by project
             val tasksStorePassword: String? by project
             val tasksKeyPassword: String? by project
 
-            keyAlias = tasksKeyAlias
-            storeFile = file(tasksStoreFile ?: "none")
-            storePassword = tasksStorePassword
-            keyPassword = tasksKeyPassword
+            keyAlias = "Android-hady-key0"
+            storeFile = file(tasksStoreFile ?: """C:\Users\hady\Documents\GnuPG\android-hady.jks""")
+            storePassword = "3tyd990"
+            keyPassword = "3tyd990"
         }
     }
 

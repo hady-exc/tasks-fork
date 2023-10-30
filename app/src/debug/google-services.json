@@ -1,37 +1,34 @@
 {
   "project_info": {
-    "project_number": "448612483090",
-    "firebase_url": "https://tasks-debug.firebaseio.com",
-    "project_id": "tasks-debug",
-    "storage_bucket": "tasks-debug.appspot.com"
+    "project_number": "876027066267",
+    "project_id": "aktasks-bc5c4",
+    "storage_bucket": "aktasks-bc5c4.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:448612483090:android:c31434c55745e54c",
+        "mobilesdk_app_id": "1:876027066267:android:00eab2a379c83ebe3b533e",
         "android_client_info": {
-          "package_name": "org.tasks"
+          "package_name": "org.tasks.ak"
         }
       },
       "oauth_client": [
-        {
-          "client_id": "448612483090-ns27d5rn3nm5nh4fjrkc22ag9qslkuho.apps.googleusercontent.com",
-          "client_type": 3
+	{
+	   "client_id":"1033587541636-k2pj3e4jcde4e831ar9n9610av1320s9.apps.googleusercontent.com",
+	   "project_id":"orgtasksak",
+           "auth_uri":"https://accounts.google.com/o/oauth2/auth",
+           "token_uri":"https://oauth2.googleapis.com/token",
+           "auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs"
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBLqXwszuCxCXdYRz7FCgpJa9Kufo4cs8E"
+          "current_key": "AIzaSyAMT93QLcPWBLJFG7UsgbjT3H7LYvQONYA"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "448612483090-ns27d5rn3nm5nh4fjrkc22ag9qslkuho.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }
