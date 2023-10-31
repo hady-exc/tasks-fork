@@ -174,9 +174,10 @@ private fun PopupContent(save: (String) -> Unit = {},
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp, 8.dp, 8.dp, 0.dp)
+                    .focusRequester(requester)
                     .onFocusChanged {
                         if (it.hasFocus || it.isFocused) keyboardController!!.show()
-                    }*/,
+                    },
                 singleLine = true,
                 enabled = true,
                 readOnly = false,
