@@ -13,6 +13,7 @@ buildscript {
         classpath(libs.oss.licenses.plugin)
     }
 }
+
 val tasksStorePassword by extra("3tyd990")
 val tasksKeyAlias by extra("Android-hady-key0")
 val tasksKeyPassword by extra("3tyd990")
