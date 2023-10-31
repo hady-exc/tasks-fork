@@ -25,10 +25,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Clear
-import androidx.compose.material.icons.outlined.Done
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -84,7 +80,9 @@ private class WindowBottomPositionProvider(
         layoutDirection: LayoutDirection,
         popupContentSize: IntSize
     ): IntOffset {
-        return IntOffset(0, rootViewBottomY - popupContentSize.height )
+        val bottomBar = ViewBindings.findChildViewById<BottomAppBar>(rootView, R.id.bottomAppBar)
+        val bY = if ( bottomBar!!.isVisible ) bottomBar!!.height else 154  /* TODO(find bottom bar height) */
+        return IntOffset(0, (windowSize.height - popupContentSize.height + bY ) )
     }
 }
 @Composable
