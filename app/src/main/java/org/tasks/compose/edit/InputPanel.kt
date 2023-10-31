@@ -31,6 +31,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -44,7 +45,6 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.isVisible
 import androidx.viewbinding.ViewBindings
 import com.google.android.material.bottomappbar.BottomAppBar
-import com.google.android.material.internal.ContextUtils.getActivity
 import org.tasks.R
 
 class WindowBottomPositionProvider(
@@ -57,8 +57,8 @@ class WindowBottomPositionProvider(
         popupContentSize: IntSize
     ): IntOffset {
         val bottomBar = ViewBindings.findChildViewById<BottomAppBar>(rootView, R.id.bottomAppBar)
-        val by = if ( bottomBar!!.isVisible ) bottomBar!!.height else 154  /* TODO(find bottom bar height) */
-        return IntOffset(0, (windowSize.height - popupContentSize.height + by ) )
+        val bY = if ( bottomBar!!.isVisible ) bottomBar!!.height else 154  /* TODO(find bottom bar height) */
+        return IntOffset(0, (windowSize.height - popupContentSize.height + bY ) )
     }
 }
 @Composable
@@ -121,15 +121,15 @@ private fun PopupContent(save: (String) -> Unit = {},
                 onValueChange = { text.value = it },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp,8.dp,8.dp,0.dp)
+                    .padding(8.dp, 8.dp, 8.dp, 0.dp)
                     .focusRequester(requester)
-                    /*.onFocusChanged {
+                    .onFocusChanged {
                         if (it.hasFocus || it.isFocused) keyboardController!!.show()
-                    }*/,
+                    },
                 singleLine = true,
                 enabled = true,
                 readOnly = false,
-                placeholder = { Text("Task name") },
+                placeholder = { Text( stringResource(id = R.string.TEA_title_hint) ) }, /* Task title */
                 keyboardActions = KeyboardActions(onDone =  {
                     doSave()
                 } ),
