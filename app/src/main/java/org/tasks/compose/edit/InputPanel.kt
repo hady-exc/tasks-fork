@@ -15,10 +15,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Clear
-import androidx.compose.material.icons.outlined.Done
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -31,6 +27,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -44,10 +42,9 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.isVisible
 import androidx.viewbinding.ViewBindings
 import com.google.android.material.bottomappbar.BottomAppBar
-import com.google.android.material.internal.ContextUtils.getActivity
 import org.tasks.R
 
-class WindowBottomPositionProvider(
+private class WindowBottomPositionProvider(
     val rootView: CoordinatorLayout?
 ) : PopupPositionProvider {
     override fun calculatePosition(
@@ -57,28 +54,26 @@ class WindowBottomPositionProvider(
         popupContentSize: IntSize
     ): IntOffset {
         val bottomBar = ViewBindings.findChildViewById<BottomAppBar>(rootView, R.id.bottomAppBar)
-        val by = if ( bottomBar!!.isVisible ) bottomBar!!.height else 154  /* TODO(find bottom bar height) */
-        return IntOffset(0, (windowSize.height - popupContentSize.height + by ) )
+        val bY = if ( bottomBar!!.isVisible ) bottomBar.height else 154  /* TODO(find bottom bar height) */
+        return IntOffset(0, (windowSize.height - popupContentSize.height + bY ) )
     }
 }
 @Composable
-fun InputPanel(control: MutableState<Boolean>?,
+fun InputPanel(showPopup: MutableState<Boolean>,
                rootView: CoordinatorLayout?,
                save: (String) -> Unit,
-               edit: (String) -> Unit) {
-    val popupVisible = control
-    if ( popupVisible!!.value ) {
+               edit: (String) -> Unit )
+{
+    val showPopup = showPopup
+
+    if ( showPopup.value ) {
         MaterialTheme {
             Popup(
                 popupPositionProvider = WindowBottomPositionProvider(rootView),
-                onDismissRequest = { popupVisible.value = false },
-                properties = PopupProperties(
-                    focusable = true,
-                    dismissOnClickOutside = true )
-            )
-            {
-                PopupContent(save, { popupVisible.value = false; edit(it) }, { popupVisible.value = false } )
-                // Composable content to be shown in the Popup
+                onDismissRequest = { showPopup.value = false },
+                properties = PopupProperties( focusable = true, dismissOnClickOutside = true )
+            ) {
+                PopupContent(save, { showPopup.value = false; edit(it) }, { showPopup.value = false } )
             }
         }
     }
@@ -89,14 +84,12 @@ fun InputPanel(control: MutableState<Boolean>?,
 private fun PopupContent(save: (String) -> Unit = {},
                          edit: (String) -> Unit = {},
                          close: () -> Unit = {}) {
+
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Card(
         backgroundColor = Color.LightGray,
-        shape = RoundedCornerShape(
-            topStart = 9.dp,
-            topEnd = 9.dp
-        )
+        shape = RoundedCornerShape(topStart = 9.dp, topEnd = 9.dp)
     ) {
         Column(
             modifier = Modifier
@@ -121,18 +114,16 @@ private fun PopupContent(save: (String) -> Unit = {},
                 onValueChange = { text.value = it },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp,8.dp,8.dp,0.dp)
+                    .padding(8.dp, 8.dp, 8.dp, 0.dp)
                     .focusRequester(requester)
-                    /*.onFocusChanged {
+                    .onFocusChanged {
                         if (it.hasFocus || it.isFocused) keyboardController!!.show()
-                    }*/,
+                    },
                 singleLine = true,
                 enabled = true,
                 readOnly = false,
-                placeholder = { Text("Task name") },
-                keyboardActions = KeyboardActions(onDone =  {
-                    doSave()
-                } ),
+                placeholder = { Text( stringResource(id = R.string.TEA_title_hint) ) }, /* "Task name" */
+                keyboardActions = KeyboardActions(onDone = { doSave() } ),
                 colors = TextFieldDefaults.textFieldColors(
                     backgroundColor = Color.LightGray,
                     focusedIndicatorColor = Color.DarkGray
@@ -152,7 +143,10 @@ private fun PopupContent(save: (String) -> Unit = {},
                     modifier = Modifier.padding(8.dp,0.dp,8.dp,8.dp),  //(8.dp, 8.dp),
                     onClick = { doEdit() }
                 ) {
-                    Icon(Icons.Outlined.Edit, contentDescription = "Details")
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_outline_settings_24px),
+                        contentDescription = "Details"
+                    )
                 }
                 Row(horizontalArrangement = Arrangement.End,
                     modifier = Modifier.fillMaxWidth() )
@@ -162,14 +156,20 @@ private fun PopupContent(save: (String) -> Unit = {},
                             modifier = Modifier.padding(8.dp,0.dp,8.dp,8.dp),
                             onClick = { close() }
                         ) {
-                            Icon(Icons.Outlined.Clear, contentDescription = "Close")
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_outline_clear_24px),
+                                contentDescription = "Close"
+                            )
                         }
                     } else {
                         IconButton(
                             modifier = Modifier.padding(8.dp,0.dp,8.dp,8.dp),
                             onClick = { doSave() }
                         ) {
-                            Icon(Icons.Outlined.Done, contentDescription = "Done")
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_outline_done_24px),
+                                contentDescription = "Close"
+                            )
                         }
                     }
                 }
