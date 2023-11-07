@@ -38,7 +38,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -157,7 +156,8 @@ private fun PopupContent(save: (String) -> Unit = {},
                 .wrapContentHeight()
                 //.background(MaterialTheme.colors.surface)
         ) {
-            val text = rememberSaveable { mutableStateOf("") }
+            val text = remember { mutableStateOf("") }
+            val requester = remember { FocusRequester() }
 
             val doSave = {
                 val string = text.value.trim()
@@ -172,10 +172,7 @@ private fun PopupContent(save: (String) -> Unit = {},
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp, 8.dp, 8.dp, 0.dp)
-                    .focusRequester(requester)
-                    .onFocusChanged {
-                        if (it.hasFocus || it.isFocused) keyboardController!!.show()
-                    },
+                    .focusRequester(requester),
                 singleLine = true,
                 enabled = true,
                 readOnly = false,
