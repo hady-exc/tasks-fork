@@ -24,7 +24,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -42,6 +41,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.isVisible
 import androidx.viewbinding.ViewBindings
 import com.google.android.material.bottomappbar.BottomAppBar
+import kotlinx.coroutines.delay
 import org.tasks.R
 
 private class WindowBottomPositionProvider(
@@ -86,6 +86,7 @@ private fun PopupContent(save: (String) -> Unit = {},
                          close: () -> Unit = {}) {
 
     val keyboardController = LocalSoftwareKeyboardController.current
+    val requester = remember { FocusRequester() }
 
     Card(
         backgroundColor = Color.LightGray,
@@ -98,7 +99,6 @@ private fun PopupContent(save: (String) -> Unit = {},
                 //.background(MaterialTheme.colors.surface)
         ) {
             val text = remember { mutableStateOf("") }
-            val requester = remember { FocusRequester() }
 
             val doSave = {
                 if (text.value != "") save(text.value)
@@ -115,10 +115,7 @@ private fun PopupContent(save: (String) -> Unit = {},
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp, 8.dp, 8.dp, 0.dp)
-                    .focusRequester(requester)
-                    .onFocusChanged {
-                        if (it.hasFocus || it.isFocused) keyboardController!!.show()
-                    },
+                    .focusRequester(requester),
                 singleLine = true,
                 enabled = true,
                 readOnly = false,
@@ -130,8 +127,15 @@ private fun PopupContent(save: (String) -> Unit = {},
                 )
             )
 
-            LaunchedEffect(Unit) {
-                requester.requestFocus()
+           LaunchedEffect(null) {
+               requester.requestFocus()
+               /* It's hard to believe but this delay is necessary because
+                  focus requester works via queue in some delayed coroutine and
+                  the isFocused state is not set on return from requestFocus.
+                  As a consequence soft...Input.show() is ignored because "the view is not served"
+               * */
+               delay(10)
+               keyboardController!!.show()
             }
 
             Row (

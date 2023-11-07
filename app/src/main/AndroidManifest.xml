@@ -3,7 +3,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="internalOnly"
-    android:enableOnBackInvokedCallback="true">
+    android:enableOnBackInvokedCallback="true"
+    tools:targetApi="tiramisu">
 
   <!-- ================================================== Used Permissions = -->
 
@@ -161,11 +162,11 @@
     android:backupAgent="org.tasks.backup.TasksBackupAgent"
     android:backupInForeground="true"
     android:fullBackupOnly="false"
-    android:icon="@mipmap/ic_launcher_blue"
+    android:icon="@mipmap/ic_launcher_blue_grey"
     android:label="@string/app_name"
     android:manageSpaceActivity="org.tasks.preferences.ManageSpaceActivity"
     android:name=".Tasks"
-    android:roundIcon="@mipmap/ic_launcher_blue"
+    android:roundIcon="@mipmap/ic_launcher_blue_grey"
     android:supportsRtl="true"
     android:theme="@style/Tasks"
     tools:ignore="GoogleAppIndexingWarning,UnusedAttribute"
