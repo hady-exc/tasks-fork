@@ -134,7 +134,7 @@ private fun PopupContent(save: (String) -> Unit = {},
                   the isFocused state is not set on return from requestFocus.
                   As a consequence soft...Input.show() is ignored because "the view is not served"
                * */
-               delay(10)
+               delay(12)
                keyboardController!!.show()
             }
 
