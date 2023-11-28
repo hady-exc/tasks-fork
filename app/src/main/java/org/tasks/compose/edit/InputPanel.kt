@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -26,8 +27,10 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -89,14 +92,14 @@ private fun PopupContent(save: (String) -> Unit = {},
     val requester = remember { FocusRequester() }
 
     Card(
-        backgroundColor = Color.LightGray,
+        backgroundColor = colorResource(R.color.input_popup_background),
+        contentColor = colorResource(R.color.input_popup_foreground),
         shape = RoundedCornerShape(topStart = 9.dp, topEnd = 9.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                //.background(MaterialTheme.colors.surface)
         ) {
             val text = remember { mutableStateOf("") }
 
@@ -120,9 +123,10 @@ private fun PopupContent(save: (String) -> Unit = {},
                 enabled = true,
                 readOnly = false,
                 placeholder = { Text( stringResource(id = R.string.TEA_title_hint) ) }, /* "Task name" */
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                 keyboardActions = KeyboardActions(onDone = { doSave() } ),
                 colors = TextFieldDefaults.textFieldColors(
-                    backgroundColor = Color.LightGray,
+                    backgroundColor = Color.Transparent,
                     focusedIndicatorColor = Color.DarkGray
                 )
             )
