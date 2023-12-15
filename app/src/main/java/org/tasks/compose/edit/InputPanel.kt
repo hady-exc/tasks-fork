@@ -104,11 +104,13 @@ private fun PopupContent(save: (String) -> Unit = {},
             val text = remember { mutableStateOf("") }
 
             val doSave = {
-                if (text.value != "") save(text.value)
+                val string = text.value.trim()
+                if (string != "") save(string)
                 text.value = ""
             }
             val doEdit = {
-                if (text.value != "") edit(text.value)
+                val string = text.value.trim()
+                if (string != "") edit(string)
                 text.value = ""
             }
 

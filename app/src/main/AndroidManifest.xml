@@ -625,8 +625,12 @@
         android:name=".auth.MicrosoftAuthenticationActivity"
         android:theme="@style/TranslucentDialog"/>
 
+    <!--  android:windowSoftInputMode="adjustResize"
+     -->
+
     <activity
       android:launchMode="singleTask"
+      android:resizeableActivity="true"
       android:exported="true"
       android:name="com.todoroo.astrid.activity.MainActivity">
       <intent-filter>
