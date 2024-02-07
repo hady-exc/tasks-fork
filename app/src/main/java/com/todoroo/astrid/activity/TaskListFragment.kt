@@ -13,7 +13,6 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.speech.RecognizerIntent
 import android.view.*
-import android.view.inputmethod.InputMethodManager
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
@@ -26,7 +25,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.view.forEach
 import androidx.core.view.isVisible
 import androidx.core.view.setMargins
@@ -242,7 +240,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             .launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
-    var inputPannelVisible = mutableStateOf( false )
+    private val inputPanelVisible = mutableStateOf( false )
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -254,15 +252,11 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             coordinatorLayout = taskListCoordinator
             recyclerView = bodyStandard.recyclerView
             fab.setOnClickListener {
-                inputPannelVisible.value = true
-                // following does not work
-                //val imm = getSystemService(requireContext(), InputMethodManager::class.java)
-                //imm!!.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
-                /*createNewTask()*/
+                inputPanelVisible.value = true
             }
             fab.isVisible = filter.isWritable
             inputHost.setContent {
-                InputPanel(inputPannelVisible, taskListCoordinator,
+                InputPanel(inputPanelVisible, taskListCoordinator,
                     save = {
                     lifecycleScope.launch {
                         saveTask(addTask(it))
