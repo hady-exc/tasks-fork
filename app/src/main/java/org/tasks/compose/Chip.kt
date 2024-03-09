@@ -6,6 +6,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Cancel
@@ -60,6 +61,7 @@ fun Chip(
         FilterChip(
             selected = false,
             onClick = onClick,
+            shape =  MaterialTheme.shapes.small.copy(CornerSize(percent = 30)),
             border = BorderStroke(1.dp, color = color),
             leadingIcon = {
                 if (text != null) {
