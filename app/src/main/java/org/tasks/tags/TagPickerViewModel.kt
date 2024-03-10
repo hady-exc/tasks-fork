@@ -1,6 +1,9 @@
 package org.tasks.tags
 
-import androidx.lifecycle.*
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import org.tasks.Strings.isNullOrEmpty
@@ -22,6 +25,10 @@ class TagPickerViewModel @Inject constructor(
 
     fun observe(owner: LifecycleOwner, observer: (List<TagData>) -> Unit) =
             tags.observe(owner, observer)
+
+    /* The property to access selected tags list from the @Composable activity */
+    val tagsList: MutableLiveData<List<TagData>>
+        get() = tags
 
     fun setSelected(selected: List<TagData>, partiallySelected: List<TagData>?) {
         this.selected.addAll(selected)
@@ -85,5 +92,12 @@ class TagPickerViewModel @Inject constructor(
             selected.remove(tagData)
             State.UNCHECKED
         }
+    }
+
+    suspend fun createNew(name: String) {
+        val tagData = TagData(name)
+        tagDataDao.createNew(tagData)
+        selected.add(tagData)
+        search("")
     }
 }
