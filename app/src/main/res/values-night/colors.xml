@@ -13,4 +13,8 @@
   <color name="text_tertiary">@color/white_38</color>
   <color name="overdue">@color/error_color_material_dark</color>
   <color name="divider">@color/white_12</color>
+
+  <color name="input_popup_background">#ff707070</color>
+  <color name="input_popup_foreground">@color/white_87</color>
+
 </resources>
