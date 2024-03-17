@@ -21,7 +21,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
@@ -73,6 +72,11 @@ import org.tasks.R
 private class WindowBottomPositionProvider(
     val rootViewBottomY: Int    /* positioning anchor point */
 ) : PopupPositionProvider {
+
+    /*
+    * Aligns the popup bottom with the bottom of the coordinator_layout
+    * which is aligned with the top of the IME by the system
+    */
     override fun calculatePosition(
         anchorBounds: IntRect,
         windowSize: IntSize,
@@ -154,7 +158,6 @@ private fun PopupContent(save: (String) -> Unit = {},
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                //.background(MaterialTheme.colors.surface)
         ) {
             val text = remember { mutableStateOf("") }
             val requester = remember { FocusRequester() }
@@ -188,12 +191,11 @@ private fun PopupContent(save: (String) -> Unit = {},
 
            LaunchedEffect(null) {
                requester.requestFocus()
-               /* The delay below is a workaround trick necessary because
+               /* The delay below is a trick necessary because
                   focus requester works via queue in some delayed coroutine and
-                  the isFocused state is not set on yet on return from requestFocus() call.
-                  As a consequence keyboardController.show() is ignored by system because
-                  "the view is not served"
-                  The delay period is not the guarantee but makes it working almost always
+                  the isFocused state is not set yet on return from requestFocus.
+                  As a consequence soft...Input.show() is ignored because "the view is not served"
+                  The 12ms delay is not the guarantee but makes it working almost always
                * */
                delay(30)
                keyboardController!!.show()
