@@ -1,5 +1,6 @@
 package org.tasks.compose
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,6 +32,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
@@ -92,12 +94,15 @@ private fun PopupContent(save: (String) -> Unit = {},
 
     val keyboardController = LocalSoftwareKeyboardController.current
     val requester = remember { FocusRequester() }
+    val background = colorResource(id = R.color.input_popup_background)
+    val foreground = colorResource(id = R.color.input_popup_foreground)
 
     Card(
-        backgroundColor = colorResource(R.color.input_popup_background),
-        contentColor = colorResource(R.color.input_popup_foreground),
+        backgroundColor = background,
+        contentColor = foreground,
         shape = RoundedCornerShape(topStart = 9.dp, topEnd = 9.dp),
-        elevation = 64.dp
+        //border = BorderStroke( Dp.Hairline, foreground ),
+        elevation = 16.dp
     ) {
         Column(
             modifier = Modifier
@@ -127,12 +132,13 @@ private fun PopupContent(save: (String) -> Unit = {},
                 singleLine = true,
                 enabled = true,
                 readOnly = false,
-                placeholder = { Text( stringResource(id = R.string.TEA_title_hint), color = Color(R.color.text_secondary) ) }, /* "Task name" */
+                placeholder = { Text( stringResource(id = R.string.TEA_title_hint) ) },/* "Task name" */
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                 keyboardActions = KeyboardActions(onDone = { doSave() } ),
                 colors = TextFieldDefaults.textFieldColors(
                     backgroundColor = Color.Transparent,
-                    focusedIndicatorColor = Color.DarkGray
+                    focusedIndicatorColor = foreground,
+                    placeholderColor = foreground
                 )
             )
 

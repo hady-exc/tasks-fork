@@ -32,7 +32,7 @@
   <color name="snackbar_text_color">@color/white_87</color>
   <color name="snackbar_action_color">#f4b400</color>
   <color name="snackbar_background">@color/grey_800</color>
-  <color name="input_popup_background">#8feeeeee</color>
+  <color name="input_popup_background">#eef1f5</color>
   <color name="input_popup_foreground">@color/black_38</color>
 
   <!-- deprecated -->
