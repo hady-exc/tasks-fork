@@ -94,12 +94,14 @@ private fun PopupContent(save: (String) -> Unit = {},
 
     val keyboardController = LocalSoftwareKeyboardController.current
     val requester = remember { FocusRequester() }
+    val background = colorResource(id = R.color.input_popup_background)
+    val foreground = colorResource(id = R.color.input_popup_foreground)
 
     Card(
-        backgroundColor = colorResource(R.color.input_popup_background),
-        contentColor = colorResource(R.color.input_popup_foreground),
+        backgroundColor = background,
+        contentColor = foreground,
         shape = RoundedCornerShape(topStart = 9.dp, topEnd = 9.dp),
-        border = BorderStroke( Dp.Hairline, Color(R.color.input_popup_foreground) ),
+        //border = BorderStroke( Dp.Hairline, foreground ),
         elevation = 16.dp
     ) {
         Column(
@@ -130,12 +132,13 @@ private fun PopupContent(save: (String) -> Unit = {},
                 singleLine = true,
                 enabled = true,
                 readOnly = false,
-                placeholder = { Text( stringResource(id = R.string.TEA_title_hint), color = Color(R.color.text_tertiary) ) }, /* "Task name" */
+                placeholder = { Text( stringResource(id = R.string.TEA_title_hint) ) },/* "Task name" */
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                 keyboardActions = KeyboardActions(onDone = { doSave() } ),
                 colors = TextFieldDefaults.textFieldColors(
                     backgroundColor = Color.Transparent,
-                    focusedIndicatorColor = Color.DarkGray
+                    focusedIndicatorColor = foreground,
+                    placeholderColor = foreground
                 )
             )
 

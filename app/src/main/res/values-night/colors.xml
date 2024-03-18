@@ -12,7 +12,7 @@
   <color name="overdue">@color/error_color_material_dark</color>
   <color name="divider">@color/white_12</color>
 
-  <color name="input_popup_background">#f6707070</color>
-  <color name="input_popup_foreground">@color/white_87</color>
+  <color name="input_popup_background">#191c1f</color>
+  <color name="input_popup_foreground">@color/white_38</color>
 
 </resources>
