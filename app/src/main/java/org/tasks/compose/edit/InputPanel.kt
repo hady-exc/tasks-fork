@@ -152,6 +152,7 @@ private fun PopupContent(save: (String) -> Unit = {},
         backgroundColor = background,
         contentColor = foreground,
         shape = RoundedCornerShape(topStart = 9.dp, topEnd = 9.dp),
+        //border = BorderStroke( Dp.Hairline, foreground ),
         elevation = 16.dp
     ) {
         Column(
@@ -179,7 +180,7 @@ private fun PopupContent(save: (String) -> Unit = {},
                 singleLine = true,
                 enabled = true,
                 readOnly = false,
-                placeholder = { Text( stringResource(id = R.string.TEA_title_hint), color = Color(R.color.text_secondary) ) }, /* "Task name" */
+                placeholder = { Text( stringResource(id = R.string.TEA_title_hint) ) },/* "Task name" */
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                 keyboardActions = KeyboardActions(onDone = { doSave() } ),
                 colors = TextFieldDefaults.textFieldColors(
