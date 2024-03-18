@@ -179,7 +179,7 @@ private fun PopupContent(save: (String) -> Unit = {},
                 singleLine = true,
                 enabled = true,
                 readOnly = false,
-                placeholder = { Text( stringResource(id = R.string.TEA_title_hint) ) }, /* "Task name" */
+                placeholder = { Text( stringResource(id = R.string.TEA_title_hint), color = Color(R.color.text_secondary) ) }, /* "Task name" */
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                 keyboardActions = KeyboardActions(onDone = { doSave() } ),
                 colors = TextFieldDefaults.textFieldColors(
