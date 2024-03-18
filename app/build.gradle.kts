@@ -58,7 +58,7 @@ android {
         testApplicationId = "org.tasks.test"
         applicationId = "org.tasks.ak"
         versionCode = 7311023
-        versionName = "14.0.3"
+        versionName = "14.0.4"
         targetSdk = 33
         minSdk = 24
         testInstrumentationRunner = "org.tasks.TestRunner"
