@@ -1,10 +1,15 @@
 package org.tasks.compose
 
-import androidx.compose.foundation.BorderStroke
+import android.view.WindowMetrics
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,18 +26,20 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
@@ -72,15 +79,31 @@ fun InputPanel(showPopup: MutableState<Boolean>,
                edit: (String) -> Unit )
 {
     val showPopup = showPopup
+    val fadeColor = colorResource(R.color.input_popup_fade).copy(alpha = 0.45f)
 
     if ( showPopup.value ) {
         MdcTheme {
             Popup(
                 popupPositionProvider = WindowBottomPositionProvider(rootView),
                 onDismissRequest = { showPopup.value = false },
-                properties = PopupProperties( focusable = true, dismissOnClickOutside = true )
+                properties = PopupProperties(
+                    focusable = true,
+                    dismissOnClickOutside = true,
+                    clippingEnabled = false )
             ) {
-                PopupContent(save, { showPopup.value = false; edit(it) }, { showPopup.value = false } )
+                /* Modifier.fillMaxSize() gives height not covering the system status bar,
+                 * so this is a workaround to prevent flicking on top  */
+                val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+                Box (
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(screenHeight)
+                        .clickable { showPopup.value = false }
+                        .background(fadeColor),
+                    contentAlignment = Alignment.BottomCenter
+                ){
+                    PopupContent(save, { showPopup.value = false; edit(it) }, { showPopup.value = false } )
+                }
             }
         }
     }
@@ -109,7 +132,7 @@ private fun PopupContent(save: (String) -> Unit = {},
                 .fillMaxWidth()
                 .wrapContentHeight()
         ) {
-            val text = remember { mutableStateOf("") }
+            val text = rememberSaveable { mutableStateOf("") }
 
             val doSave = {
                 val string = text.value.trim()
