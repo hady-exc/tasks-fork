@@ -4,15 +4,15 @@
 ** See the file "LICENSE" for the full license governing this code. 
 -->
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/task_list_coordinator"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:descendantFocusability="beforeDescendants"
-    android:focusable="true"
-    android:focusableInTouchMode="true"
-    android:orientation="vertical">
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/task_list_coordinator"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent"
+  android:descendantFocusability="beforeDescendants"
+  android:focusable="true"
+  android:focusableInTouchMode="true"
+  android:orientation="vertical">
 
   <com.google.android.material.appbar.AppBarLayout
       android:id="@+id/appbarlayout"
@@ -34,8 +34,8 @@
   </com.google.android.material.appbar.AppBarLayout>
 
   <LinearLayout
-      android:layout_width="wrap_content"
-      android:layout_height="match_parent"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
       android:orientation="vertical"
       app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
@@ -46,13 +46,14 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_weight="0.5"
         android:orientation="horizontal">
 
       <FrameLayout
           android:layout_width="match_parent"
           android:layout_height="wrap_content">
+
 
         <include
             android:id="@+id/body_standard"
@@ -64,16 +65,17 @@
 
       </FrameLayout>
 
-      <!--    <View style="@style/vertical_divider" />  -->
+      <View style="@style/vertical_divider" />
 
     </LinearLayout>
 
     <androidx.compose.ui.platform.ComposeView
         android:id="@+id/input_host"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/basil"
-        android:nestedScrollingEnabled="false" />
+        android:layout_height="0dp"
+        android:layout_gravity="bottom"
+        android:backgroundTint="@color/avocado"
+        android:backgroundTintMode="screen" />
 
   </LinearLayout>
 
