@@ -94,7 +94,6 @@ import org.tasks.preferences.Device
 import org.tasks.preferences.Preferences
 import org.tasks.sync.SyncAdapters
 import org.tasks.tags.TagPickerActivity
-import org.tasks.tags.TagPickerActivityCompose
 import org.tasks.tasklist.*
 import org.tasks.themes.ColorProvider
 import org.tasks.themes.ThemeColor
@@ -253,11 +252,12 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             coordinatorLayout = taskListCoordinator
             recyclerView = bodyStandard.recyclerView
             fab.setOnClickListener {
-                inputPanelVisible.value = true
+                switchInput(true)
             }
             fab.isVisible = filter.isWritable
             inputHost.setContent {
                 InputPanel(inputPanelVisible, taskListCoordinator,
+                    switchOff = { switchInput(false) },
                     save = {
                     lifecycleScope.launch {
                         saveTask(addTask(it))
