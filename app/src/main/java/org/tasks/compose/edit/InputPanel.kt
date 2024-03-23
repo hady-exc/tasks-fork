@@ -1,5 +1,10 @@
 package org.tasks.compose
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -99,18 +104,24 @@ fun InputPanel(showPopup: MutableState<Boolean>,
                     dismissOnClickOutside = true,
                     clippingEnabled = false )
             ) {
-                /* Modifier.fillMaxSize() gives height not covering the system status bar,
-                 * so this is a workaround to prevent flicking on top  */
-                val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-                Box (
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(screenHeight)
-                        .clickable { switchOff() }
-                        .background(fadeColor),
-                    contentAlignment = Alignment.BottomCenter
-                ){
-                    PopupContent(save, { switchOff(); edit(it) }, switchOff )
+                AnimatedVisibility(
+                    visible = showPopup.value,
+                    enter = fadeIn() + expandVertically( expandFrom = Alignment.Bottom),
+                    exit = shrinkVertically()
+                ) {
+                    /* Modifier.fillMaxSize() gives height not covering the system status bar,
+                     * so this is a workaround to prevent flicking on top  */
+                    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(screenHeight)
+                            .clickable { switchOff() }
+                            .background(fadeColor),
+                        contentAlignment = Alignment.BottomCenter
+                    ) {
+                        PopupContent(save, { switchOff(); edit(it) }, switchOff)
+                    }
                 }
             }
         }
@@ -183,7 +194,7 @@ private fun PopupContent(save: (String) -> Unit = {},
                   As a consequence soft...Input.show() is ignored because "the view is not served"
                   The 12ms delay is not the guarantee but makes it working almost always
                * */
-               delay(42)
+               delay(30)
                keyboardController!!.show()
             }
 
@@ -227,7 +238,9 @@ private fun PopupContent(save: (String) -> Unit = {},
                     }
                 }
             }
-            Box(modifier = Modifier.fillMaxWidth().height(padding.value))
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .height(padding.value))
         }
     }
 }
