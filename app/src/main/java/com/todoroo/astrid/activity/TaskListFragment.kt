@@ -21,7 +21,6 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import android.view.*
-import android.view.inputmethod.InputMethodManager
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
@@ -256,7 +255,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             .launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
-    var inputPannelVisible = mutableStateOf( false )
+    private val inputPanelVisible = mutableStateOf( false )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -277,15 +276,12 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             emptyRefreshLayout = bodyEmpty.swipeLayoutEmpty
             recyclerView = bodyStandard.recyclerView
             fab.setOnClickListener {
-                inputPannelVisible.value = true
-                // following does not work
-                //val imm = getSystemService(requireContext(), InputMethodManager::class.java)
-                //imm!!.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
-                /*createNewTask()*/
+                switchInput(true)
             }
             fab.isVisible = filter.isWritable
             inputHost.setContent {
-                InputPanel(inputPannelVisible, taskListCoordinator,
+                InputPanel(inputPanelVisible, taskListCoordinator,
+                    switchOff = { switchInput(false) },
                     save = {
                     lifecycleScope.launch {
                         saveTask(addTask(it))
@@ -615,6 +611,13 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         taskDao.createNew(task)
         taskDao.save(task)
         taskMover.move(listOf(task.id), if (::filter.isInitialized) filter else getFilter() )
+    }
+
+    private fun switchInput(on: Boolean)
+    {
+        inputPanelVisible.value = on
+        binding.fab.isVisible = !on
+        if ( !preferences.isTopAppBar ) binding.bottomAppBar.isVisible = !on
     }
 
     private fun setupRefresh(layout: SwipeRefreshLayout) {
