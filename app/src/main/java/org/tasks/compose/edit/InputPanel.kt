@@ -6,8 +6,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,7 +26,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -32,12 +36,14 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
@@ -52,7 +58,7 @@ import kotlinx.coroutines.delay
 import org.tasks.R
 
 private class WindowBottomPositionProvider(
-    val rootView: CoordinatorLayout
+    val rootViewBottomY: Int    /* positioning anchor point */
 ) : PopupPositionProvider {
 
     /*
@@ -65,25 +71,29 @@ private class WindowBottomPositionProvider(
         layoutDirection: LayoutDirection,
         popupContentSize: IntSize
     ): IntOffset {
-        val rootViewXY = intArrayOf(0,0)
-        rootView.getLocationOnScreen(rootViewXY)    /* rootViewXY[1] == rootView.y */
-        return IntOffset(0, (windowSize.height + rootViewXY[1] - popupContentSize.height ) )
+        return IntOffset(0, rootViewBottomY - popupContentSize.height )
     }
 }
 @Composable
 fun InputPanel(showPopup: MutableState<Boolean>,
                rootView: CoordinatorLayout,
+               switchOff: () -> Unit,
                save: (String) -> Unit,
                edit: (String) -> Unit )
 {
     val showPopup = showPopup
-    val fadeColor = colorResource(R.color.input_popup_fade).copy(alpha = 0.45f)
+    val fadeColor = colorResource(R.color.input_popup_foreground).copy(alpha = 0.12f)
+    val getViewY: (view: CoordinatorLayout) -> Int = {
+        val rootViewXY = intArrayOf(0,0)
+        rootView.getLocationOnScreen(rootViewXY)
+        rootView.height + rootViewXY[1]   /* rootViewXY[1] == rootView.y */
+    }
 
     if ( showPopup.value ) {
         MdcTheme {
             Popup(
-                popupPositionProvider = WindowBottomPositionProvider(rootView),
-                onDismissRequest = { showPopup.value = false },
+                popupPositionProvider = WindowBottomPositionProvider(remember { getViewY(rootView) }),
+                onDismissRequest = switchOff,
                 properties = PopupProperties(
                     focusable = true,
                     dismissOnClickOutside = true,
@@ -96,11 +106,11 @@ fun InputPanel(showPopup: MutableState<Boolean>,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(screenHeight)
-                        .clickable { showPopup.value = false }
+                        .clickable { switchOff() }
                         .background(fadeColor),
                     contentAlignment = Alignment.BottomCenter
                 ){
-                    PopupContent(save, { showPopup.value = false; edit(it) }, { showPopup.value = false } )
+                    PopupContent(save, { switchOff(); edit(it) }, switchOff )
                 }
             }
         }
@@ -117,8 +127,10 @@ private fun PopupContent(save: (String) -> Unit = {},
     val requester = remember { FocusRequester() }
     val background = colorResource(id = R.color.input_popup_background)
     val foreground = colorResource(id = R.color.input_popup_foreground)
+    val padding = keyboardHeight()
 
     Card(
+        //modifier = Modifier.padding(bottom = padding.value),
         backgroundColor = background,
         contentColor = foreground,
         shape = RoundedCornerShape(topStart = 9.dp, topEnd = 9.dp),
@@ -171,7 +183,7 @@ private fun PopupContent(save: (String) -> Unit = {},
                   As a consequence soft...Input.show() is ignored because "the view is not served"
                   The 12ms delay is not the guarantee but makes it working almost always
                * */
-               delay(12)
+               delay(42)
                keyboardController!!.show()
             }
 
@@ -215,7 +227,15 @@ private fun PopupContent(save: (String) -> Unit = {},
                     }
                 }
             }
+            Box(modifier = Modifier.fillMaxWidth().height(padding.value))
         }
+    }
+}
+
+@Composable
+fun keyboardHeight(): State<Dp> {
+    with ( LocalDensity.current ) {
+        return rememberUpdatedState( WindowInsets.ime.getBottom(LocalDensity.current).toDp() )
     }
 }
 
