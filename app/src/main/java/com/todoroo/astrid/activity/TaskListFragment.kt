@@ -684,9 +684,12 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
 
     private fun switchInput(on: Boolean)
     {
-        inputPanelVisible.value = on
-        binding.fab.isVisible = !on
-        if ( !preferences.isTopAppBar ) binding.bottomAppBar.isVisible = !on
+        lifecycleScope.launch {
+            inputPanelVisible.value = on
+            if (!on) delay(100)  /* to prevent Fab flicker before soft  keyboard disappear */
+            binding.fab.isVisible = !on
+            if ( !preferences.isTopAppBar ) binding.bottomAppBar.isVisible = !on
+        }
     }
 
     private fun setupRefresh(layout: SwipeRefreshLayout) {
