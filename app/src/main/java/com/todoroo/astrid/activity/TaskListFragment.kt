@@ -94,6 +94,7 @@ import org.tasks.preferences.Device
 import org.tasks.preferences.Preferences
 import org.tasks.sync.SyncAdapters
 import org.tasks.tags.TagPickerActivity
+import org.tasks.tags.TagPickerActivityCompose
 import org.tasks.tasklist.*
 import org.tasks.themes.ColorProvider
 import org.tasks.themes.ThemeColor
@@ -544,6 +545,13 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         taskDao.createNew(task)
         taskDao.save(task)
         taskMover.move(listOf(task.id), if (::filter.isInitialized) filter else getFilter() )
+    }
+
+    private fun switchInput(on: Boolean)
+    {
+        inputPanelVisible.value = on
+        binding.fab.isVisible = !on
+        if ( !preferences.isTopAppBar ) binding.bottomAppBar.isVisible = !on
     }
 
     private fun setupRefresh(layout: SwipeRefreshLayout) {
