@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
@@ -48,6 +49,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
@@ -82,9 +84,7 @@ private class WindowBottomPositionProvider(
         layoutDirection: LayoutDirection,
         popupContentSize: IntSize
     ): IntOffset {
-        val bottomBar = ViewBindings.findChildViewById<BottomAppBar>(rootView, R.id.bottomAppBar)
-        val bY = if ( bottomBar!!.isVisible ) bottomBar!!.height else 154  /* TODO(find bottom bar height) */
-        return IntOffset(0, (windowSize.height - popupContentSize.height + bY ) )
+        return IntOffset(0, rootViewBottomY - popupContentSize.height )
     }
 }
 @Composable
@@ -148,6 +148,7 @@ private fun PopupContent(save: (String) -> Unit = {},
     val padding = keyboardHeight()
 
     Card(
+        //modifier = Modifier.padding(bottom = padding.value),
         backgroundColor = background,
         contentColor = foreground,
         shape = RoundedCornerShape(topStart = 9.dp, topEnd = 9.dp),

@@ -320,6 +320,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             inputHost.setContent {
                 InputPanel(inputPanelVisible, taskListCoordinator,
                     switchOff = { switchInput(false) },
+                    switchOff = { switchInput(false) },
                     save = {  title ->
                         lifecycleScope.launch {
                             saveTask( addTask(title) )
@@ -679,6 +680,13 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             binding.fab.isVisible = !on
             if ( !preferences.isTopAppBar ) binding.bottomAppBar.isVisible = !on
         }
+    }
+
+    private fun switchInput(on: Boolean)
+    {
+        inputPanelVisible.value = on
+        binding.fab.isVisible = !on
+        if ( !preferences.isTopAppBar ) binding.bottomAppBar.isVisible = !on
     }
 
     private fun setupRefresh(layout: SwipeRefreshLayout) {
