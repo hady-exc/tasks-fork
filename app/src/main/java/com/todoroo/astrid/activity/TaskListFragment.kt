@@ -90,6 +90,7 @@ import org.tasks.extensions.setOnQueryTextListener
 import org.tasks.filters.PlaceFilter
 import org.tasks.intents.TaskIntents
 import org.tasks.notifications.NotificationManager
+import org.tasks.preferences.DefaultFilterProvider
 import org.tasks.preferences.Device
 import org.tasks.preferences.Preferences
 import org.tasks.sync.SyncAdapters
@@ -135,7 +136,8 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     @Inject lateinit var repeatTaskHelper: RepeatTaskHelper
     @Inject lateinit var taskListEventBus: TaskListEventBus
     @Inject lateinit var taskEditEventBus: TaskEditEventBus
-    
+    @Inject lateinit var defaultFilterProvider: DefaultFilterProvider
+
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var emptyRefreshLayout: SwipeRefreshLayout
     private lateinit var coordinatorLayout: CoordinatorLayout
@@ -543,7 +545,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     private suspend fun saveTask(task: Task) {
         taskDao.createNew(task)
         taskDao.save(task)
-        taskMover.move(listOf(task.id), if (::filter.isInitialized) filter else getFilter() )
+        taskMover.move(listOf(task.id), defaultFilterProvider.getList(task))
     }
 
     private fun switchInput(on: Boolean)
