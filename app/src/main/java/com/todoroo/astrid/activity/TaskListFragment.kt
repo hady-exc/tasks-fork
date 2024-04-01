@@ -666,20 +666,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     private suspend fun saveTask(task: Task) {
         taskDao.createNew(task)
         taskDao.save(task)
-        val list =
-            if ( filter is CaldavFilter || filter is GtasksFilter ) filter
-            else defaultFilterProvider.getList(task)
-        taskMover.move( listOf(task.id), list )
-    }
-
-    private fun switchInput(on: Boolean)
-    {
-        lifecycleScope.launch {
-            inputPanelVisible.value = on
-            if (!on) delay(100)  /* to prevent Fab flicker before soft  keyboard disappear */
-            binding.fab.isVisible = !on
-            if ( !preferences.isTopAppBar ) binding.bottomAppBar.isVisible = !on
-        }
+        taskMover.move(listOf(task.id), defaultFilterProvider.getList(task))
     }
 
     private fun switchInput(on: Boolean)
