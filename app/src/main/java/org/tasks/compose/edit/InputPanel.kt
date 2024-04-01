@@ -160,11 +160,7 @@ private fun PopupContent(save: (String) -> Unit = {},
                 if (string != "") save(string)
                 text.value = ""
             }
-            val doEdit = {
-                val string = text.value.trim()
-                if (string != "") edit(string)
-                text.value = ""
-            }
+            val doEdit = { edit(text.value.trim()) }
 
             TextField(
                 value = text.value,
@@ -176,7 +172,7 @@ private fun PopupContent(save: (String) -> Unit = {},
                 singleLine = true,
                 enabled = true,
                 readOnly = false,
-                placeholder = { Text( stringResource(id = R.string.TEA_title_hint) ) },/* "Task name" */
+                placeholder = { Text( stringResource(id = R.string.TEA_title_hint) ) }, /* "Task name" */
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                 keyboardActions = KeyboardActions(onDone = { doSave() } ),
                 colors = TextFieldDefaults.textFieldColors(
