@@ -545,7 +545,9 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     private suspend fun saveTask(task: Task) {
         taskDao.createNew(task)
         taskDao.save(task)
-        taskMover.move(listOf(task.id), defaultFilterProvider.getList(task))
+        var list = if ( ::filter.isInitialized ) filter else getFilter()
+        if ( list !is CaldavFilter && list !is GtasksFilter ) list = defaultFilterProvider.getList(task)
+        taskMover.move( listOf(task.id), list )
     }
 
     private fun switchInput(on: Boolean)
