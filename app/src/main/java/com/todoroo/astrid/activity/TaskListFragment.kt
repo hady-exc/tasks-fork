@@ -316,12 +316,12 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             inputHost.setContent {
                 InputPanel(inputPanelVisible, taskListCoordinator,
                     switchOff = { switchInput(false) },
-                    save = {
-                    lifecycleScope.launch {
-                        saveTask(addTask(it))
+                    save = {  title ->
+                        lifecycleScope.launch {
+                            saveTask( addTask(title) )
                         }
                     },
-                    edit = { createNewTask(it) }
+                    edit = { title -> createNewTask(title) }
                 )
             }
         }
@@ -667,8 +667,9 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     private suspend fun saveTask(task: Task) {
         taskDao.createNew(task)
         taskDao.save(task)
-        var list = if ( ::filter.isInitialized ) filter else getFilter()
-        if ( list !is CaldavFilter && list !is GtasksFilter ) list = defaultFilterProvider.getList(task)
+        val list =
+            if ( filter is CaldavFilter || filter is GtasksFilter ) filter
+            else defaultFilterProvider.getList(task)
         taskMover.move( listOf(task.id), list )
     }
 
