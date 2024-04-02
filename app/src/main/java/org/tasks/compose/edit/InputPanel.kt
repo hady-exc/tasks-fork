@@ -1,9 +1,8 @@
-package org.tasks.compose
+package org.tasks.compose.edit
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -62,14 +61,13 @@ import com.google.android.material.composethemeadapter.MdcTheme
 import kotlinx.coroutines.delay
 import org.tasks.R
 
+/*
+* Aligns the popup bottom with the bottom of the coordinator_layout
+* which is aligned with the top of the IME by the system
+*/
 private class WindowBottomPositionProvider(
     val rootViewBottomY: Int    /* positioning anchor point */
 ) : PopupPositionProvider {
-
-    /*
-    * Aligns the popup bottom with the bottom of the coordinator_layout
-    * which is aligned with the top of the IME by the system
-    */
     override fun calculatePosition(
         anchorBounds: IntRect,
         windowSize: IntSize,
@@ -86,7 +84,6 @@ fun InputPanel(showPopup: MutableState<Boolean>,
                save: (String) -> Unit,
                edit: (String) -> Unit )
 {
-    val showPopup = showPopup
     val fadeColor = colorResource(R.color.input_popup_foreground).copy(alpha = 0.12f)
     val getViewY: (view: CoordinatorLayout) -> Int = {
         val rootViewXY = intArrayOf(0,0)
@@ -110,7 +107,7 @@ fun InputPanel(showPopup: MutableState<Boolean>,
                     exit = shrinkVertically()
                 ) {
                     /* Modifier.fillMaxSize() gives height not covering the system status bar,
-                     * so this is a workaround to prevent flicking on top  */
+                     * so screenHeight used as a workaround to prevent flicking on top  */
                     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
                     Box(
                         modifier = Modifier
@@ -141,11 +138,9 @@ private fun PopupContent(save: (String) -> Unit = {},
     val padding = keyboardHeight()
 
     Card(
-        //modifier = Modifier.padding(bottom = padding.value),
         backgroundColor = background,
         contentColor = foreground,
         shape = RoundedCornerShape(topStart = 9.dp, topEnd = 9.dp),
-        //border = BorderStroke( Dp.Hairline, foreground ),
         elevation = 16.dp
     ) {
         Column(
@@ -184,11 +179,12 @@ private fun PopupContent(save: (String) -> Unit = {},
 
            LaunchedEffect(null) {
                requester.requestFocus()
-               /* The delay below is a trick necessary because
+               /* The delay below is a workaround trick necessary because
                   focus requester works via queue in some delayed coroutine and
-                  the isFocused state is not set yet on return from requestFocus.
-                  As a consequence soft...Input.show() is ignored because "the view is not served"
-                  The 12ms delay is not the guarantee but makes it working almost always
+                  the isFocused state is not set on yet on return from requestFocus() call.
+                  As a consequence keyboardController.show() is ignored by system because
+                  "the view is not served"
+                  The delay period is not the guarantee but makes it working almost always
                * */
                delay(30)
                keyboardController!!.show()
