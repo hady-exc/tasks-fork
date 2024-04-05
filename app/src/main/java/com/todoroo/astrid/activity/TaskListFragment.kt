@@ -98,6 +98,7 @@ import org.tasks.compose.InputPanel
 import org.tasks.compose.collectAsStateLifecycleAware
 import org.tasks.compose.edit.InputPanel
 import org.tasks.data.CaldavDao
+import org.tasks.data.TagDao
 import org.tasks.data.Tag
 import org.tasks.data.TagDataDao
 import org.tasks.data.TaskContainer
