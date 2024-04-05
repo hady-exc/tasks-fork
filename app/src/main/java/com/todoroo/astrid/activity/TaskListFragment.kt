@@ -73,6 +73,7 @@ import org.tasks.caldav.BaseCaldavCalendarSettingsActivity
 import org.tasks.compose.SubscriptionNagBanner
 import org.tasks.compose.edit.InputPanel
 import org.tasks.data.CaldavDao
+import org.tasks.data.TagDao
 import org.tasks.data.TagDataDao
 import org.tasks.data.TaskContainer
 import org.tasks.databinding.FragmentTaskListBinding
@@ -125,6 +126,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     @Inject lateinit var taskAdapterProvider: TaskAdapterProvider
     @Inject lateinit var taskDao: TaskDao
     @Inject lateinit var taskDuplicator: TaskDuplicator
+    @Inject lateinit var tagDao: TagDao
     @Inject lateinit var tagDataDao: TagDataDao
     @Inject lateinit var caldavDao: CaldavDao
     @Inject lateinit var defaultThemeColor: ThemeColor
@@ -550,6 +552,8 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             if ( filter is CaldavFilter || filter is GtasksFilter ) filter
             else defaultFilterProvider.getList(task)
         taskMover.move( listOf(task.id), list )
+        val tags = task.tags.mapNotNull { tagDataDao.getTagByName(it) }
+        tagDao.insert(task, tags)
     }
 
     private fun switchInput(on: Boolean)
