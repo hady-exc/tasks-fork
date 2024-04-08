@@ -20,6 +20,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -32,7 +33,6 @@ import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.TriStateCheckbox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -44,7 +44,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.state.ToggleableState
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import com.google.android.material.composethemeadapter.MdcTheme
@@ -69,48 +68,28 @@ class TagPickerActivityCompose : ThemedInjectingAppCompatActivity() {
 
     private val viewModel: TagPickerViewModel by viewModels()
     private var taskIds: ArrayList<Long>? = null
-    private val searchPattern = mutableStateOf("")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val intent = intent
-        taskIds = intent.getSerializableExtra(TagPickerActivity.EXTRA_TASKS) as ArrayList<Long>?
+        taskIds = intent.getSerializableExtra(EXTRA_TASKS) as ArrayList<Long>?
         if (savedInstanceState == null) {
-            val selected = intent.getParcelableArrayListExtra<TagData>(TagPickerActivity.EXTRA_SELECTED)
+            val selected = intent.getParcelableArrayListExtra<TagData>(EXTRA_SELECTED)
             if ( selected != null ) {
                 viewModel.setSelected(
-                    selected, intent.getParcelableArrayListExtra<TagData>(TagPickerActivity.EXTRA_PARTIALLY_SELECTED)
+                    selected, intent.getParcelableArrayListExtra<TagData>(EXTRA_PARTIALLY_SELECTED)
                 )
             }
         }
 
-        searchPattern.value = viewModel.text ?: ""
-        viewModel.search(searchPattern.value)
+        viewModel.search("")
 
         setContent {
             MdcTheme {
                 TagPicker(
-                    searchPattern,
-                    viewModel.tagsList.observeAsState(initial = emptyList()),
-                    onTextChange = { newText ->
-                        viewModel.search(newText); searchPattern.value = newText
-                    },
+                    viewModel,
                     onBackClicked = { onBackPressed() },
-                    checkedState = {
-                        when (viewModel.getState(it)) {
-                            CheckBoxTriStates.State.CHECKED -> ToggleableState.On
-                            CheckBoxTriStates.State.PARTIALLY_CHECKED -> ToggleableState.Indeterminate
-                            else -> ToggleableState.Off
-                        }
-                    },
-                    onTagClicked = {
-                        onToggle(
-                            it,
-                            viewModel.getState(it) != CheckBoxTriStates.State.CHECKED
-                        )
-                    },
-                    createTag = { onNewTag(it.name!!); searchPattern.value = "" },
                     getTagIcon = { tagData ->  getIcon(tagData) },
                     getTagColor = { tagData ->  getColor(tagData) }
                 )
@@ -118,14 +97,8 @@ class TagPickerActivityCompose : ThemedInjectingAppCompatActivity() {
         }
     } /* onCreate */
 
-    private fun onToggle(tag: TagData, checked: Boolean) =
-        viewModel.viewModelScope.launch { viewModel.toggle(tag, checked) }
-
-    private fun onNewTag(name: String) =
-        viewModel.viewModelScope.launch { viewModel.createNew(name) }
-
     override fun onBackPressed() {
-        if (Strings.isNullOrEmpty(viewModel.text)) {
+        if (Strings.isNullOrEmpty(viewModel.searchText.value)) {
             val data = Intent()
             data.putExtra(EXTRA_TASKS, taskIds)
             data.putParcelableArrayListExtra(EXTRA_PARTIALLY_SELECTED, viewModel.getPartiallySelected())
@@ -133,7 +106,6 @@ class TagPickerActivityCompose : ThemedInjectingAppCompatActivity() {
             setResult(Activity.RESULT_OK, data)
             finish()
         } else {
-            searchPattern.value = ""
             viewModel.search("")
         }
     } /* onBackPressed */
@@ -158,7 +130,7 @@ class TagPickerActivityCompose : ThemedInjectingAppCompatActivity() {
         return iconResource
     }
 
-    /* Copy og the TagPickerActivity's companion object */
+    /* Copy of the TagPickerActivity's companion object */
     companion object {
         const val EXTRA_SELECTED = "extra_tags"
         const val EXTRA_PARTIALLY_SELECTED = "extra_partial"
@@ -168,13 +140,8 @@ class TagPickerActivityCompose : ThemedInjectingAppCompatActivity() {
 
 @Composable
 internal fun TagPicker(
-    searchPattern: MutableState<String>,
-    tagsList: State<List<TagData>>,         /* tags selected in accordance to searchText */
-    onTextChange: (String) -> Unit = {},
+    viewModel: TagPickerViewModel,
     onBackClicked: () -> Unit,
-    checkedState: (TagData) -> ToggleableState = { ToggleableState.Off },
-    onTagClicked: (TagData) -> Unit,
-    createTag: (TagData) -> Unit,
     getTagIcon: (TagData) -> Int,
     getTagColor: (TagData) -> Color
 ) {
@@ -182,12 +149,12 @@ internal fun TagPicker(
     {
         Column (modifier = Modifier.padding(horizontal = 12.dp)) {
             Box( modifier = Modifier.fillMaxWidth() ) {
-                SearchBar(searchPattern, onTextChange, onBackClicked)
+                SearchBar(viewModel, onBackClicked)
             }
             Box (
                 modifier = Modifier.weight(1f)
             ) {
-                PickerBox(tagsList, checkedState, onTagClicked, createTag, getTagIcon, getTagColor)
+                PickerBox(viewModel, viewModel.tagsList.observeAsState(initial = emptyList()), getTagIcon, getTagColor)
             }
         }
     }
@@ -195,10 +162,10 @@ internal fun TagPicker(
 
 @Composable
 internal fun SearchBar(
-    text: MutableState<String>,
-    onTextChange: (String) -> Unit,
+    viewModel: TagPickerViewModel,
     onBack: () -> Unit
 ) {
+    val searchPattern = remember { viewModel.searchText }
     val invitation = LocalContext.current.getString(R.string.enter_tag_name)
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
@@ -210,8 +177,8 @@ internal fun SearchBar(
         )
 
         TextField(
-            value = text.value,
-            onValueChange = { onTextChange(it); text.value = it },
+            value = searchPattern.value,
+            onValueChange = { viewModel.search(it) },
             placeholder = { Text(invitation) },
             colors = TextFieldDefaults.textFieldColors(
                 textColor = MaterialTheme.colors.onBackground,
@@ -225,59 +192,84 @@ internal fun SearchBar(
 } /* SearchBar */
 
 @Composable
-internal fun PickerBox(
+internal fun PickerBox (
+    viewModel: TagPickerViewModel,
     tags: State<List<TagData>>,
-    getState: (TagData) -> ToggleableState = { ToggleableState.Off },
-    onClick: (TagData) -> Unit = {},
-    newItem: (TagData) -> Unit = {},
     getTagIcon: (TagData) -> Int = { R.drawable.ic_outline_label_24px },
     getTagColor: (TagData) -> Color = { Color.Gray }
 ) {
+    val onClick: (TagData) -> Unit = {
+        viewModel.viewModelScope.launch {
+            viewModel.toggle(it, viewModel.getState(it) != ToggleableState.On) }
+    }
+
+    val newItem: (String) -> Unit = {
+        viewModel.viewModelScope.launch { viewModel.createNew(it); viewModel.search("") }
+    }
+
     LazyColumn {
-        items( tags.value, key = { if (it.id == null) -1 else it.id!! } )
-        {
-            val checked = remember { mutableStateOf ( getState(it) ) }
-            Row(modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        if ( it.id == null ) newItem(it)
-                        else { onClick(it); checked.value = getState(it) }
-                    },
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(getTagIcon(it)),
-                    contentDescription = "",
-                    modifier = Modifier.padding(6.dp),
-                    tint = getTagColor(it)
+        if (viewModel.tagToCreate.value != "") {
+            item(key = -1) {
+                val text = LocalContext.current.getString(R.string.new_tag) + " \"${viewModel.tagToCreate.value}\""
+                TagRow(
+                    icon = ImageVector.vectorResource(R.drawable.ic_outline_add_24px),
+                    iconColor = Color(LocalContext.current.getColor(R.color.icon_tint_with_alpha)),
+                    text = text,
+                    onClick = { newItem(viewModel.searchText.value) }
                 )
-                if ( it.id == null ) {
-                    val text = LocalContext.current.getString(R.string.new_tag) + " \"${it.name!!}\""
-                    Text( text,
-                          modifier = Modifier
-                            .padding(horizontal = 24.dp)
-                            .clickable { newItem(it) } )
-                } else {
-                    Text(it.name!!,
-                         modifier = Modifier
-                            .weight(1f)
-                            .padding(horizontal = 24.dp)
-                        )
-                    TriStateCheckbox(
-                        modifier = Modifier.padding(6.dp),
-                        state = checked.value,
-                        onClick = { onClick(it); checked.value = getState(it) }
-                    )
-                }
+            }
+        }
+
+        items( tags.value, key = { tag -> tag.id!! } )
+        {
+            val checked = remember { mutableStateOf ( viewModel.getState(it) ) }
+            val clickChecked: () -> Unit = { onClick(it); checked.value = viewModel.getState(it) }
+            TagRow(
+                icon = ImageVector.vectorResource(getTagIcon(it)),
+                iconColor = getTagColor(it),
+                text = it.name!!,
+                onClick = clickChecked
+            ) {
+                TriStateCheckbox(
+                    modifier = Modifier.padding(6.dp),
+                    state = checked.value,
+                    onClick = clickChecked
+                )
             }
         }
     }
 } /* PickerBox */
 
+@Composable
+internal fun TagRow (
+    icon: ImageVector,
+    iconColor: Color,
+    text: String,
+    onClick: () -> Unit,
+    checkBox: @Composable RowScope.() -> Unit = {}
+) {
+    Row(modifier = Modifier.fillMaxWidth().clickable{ onClick() },
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = "",
+            modifier = Modifier.padding(6.dp),
+            tint = iconColor
+        )
+        Text(
+            text,
+            modifier = Modifier.weight(1f).padding(horizontal = 24.dp)
+        )
+        checkBox()
+    }
+} /* TagRow */
+
+/*
 internal fun genTestTags(): List<TagData>
 {
     var idcc: Long = 1
-    return "alfa beta gamma delta kappa theta alfa1 beta1 gamma1 delta1 kappa1 theta1"
+    return "alpha beta gamma delta kappa theta alfa1 beta1 gamma1 delta1 kappa1 theta1"
         .split(" ")
         .map { name -> TagData(name).also{ it.id = idcc++ } }
 }
@@ -288,3 +280,4 @@ internal fun PickerBoxPreview() {
     val list = remember { mutableStateOf( genTestTags() ) }
     PickerBox(list, getTagColor = { Color.Green })
 }
+*/
