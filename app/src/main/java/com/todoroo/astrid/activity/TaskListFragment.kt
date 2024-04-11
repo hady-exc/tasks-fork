@@ -27,6 +27,7 @@ import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
@@ -77,6 +78,7 @@ import com.todoroo.astrid.timers.TimerPlugin
 import com.todoroo.astrid.utility.Flags
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -94,8 +96,10 @@ import org.tasks.billing.PurchaseActivity
 import org.tasks.caldav.BaseCaldavCalendarSettingsActivity
 import org.tasks.compose.SubscriptionNagBanner
 import org.tasks.compose.collectAsStateLifecycleAware
+import org.tasks.compose.edit.InputPanel
 import org.tasks.data.CaldavDao
 import org.tasks.data.Tag
+import org.tasks.data.TagDao
 import org.tasks.data.TagDataDao
 import org.tasks.data.TaskContainer
 import org.tasks.databinding.FragmentTaskListBinding
@@ -587,7 +591,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         }
     }
 
-    private fun createNewTask() {
+    private fun createNewTask(title: String = "") {
         lifecycleScope.launch {
             shortcutManager.reportShortcutUsed(ShortcutManager.SHORTCUT_NEW_TASK)
             onTaskListItemClicked(addTask(title))
