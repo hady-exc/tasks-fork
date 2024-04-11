@@ -29,7 +29,6 @@ import org.tasks.jobs.DriveUploader.Companion.EXTRA_URI
 import org.tasks.jobs.MigrateLocalWork.Companion.EXTRA_ACCOUNT
 import org.tasks.jobs.SyncWork.Companion.EXTRA_BACKGROUND
 import org.tasks.jobs.SyncWork.Companion.EXTRA_IMMEDIATE
-import org.tasks.jobs.WorkManager.Companion.MAX_CLEANUP_LENGTH
 import org.tasks.jobs.WorkManager.Companion.REMOTE_CONFIG_INTERVAL_HOURS
 import org.tasks.jobs.WorkManager.Companion.TAG_BACKGROUND_SYNC
 import org.tasks.jobs.WorkManager.Companion.TAG_BACKUP
@@ -47,7 +46,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.max
 
-class WorkManagerImpl constructor(
+class WorkManagerImpl(
         private val context: Context,
         private val preferences: Preferences,
         private val caldavDao: CaldavDao,
@@ -56,16 +55,6 @@ class WorkManagerImpl constructor(
     private val throttle = Throttle(200, 60000, "WORK")
     private val alarmManager: AlarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
     private val workManager = androidx.work.WorkManager.getInstance(context)
-
-    override fun scheduleRepeat(task: Task) {
-        enqueue(
-            OneTimeWorkRequest.Builder(AfterSaveWork::class.java)
-                .setInputData(
-                    AfterSaveWork.EXTRA_ID to task.id,
-                    AfterSaveWork.EXTRA_SUPPRESS_COMPLETION_SNACKBAR to task.isSuppressRefresh()
-                )
-        )
-    }
 
     override fun updateCalendar(task: Task) {
         enqueue(
@@ -82,28 +71,24 @@ class WorkManagerImpl constructor(
         enqueue(workManager.beginUniqueWork(TAG_MIGRATE_LOCAL, APPEND_OR_REPLACE, builder.build()))
     }
 
-    override fun cleanup(ids: Iterable<Long>) {
-        ids.chunked(MAX_CLEANUP_LENGTH) {
-            enqueue(
-                OneTimeWorkRequest.Builder(CleanupWork::class.java)
-                    .setInputData(CleanupWork.EXTRA_TASK_IDS to it.toLongArray())
-            )
+    override suspend fun startEnqueuedSync() {
+        if (getSyncJob().any { it.state == WorkInfo.State.ENQUEUED }) {
+            sync(true)
         }
     }
 
+    @SuppressLint("EnqueueWork")
     override suspend fun sync(immediate: Boolean) {
-        Timber.d("sync(immediate = $immediate)")
         val builder = OneTimeWorkRequest.Builder(SyncWork::class.java)
                 .setInputData(EXTRA_IMMEDIATE to immediate)
-                .setConstraints(networkConstraints)
+        if (!openTaskDao.shouldSync()) {
+            builder.setConstraints(networkConstraints)
+        }
         if (!immediate) {
             builder.setInitialDelay(1, TimeUnit.MINUTES)
         }
-        val append = withContext(Dispatchers.IO) {
-            workManager.getWorkInfosByTag(TAG_SYNC).get().any {
-                it.state == WorkInfo.State.RUNNING
-            }
-        }
+        val append = getSyncJob().any { it.state == WorkInfo.State.RUNNING }
+        Timber.d("sync: immediate=$immediate, append=$append)")
         enqueue(workManager.beginUniqueWork(
                 TAG_SYNC,
                 if (append) APPEND_OR_REPLACE else REPLACE,
@@ -123,9 +108,7 @@ class WorkManagerImpl constructor(
 
     override fun updateBackgroundSync() {
         throttle.run {
-            val enabled =
-                    caldavDao.getAccounts(TYPE_GOOGLE_TASKS, TYPE_CALDAV, TYPE_TASKS, TYPE_ETEBASE).isNotEmpty() ||
-                    openTaskDao.shouldSync()
+            val enabled = caldavDao.getAccounts(TYPE_GOOGLE_TASKS, TYPE_CALDAV, TYPE_TASKS, TYPE_ETEBASE).isNotEmpty()
             if (enabled) {
                 Timber.d("Enabling background sync")
                 val builder = PeriodicWorkRequest.Builder(SyncWork::class.java, 1, TimeUnit.HOURS)
@@ -256,6 +239,10 @@ class WorkManagerImpl constructor(
                 )
             }
         }
+
+    private suspend fun getSyncJob() = withContext(Dispatchers.IO) {
+        workManager.getWorkInfosForUniqueWork(TAG_SYNC).get()
+    }
 }
 
 private fun <B : WorkRequest.Builder<B, *>, W : WorkRequest> WorkRequest.Builder<B, W>.setInputData(

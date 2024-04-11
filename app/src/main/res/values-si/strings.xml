@@ -16,7 +16,6 @@
     <string name="sort_created_group">සැකසූ %s</string>
     <string name="sort_due_group">නියමිත %s</string>
     <string name="sort_start_group">ආරම්භය %s</string>
-    <string name="tell_me_how_im_doing">කරුණාකර මට කියන්න මගේ කාර්යය කොහොමද කියලා</string>
     <string name="filter_overdue">නියමිත දිනය පසුවූ</string>
     <string name="filter_any_due_date">ඕනෑම නියමිත දිනයක්</string>
     <string name="compact">සංගත</string>
@@ -38,7 +37,6 @@
     <string name="widget_due_date_hidden">සඟවන්න</string>
     <string name="widget_due_date_below_title">මාතෘකාවට පහළින්</string>
     <string name="widget_due_date_after_title">මාතෘකාවෙන් පසු</string>
-    <string name="widget_on_click">ක්ලික් කරන විට</string>
     <string name="widget_settings">විජට් සැකසුම්</string>
     <string name="map_theme">සිතියම් තේමාව</string>
     <string name="default_recurrence">පෙරනිමි පුනරාවර්තනය</string>
@@ -46,9 +44,6 @@
     <string name="geofence_radius">අරය</string>
     <string name="voice_command_added_task">කාර්යය එකතු කරන ලදි</string>
     <string name="TEA_timer_comment_started">මෙම කාර්යය ආරම්භ කරන ලදි:</string>
-    <string name="repeat_occurs">සිදු වේ</string>
-    <string name="repeat_number_of_times">කිහිප වතාවක් නැවත කරන්න</string>
-    <string name="repeat_until">%s තෙක් නැවත කරන්න</string>
     <plurals name="repeat_minutes">
         <item quantity="one">විනාඩි</item>
         <item quantity="other">විනාඩි</item>
@@ -122,7 +117,6 @@
     <string name="insufficient_sponsorship">සුදුසුකම් ලත් GitHub අනුග්‍රාහකත්වයක් හමු නොවීය</string>
     <string name="insufficient_subscription">දායකත්ව මට්ටම ප්‍රමාණවත් නොවේ. සේවාව නැවත ආරම්භ කිරීම සඳහා කරුණාකර ඔබගේ දායකත්වය යාවත්කාලීන කරන්න.</string>
     <string name="your_subscription_expired">ඔබගේ දායකත්වය කල් ඉකුත් වී ඇත. සේවාව නැවත ආරම්භ කිරීම සඳහා දැන්ම දායක වන්න.</string>
-    <string name="delete_comment">මෙම අදහස මකන්නද\?</string>
     <string name="multi_select_reschedule">නැවත සකස් කරන්න</string>
     <string name="backup_location_warning">අවවාදයයි: Tasks අස්ථාපනය කරන විට %s හි ඇති ගොනු මැකෙනු ඇත! ඔබගේ ගොනු Android විසින් මකාදැමීම වැලැක්වීමට කරුණාකර අභිරුචි ස්ථානයක් තෝරන්න.</string>
     <string name="backups_ignore_warnings_summary">ඔබට උපස්ථ අවශ්‍ය නොවන්නේ නම් හෝ ඔබේම උපස්ථ විසඳුමක් තිබේ නම් උපස්ථ අනතුරු ඇඟවීම් නොසලකා හරින්න</string>
@@ -138,7 +132,6 @@
     <string name="reset_sort_order">වර්ග කිරීමේ අනුපිළිවෙල නැවත සකසන්න</string>
     <string name="lists">ලැයිස්තු</string>
     <string name="got_it">තේරුම් ගත්තා!</string>
-    <string name="no_thanks">නැහැ ස්තුතියි</string>
     <string name="support_development_subscribe">අමතර විශේෂාංග අගුළු ඇරීම සහ විවෘත මෘදුකාංග සඳහා සහාය වීම</string>
     <string name="tasks_needs_your_support">Tasks සඳහා ඔබේ සහාය අවශ්‍යයි!</string>
     <string name="enjoying_tasks">Tasks සතුටුදායකද\?</string>
@@ -150,7 +143,6 @@
     <string name="filter_low_priority">අඩු ප්‍රමුඛතාවය</string>
     <string name="filter_medium_priority">මධ්‍යම ප්‍රමුඛතාවය</string>
     <string name="filter_high_priority">ඉහළ ප්‍රමුඛතාවය</string>
-    <string name="add_filter">පෙරණයක් එක්කරන්න</string>
     <string name="add_tags">ටැග් එක් කරන්න</string>
     <string name="filter_no_tags">ටැග් නැති</string>
     <string name="filter_after_today">අදින් පසු</string>
@@ -192,10 +184,7 @@
     <string name="delete_multiple_tasks_confirmation">%s මකා දමන ලදි</string>
     <string name="copy_multiple_tasks_confirmation">%s පිටපත් කරන ලදි</string>
     <string name="clear_completed_tasks_confirmation">සම්පුර්ණ කරන ලද කාර්යයන් ඉවත් කරනවාද\?</string>
-    <string name="widget_due_date_reschedule">කාර්යය නැවත සකස් කිරීම</string>
     <string name="widget_open_list">ලැයිස්තුව විවෘත කරන්න</string>
-    <string name="widget_do_nothing">කිසිවක් නොකරන්න</string>
-    <string name="widget_footer">පාදකය</string>
     <string name="widget_row_settings">පේළි සැකසුම්</string>
     <string name="widget_header_settings">ශීර්ෂ සැකසුම්</string>
     <string name="hardware_support_required">දෘඩාංග සහාය අවශ්‍යයි</string>
@@ -238,7 +227,6 @@
     <string name="davx5_selection_description">DAVx⁵ යෙදුම සමඟ ඔබගේ කාර්යයන් සමමුහුර්ත කරන්න</string>
     <string name="decsync_selection_description">ගොනු මත පදනම් වූ සමමුහුර්තකරණය</string>
     <string name="tasks_org_description">Tasks.org සමඟ ඔබේ කාර්යයන් සමමුහුර්ත කරන්න</string>
-    <string name="repeat_every">සෑම</string>
     <string name="widget_show_checkboxes">පිරික්සුම් කොටු පෙන්වන්න</string>
     <string name="yesterday_abbrev_lowercase">ඊයේ</string>
     <string name="yest">ඊයේ</string>
@@ -273,7 +261,6 @@
     <string name="delete_tag_confirmation">%s මකාදමනවාද\?</string>
     <string name="new_list">නව ලැයිස්තුවක් සාදන්න</string>
     <string name="new_tag">නව ටැගයක් සාදන්න</string>
-    <string name="repeat_forever">දිගටම නැවත කරන්න</string>
     <string name="repeat_type_completion_capitalized">සම්පූර්ණ කරන දිනය</string>
     <string name="repeat_type_completion">සම්පූර්ණ කරන දිනය</string>
     <plurals name="repeat_n_years">
@@ -333,12 +320,6 @@
         <item quantity="other">කාර්යයන් %d</item>
     </plurals>
     <string name="rmd_EPr_rmd_time_desc">නියමිත වේලාවක් නොමැති කාර්යයන් සඳහා දැනුම්දීම් %s හි දිස්වනු ඇත</string>
-    <string name="repeat_yearly">වසරකට වතාවක් නැවත</string>
-    <string name="repeat_monthly">මාසයකට වතාවක් නැවත</string>
-    <string name="repeat_weekly">සතියකට වතාවක් නැවත</string>
-    <string name="repeat_daily">සෑම දිනකම නැවත</string>
-    <string name="repeat_hourly">පැයකට වතාවක් නැවත</string>
-    <string name="repeat_minutely">මිනිත්තුවකට වතාවක් නැවත</string>
     <string name="repeat_option_custom">අභිරුචි…</string>
     <string name="repeat_option_every_year">සෑම වසරකම</string>
     <string name="repeat_option_every_month">සෑම මාසයකම</string>
@@ -358,8 +339,6 @@
     <string name="ring_five_times">පස් වතාවක් නාද කරන්න</string>
     <string name="CFC_list_name">ලැයිස්තුවේ…</string>
     <string name="CFC_gtasks_list_name">GTasks ලැයිස්තුවේ…</string>
-    <string name="CRA_speech_bubble_end">ඔබ දැන් %s අවසන් කළ බව පෙනේ. ක්‍රියාකාරී අයිතම සඳහා ලැයිස්තුවක් සෑදීමට අවශ්‍යද\?</string>
-    <string name="CRA_speech_bubble_start">%s ඉක්මනින් ආරම්භ වන බව පෙනේ. ක්‍රියාකාරී අයිතම සඳහා ලැයිස්තුවක් සෑදීමට අවශ්‍යද\?</string>
     <string name="SSD_sort_modified">අවසන් වරට වෙනස් කරන ලද දිනය අනුව</string>
     <string name="astrid_sort_order">Astrid අතින් වර්ග කිරීම</string>
     <string name="TVA_add_comment">අදහස දක්වන්න…</string>
@@ -416,7 +395,6 @@
     <string name="pro_dashclock_extension">Dashclock දිගුව</string>
     <string name="upgrade_to_pro">Pro වෙත උත්ශ්‍රේණි කරන්න</string>
     <string name="caldav_home_set_not_found">CalDAV Home Set හමු නොවීය</string>
-    <string name="repeat_monthly_on_every_day_of_nth_week">සෑම %1$s %2$s</string>
     <string name="repeat_monthly_every_day_of_nth_week">සෑම %1$s %2$s</string>
     <string name="list_separator_with_space">", "</string>
     <string name="repeats_plural_on_number_of_times">පුනරාවර්තනය සෑම %1$s %2$s, %3$d %4$s සිදු වේ</string>
@@ -435,7 +413,6 @@
     <string name="repeats_from">පුනරාවර්තනය වනුයේ</string>
     <string name="bundle_notifications">බහු දැනුම්දීම්</string>
     <string name="accent">දෙවන වර්ණය</string>
-    <string name="reverse">ආපසු</string>
     <string name="date_shortcut_must_come_after">%1$s, %2$s ට පසුව පැමිණිය යුතුය</string>
     <string name="date_shortcut_must_come_before">%2$s පෙර %1$s පැමිණිය යුතුය</string>
     <string name="rmd_EPr_quiet_hours_end_title">නිහඬ කාලය අවසානය</string>
@@ -457,15 +434,6 @@
     <string name="EPr_beastMode_reset">පෙරනිමි වෙත යළි පිහිටුවන්න</string>
     <string name="EPr_edit_screen_options">තිර විකල්ප සංස්කරණය කරන්න</string>
     <string name="none">කිසිවක් නැත</string>
-    <string name="CRA_default_list_name">ක්‍රියා අයිතම: %s</string>
-    <string name="CRA_calendar_reminders_pref_desc_enabled">දිනදර්ශනයේ ඉදිරියට එන සිදුවීම් පිළිබඳව Tasks ඔබට මතක් කර දෙන අතර ඒවා සඳහා සූදානම් වීමට ඔබෙන් විමසනු ඇත</string>
-    <string name="CRA_calendar_reminders_pref_title">දින දර්ශන සහකරු</string>
-    <string name="CRA_postpone">පසුව</string>
-    <string name="CRA_ignore_this">මෙම සිදුවීම පමණක් නොසලකා හරින්න</string>
-    <string name="CRA_ignore_all">සියලුම සිදුවීම් නොසලකා හරින්න</string>
-    <string name="CRA_ignore_body">ඔබ දින දර්ශන කාර්යයන් කිහිපයක් නොසලකා හැර ඇත. Tasks ඵ්වා ගැන ඔබෙන් විමසීම නතර කළ යුතුද\?</string>
-    <string name="CRA_title">රැස්වීම් ලැයිස්තුවක් අවශ්‍යද\?</string>
-    <string name="CRA_ignore">නොසලකා හරින්න</string>
     <string name="TEA_control_hidden_section">---- සැමවිටම සඟවන්න ----</string>
     <string name="TEA_control_reminders">මතක් කිරීම්</string>
     <string name="TEA_control_files">ගොනු</string>
@@ -527,8 +495,6 @@
     <string name="choose_synchronization_service">සේවාවක් තෝරන්න</string>
     <string name="create_new_tag">\"%s\" සාදන්න</string>
     <string name="enter_tag_name">ටැගයේ නම ඇතුළත් කරන්න</string>
-    <string name="disable_sort_groups">වර්ග කිරීමේ කණ්ඩායම් අක්‍රීය කරන්න</string>
-    <string name="enter_title_hint">මාතෘකාව ඇතුළත් කරන්න</string>
     <string name="subtasks_multilevel_google_task">Google Tasks විසින් බහු මට්ටමේ උප කාර්යයන් සඳහා සහාය නොදක්වයි</string>
     <string name="collapse_subtasks">උප කාර්යයන් හකුළුවන්න</string>
     <string name="expand_subtasks">උප කාර්යයන් පුළුල් කරන්න</string>
@@ -579,7 +545,6 @@
     <string name="repeat_monthly_third_week">තෙවන</string>
     <string name="repeat_monthly_second_week">දෙවැනි</string>
     <string name="repeat_monthly_first_week">පළමුවන</string>
-    <string name="repeat_monthly_same_day_each_month">සෑම මසකම එකම දිනයක</string>
     <string name="bundle_notifications_summary">බහුවිධ දැනුම්දීම් එකකට ඒකාබද්ධ කරන්න</string>
     <string name="badges_description">Tasks දියත් කිරීමේ නිරූපකයේ කාර්ය ගණන පෙන්වන්න. සියලුම දියත් කරන්නන් (launchers) ලාංඡන සඳහා සහය නොදක්වයි.</string>
     <string name="default_calendar">පෙරනිමි දින දර්ශනය</string>
@@ -712,7 +677,6 @@
         <item quantity="other">මිනිත්තු</item>
     </plurals>
     <string name="completed_tasks_at_bottom">සම්පුර්ණ කරන ලද කාර්යයන් පහළට ගෙන යන්න</string>
-    <string name="completed_tasks_sort">සම්පූර්ණ කරන දිනය අනුව වර්ග කරන්න</string>
     <string name="alarm_before_start">%s ආරම්භයට පෙර</string>
     <string name="alarm_after_start">%s ආරම්භයෙන් පසුව</string>
 </resources>

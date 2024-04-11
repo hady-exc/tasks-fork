@@ -1,3 +1,7 @@
+plugins {
+    id("com.google.devtools.ksp") version "1.9.22-1.0.18" apply false
+}
+
 buildscript {
 
     repositories {
@@ -21,6 +25,6 @@ val tasksKeyPassword by extra("3tyd990")
 val tasksStoreFile by extra("C:\\Users\\akhap\\Documents\\GnuPG\\android-hady.jks")
 
 tasks.getByName<Wrapper>("wrapper") {
-    gradleVersion = "8.1.1"
+    gradleVersion = "8.6"
     distributionType = Wrapper.DistributionType.ALL
 }

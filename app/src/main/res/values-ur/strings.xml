@@ -104,17 +104,6 @@
     <string name="EPr_beastMode_reset">ڈیفالٹ پر ری سیٹ کریں</string>
     <string name="EPr_edit_screen_options">اسکرین آپشنز میں ترمیم کریں</string>
     <string name="none">کوئی نہیں</string>
-    <string name="CRA_default_list_name">ایکشن آئٹمز: %s</string>
-    <string name="CRA_calendar_reminders_pref_desc_enabled">ٹاسک آپ کو آنے والے کیلنڈرایونٹس کے بارے میں یاد دلائے گا اور آپ کو ان کے لئے تیار رہنے کا اشارہ کرے گا</string>
-    <string name="CRA_calendar_reminders_pref_title">کیلنڈر اسسٹنٹ</string>
-    <string name="CRA_postpone">شاید بعد میں</string>
-    <string name="CRA_speech_bubble_end">ایسا لگتا ہے کہ آپ نے ابھی %s ختم کیا ہے۔ ایکشن آئٹمز کی فہرست بنانا چاہتے ہیں؟</string>
-    <string name="CRA_speech_bubble_start">لگتا ہے %sجلد شروع ہو رہا ہے۔ کیا آپ ایکشن آئٹمز کی فہرست بنانا چاہتے ہیں؟</string>
-    <string name="CRA_ignore_this">صرف اس ایونٹ کو نظر انداز کریں</string>
-    <string name="CRA_ignore_all">تمام ایونٹس کو نظرانداز کریں</string>
-    <string name="CRA_ignore_body">آپ نے متعدد کیلنڈرایونٹس کو نظرانداز کیا ہے۔ کیا ٹاسک کو ان کے بارے میں آپ سے پوچھنا چھوڑنا چاہئے؟</string>
-    <string name="CRA_title">میٹنگ لسٹ کی ضرورت ہے؟</string>
-    <string name="CRA_ignore">نظر انداز کریں</string>
     <string name="TEA_timer_est">تقریبا %s</string>
     <string name="CFC_title_contains_text">عنوان مشتمل ہے:?</string>
     <string name="CFC_title_contains_name">عنوان مشتمل ہے…</string>
@@ -140,7 +129,6 @@
     <string name="calendar_event_not_found">کیلنڈر ایونٹ نہیں مل سکا</string>
     <string name="gcal_TEA_showCalendar_label">کیلنڈر ایونٹ کھولیں</string>
     <string name="gcal_TEA_error">کیلنڈر میں کام شامل کرنے میں خرابی!</string>
-    <string name="repeat_every">ہر ایک</string>
     <string name="default_random_reminder_bi_weekly">ہفتے میں دو بار</string>
     <string name="default_random_reminder_weekly">ہفتہ وار</string>
     <string name="default_random_reminder_daily">روزانہ</string>
@@ -160,10 +148,6 @@
     <string name="ring_five_times">پانچ بار رنگ بجنا</string>
     <string name="ring_once">ایک بار رنگ بجنا</string>
     <string name="premium_record_audio">ایک نوٹ ریکارڈ کریں</string>
-    <string name="repeat_weekly">ہفتہ وار دہرانا</string>
-    <string name="repeat_daily">روزانہ دہرانا</string>
-    <string name="repeat_hourly">گھنٹہ وار دہرانا</string>
-    <string name="repeat_minutely">منٹ وار دہرانا</string>
     <string name="repeat_option_custom">کسٹم…</string>
     <string name="repeat_option_every_year">ہر سال</string>
     <string name="repeat_option_every_month">ہر مہینے</string>
@@ -183,10 +167,6 @@
     <string name="default_start_date">ڈیفالٹ تاریخ آغاز</string>
     <string name="start_date">تاریخ آغاز</string>
     <string name="SSD_sort_start">بلحاظ تاریخ آغاز</string>
-    <string name="repeat_occurs">واقع ہونا</string>
-    <string name="repeat_number_of_times">چند مرتبہ دہرانا</string>
-    <string name="repeat_until">%s تک دہرانا</string>
-    <string name="repeat_forever">ہمیشہ دہرانا</string>
     <string name="repeat_type_completion_capitalized">تاریخ تکمیل</string>
     <string name="repeat_type_completion">تاریخ تکمیل</string>
     <string name="repeat_type_due">مقررہ تاریخ</string>
@@ -254,8 +234,6 @@
         <item quantity="one">%d ٹاسک</item>
         <item quantity="other">%d ٹاسکس</item>
     </plurals>
-    <string name="repeat_yearly">سالانہ دہرانا</string>
-    <string name="repeat_monthly">مہینہ وار دہرانا</string>
     <string name="yesterday_lowercase">گزشتہ کل</string>
     <string name="yesterday">گزشتہ کل</string>
     <string name="tomorrow_lowercase">آنے والا کل</string>
@@ -334,7 +312,6 @@
     <string name="take_a_picture">تصویر لیں</string>
     <string name="add_attachment">اٹیچ منٹ لگائیں</string>
     <string name="no_app_found">کوئی ایپ اس درخواست پر عمل نہیں کر سکتی</string>
-    <string name="reverse">الٹا کریں</string>
     <string name="filter_criteria_unstarted">شروع نہ کیے گئے</string>
     <string name="show_completed">مکمل ہو چکے دکھائیں</string>
     <string name="show_unstarted">غیر شروع دکھائیں</string>
@@ -349,7 +326,6 @@
     <string name="discard_changes">تبدیلیاں مسترد کریں؟</string>
     <string name="date_shortcut_must_come_after">%1$s کو %2$sسے پہلے آنا چاہیے</string>
     <string name="date_shortcut_must_come_before">%1$s کو %2$s سے پہلے آنا چایئے</string>
-    <string name="widget_footer">نچلا حصہ</string>
     <string name="widget_row_settings">قطار کی سیٹنگ</string>
     <string name="widget_header_settings">ہیڈر کی سیٹنگ</string>
     <string name="widget_settings">ویجٹ سیٹنگ</string>
@@ -410,10 +386,7 @@
     <string name="widget_due_date_hidden">چھپا ہوا</string>
     <string name="widget_due_date_below_title">عنوان کے نیچے</string>
     <string name="widget_due_date_after_title">عنوان کے بعد</string>
-    <string name="widget_due_date_reschedule">ٹاسک ری شیڈیول کریں</string>
     <string name="widget_open_list">فہرست کھولیں</string>
-    <string name="widget_do_nothing">کچھ نہ کریں</string>
-    <string name="widget_on_click">کلک پر</string>
     <string name="tasker_create_task">ٹاسک بنائیں</string>
     <string name="repeat_monthly_last_week">آخری</string>
     <string name="repeat_monthly_fifth_week">پانچواں</string>
@@ -421,9 +394,7 @@
     <string name="repeat_monthly_third_week">تیسرا</string>
     <string name="repeat_monthly_second_week">دوسرا</string>
     <string name="repeat_monthly_first_week">پہلا</string>
-    <string name="repeat_monthly_on_every_day_of_nth_week">ہر %1$s%2$s کو</string>
     <string name="repeat_monthly_every_day_of_nth_week">ہر %1$s%2$s</string>
-    <string name="repeat_monthly_same_day_each_month">ہر مہینے کو ایک ہی دن</string>
     <string name="bundle_notifications_summary">متعدد نوٹیفیکیشنز کو ایک میں کر دیں</string>
     <string name="badges_description">ٹاسکس ایپ کے آئیکن پر ٹاسک کی تعداد ظاہر کریں۔ تمام لانچرز نشانات کو سپوڑٹ نہیں کرتے۔</string>
     <string name="default_calendar">ڈیفالٹ کیلںنڈر</string>
@@ -490,7 +461,6 @@
     <string name="about">متعلق</string>
     <string name="button_unsubscribe">سبسکرپسن کینسل کریں</string>
     <string name="manage_drawer">ڈریئر مینیج کریں</string>
-    <string name="enter_title_hint">عنوان لکھیں</string>
     <string name="subtasks_multilevel_google_task">کثیر الدرجی ذیلی ٹاسکس کو گوگل ٹاسکس سپورٹ نہیں کرتا</string>
     <string name="collapse_subtasks">ذیلی ٹاسکس کو بند کریں</string>
     <string name="expand_subtasks">ذیلی ٹاسکس کو کھولیں</string>
@@ -513,6 +483,5 @@
     <string name="choose_synchronization_service">پلیٹ فارم منتخب کریں</string>
     <string name="create_new_tag">\"%s\" بنائیں</string>
     <string name="enter_tag_name">ٹیگ کا نام درج کریں</string>
-    <string name="disable_sort_groups">گروپس کی ترتیب ختم کریں</string>
     <string name="missing_permissions">حذف شدہ اجازتیں</string>
 </resources>

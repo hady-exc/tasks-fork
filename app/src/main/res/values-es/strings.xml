@@ -55,17 +55,6 @@
     <string name="TEA_control_reminders">Recordatorios</string>
     <string name="TEA_control_timer">Controles de tiempo</string>
     <string name="TEA_control_hidden_section">---Ocultar siempre---</string>
-    <string name="CRA_ignore">Ignorar</string>
-    <string name="CRA_title">¿Necesita una lista de reuniones?</string>
-    <string name="CRA_ignore_body">Ha ignorado varios eventos de calendario. ¿Debe Tasks dejar de preguntarle sobre ellos?</string>
-    <string name="CRA_ignore_all">Ignorar todos los eventos</string>
-    <string name="CRA_ignore_this">Ignorar solo este evento</string>
-    <string name="CRA_speech_bubble_start">Parece que %s va a comenzar pronto. ¿Quiere crear una lista de acciones?</string>
-    <string name="CRA_speech_bubble_end">Parece que acaba de terminar %s. ¿Quiere crear una lista de acciones?</string>
-    <string name="CRA_postpone">Quizá después</string>
-    <string name="CRA_calendar_reminders_pref_title">Asistente de calendario</string>
-    <string name="CRA_calendar_reminders_pref_desc_enabled">Tasks le recordará los próximos eventos de calendario y le pedirá que se prepare para ellos</string>
-    <string name="CRA_default_list_name">Acciones: %s</string>
     <string name="none">Ninguna</string>
     <string name="EPr_edit_screen_options">Editar opciones de pantalla</string>
     <string name="EPr_beastMode_reset">Restablecer valores predeterminados</string>
@@ -142,19 +131,12 @@
     <string name="default_random_reminder_daily">Diariamente</string>
     <string name="default_random_reminder_weekly">Semanalmente</string>
     <string name="default_random_reminder_bi_weekly">Quincenalmente</string>
-    <string name="repeat_every">Cada</string>
     <string name="repeat_option_does_not_repeat">No repetir</string>
     <string name="repeat_option_every_day">Cada día</string>
     <string name="repeat_option_every_week">Cada semana</string>
     <string name="repeat_option_every_month">Cada mes</string>
     <string name="repeat_option_every_year">Cada año</string>
     <string name="repeat_option_custom">Personalizado…</string>
-    <string name="repeat_minutely">REPETIR CADA MINUTO</string>
-    <string name="repeat_hourly">REPETIR CADA HORA</string>
-    <string name="repeat_daily">REPETIR DIARIAMENTE</string>
-    <string name="repeat_weekly">REPETIR SEMANALMENTE</string>
-    <string name="repeat_monthly">REPETIR MENSUALMENTE</string>
-    <string name="repeat_yearly">REPETIR ANUALMENTE</string>
     <plurals name="task_count">
         <item quantity="one">%d tarea</item>
         <item quantity="many">%d tareas</item>
@@ -227,10 +209,6 @@
     </plurals>
     <string name="repeat_type_due">fecha límite</string>
     <string name="repeat_type_completion">fecha de finalización</string>
-    <string name="repeat_forever">Repetir por siempre</string>
-    <string name="repeat_until">Repetir hasta %s</string>
-    <string name="repeat_number_of_times">Repetir un número de veces</string>
-    <string name="repeat_occurs">Número de repeticiones</string>
     <string name="repeat_snackbar">%1$s He reprogramado esta tarea recurrente para %2$s</string>
     <string name="new_tag">Crear nueva etiqueta</string>
     <string name="new_list">Crea una nueva lista</string>
@@ -307,7 +285,6 @@
     <string name="move">Mover</string>
     <string name="filter_settings">Configuración del filtro</string>
     <string name="show_completed">Mostrar completadas</string>
-    <string name="reverse">Invertir</string>
     <string name="add_attachment">Adjuntar archivo</string>
     <string name="take_a_picture">Tomar fotografía</string>
     <string name="pick_from_gallery">Elegir desde la galería</string>
@@ -346,8 +323,8 @@
     <string name="widget_header_settings">Configuración de cabecera</string>
     <string name="widget_row_settings">Configuración de fila</string>
     <string name="clear_completed_tasks_confirmation">¿Borrar tareas completadas?</string>
-    <string name="copy_multiple_tasks_confirmation">%s copiadas</string>
-    <string name="delete_multiple_tasks_confirmation">%s borradas</string>
+    <string name="copy_multiple_tasks_confirmation">%s copiada(s)</string>
+    <string name="delete_multiple_tasks_confirmation">%s borrada(s)</string>
     <string name="delete_selected_tasks">¿Borrar tareas seleccionadas?</string>
     <string name="copy_selected_tasks">¿Copiar tareas seleccionadas?</string>
     <string name="date_and_time">Fecha y hora</string>
@@ -363,9 +340,9 @@
     <string name="repeats_from">Repetir desde </string>
     <string name="repeats_single">Repetir %s</string>
     <string name="repeats_single_on">Repetir %1$s cada %2$s</string>
-    <string name="repeats_single_until">Repetir %1$s hasta %2$s</string>
+    <string name="repeats_single_until">Se repite %1$s, termina en %2$s</string>
     <string name="repeats_single_number_of_times">Repetir %1$s, %2$d %3$s</string>
-    <string name="repeats_single_on_until">Repetir %1$s cada %2$s hasta %3$s</string>
+    <string name="repeats_single_on_until">Se repite %1$s en %2$s , termina en %3$s</string>
     <string name="repeats_single_on_number_of_times">Repetir %1$s cada %2$s, %3$d %4$s</string>
     <string name="repeats_minutely">cada minuto</string>
     <string name="repeats_hourly">cada hora</string>
@@ -375,17 +352,15 @@
     <string name="repeats_yearly">anualmente</string>
     <string name="repeats_plural">Repetir cada %s</string>
     <string name="repeats_plural_on">Repetir cada %1$s el %2$s</string>
-    <string name="repeats_plural_until">Repetir cada %1$s hasta %2$s</string>
+    <string name="repeats_plural_until">Se repite petir cada %1$s, y finaliza %2$s</string>
     <string name="repeats_plural_number_of_times">Repetir cada %1$s, %2$d %3$s</string>
-    <string name="repeats_plural_on_until">Repetir cada %1$s el %2$s hasta %3$s</string>
+    <string name="repeats_plural_on_until">Se repite cada %1$s en %2$s , termina el %3$s</string>
     <string name="repeats_plural_on_number_of_times">Repetir cada %1$s el %2$s, %3$d %4$s</string>
     <string name="dont_add_to_calendar">No añadir al calendario</string>
     <string name="default_calendar">Calendario predeterminado</string>
     <string name="badges_description">Muestre un recuento de tareas en el icono de iniciador de Tasks. No todos los iniciadores admiten insignias de notificación.</string>
     <string name="bundle_notifications_summary">Combinar múltiples notificaciones en una sola</string>
-    <string name="repeat_monthly_same_day_each_month">el mismo día cada mes</string>
     <string name="repeat_monthly_every_day_of_nth_week">cada %1$s %2$s</string>
-    <string name="repeat_monthly_on_every_day_of_nth_week">cada %1$s %2$s</string>
     <string name="repeat_monthly_first_week">primer</string>
     <string name="repeat_monthly_second_week">segundo</string>
     <string name="repeat_monthly_third_week">tercer</string>
@@ -451,7 +426,6 @@
     <string name="TEA_add_subtask">Añadir subtarea</string>
     <string name="subtasks">Subtareas</string>
     <string name="subtasks_multilevel_google_task">Subtareas multinivel no compatibles con Google Tasks</string>
-    <string name="enter_title_hint">Introducir título</string>
     <string name="enter_tag_name">Introduzca el nombre de la etiqueta</string>
     <string name="create_new_tag">Crear «%s»</string>
     <string name="display_name">Mostrar el nombre</string>
@@ -507,8 +481,6 @@
     <string name="settings_default">Predefinido</string>
     <string name="widget_id">Widget ID: %d</string>
     <string name="widget_open_list">Lista abierta</string>
-    <string name="widget_do_nothing">No hacer nada</string>
-    <string name="widget_on_click">Al pulsar</string>
     <string name="widget_show_menu">Mostrar menú</string>
     <string name="widget_due_date_hidden">Oculto</string>
     <string name="widget_due_date_below_title">Debajo del título</string>
@@ -523,8 +495,6 @@
     <string name="auto_dismiss_datetime_edit">Edición de tareas</string>
     <string name="auto_dismiss_datetime_list_summary">Cierre automático al seleccionar de la lista de tareas</string>
     <string name="auto_dismiss_datetime_list">Lista de tareas</string>
-    <string name="widget_due_date_reschedule">Reprogramar tarea</string>
-    <string name="widget_footer">Pie de página</string>
     <string name="custom_filter_not">NO</string>
     <string name="custom_filter_or">O</string>
     <string name="custom_filter_and">Y</string>
@@ -537,7 +507,6 @@
     <string name="filter_low_priority">Baja prioridad</string>
     <string name="filter_medium_priority">Prioridad media</string>
     <string name="filter_high_priority">Alta prioridad</string>
-    <string name="add_filter">Añadir filtro</string>
     <string name="add_tags">Añade etiquetas</string>
     <string name="filter_no_tags">Ninguna etiqueta</string>
     <string name="filter_after_today">Despues de hoy</string>
@@ -546,9 +515,7 @@
     <string name="filter_overdue">Atrasada</string>
     <string name="sort_created">En el momento de la creación</string>
     <string name="got_it">¡Entendido!</string>
-    <string name="no_thanks">No, gracias</string>
     <string name="support_development_subscribe">Desbloquee funciones adicionales y apoye el software de código abierto</string>
-    <string name="tell_me_how_im_doing">Comparta sus opiniones</string>
     <string name="enjoying_tasks">¿Disfruta Tasks\?</string>
     <string name="whats_new">Qué hay de nuevo</string>
     <string name="action_new_task">Nueva tarea</string>
@@ -562,7 +529,6 @@
     <string name="lists">Listas</string>
     <string name="astrid_sort_order_summary">Active el modo de ordenación manual de Astrid para «Mis tareas», «Hoy» y las etiquetas. Este modo de ordenación se reemplazará por «Mi orden» en una futura actualización</string>
     <string name="astrid_sort_order">Clasificación manual de Astrid</string>
-    <string name="disable_sort_groups">Deshabilitar grupos de ordenación</string>
     <string name="CFC_list_name">En la lista…</string>
     <string name="date_shortcut_tomorrow_night">Mañana por la noche</string>
     <string name="date_shortcut_tomorrow_evening">Mañana por la tarde</string>
@@ -587,7 +553,6 @@
     <string name="repeat_type_completion_capitalized">Fecha de finalización</string>
     <string name="default_tags">Etiquetas predeterminadas</string>
     <string name="default_location">Ubicación predeterminada</string>
-    <string name="delete_comment">¿Eliminar este comentario\?</string>
     <string name="date_picker_multiple">Múltiples</string>
     <string name="multi_select_reschedule">Reprogramar</string>
     <string name="ok">Aceptar</string>
@@ -713,7 +678,6 @@
     <string name="completed_tasks_at_bottom">Mover las tareas completadas a la parte inferior</string>
     <string name="snackbar_tasks_completed">%d tareas completadas</string>
     <string name="alarm_after_due">%s después de la fecha límite</string>
-    <string name="completed_tasks_sort">Ordenar por fecha de finalización</string>
     <string name="alarm_before_start">%s antes de empezar</string>
     <string name="alarm_after_start">%s tras el inicio</string>
     <string name="alarm_before_due">%s antes de la fecha límite</string>
@@ -761,4 +725,27 @@
     <string name="default_reminder">Aviso por defecto</string>
     <string name="rmd_time_description">Mostrar notificaciones de tareas sin fecha de vencimiento</string>
     <string name="sort_list">Por lista</string>
+    <string name="sort_ascending">Ascendente</string>
+    <string name="sort_sorting">Clasificación</string>
+    <string name="sort_grouping">Agrupación</string>
+    <string name="sort_descending">Descendente</string>
+    <string name="sort_completed">Por hora de finalización</string>
+    <string name="sort_not_available">No disponible para etiquetas, filtros, o sitios</string>
+    <plurals name="repeat_occurrence">
+        <item quantity="one">ocurrencia</item>
+        <item quantity="many">ocurrencias</item>
+        <item quantity="other">ocurrencias</item>
+    </plurals>
+    <string name="repeat_monthly_on_day_number">Mensualmente en el día %1d</string>
+    <string name="repeats_custom_recurrence">Recurrencia personalizada</string>
+    <string name="repeats_on">En</string>
+    <string name="repeat_monthly_on_the_nth_weekday">Mensualmente en el %1$s %2$s</string>
+    <string name="repeats_every">Se repite cada</string>
+    <string name="repeats_weekly_on">Se repite en</string>
+    <string name="repeats_never">Nunca</string>
+    <string name="repeats_after">Después</string>
+    <string name="repeats_ends">Termina</string>
+    <string name="change_priority">Prioridad de cambio</string>
+    <string name="clear_completed_tasks_count">%s será(n) eliminada(s)</string>
+    <string name="theme_dynamic">Dinámico</string>
 </resources>

@@ -6,20 +6,17 @@
 
 package com.todoroo.andlib.utility;
 
-import android.app.Activity;
-import android.content.Context;
 import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Looper;
 import android.text.InputType;
 import android.util.DisplayMetrics;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
 import org.tasks.BuildConfig;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -84,12 +81,12 @@ public class AndroidUtilities {
     result.append(SERIALIZATION_SEPARATOR);
   }
 
-  public static Map<String, Object> mapFromSerializedString(String string) {
+  public static Map<String, Serializable> mapFromSerializedString(String string) {
     if (string == null) {
       return new HashMap<>();
     }
 
-    Map<String, Object> result = new HashMap<>();
+    Map<String, Serializable> result = new HashMap<>();
     fromSerialized(
         string,
         result,
@@ -143,8 +140,12 @@ public class AndroidUtilities {
     return !atLeastOreo();
   }
 
+  public static boolean preS() {
+    return !atLeastS();
+  }
+
   public static boolean preTiramisu() {
-    return VERSION.SDK_INT < VERSION_CODES.TIRAMISU;
+    return !atLeastTiramisu();
   }
 
   public static boolean preUpsideDownCake() {
@@ -193,38 +194,6 @@ public class AndroidUtilities {
 
   private static boolean isMainThread() {
     return Thread.currentThread() == Looper.getMainLooper().getThread();
-  }
-
-  /** Capitalize the first character */
-  public static String capitalize(String string) {
-    return string.substring(0, 1).toUpperCase() + string.substring(1);
-  }
-
-  public static void hideKeyboard(Activity activity) {
-    try {
-      View currentFocus = activity.getCurrentFocus();
-      if (currentFocus != null) {
-        InputMethodManager inputMethodManager =
-            (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(currentFocus.getWindowToken(), 0);
-        currentFocus.clearFocus();
-      }
-    } catch (Exception e) {
-      Timber.e(e);
-    }
-  }
-
-  /**
-   * Dismiss the keyboard if it is displayed by any of the listed views
-   *
-   * @param views - a list of views that might potentially be displaying the keyboard
-   */
-  public static void hideSoftInputForViews(Context context, View... views) {
-    InputMethodManager imm =
-        (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-    for (View v : views) {
-      imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-    }
   }
 
   interface SerializedPut<T> {

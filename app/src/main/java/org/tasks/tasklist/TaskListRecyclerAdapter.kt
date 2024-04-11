@@ -6,15 +6,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.todoroo.astrid.activity.TaskListFragment
 import com.todoroo.astrid.adapter.TaskAdapter
 import com.todoroo.astrid.adapter.TaskAdapterDataSource
-import org.tasks.data.TaskContainer
+import com.todoroo.astrid.api.AstridOrderingFilter
+import com.todoroo.astrid.core.SortHelper
 import org.tasks.preferences.Preferences
 
 abstract class TaskListRecyclerAdapter internal constructor(
         private val adapter: TaskAdapter,
         internal val viewHolderFactory: ViewHolderFactory,
         private val taskList: TaskListFragment,
-        internal val preferences: Preferences)
-    : RecyclerView.Adapter<RecyclerView.ViewHolder>(), ListUpdateCallback, TaskAdapterDataSource {
+        internal val preferences: Preferences
+): RecyclerView.Adapter<RecyclerView.ViewHolder>(), ListUpdateCallback, TaskAdapterDataSource {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder
             = viewHolderFactory.newViewHolder(parent, taskList)
@@ -23,11 +24,11 @@ abstract class TaskListRecyclerAdapter internal constructor(
         val filter = taskList.getFilter()
         val groupsEnabled = filter.supportsSorting()
                 && !(filter.supportsManualSort() && preferences.isManualSort)
-                && !(filter.supportsAstridSorting() && preferences.isAstridSort)
+                && !(filter is AstridOrderingFilter && preferences.isAstridSort)
         val task = getItem(position)
         if (task != null) {
             (holder as TaskViewHolder)
-                    .bindView(task, filter, if (groupsEnabled) preferences.sortMode else -1)
+                    .bindView(task, filter, if (groupsEnabled) preferences.groupMode else SortHelper.GROUP_NONE)
             holder.moving = false
             val indent = adapter.getIndent(task)
             task.indent = indent
@@ -39,7 +40,7 @@ abstract class TaskListRecyclerAdapter internal constructor(
 
     fun toggle(taskViewHolder: TaskViewHolder) {
         adapter.toggleSelection(taskViewHolder.task)
-        notifyItemChanged(taskViewHolder.adapterPosition)
+        notifyItemChanged(taskViewHolder.bindingAdapterPosition)
         if (adapter.getSelected().isEmpty()) {
             taskList.finishActionMode()
         } else {
@@ -49,7 +50,7 @@ abstract class TaskListRecyclerAdapter internal constructor(
 
     abstract fun dragAndDropEnabled(): Boolean
 
-    abstract fun submitList(list: List<TaskContainer>)
+    abstract fun submitList(list: SectionedDataSource)
 
     override fun onInserted(position: Int, count: Int) {
         notifyItemRangeInserted(position, count)

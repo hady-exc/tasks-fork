@@ -56,17 +56,6 @@
     <string name="TEA_control_reminders">Напоминания</string>
     <string name="TEA_control_timer">Таймер</string>
     <string name="TEA_control_hidden_section">----Всегда скрывать----</string>
-    <string name="CRA_ignore">Игнорировать</string>
-    <string name="CRA_title">Нужен список встреч\?</string>
-    <string name="CRA_ignore_body">Вы проигнорировали несколько событий в календаре. Прекратить спрашивать о них\?</string>
-    <string name="CRA_ignore_all">Пропустить все события</string>
-    <string name="CRA_ignore_this">Проигнорировать только это событие</string>
-    <string name="CRA_speech_bubble_start">Похоже, скоро начнётся %s. Хотите создать список действий\?</string>
-    <string name="CRA_speech_bubble_end">Похоже, вы только что завершили %s. Хотите создать список действий\?</string>
-    <string name="CRA_postpone">Возможно, позднее</string>
-    <string name="CRA_calendar_reminders_pref_title">Ассистент календаря</string>
-    <string name="CRA_calendar_reminders_pref_desc_enabled">Tasks будет напоминать вам о предстоящих событиях в календаре и предлагать подготовиться к ним</string>
-    <string name="CRA_default_list_name">Список действий: %s</string>
     <string name="none">Нет</string>
     <string name="EPr_edit_screen_options">Настройки экрана редактирования</string>
     <string name="EPr_beastMode_reset">Сбросить настройки</string>
@@ -143,19 +132,12 @@
     <string name="default_random_reminder_daily">Ежедневно</string>
     <string name="default_random_reminder_weekly">Еженедельно</string>
     <string name="default_random_reminder_bi_weekly">Каждые две недели</string>
-    <string name="repeat_every">Каждую(ые)</string>
     <string name="repeat_option_does_not_repeat">Не повторять</string>
     <string name="repeat_option_every_day">Ежедневно</string>
     <string name="repeat_option_every_week">Еженедельно</string>
     <string name="repeat_option_every_month">Ежемесячно</string>
     <string name="repeat_option_every_year">Ежегодно</string>
     <string name="repeat_option_custom">Другой…</string>
-    <string name="repeat_minutely">ПОВТОРЯТЬ ЕЖЕМИНУТНО</string>
-    <string name="repeat_hourly">ПОВТОРЯТЬ ЕЖЕЧАСНО</string>
-    <string name="repeat_daily">ПОВТОРЯТЬ ЕЖЕДНЕВНО</string>
-    <string name="repeat_weekly">ПОВТОРЯТЬ ЕЖЕНЕДЕЛЬНО</string>
-    <string name="repeat_monthly">ПОВТОРЯТЬ ЕЖЕМЕСЯЧНО</string>
-    <string name="repeat_yearly">ПОВТОРЯТЬ ЕЖЕГОДНО</string>
     <plurals name="task_count">
         <item quantity="one">%d задача</item>
         <item quantity="few">%d задачи</item>
@@ -228,10 +210,6 @@
     </plurals>
     <string name="repeat_type_due">намеченной даты</string>
     <string name="repeat_type_completion">даты завершения</string>
-    <string name="repeat_forever">Повторять всегда</string>
-    <string name="repeat_until">Повторять до %s</string>
-    <string name="repeat_number_of_times">Повторять несколько раз</string>
-    <string name="repeat_occurs">Повторять</string>
     <string name="repeat_snackbar">%1$s перенесено на %2$s</string>
     <string name="new_tag">Создать новый тег</string>
     <string name="new_list">Создать новый список</string>
@@ -249,9 +227,10 @@
     <string name="delete_task">Удалить задачу</string>
     <string name="voice_command_added_task">Добавленная задача</string>
     <plurals name="Ntasks">
-        <item quantity="one">1 задача</item>
+        <item quantity="one">%d задача</item>
         <item quantity="few">%d задачи</item>
         <item quantity="many">%d задач</item>
+        <item quantity="other">%d задач</item>
     </plurals>
     <string name="today">Сегодня</string>
     <string name="tomorrow">Завтра</string>
@@ -309,7 +288,6 @@
     <string name="move">Перенести</string>
     <string name="filter_settings">Настройки фильтра</string>
     <string name="show_completed">Показать выполненные</string>
-    <string name="reverse">Наоборот</string>
     <string name="add_attachment">Прикрепить файл</string>
     <string name="take_a_picture">Сделать снимок</string>
     <string name="pick_from_gallery">Выбрать из галереи</string>
@@ -386,9 +364,7 @@
     <string name="default_calendar">Календарь по умолчанию</string>
     <string name="badges_description">Отображать количество задач на иконке приложения. Не все лаунчеры это поддерживают.</string>
     <string name="bundle_notifications_summary">Группировать несколько уведомлений в одно</string>
-    <string name="repeat_monthly_same_day_each_month">в тот же день ежемесячно</string>
     <string name="repeat_monthly_every_day_of_nth_week">каждый %1$s %2$s</string>
-    <string name="repeat_monthly_on_every_day_of_nth_week">в каждый %1$s %2$s</string>
     <string name="repeat_monthly_first_week">первая</string>
     <string name="repeat_monthly_second_week">вторая</string>
     <string name="repeat_monthly_third_week">третья</string>
@@ -451,7 +427,6 @@
     <string name="expand_subtasks">Развернуть подзадачи</string>
     <string name="collapse_subtasks">Свернуть подзадачи</string>
     <string name="subtasks_multilevel_google_task">Многоуровневые подзадачи не поддерживаются Google Tasks</string>
-    <string name="enter_title_hint">Введите название</string>
     <string name="enter_tag_name">Введите имя тега</string>
     <string name="create_new_tag">Создать \"%s\"</string>
     <string name="display_name">Отображаемое название</string>
@@ -515,11 +490,7 @@
     <string name="widget_due_date_hidden">Спрятано</string>
     <string name="widget_due_date_below_title">Под названием</string>
     <string name="widget_due_date_after_title">После названия</string>
-    <string name="widget_due_date_reschedule">Перенести задачу</string>
     <string name="widget_open_list">Открыть список</string>
-    <string name="widget_do_nothing">Ничего не делать</string>
-    <string name="widget_on_click">По щелчку</string>
-    <string name="widget_footer">Футер</string>
     <string name="opacity_footer">Непрозрачность футера</string>
     <string name="opacity_row">Непрозрачность строки</string>
     <string name="opacity_header">Непрозрачность заголовка</string>
@@ -533,7 +504,6 @@
     <string name="filter_low_priority">Низкий приоритет</string>
     <string name="filter_medium_priority">Средний приоритет</string>
     <string name="filter_high_priority">Высокий приоритет</string>
-    <string name="add_filter">Добавить фильтр</string>
     <string name="add_tags">Добавить теги</string>
     <string name="filter_no_tags">Без тегов</string>
     <string name="filter_after_today">После сегодняшнего дня</string>
@@ -546,9 +516,7 @@
     <string name="custom_filter_criteria">Критерии фильтрации</string>
     <string name="sort_created">Дата создания</string>
     <string name="got_it">Понятно!</string>
-    <string name="no_thanks">Нет, спасибо</string>
     <string name="support_development_subscribe">Разблокировать дополнительные функции и поддержать ПО с открытым исходным кодом</string>
-    <string name="tell_me_how_im_doing">Пожалуйста, дайте мне знать, как я справляюсь</string>
     <string name="enjoying_tasks">Нравится Tasks\?</string>
     <string name="whats_new">Что нового</string>
     <string name="action_new_task">Новая задача</string>
@@ -562,7 +530,6 @@
     <string name="lists">Списки</string>
     <string name="open_last_viewed_list">Открыть последний просмотренный список</string>
     <string name="on_launch">При запуске</string>
-    <string name="disable_sort_groups">Отключить группы сортировки</string>
     <string name="date_shortcut_tomorrow_night">Завтра ночью</string>
     <string name="date_shortcut_tomorrow_evening">Завтра вечером</string>
     <string name="CFC_list_name">В списке…</string>
@@ -587,7 +554,6 @@
     <string name="repeat_type_completion_capitalized">Дата завершения</string>
     <string name="custom_filter_is_subtask">Подзадача</string>
     <string name="custom_filter_has_subtask">Есть подзадачи</string>
-    <string name="delete_comment">Удалить этот комментарий\?</string>
     <string name="default_tags">Теги по умолчанию</string>
     <string name="default_location">Местоположение по умолчанию</string>
     <string name="always_display_full_date">Показать полную дату</string>
@@ -744,7 +710,6 @@
     <string name="alarm_before_due">%s до</string>
     <string name="alarm_after_due">%s после</string>
     <string name="alarm_after_start">%s после начала</string>
-    <string name="completed_tasks_sort">Сортировать по дате завершения</string>
     <string name="filter_snoozed">Отложенные</string>
     <string name="caldav_server_unknown">Неизвестный</string>
     <string name="caldav_server_other">Другой</string>
@@ -765,4 +730,26 @@
     <string name="sign_in">Войти</string>
     <string name="default_reminder">Напоминание по умолчанию</string>
     <string name="rmd_time_description">Показывать уведомления для задач без срока выполнения</string>
+    <string name="repeats_weekly_on">Повторять в</string>
+    <string name="repeats_on">В</string>
+    <string name="repeats_after">После</string>
+    <string name="repeats_ends">Завершается</string>
+    <string name="repeat_monthly_on_day_number">Ежемесячно на %1d день</string>
+    <string name="repeat_monthly_on_the_nth_weekday">Ежемесячно в %1$s %2$s</string>
+    <string name="repeats_never">Никогда</string>
+    <string name="repeats_every">Повторять каждый</string>
+    <string name="repeats_custom_recurrence">Пользовательское повторение</string>
+    <plurals name="repeat_occurrence">
+        <item quantity="one">повтор</item>
+        <item quantity="few">повтора</item>
+        <item quantity="many">повторов</item>
+        <item quantity="other">повторов</item>
+    </plurals>
+    <string name="sort_not_available">Недоступно для тегов, фильтров или мест</string>
+    <string name="sort_list">Список</string>
+    <string name="sort_sorting">Сортировка</string>
+    <string name="sort_grouping">Группировка</string>
+    <string name="sort_ascending">По возрастанию</string>
+    <string name="sort_descending">По убыванию</string>
+    <string name="sort_completed">Время выполнения</string>
 </resources>

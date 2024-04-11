@@ -1,6 +1,7 @@
 package com.todoroo.astrid.subtasks
 
 import android.content.Context
+import com.todoroo.astrid.api.AstridOrderingFilter
 import com.todoroo.astrid.api.Filter
 import com.todoroo.astrid.core.BuiltInFilterExposer.Companion.isInbox
 import com.todoroo.astrid.core.BuiltInFilterExposer.Companion.isTodayFilter
@@ -18,7 +19,6 @@ import org.tasks.data.TaskListMetadataDao
 import org.tasks.db.QueryUtils.showHiddenAndCompleted
 import org.tasks.preferences.QueryPreferences
 import timber.log.Timber
-import java.util.*
 import javax.inject.Inject
 
 class SubtasksHelper @Inject constructor(
@@ -26,14 +26,14 @@ class SubtasksHelper @Inject constructor(
         private val taskDao: TaskDao,
         private val tagDataDao: TagDataDao,
         private val taskListMetadataDao: TaskListMetadataDao) {
+
     suspend fun applySubtasksToWidgetFilter(
             filter: Filter,
             preferences: QueryPreferences,
-            originalQuery: String
-    ): String {
-        var query = originalQuery
-        if (filter.supportsAstridSorting() && preferences.isAstridSort) {
-            val tagData = tagDataDao.getTagByName(filter.listingTitle)
+    ) {
+        if (filter is AstridOrderingFilter && preferences.isAstridSort) {
+            var query = filter.sql!!
+            val tagData = tagDataDao.getTagByName(filter.title!!)
             val tlm = when {
                 tagData != null ->
                     taskListMetadataDao.fetchByTagOrFilter(tagData.remoteId!!)
@@ -47,10 +47,9 @@ class SubtasksHelper @Inject constructor(
                 query = query.replace("ORDER BY .*".toRegex(), "")
                 query += " ORDER BY ${getOrderString(tagData, tlm)}"
                 query = showHiddenAndCompleted(query)
-                filter.setFilterQueryOverride(query)
+                filter.filterOverride = query
             }
         }
-        return query
     }
 
     private suspend fun getOrderString(tagData: TagData?, tlm: TaskListMetadata?): String {

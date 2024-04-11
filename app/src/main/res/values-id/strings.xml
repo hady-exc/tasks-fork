@@ -35,16 +35,12 @@
     <string name="TEA_control_notes">Deskripsi</string>
     <string name="TEA_control_files">Berkas</string>
     <string name="TEA_control_reminders">Pengingat</string>
-    <string name="CRA_ignore">Abaikan</string>
-    <string name="CRA_ignore_all">Abaikan semua acara</string>
-    <string name="CRA_ignore_this">Abaikan hanya acara ini</string>
     <string name="TLA_no_items">Belum ada tugas yang dibuat.</string>
     <string name="action_call">Panggil</string>
     <string name="SSD_sort_due">Berdasarkan tanggal Jatuh tempo</string>
     <string name="due_date">Tanggal jatuh tempo</string>
     <string name="due_time">Waktu jatuh tempo</string>
     <string name="TEA_control_hidden_section">----Selalu Sembunyi----</string>
-    <string name="CRA_calendar_reminders_pref_title">Asisten kalender</string>
     <string name="none">Tidak Ada</string>
     <string name="EPr_edit_screen_options">Opsi layar sunting</string>
     <string name="EPr_beastMode_reset">Setel ulang ke bawaan</string>
@@ -101,19 +97,12 @@
     <string name="default_random_reminder_daily">Harian</string>
     <string name="default_random_reminder_weekly">Mingguan</string>
     <string name="default_random_reminder_bi_weekly">Dua mingguan</string>
-    <string name="repeat_every">Setiap</string>
     <string name="repeat_option_does_not_repeat">Tidak berulang</string>
     <string name="repeat_option_every_day">Setiap hari</string>
     <string name="repeat_option_every_week">Setiap minggu</string>
     <string name="repeat_option_every_month">Setiap bulan</string>
     <string name="repeat_option_every_year">Setiap tahun</string>
     <string name="repeat_option_custom">Khusus…</string>
-    <string name="repeat_minutely">ULANGI PER MENIT</string>
-    <string name="repeat_hourly">ULANGI PER JAM</string>
-    <string name="repeat_daily">ULANGI HARIAN</string>
-    <string name="repeat_weekly">ULANGI MINGGUAN</string>
-    <string name="repeat_monthly">ULANGI BULANAN</string>
-    <string name="repeat_yearly">ULANGI TAHUNAN</string>
     <plurals name="task_count">
         <item quantity="other">%d tugas</item>
     </plurals>
@@ -158,9 +147,6 @@
     </plurals>
     <string name="repeat_type_due">tanggal jatuh tempo</string>
     <string name="repeat_type_completion">tanggal selesai</string>
-    <string name="repeat_forever">Ulangi selamanya</string>
-    <string name="repeat_until">Ulangi sampai %s</string>
-    <string name="repeat_number_of_times">Ulangi beberapa kali</string>
     <string name="new_tag">Buat tag baru</string>
     <string name="new_list">Buat daftar baru</string>
     <string name="delete_tag_confirmation">Hapus %s\?</string>
@@ -292,7 +278,6 @@
 \n %5$s memiliki kesalahan
 \n</string>
     <string name="read_permission_label">Perizinan Tugas</string>
-    <string name="CRA_title">Membutuhkan daftar pertemuan\?</string>
     <string name="EPr_cal_end_at_due_time">Akhiri acara kelender pada waktu jatuh tempo</string>
     <string name="EPr_cal_start_at_due_time">Mulai acara kalender pada waktu jatuh tempo</string>
     <string name="EPr_manage_delete_all_gcal">Hapus semua acara kalender untuk tugas</string>
@@ -309,7 +294,6 @@
     <string name="EPr_voiceRemindersEnabled_desc_enabled">Tasks akan mengucapkan nama tugas selama pengingat tugas berjalan</string>
     <string name="badges_description">Tampilkan jumlah tugas pada ikon peluncur Tasks. Tidak semua peluncur mendukung fitur lencana ini.</string>
     <string name="bundle_notifications_summary">Gabung beberapa notifikasi menjadi satu</string>
-    <string name="repeat_monthly_same_day_each_month">pada hari yang sama setiap bulan</string>
     <string name="repeat_monthly_first_week">pertama</string>
     <string name="repeat_monthly_second_week">kedua</string>
     <string name="repeat_monthly_third_week">ketiga</string>
@@ -349,7 +333,6 @@
     <string name="google_tasks_add_to_top">Tugas baru di atas</string>
     <string name="expand_subtasks">Lebarkan subtugas</string>
     <string name="subtasks_multilevel_google_task">Subtugas level-ganda tidak didukung oleh Google Tasks</string>
-    <string name="enter_title_hint">Masukkan judul</string>
     <string name="enter_tag_name">Masukkan nama tag</string>
     <string name="create_new_tag">Buat \"%s\"</string>
     <string name="this_feature_requires_a_subscription">Fitur ini membutuhkan Anda berlangganan versi pro</string>
@@ -391,7 +374,6 @@
     <string name="back">Kembali</string>
     <string name="invalid_username_or_password">Nama pengguna dan kata sandi salah</string>
     <string name="davx5_selection_description">Sinkronkan tugas Anda dengan aplikasi DAVx⁵</string>
-    <string name="disable_sort_groups">Nonaktifkan grup sortir</string>
     <string name="whats_new">Apa yang Baru</string>
     <string name="missing_permissions">Perizinan hilang</string>
     <string name="building_notifications">Menghasilkan notifikasi</string>
@@ -401,9 +383,7 @@
     <string name="tasker_list_notification">Daftar Notifikasi</string>
     <string name="widget_due_date_hidden">Tersembunyi</string>
     <string name="widget_due_date_after_title">Sesudah judul</string>
-    <string name="widget_due_date_reschedule">Jadwalkan ulang tugas</string>
     <string name="widget_open_list">Buka daftar</string>
-    <string name="widget_do_nothing">Jangan lakukan apapun</string>
     <string name="theme_system_default">Bawaan sistem</string>
     <string name="default_recurrence">Pengulangan bawaan</string>
     <string name="default_tags">Tag bawaan</string>
@@ -429,7 +409,6 @@
     <string name="default_location_reminder_on_arrival_or_departure">Pada saat kedatangan dan keberangkatan</string>
     <string name="default_location">Lokasi bawaan</string>
     <string name="EPr_default_location_reminder_title">Pengingat lokasi bawaan</string>
-    <string name="CRA_ignore_body">Anda telah mengabaikan beberapa acara dalam kalender. Haruskah Tasks berhenti menanyakannya kepada Anda\?</string>
     <string name="TEA_control_timer">Atur Pengingat</string>
     <string name="week_before_due">Minggu sebelum jatuh tempo</string>
     <string name="TEA_timer_elap">Terlewat %s</string>
@@ -439,11 +418,6 @@
     <string name="WID_dateButtonUnset">Klik untuk mengatur</string>
     <string name="cancel">Batal</string>
     <string name="ok">Oke</string>
-    <string name="CRA_default_list_name">Tindakan Item: %s</string>
-    <string name="CRA_calendar_reminders_pref_desc_enabled">Tugas akan mengingatkan Anda tentang acara kalender mendatang dan menyarankan Anda untuk bersiap-siap untuk hal tersebut</string>
-    <string name="CRA_postpone">Mungkin setelahnya</string>
-    <string name="CRA_speech_bubble_end">Sepertinya Anda telah menyelesaikan %s. Ingin membuat sebuah daftar untuk tindakan item\?</string>
-    <string name="CRA_speech_bubble_start">Sepertinya %s akan segela dimulai. Ingin membuat sebuah daftar untuk tindakan item\?</string>
     <string name="day_before_due">Hari sebelum jatuh tempo</string>
     <string name="start_date">Tanggal mulai</string>
     <string name="TEA_estimatedDuration_label">Berapa lama\?</string>
@@ -453,7 +427,6 @@
     <string name="astrid_sort_order">Sortiran manual astrid</string>
     <string name="display_name">Nama tampilan</string>
     <string name="background_location_permission_required">Aplikasi ini mengumpulkan data lokasi untuk mengaktifkan pengingat berdasarkan lokasi bahkan saat aplikasi ditutup atau sedang tidak digunakan.</string>
-    <string name="tell_me_how_im_doing">Tolong beritahu saya bagaimana hasil pekerjaan saya</string>
     <string name="repeats_plural_on_number_of_times">Ulangi setiap %1$s pada %2$s, terjadi %3$d %4$s</string>
     <string name="repeats_plural_number_of_times">Ulangi setiap %1$s, terjadi %2$d %3$s</string>
     <string name="repeats_plural_until">Ulangi setiap %1$s sampai %2$s</string>
@@ -498,7 +471,6 @@
     <string name="your_subscription_expired">Langganan Anda telah berakhir. Berlangganan kembali untuk melanjutkan layanan.</string>
     <string name="custom_filter_is_subtask">Adalah subtugas</string>
     <string name="custom_filter_has_subtask">Memiliki subtugas</string>
-    <string name="delete_comment">Hapus komentar ini\?</string>
     <string name="date_picker_multiple">Banyak</string>
     <string name="multi_select_reschedule">Jadwalkan Ulang</string>
     <string name="backup_location_warning">PERINGATAN: File yang terletak pada %s akan dihapus jika pemasangan Tasks dihapus! Pilih lokasi khusus untuk mencegah Android menghapus file Anda.</string>
@@ -524,7 +496,6 @@
     <string name="sort_due_group">Jatuh tempo %s</string>
     <string name="sort_start_group">Mulai %s</string>
     <string name="got_it">Ok Kaka!</string>
-    <string name="no_thanks">Tidak, terima kasih</string>
     <string name="support_development_subscribe">Temukan fitur tambahan dan dukung perangkat lunak sumber terbuka</string>
     <string name="enjoying_tasks">Menikmati Tasks\?</string>
     <string name="filter_eisenhower_box_4">Tidak penting dan tidak mendesak</string>
@@ -535,7 +506,6 @@
     <string name="filter_low_priority">Prioritas rendah</string>
     <string name="filter_medium_priority">Prioritas sedang</string>
     <string name="filter_high_priority">Prioritas tinggi</string>
-    <string name="add_filter">Tambahkan filter</string>
     <string name="add_tags">Tambahkan tag</string>
     <string name="filter_no_tags">Tidak ada tag</string>
     <string name="filter_after_today">Setelah hari ini</string>
@@ -572,18 +542,14 @@
     <string name="subscription">Langganan</string>
     <string name="caldav_home_set_not_found">Set beranda tidak ditemukan</string>
     <string name="repeat_monthly_fifth_week">kelima</string>
-    <string name="repeat_monthly_on_every_day_of_nth_week">pada setiap %1$s %2$s</string>
     <string name="repeat_monthly_every_day_of_nth_week">setiap %1$s %2$s</string>
     <string name="repeats_plural_on_until">Ulangi setiap %1$s pada %2$s sampai %3$s</string>
     <string name="repeats_plural_on">Ulangi setiap %1$s pada %2$s</string>
     <string name="bundle_notifications">Notifikasi Bundel</string>
     <string name="widget_due_date_below_title">Dibawah judul</string>
-    <string name="widget_on_click">Pada klik</string>
-    <string name="widget_footer">Tajuk bawah</string>
     <string name="opacity_footer">Opasitas tajuk bawah</string>
     <string name="opacity_row">Opasitas baris</string>
     <string name="opacity_header">Opasitas tajuk</string>
-    <string name="reverse">Balikkan</string>
     <string name="filter_criteria_unstarted">Belum dimulai</string>
     <string name="show_unstarted">Tampilkan yang belum dimulai</string>
     <string name="date_shortcut_must_come_after">%1$s harus datang setelah %2$s</string>
@@ -596,7 +562,6 @@
     <string name="TFE_workingOn">Tugas yang Dicatat Waktu</string>
     <string name="TPl_notification">Pencatat Waktu Aktif untuk %s!</string>
     <string name="repeat_snackbar">%1$s dijadwalkan ulang untuk %2$s</string>
-    <string name="repeat_occurs">Terjadi</string>
     <string name="repeat_type_completion_capitalized">tanggal selesai</string>
     <string name="persistent_notifications_description">Notifikasi tetap tidak dapat dihapus</string>
     <string name="rmd_EPr_rmd_time_desc">Notifikasi untuk tugas tanpa waktu jatuh tempo akan muncul pada %s</string>
@@ -698,7 +663,6 @@
     <string name="snackbar_task_completed">Tugas selesai</string>
     <string name="custom_notification">Notifikasi kustom</string>
     <string name="hint_customize_edit_body">Kamu dapat mengubah bagian ini dengan mengurutkan atau menghapus kolom</string>
-    <string name="completed_tasks_sort">Urutkan berdasarkan tanggal selesai</string>
-    <string name="alarm_before_start">Detik sebelum mulai</string>
-    <string name="alarm_after_start">Detik setelah mulai</string>
+    <string name="alarm_before_start">%s sebelum mulai</string>
+    <string name="alarm_after_start">%s setelah mulai</string>
 </resources>

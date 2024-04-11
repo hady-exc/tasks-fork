@@ -54,17 +54,6 @@
     <string name="TEA_control_reminders">Recordatorios</string>
     <string name="TEA_control_timer">Controles de tempo</string>
     <string name="TEA_control_hidden_section">---Agochar sempre---</string>
-    <string name="CRA_ignore">Ignorar</string>
-    <string name="CRA_title">Precisa dunha lista de reunións\?</string>
-    <string name="CRA_ignore_body">Ignorou varios eventos do calendario. Quere que Tasks lle deixe de preguntar por eles\?</string>
-    <string name="CRA_ignore_all">Ignorar todos os eventos</string>
-    <string name="CRA_ignore_this">Ignorar só este evento</string>
-    <string name="CRA_speech_bubble_start">Semella que %s vai comezar pronto. Quere crear unha lista de accións\?</string>
-    <string name="CRA_speech_bubble_end">Semella que acaba de rematar %s. Quere crear unha lista de accións\?</string>
-    <string name="CRA_postpone">Igual despois</string>
-    <string name="CRA_calendar_reminders_pref_title">Asistente de calendario</string>
-    <string name="CRA_calendar_reminders_pref_desc_enabled">Tasks lembraralle os próximos eventos do calendario e pediralle que se prepare para eles</string>
-    <string name="CRA_default_list_name">Accións: %s</string>
     <string name="none">Ningunha</string>
     <string name="EPr_edit_screen_options">Editar opcións de pantalla</string>
     <string name="EPr_beastMode_reset">Restablecer valores predeterminados</string>
@@ -138,8 +127,6 @@
     <string name="default_random_reminder_daily">Diariamente</string>
     <string name="default_random_reminder_weekly">Semanalmente</string>
     <string name="default_random_reminder_bi_weekly">Quincenalmente</string>
-    <string name="repeat_forever">Repetir de por sempre</string>
-    <string name="repeat_until">Repetir ata o %s</string>
     <string name="repeat_snackbar">%1$s reprogramou esta tarefa para %2$s</string>
     <string name="new_tag">Crear nova etiqueta</string>
     <string name="new_list">Crea unha nova lista</string>
@@ -211,7 +198,6 @@
     <string name="copy">Copiar</string>
     <string name="filter_settings">Configuración de filtros</string>
     <string name="show_completed">Amosar finalizadas</string>
-    <string name="reverse">Invertir</string>
     <string name="add_attachment">Anexar ficheiro</string>
     <string name="take_a_picture">Tomar fotografía</string>
     <string name="pick_from_gallery">Elixir desde a galería</string>
@@ -261,7 +247,6 @@
     <string name="filter_no_priority">Sen prioridade</string>
     <string name="repeat_type_due">data de fin</string>
     <string name="geofence_radius">Radio</string>
-    <string name="widget_due_date_reschedule">Reprogramar a tarefa</string>
     <string name="use_locale_default">Usar predefinido do sistema</string>
     <string name="add_account">Engadir conta</string>
     <string name="error_adding_account">Erro: %s</string>
@@ -328,8 +313,6 @@
     <string name="repeat_option_every_week">Todas as semanas</string>
     <string name="repeat_option_every_month">Todos os meses</string>
     <string name="repeat_option_custom">Personalizado…</string>
-    <string name="repeat_minutely">REPETIR POR MINUTOS</string>
-    <string name="repeat_daily">REPETIR POR DÍAS</string>
     <plurals name="task_count">
         <item quantity="one">%d tarefa</item>
         <item quantity="other">%d tarefas</item>
@@ -342,7 +325,6 @@
         <item quantity="one">tempo</item>
         <item quantity="other">tempos</item>
     </plurals>
-    <string name="repeat_number_of_times">Repetir un número de veces</string>
     <string name="tomorrow_lowercase">mañá</string>
     <string name="next_tuesday">Próx Mar</string>
     <string name="next_wednesday">Próx Mér</string>
@@ -355,7 +337,6 @@
     <string name="action_create_new_task">Crear nova tarefa</string>
     <string name="show_description">Amosar descrición</string>
     <string name="repeats_plural_on">Repetir cada %1$s en %2$s</string>
-    <string name="repeat_monthly_on_every_day_of_nth_week">en cada %1$s %2$s</string>
     <string name="cannot_access_account">Non se pode acceder á conta</string>
     <string name="location_remind_arrival">Recordatorio de chegada</string>
     <string name="location_remind_departure">Recordatorio de saída</string>
@@ -373,7 +354,6 @@
     <string name="google_tasks_selection_description">Servizo básico que sincroniza coa túa conta de Google</string>
     <string name="chip_appearance_icon_only">Só iconas</string>
     <string name="add_tags">Engadir etiquetas</string>
-    <string name="add_filter">Engadir filtro</string>
     <string name="filter_any_due_date">Calquera data de fin</string>
     <string name="filter_high_priority">Prioridade alta</string>
     <string name="filter_low_priority">Prioridade baixa</string>
@@ -407,7 +387,6 @@
     <string name="caldav_server_unknown">Descoñecido</string>
     <string name="caldav_server_other">Outro</string>
     <string name="more_options">Máis opcións</string>
-    <string name="completed_tasks_sort">Escoller por data de fin</string>
     <string name="snackbar_tasks_completed">%d tarefas finalizadas</string>
     <string name="caldav_server_type">Tipo de servidor</string>
     <string name="filter_snoozed">Posposta</string>
@@ -420,18 +399,14 @@
     <string name="subtasks">Subtarefas</string>
     <string name="menu_discard_changes">Descartar mudanzas</string>
     <string name="username_required">Precísase nome de usuario</string>
-    <string name="widget_on_click">Co clic</string>
-    <string name="widget_do_nothing">Non facer nada</string>
     <string name="widget_open_list">Abrir lista</string>
     <string name="user">Usuario/a</string>
     <string name="repeats_hourly">por hora</string>
     <string name="repeats_plural_on_until">Repetir cada %1$s en %2$s ata %3$s</string>
     <string name="repeats_plural_on_number_of_times">Repetir cada %1$s o %2$s, ocorre que %3$d %4$s</string>
-    <string name="repeat_monthly_same_day_each_month">no mesmo día de cada mes</string>
     <string name="license_summary">Tasks é software de código aberto, con licenza baixo a GNU General Public License v3.0</string>
     <string name="requires_pro_subscription">Precísase dunha suscrición pro</string>
     <string name="this_feature_requires_a_subscription">Esta característica necesita dunha suscrición</string>
-    <string name="disable_sort_groups">Desactivar ordenación de grupos</string>
     <string name="enter_tag_name">Introduce nome de etiqueta</string>
     <string name="create_new_tag">Crear \"%s\"</string>
     <string name="show_advanced_settings">Amosar configuración avanzada</string>
@@ -444,7 +419,6 @@
     <string name="hide_unused_tags">Agochar etiquetas sen usar</string>
     <string name="hide_unused_places">Agochar lugares sen usar</string>
     <string name="account">Conta</string>
-    <string name="delete_comment">Borrar este comentario\?</string>
     <string name="custom_filter_has_subtask">Ten subtarefas</string>
     <string name="tasks_org_account_required">Precísase de conta en Tasks.org</string>
     <string name="map_theme_use_app_theme">Empregar estilo de aplicativo</string>
@@ -462,10 +436,8 @@
     <string name="app_passwords_more_info">Sincroniza as tarefas e os calendarios en aplicativos de terceiros para escritorio ou dispositivos móbiles. Preme aquí para máis información</string>
     <string name="generate_new_password">Xerar novo contrasinal</string>
     <string name="upgrade_desktop_access">Acceso ao escritorio</string>
-    <string name="widget_footer">Rodapé</string>
     <string name="repeats_weekly">por semana</string>
     <string name="version_string">Versión %s</string>
-    <string name="enter_title_hint">Introducir título</string>
     <string name="gtasks_GPr_header">Google Tasks</string>
     <string name="TEA_timer_est">Est. %s</string>
     <string name="sort_created">Por data de creación</string>
@@ -517,12 +489,7 @@
     <string name="default_location_reminder_on_arrival_or_departure">Á chegada e á saída</string>
     <string name="no_start_date">Sen data de inicio</string>
     <string name="snooze_all">Pospoñer todo</string>
-    <string name="repeat_every">Todo</string>
     <string name="repeat_option_every_year">Todos os anos</string>
-    <string name="repeat_hourly">REPETIR POR HORAS</string>
-    <string name="repeat_weekly">REPETIR POR SEMANAS</string>
-    <string name="repeat_monthly">REPETIR POR MESES</string>
-    <string name="repeat_yearly">REPETIR POR ANOS</string>
     <string name="google_drive_backup">Seguranza en Google Drive</string>
     <string name="url_required">Precísase a URL</string>
     <string name="opacity_row">Opacidade da fila</string>
@@ -562,7 +529,6 @@
     <string name="filter_after_today">Despois de hoxe</string>
     <string name="filter_no_tags">Sen etiquetas</string>
     <string name="filter_eisenhower_box_3">Non importantes e urxentes</string>
-    <string name="no_thanks">Sen agradecementos</string>
     <string name="sort_start_group">Comeza %s</string>
     <string name="sort_due_group">Ata o %s</string>
     <string name="open_last_viewed_list">Abrir a última lista vista</string>
@@ -606,7 +572,6 @@
     <string name="alarm_after_start">%s despois do inicio</string>
     <string name="alarm_before_due">%s antes do límite</string>
     <string name="alarm_after_due">%s despois do límite</string>
-    <string name="repeat_occurs">Ocorre</string>
     <string name="CFC_startBefore_text">Comeza con: \?</string>
     <string name="CFC_startBefore_name">Comezar por…</string>
     <string name="filter_any_start_date">Calquera data de inicio</string>

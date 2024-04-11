@@ -56,17 +56,6 @@
     <string name="TEA_control_reminders">Oroigarriak</string>
     <string name="TEA_control_timer">Kronometroaren kontrolak</string>
     <string name="TEA_control_hidden_section">----Ezkutatu beti----</string>
-    <string name="CRA_ignore">Ezikusi</string>
-    <string name="CRA_title">Batzarren zerrenda bat behar duzu\?</string>
-    <string name="CRA_ignore_body">Egutegiko gertaera batzuk ezikusi dituzu. Nahiago zenuke Tasks aplikazioak horiei buruz galdetuko ez balu\?</string>
-    <string name="CRA_ignore_all">Ezikusi gertaera guztiak</string>
-    <string name="CRA_ignore_this">Ezikusi gertaera hau soilik</string>
-    <string name="CRA_speech_bubble_start">Badirudi %s laster hasiko dela. Ekintzen zerrenda bat sortu nahi duzu\?</string>
-    <string name="CRA_speech_bubble_end">Badirudi %s amaitu duzula. Ekintzen zerrenda bat sortu nahi duzu\?</string>
-    <string name="CRA_postpone">Agian geroago</string>
-    <string name="CRA_calendar_reminders_pref_title">Egutegiaren laguntzailea</string>
-    <string name="CRA_calendar_reminders_pref_desc_enabled">Tasks aplikazioak egutegiko gertaerak gogorarazi egingo dizkizu hurbil daudenean horietarako prestatu zaitezen</string>
-    <string name="CRA_default_list_name">Ekintzak: %s</string>
     <string name="none">Bat ere ez</string>
     <string name="EPr_edit_screen_options">Edizio pantailaren aukerak</string>
     <string name="EPr_beastMode_reset">Berrezarri lehenetsitakoak</string>
@@ -144,19 +133,12 @@
     <string name="default_random_reminder_daily">Egunero</string>
     <string name="default_random_reminder_weekly">Astero</string>
     <string name="default_random_reminder_bi_weekly">Bi astean behin</string>
-    <string name="repeat_every">Errepikapena</string>
     <string name="repeat_option_does_not_repeat">Ez errepikatu</string>
     <string name="repeat_option_every_day">Egunero</string>
     <string name="repeat_option_every_week">Astero</string>
     <string name="repeat_option_every_month">Hilabetero</string>
     <string name="repeat_option_every_year">Urtero</string>
     <string name="repeat_option_custom">Pertsonalizatua…</string>
-    <string name="repeat_minutely">ERREPIKATU MINUTUKO</string>
-    <string name="repeat_hourly">ERREPIKATU ORDUKO</string>
-    <string name="repeat_daily">ERREPIKATU EGUNEKO</string>
-    <string name="repeat_weekly">ERREPIKATU ASTEKO</string>
-    <string name="repeat_monthly">ERREPIKATU HILABETEKO</string>
-    <string name="repeat_yearly">ERREPIKATU URTEKO</string>
     <plurals name="task_count">
         <item quantity="one">Zeregin %d</item>
         <item quantity="other">%d zeregin</item>
@@ -215,10 +197,6 @@
     </plurals>
     <string name="repeat_type_due">epemuga-data</string>
     <string name="repeat_type_completion">burutze-data</string>
-    <string name="repeat_forever">Errepikatu betirako</string>
-    <string name="repeat_until">Errepikatu %s arte</string>
-    <string name="repeat_number_of_times">Errepikatu aldi kopuru bat</string>
-    <string name="repeat_occurs">Errepikapenak</string>
     <string name="repeat_snackbar">%1$s %2$s-rako programatuta</string>
     <string name="new_tag">Sortu etiketa berria</string>
     <string name="new_list">Sortu zerrenda berria</string>
@@ -295,7 +273,6 @@
     <string name="move">Lekuz aldatu</string>
     <string name="filter_settings">Iragazki-ezarpenak</string>
     <string name="show_completed">Erakutsi burututakoak</string>
-    <string name="reverse">Alderantziz</string>
     <string name="add_attachment">Gehitu eranskina</string>
     <string name="take_a_picture">Atera argazkia</string>
     <string name="pick_from_gallery">Hautatu galeriatik</string>
@@ -374,9 +351,7 @@
     <string name="default_calendar">Lehenetsitako egutegia</string>
     <string name="badges_description">Bistaratu zeregin kopurua abiarazleko Tasks ikonoan. Abiarazle guztiek ez dituzte dominak onartzen.</string>
     <string name="bundle_notifications_summary">Taldekatu hainbat jakinarazpen batean</string>
-    <string name="repeat_monthly_same_day_each_month">egun berean hilero</string>
     <string name="repeat_monthly_every_day_of_nth_week">%1$s %2$s bakoitzean</string>
-    <string name="repeat_monthly_on_every_day_of_nth_week">%1$s %2$s bakoitzean</string>
     <string name="repeat_monthly_first_week">lehen</string>
     <string name="repeat_monthly_second_week">bigarren</string>
     <string name="repeat_monthly_third_week">hirugarren</string>
@@ -435,7 +410,6 @@
     <string name="TEA_add_subtask">Gehitu azpi-zeregina</string>
     <string name="subtasks">Azpi-zereginak</string>
     <string name="subtasks_multilevel_google_task">Google Tasks-ek ez ditu hainbat mailako azpi-zereginak onartzen</string>
-    <string name="enter_title_hint">Sartu izenburua</string>
     <string name="enter_tag_name">Idatzi etiketaren izena</string>
     <string name="create_new_tag">Sortu \"%s\"</string>
     <string name="display_name">Erakutsi izena</string>
@@ -495,7 +469,6 @@
     <string name="filter_low_priority">Lehentasun txikia</string>
     <string name="filter_medium_priority">Lehentasun ertaina</string>
     <string name="filter_high_priority">Lehentasun handia</string>
-    <string name="add_filter">Gehitu iragazkia</string>
     <string name="add_tags">Gehitu etiketak</string>
     <string name="filter_no_tags">Etiketarik ez</string>
     <string name="filter_after_today">Gaurtik aurrera</string>
@@ -518,11 +491,7 @@
     <string name="widget_due_date_hidden">Ezkutatuta</string>
     <string name="widget_due_date_below_title">Izenburuaren azpian</string>
     <string name="widget_due_date_after_title">Izenburua eta gero</string>
-    <string name="widget_due_date_reschedule">Birprogramatu zeregina</string>
     <string name="widget_open_list">Ireki zerrenda</string>
-    <string name="widget_do_nothing">Ez egin ezer</string>
-    <string name="widget_on_click">Sakatzean</string>
-    <string name="widget_footer">Oina</string>
     <string name="opacity_footer">Oinaren opakotasuna</string>
     <string name="opacity_row">Errenkadaren opakotasuna</string>
     <string name="opacity_header">Goiburuaren opakotasuna</string>
@@ -530,9 +499,7 @@
     <string name="widget_show_menu">Erakutsi menua</string>
     <string name="sort_created">Sorrera dataren arabera</string>
     <string name="got_it">Ulertuta!</string>
-    <string name="no_thanks">Ez eskerrik asko</string>
     <string name="support_development_subscribe">Desblokeatu ezaugarri gehigarriak eta babestu software librea</string>
-    <string name="tell_me_how_im_doing">Esadazu nola noan</string>
     <string name="enjoying_tasks">Tasks gogoko\?</string>
     <string name="whats_new">Zer dago berri</string>
     <string name="action_new_task">Zeregin berria</string>
@@ -545,7 +512,6 @@
     <string name="open_last_viewed_list">Ireki ikusitako azkenen zerrenda</string>
     <string name="on_launch">Abioan</string>
     <string name="astrid_sort_order">Eskuzko Astrid ordenatzea</string>
-    <string name="disable_sort_groups">Desgaitu taldeak ordenatzea</string>
     <string name="astrid_sort_order_summary">Gaitu Astrid-eko eskuzko ordenatze modua \'Nire zereginak\', \'Gaur\', eta etiketentzako. Ordenatze modu honek \'Nire ordena\'-rekin ordezkatuko da etorkizuneko bertsio batean</string>
     <string name="reset_sort_order">Berrezarri ordenatze irizpidea</string>
     <string name="date_shortcut_tomorrow_night">Bihar gauez</string>
@@ -562,7 +528,6 @@
     <string name="your_subscription_expired">Zure harpidetza agortu da. Harpidetu orain zerbitzua berrekiteko.</string>
     <string name="custom_filter_is_subtask">Azpizeregina da</string>
     <string name="custom_filter_has_subtask">Azpizereginak dauzka</string>
-    <string name="delete_comment">Ezabatu iruzkin hau\?</string>
     <string name="date_picker_multiple">Hainbat</string>
     <string name="multi_select_reschedule">Birprogramatu</string>
     <string name="backup_location_warning">ABISUA: %s helbideko fitxategiak ezabatuko dira Tasks desinstalatzen bada! AUkeratu kokaleku pertsonalizatu bat Androidek zure fitxategiak ezabatzea eragozteko.</string>
@@ -692,7 +657,6 @@
     <string name="completed">Amaituta</string>
     <string name="snackbar_task_completed">Amaitutako zereginak</string>
     <string name="completed_tasks_at_bottom">Betetako atazak behealdera mugitu</string>
-    <string name="completed_tasks_sort">Ordenatu amaiera-dataren arabera</string>
     <string name="snackbar_tasks_completed">%d atazak osatuta</string>
     <string name="alarm_before_start">%s hasi aurretik</string>
     <string name="alarm_after_start">%s hasi ondoren</string>

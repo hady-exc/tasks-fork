@@ -326,7 +326,7 @@
     <!-- ======================================================== Services = -->
 
     <service
-      android:name=".widget.ScrollableWidgetUpdateService"
+      android:name=".widget.TasksWidgetAdapter"
       android:permission="android.permission.BIND_REMOTEVIEWS"/>
 
     <service
@@ -447,12 +447,6 @@
       android:name=".activities.PlaceSettingsActivity"
       android:theme="@style/Tasks" />
 
-    <activity
-      android:name="com.todoroo.astrid.gcal.CalendarReminderActivity"
-      android:theme="@style/TasksDialog"/>
-
-    <receiver android:name="com.todoroo.astrid.gcal.CalendarAlarmReceiver"/>
-
     <activity android:name=".activities.GoogleTaskListSettingsActivity"/>
 
     <activity
@@ -505,12 +499,6 @@
     <service
       android:exported="false"
       android:name=".scheduling.NotificationSchedulerIntentService"
-      android:permission="android.permission.BIND_JOB_SERVICE"/>
-
-    <receiver android:name=".scheduling.CalendarNotificationIntentService$Broadcast"/>
-    <service
-      android:exported="false"
-      android:name=".scheduling.CalendarNotificationIntentService"
       android:permission="android.permission.BIND_JOB_SERVICE"/>
 
     <receiver android:name=".notifications.NotificationClearedReceiver"/>
@@ -675,6 +663,14 @@
       android:name=".preferences.ManageSpaceActivity"
       android:theme="@style/Tasks" />
       <activity android:name="org.tasks.sync.microsoft.MicrosoftListSettingsActivity" />
+
+      <activity
+          android:name="org.tasks.dialogs.SortSettingsActivity"
+          android:theme="@style/TranslucentWindow" />
+
+    <activity
+        android:name="org.tasks.repeats.CustomRecurrenceActivity"
+        android:theme="@style/Tasks" />
 
     <!-- launcher icons -->
 

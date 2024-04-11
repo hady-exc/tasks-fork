@@ -58,17 +58,6 @@
     <string name="TEA_control_reminders">Priminimai</string>
     <string name="TEA_control_timer">Laikmačio nustatymai</string>
     <string name="TEA_control_hidden_section">----Visada slėpti----</string>
-    <string name="CRA_ignore">Ignoruoti</string>
-    <string name="CRA_title">Reikia susitikimų sąrašo?</string>
-    <string name="CRA_ignore_body">Jūs ignoravote kelis kalendoriaus įvykius. Ar Tasks turėtų nustoti apie juos klausti?</string>
-    <string name="CRA_ignore_all">Ignoruoti visus įvykius</string>
-    <string name="CRA_ignore_this">Ignoruoti tik šį vienintelį įvykį</string>
-    <string name="CRA_speech_bubble_start">Atrodo, kad %s greitai prasidės. Ar norite sukurti veiksmų sąrašą?</string>
-    <string name="CRA_speech_bubble_end">Atrodo, kad jūs ką tik užbaigėte %s. Ar norite sukurti veiksmų sąrašą?</string>
-    <string name="CRA_postpone">Galbūt vėliau</string>
-    <string name="CRA_calendar_reminders_pref_title">Kalendoriaus asistentas</string>
-    <string name="CRA_calendar_reminders_pref_desc_enabled">Tasks programa primins apie artėjančius kalendoriaus įvykius ir pasiūlys jiems pasiruošti</string>
-    <string name="CRA_default_list_name">Veiksmo elementai: %s</string>
     <string name="none">Nėra</string>
     <string name="EPr_edit_screen_options">Redaguoti ekrano parinktys</string>
     <string name="EPr_beastMode_reset">Ištrinti numatytus</string>
@@ -148,19 +137,12 @@
     <string name="default_random_reminder_daily">Kas dieną</string>
     <string name="default_random_reminder_weekly">Kas savaitę</string>
     <string name="default_random_reminder_bi_weekly">Du kart savaitėje</string>
-    <string name="repeat_every">Kiekvieną</string>
     <string name="repeat_option_does_not_repeat">Nekartoti</string>
     <string name="repeat_option_every_day">Kiekvieną dieną</string>
     <string name="repeat_option_every_week">Kiekvieną savaitę</string>
     <string name="repeat_option_every_month">Kiekvieną mėnesį</string>
     <string name="repeat_option_every_year">Kiekvienais metais</string>
     <string name="repeat_option_custom">Individualizuotas…</string>
-    <string name="repeat_minutely">KARTOTI KAS MINUTĘ</string>
-    <string name="repeat_hourly">KARTOTI KAS VALANDĄ</string>
-    <string name="repeat_daily">KARTOTI KAS DIENĄ</string>
-    <string name="repeat_weekly">KARTOTI KAS SAVAITĘ</string>
-    <string name="repeat_monthly">KARTOTI KAS MĖNESĮ</string>
-    <string name="repeat_yearly">KARTOTI KAS METUS</string>
     <plurals name="task_count">
         <item quantity="one">%d užduotis</item>
         <item quantity="few">%d užduotys</item>
@@ -233,10 +215,6 @@
     </plurals>
     <string name="repeat_type_due">termino data</string>
     <string name="repeat_type_completion">Užbaigimo data</string>
-    <string name="repeat_forever">Kartoti amžinai</string>
-    <string name="repeat_until">Kartoti iki %s</string>
-    <string name="repeat_number_of_times">Kartoti nustatytą kiekį kartų</string>
-    <string name="repeat_occurs">Įvyksta</string>
     <string name="repeat_snackbar">%1$s perplanuotas šiai datai: %2$s</string>
     <string name="new_tag">Sukurti naują etiketę</string>
     <string name="new_list">Sukurti naują sąrašą</string>
@@ -313,7 +291,6 @@
     <string name="move">Perkelti</string>
     <string name="filter_settings">Filtrų nustatymai</string>
     <string name="show_completed">Rodyti užbaigtas</string>
-    <string name="reverse">Atvirkščiai</string>
     <string name="add_attachment">Pridėti priedą</string>
     <string name="take_a_picture">Nufotografuoti</string>
     <string name="pick_from_gallery">Pasirinkti iš galerijos</string>
@@ -390,9 +367,7 @@
     <string name="default_calendar">Numatytas kalendorius</string>
     <string name="badges_description">Rodyti užduočių kiekį Tasks paleidimo piktogramoje. Ne visos paleidimo programos palaiko šią funkciją.</string>
     <string name="bundle_notifications_summary">Sujungti kelis pranešimus į vieną</string>
-    <string name="repeat_monthly_same_day_each_month">Tą pačią mėnesio dieną</string>
     <string name="repeat_monthly_every_day_of_nth_week">Kiekvieną %1$s %2$s</string>
-    <string name="repeat_monthly_on_every_day_of_nth_week">Kiekvieną %1$s %2$s</string>
     <string name="repeat_monthly_first_week">pirmą</string>
     <string name="repeat_monthly_second_week">antrą</string>
     <string name="repeat_monthly_third_week">trečią</string>
@@ -457,7 +432,6 @@
     <string name="sort_created">Pagal sukūrimo datą</string>
     <string name="custom_filter_criteria">Filtravimo kriterijai</string>
     <string name="auto_dismiss_datetime_list_summary">Automatiškai uždaryti renkantis iš užduočių sąrašo</string>
-    <string name="widget_do_nothing">Nieko nedaryti</string>
     <string name="widget_due_date_below_title">Žemiau pavadinimo</string>
     <string name="widget_due_date_after_title">Po pavadinimo</string>
     <string name="opacity_footer">Apatinės antraštės permatomumas</string>
@@ -481,7 +455,6 @@
     <string name="select_all">Pasirinkti viską</string>
     <string name="filter_today_only">Tik šiandien</string>
     <string name="filter_no_tags">Be etikečių</string>
-    <string name="enter_title_hint">Įveskite pavadinimą</string>
     <string name="button_unsubscribe">Atšaukti prenumeratą</string>
     <string name="gtasks_GPr_header">Google Tasks</string>
     <string name="subscription">Prenumerata</string>
@@ -489,7 +462,6 @@
     <string name="yesterday_lowercase">vakar</string>
     <string name="tomorrow_lowercase">rytoj</string>
     <string name="today_lowercase">šiandien</string>
-    <string name="widget_footer">Apatinė antraštė</string>
     <string name="widget_due_date_hidden">Paslėpta</string>
     <string name="settings_default">Numatyta</string>
     <string name="share">Dalintis</string>
@@ -595,8 +567,6 @@
     <string name="background_location_permission_required">Tasks renka vietovės duomenis, kad įgalintų priminimus pagal vietovę, net kai programa uždaryta arba nenaudojama.</string>
     <string name="help_and_feedback">Pagalba ir atsiliepimai</string>
     <string name="error_adding_account">Klaida: %s</string>
-    <string name="widget_due_date_reschedule">Nukelti užduotį</string>
-    <string name="widget_on_click">Paspaudus</string>
     <string name="default_tags">Numatytos etiketės</string>
     <string name="location_radius_meters">%s m.</string>
     <string name="subtasks">Antrinės užduotys</string>
@@ -638,7 +608,6 @@
     <string name="your_subscription_expired">Jūsų prenumeratos galiojimo laikas baigėsi. Prenumeruokite dabar, norėdami tęsti paslaugą.</string>
     <string name="custom_filter_is_subtask">Ar antrinė užduotis</string>
     <string name="custom_filter_has_subtask">Turi antrinių užduočių</string>
-    <string name="delete_comment">Ištrinti šį komentarą\?</string>
     <string name="backup_location_warning">ĮSPĖJIMAS: failai, esantys %s, bus ištrinti, jei užduotys bus pašalintos! Nustatykite kitą, pasirinktinę vietą, kad Android negalėtų ištrinti failų.</string>
     <string name="backups_ignore_warnings_summary">Nepaisyti įspėjimų apie atsarginę kopiją, jei jums nereikia atsarginių kopijų arba turite savo atsarginės kopijos sprendimą</string>
     <string name="backups_ignore_warnings">Nepaisyti įspėjimų</string>
@@ -659,9 +628,7 @@
     <string name="sort_due_group">Terminas %s</string>
     <string name="sort_start_group">Pradžia %s</string>
     <string name="got_it">Supratau!</string>
-    <string name="no_thanks">Ne, ačiū</string>
     <string name="support_development_subscribe">Atrakinkite papildomas funkcijas ir palaikykite atvirojo kodo programinę įrangą</string>
-    <string name="tell_me_how_im_doing">Pasakykite man, kaip man sekasi</string>
     <string name="tasks_needs_your_support">Tasks reikia jūsų palaikymo!</string>
     <string name="enjoying_tasks">Ar jums patinka Tasks\?</string>
     <string name="calendar_event_created">Kalendoriaus įvykis sukurtas %s</string>
@@ -677,7 +644,6 @@
     <string name="chip_appearance">Skrituliuko išvaizda</string>
     <string name="chips">Skrituliukai</string>
     <string name="widget_id">Valdiklio ID: %d</string>
-    <string name="add_filter">Pridėti filtrą</string>
     <string name="add_tags">Pridėti etiketes</string>
     <string name="auto_dismiss_datetime">Automatiškai uždaryti datos ir laiko parinkiklį</string>
     <string name="hide_unused_places">Slėpti nenaudojamas vietas</string>
@@ -698,7 +664,6 @@
     <string name="choose_synchronization_service">Pasirinkti platformą</string>
     <string name="create_new_tag">Sukurti „%s“</string>
     <string name="enter_tag_name">Įvesti etiketės pavadinimą</string>
-    <string name="disable_sort_groups">Išjungti rūšiavimo grupes</string>
     <string name="subtasks_multilevel_google_task">„Google Tasks“ nepalaiko kelių lygių antrinių užduočių</string>
     <string name="collapse_subtasks">Sutraukti antrines užduotis</string>
     <string name="expand_subtasks">Išplėsti antrines užduotis</string>
@@ -748,7 +713,6 @@
     <string name="snoozed_until">Užmigdyta iki %s</string>
     <string name="completion_sound">Groti užbaigimo garsą</string>
     <string name="TEA_creation_date">Sukūrimo data</string>
-    <string name="completed_tasks_sort">Rūšiuoti pagal užbaigimo datą</string>
     <string name="microsoft_selection_description">Sinchronizuoti su asmenine Microsoft paskyra</string>
     <string name="sort_completion_group">Užbaigimas %s</string>
     <string name="completed_tasks_at_bottom">Perkelti užbaigtas užduotis į apačią</string>

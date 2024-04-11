@@ -20,7 +20,9 @@ import org.tasks.activities.DragAndDropDiffer
 import org.tasks.billing.Inventory
 import org.tasks.filters.NavigationDrawerSubheader
 import org.tasks.themes.ColorProvider
-import java.util.*
+import java.util.LinkedList
+import java.util.Locale
+import java.util.Queue
 import java.util.concurrent.Executors
 import javax.inject.Inject
 import kotlin.math.max
@@ -32,12 +34,11 @@ class NavigationDrawerAdapter @Inject constructor(
     private val colorProvider: ColorProvider,
     private val subheaderClickHandler: SubheaderClickHandler,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
-    DragAndDropDiffer<FilterListItem, MutableList<FilterListItem>> {
+    DragAndDropDiffer<FilterListItem, ArrayList<FilterListItem>> {
 
     private lateinit var onClick: (FilterListItem?) -> Unit
-    private var selected: Filter? = null
-    override val channel = Channel<List<FilterListItem>>(Channel.UNLIMITED)
-    override val updates: Queue<Pair<MutableList<FilterListItem>, DiffUtil.DiffResult?>> = LinkedList()
+    override val channel = Channel<ArrayList<FilterListItem>>(Channel.UNLIMITED)
+    override val updates: Queue<Pair<ArrayList<FilterListItem>, DiffUtil.DiffResult?>> = LinkedList()
     override val scope: CoroutineScope =
         CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher() + Job())
     override var items = initializeDiffer(ArrayList())
@@ -55,11 +56,6 @@ class NavigationDrawerAdapter @Inject constructor(
 
     override fun getItemCount() = items.size
 
-    fun setSelected(selected: Filter?) {
-        this.selected = selected
-        notifyDataSetChanged()
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val type = FilterListItem.Type.values()[viewType]
         val view = LayoutInflater.from(parent.context).inflate(type.layout, parent, false)
@@ -67,20 +63,17 @@ class NavigationDrawerAdapter @Inject constructor(
             FilterListItem.Type.ITEM -> FilterViewHolder(
                         view, true, locale, activity, inventory, colorProvider) { onClickFilter(it) }
             FilterListItem.Type.SUBHEADER -> SubheaderViewHolder(view, subheaderClickHandler)
-            FilterListItem.Type.ACTION -> ActionViewHolder(activity, view) { onClickFilter(it) }
-            else -> SeparatorViewHolder(view)
         }
     }
 
     private fun onClickFilter(filter: FilterListItem?) =
-        onClick(if (filter == selected) null else filter)
+        onClick(filter)
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = getItem(position)
         when (item.itemType) {
             FilterListItem.Type.ITEM ->
-                (holder as FilterViewHolder).bind(item, item == selected, max(item.count, 0))
-            FilterListItem.Type.ACTION -> (holder as ActionViewHolder).bind(item)
+                (holder as FilterViewHolder).bind(item as Filter, false, max(item.count, 0))
             FilterListItem.Type.SUBHEADER ->
                 (holder as SubheaderViewHolder).bind((item as NavigationDrawerSubheader))
             else -> {}
@@ -91,9 +84,7 @@ class NavigationDrawerAdapter @Inject constructor(
 
     private fun getItem(position: Int) = items[position]
 
-    override fun transform(list: List<FilterListItem>) = list.toMutableList()
-
-    override fun diff(last: MutableList<FilterListItem>, next: MutableList<FilterListItem>) =
+    override fun diff(last: ArrayList<FilterListItem>, next: ArrayList<FilterListItem>) =
             DiffUtil.calculateDiff(DiffCallback(last, next))
 
     private class DiffCallback(val old: List<FilterListItem>, val new: List<FilterListItem>) : DiffUtil.Callback() {
@@ -105,7 +96,7 @@ class NavigationDrawerAdapter @Inject constructor(
             old[oldPosition].areItemsTheSame(new[newPosition])
 
         override fun areContentsTheSame(oldPosition: Int, newPosition: Int) =
-            old[oldPosition].areContentsTheSame(new[newPosition])
+            old[oldPosition] == new[newPosition]
     }
 
     override fun onChanged(position: Int, count: Int, payload: Any?) =

@@ -29,10 +29,10 @@
     <string name="action_call">전화</string>
     <string name="action_open">열기</string>
     <string name="SSD_sort_auto">Tasks 스마트 정렬</string>
-    <string name="SSD_sort_alpha">제목순</string>
-    <string name="SSD_sort_due">마감일순</string>
-    <string name="SSD_sort_importance">우선순위순</string>
-    <string name="SSD_sort_modified">최종 변경일시순</string>
+    <string name="SSD_sort_alpha">제목 기준</string>
+    <string name="SSD_sort_due">마감일 기준</string>
+    <string name="SSD_sort_importance">우선순위 기준</string>
+    <string name="SSD_sort_modified">최종 변경일시 기준</string>
     <string name="FLA_search_filter">\'%s\' 검색 중</string>
     <string name="FLA_new_filter">새 필터 만들기</string>
     <string name="TEA_title_hint">할일 제목</string>
@@ -56,17 +56,6 @@
     <string name="TEA_control_reminders">알람</string>
     <string name="TEA_control_timer">타이머 조절</string>
     <string name="TEA_control_hidden_section">----항상 숨김----</string>
-    <string name="CRA_ignore">무시하기</string>
-    <string name="CRA_title">모임 목록이 필요하세요?</string>
-    <string name="CRA_ignore_body">여러번 달력 일정을 무시하셨습니다. Tasks가 일정 추가를 그만 물어볼까요\?</string>
-    <string name="CRA_ignore_all">모든 이벤트 무시하기</string>
-    <string name="CRA_ignore_this">이 이벤트만 무시하기</string>
-    <string name="CRA_speech_bubble_start">%s 가 곧 시작됩니다. 활동 아이템 목록을 만들까요\?</string>
-    <string name="CRA_speech_bubble_end">%s 를 방금 마쳤습니다. 활동 아이템 목록을 만들까요\?</string>
-    <string name="CRA_postpone">연기하기</string>
-    <string name="CRA_calendar_reminders_pref_title">달력 도우미</string>
-    <string name="CRA_calendar_reminders_pref_desc_enabled">Tasks가 다가오는 달력 일정에 대비하도록 알려드립니다</string>
-    <string name="CRA_default_list_name">활동 아이템: %s</string>
     <string name="none">없음</string>
     <string name="EPr_edit_screen_options">화면 설정 편집하기</string>
     <string name="EPr_beastMode_reset">기본값으로 초기화하기</string>
@@ -144,19 +133,12 @@
     <string name="default_random_reminder_daily">매일</string>
     <string name="default_random_reminder_weekly">매주</string>
     <string name="default_random_reminder_bi_weekly">격주로</string>
-    <string name="repeat_every">매</string>
     <string name="repeat_option_does_not_repeat">반복하지 않기</string>
     <string name="repeat_option_every_day">매일</string>
     <string name="repeat_option_every_week">매주</string>
     <string name="repeat_option_every_month">매월</string>
     <string name="repeat_option_every_year">매년</string>
     <string name="repeat_option_custom">사용자설정…</string>
-    <string name="repeat_minutely">매분 반복</string>
-    <string name="repeat_hourly">매시 반복</string>
-    <string name="repeat_daily">매일 반복</string>
-    <string name="repeat_weekly">매주 반복</string>
-    <string name="repeat_monthly">매월 반복</string>
-    <string name="repeat_yearly">매년 반복</string>
     <plurals name="task_count">
         <item quantity="one">%d 할일</item>
         <item quantity="other">%d 할일들</item>
@@ -215,10 +197,6 @@
     </plurals>
     <string name="repeat_type_due">마감일</string>
     <string name="repeat_type_completion">완료일</string>
-    <string name="repeat_forever">계속 반복</string>
-    <string name="repeat_until">%s 까지 반복</string>
-    <string name="repeat_number_of_times">여러회 반복</string>
-    <string name="repeat_occurs">반복횟수</string>
     <string name="repeat_snackbar">%1$s 이 %2$s 로 변경되었습니다</string>
     <string name="new_tag">새 태그 만들기</string>
     <string name="new_list">새 목록 만들기</string>
@@ -229,7 +207,7 @@
     <string name="TEA_timer_comment_started">이 할일 시작:</string>
     <string name="TEA_timer_comment_stopped">이 할일 중지:</string>
     <string name="TEA_timer_comment_spent">소요 시간:</string>
-    <string name="voice_create_prompt">할일을 만들려면 말하세요</string>
+    <string name="voice_create_prompt">할일을 생성하려면 말하세요</string>
     <string name="EPr_voiceInputEnabled_title">음성 입력</string>
     <string name="EPr_voiceRemindersEnabled_title">음성 알람</string>
     <string name="EPr_voiceRemindersEnabled_desc_enabled">할일 알람 시 제목을 소리내어 읽어줍니다</string>
@@ -292,7 +270,6 @@
     <string name="move">이동</string>
     <string name="filter_settings">필터 설정</string>
     <string name="show_completed">완료한 할일 표시</string>
-    <string name="reverse">역순</string>
     <string name="add_attachment">첨부파일 추가</string>
     <string name="take_a_picture">사진 촬영</string>
     <string name="pick_from_gallery">갤러리에서 선택</string>
@@ -352,7 +329,7 @@
     <string name="repeats_single_until">%2$s까지 %1$s 반복</string>
     <string name="repeats_single_number_of_times">%1$s마다 %2$d %3$s 반복</string>
     <string name="repeats_single_on_until">%3$s까지 %1$s %2$s에 반복</string>
-    <string name="repeats_single_on_number_of_times">%1$s 마다 %2$s에 %3$d %4$s회 동안 반복</string>
+    <string name="repeats_single_on_number_of_times">%1$s 마다 %2$s에 %3$d %4$s 동안 반복</string>
     <string name="repeats_minutely">매분</string>
     <string name="repeats_hourly">매시간</string>
     <string name="repeats_daily">매일</string>
@@ -362,16 +339,14 @@
     <string name="repeats_plural">매%s 반복</string>
     <string name="repeats_plural_on">매%1$s %2$s 에 반복</string>
     <string name="repeats_plural_until">%2$s 까지 매 %1$s 반복</string>
-    <string name="repeats_plural_number_of_times">매 %1$s 마다 %2$d %3$s회 동안 반복</string>
+    <string name="repeats_plural_number_of_times">매 %1$s 마다 %2$d %3$s 동안 반복</string>
     <string name="repeats_plural_on_until">%3$s 까지 매 %1$s %2$s 에 반복</string>
     <string name="repeats_plural_on_number_of_times">매 %1$s 마다 %2$s에 %3$d %4$s 반복</string>
     <string name="dont_add_to_calendar">달력에 일정 추가하지 않기</string>
     <string name="default_calendar">기본 달력</string>
     <string name="badges_description">Tasks 앱 아이콘 위에 할일 개수를 표시합니다. 모든 런처가 배지 기능을 지원하지는 않습니다. </string>
     <string name="bundle_notifications_summary">여러 상태바 알림을 하나로 묶어서 표시합니다</string>
-    <string name="repeat_monthly_same_day_each_month">매월 같은 날에</string>
     <string name="repeat_monthly_every_day_of_nth_week">매 %1$s %2$s</string>
-    <string name="repeat_monthly_on_every_day_of_nth_week">매 %1$s %2$s 마다</string>
     <string name="repeat_monthly_first_week">첫번째</string>
     <string name="repeat_monthly_second_week">두번째</string>
     <string name="repeat_monthly_third_week">세번째</string>
@@ -432,7 +407,6 @@
     <string name="TEA_add_subtask">하위할일 추가</string>
     <string name="subtasks">하위할일</string>
     <string name="subtasks_multilevel_google_task">Google Tasks는 다단계 하위할일을 지원하지 않습니다</string>
-    <string name="enter_title_hint">제목 입력</string>
     <string name="enter_tag_name">태그 이름 입력</string>
     <string name="create_new_tag">\"%s\" 생성</string>
     <string name="this_feature_requires_a_subscription">이 기능을 사용하려면 구독해야 합니다</string>
@@ -451,11 +425,11 @@
     <string name="chip_appearance_icon_only">아이콘만</string>
     <string name="chip_appearance_text_only">글자만</string>
     <string name="chip_appearance_text_and_icon">글자와 아이콘</string>
-    <string name="hide_unused_places">사용하지 않는 위치 숨기기</string>
+    <string name="hide_unused_places">사용하지 않는 장소 숨기기</string>
     <string name="hide_unused_tags">사용하지 않는 태그 숨기기</string>
     <string name="navigation_drawer">네비게이션 서랍</string>
-    <string name="place_settings">위치 설정</string>
-    <string name="places">위치</string>
+    <string name="place_settings">장소 설정</string>
+    <string name="places">장소</string>
     <string name="upgrade_blurb_1">안녕하세요! Tasks의 1인 개발자 알렉스입니다</string>
     <string name="desaturate_colors_summary_on">다크 테마 사용 시 채도를 낮춥니다</string>
     <string name="desaturate_colors_summary_off">다크 테마 사용 시 채도를 낮추지 않습니다</string>
@@ -477,8 +451,6 @@
     <string name="help_and_feedback">도움말 및 피드백</string>
     <string name="theme_system_default">시스템 기본설정</string>
     <string name="menu_discard_changes">변경사항 폐기</string>
-    <string name="tell_me_how_im_doing">잘하고 있는지 의견 부탁드립니다</string>
-    <string name="no_thanks">아니오 괜찮습니다</string>
     <string name="support_development_subscribe">부가 기능을 해제하고 오픈소스 소프트웨어를 지원하십시오</string>
     <string name="got_it">확인했습니다!</string>
     <string name="compact">촘촘하게</string>
@@ -494,7 +466,6 @@
     <string name="filter_low_priority">낮은 우선순위</string>
     <string name="filter_medium_priority">중간 우선순위</string>
     <string name="filter_high_priority">높은 우선순위</string>
-    <string name="add_filter">필터 추가</string>
     <string name="add_tags">태그 추가</string>
     <string name="filter_no_tags">태그 없음</string>
     <string name="filter_after_today">오늘 이후</string>
@@ -523,24 +494,19 @@
     <string name="action_new_task">새 할일</string>
     <string name="widget_due_date_hidden">숨기기</string>
     <string name="widget_due_date_below_title">제목 밑</string>
-    <string name="widget_due_date_reschedule">할일 기한 변경</string>
     <string name="widget_open_list">목록 열기</string>
-    <string name="widget_do_nothing">아무 동작 하지 않음</string>
-    <string name="widget_on_click">클릭 시</string>
     <string name="opacity_footer">푸터 불투명도</string>
-    <string name="widget_footer">푸터</string>
     <string name="opacity_row">줄 불투명도</string>
     <string name="opacity_header">헤더 불투명도</string>
     <string name="widget_show_dividers">할일 구분선 표시</string>
     <string name="widget_show_menu">메뉴 표시</string>
-    <string name="sort_created">생성일시순</string>
+    <string name="sort_created">생성일시 기준</string>
     <string name="yesterday_lowercase">어제</string>
     <string name="tomorrow_lowercase">내일</string>
     <string name="today_lowercase">오늘</string>
     <string name="default_recurrence">기본 반복</string>
     <string name="CFC_list_name">목록…</string>
     <string name="default_location">기본 위치</string>
-    <string name="delete_comment">이 댓글을 삭제할까요\?</string>
     <string name="multi_select_reschedule">기한 변경</string>
     <string name="backup_location_warning">경고: Tasks 삭제 시 %s의 파일도 삭제됩니다! 파일 삭제를 방지하려면 다른 위치를 지정하세요.</string>
     <string name="backups_ignore_warnings_summary">백업이 필요 없거나 앱 사용자가 직접 백업을 하고 있는 경우, 백업 경고를 무시합니다</string>
@@ -557,7 +523,6 @@
     <string name="lists">목록</string>
     <string name="open_last_viewed_list">마지막으로 보던 목록 열기</string>
     <string name="davx5_selection_description">DAVx⁵ 앱과 내 할일 동기화</string>
-    <string name="disable_sort_groups">정렬그룹 비활성화</string>
     <string name="default_tags">기본 태그</string>
     <string name="no_app_found">이 요청을 처리할 앱이 없습니다</string>
     <string name="date_shortcut_tomorrow_night">내일 밤</string>
@@ -603,7 +568,7 @@
     <string name="default_due_date">기본 마감일</string>
     <string name="default_start_date">기본 시작일</string>
     <string name="start_date">시작일</string>
-    <string name="SSD_sort_start">시작일순</string>
+    <string name="SSD_sort_start">시작일 기준</string>
     <string name="yesterday_abbrev_lowercase">어제</string>
     <string name="tomorrow_abbrev_lowercase">내일</string>
     <string name="filter_any_start_date">시작일 있음</string>
@@ -712,14 +677,13 @@
     </plurals>
     <string name="customize_edit_screen_summary">필드 순서 변경 또는 삭제</string>
     <string name="sort_completion_group">%s 완료</string>
-    <string name="completed_tasks_sort">완료일순 정렬</string>
     <string name="dismiss">닫기</string>
     <string name="hint_customize_edit_title">정보가 너무 많은가요\?</string>
     <string name="app_bar_position">앱 바메뉴 위치</string>
     <string name="completed">완료</string>
     <string name="snackbar_task_completed">할일 완료</string>
     <string name="enable_reminders_description">안드로이드 설정에 알람이 비활성화 되어있습니다</string>
-    <string name="sort_list">목록 순</string>
+    <string name="sort_list">목록 기준</string>
     <plurals name="reminder_hours">
         <item quantity="other">시간</item>
     </plurals>
@@ -733,4 +697,10 @@
         <item quantity="other">주</item>
     </plurals>
     <string name="when_started">시작시</string>
+    <string name="sort_sorting">정렬</string>
+    <string name="sort_descending">내림차순</string>
+    <string name="sort_completed">완료일시 기준</string>
+    <string name="sort_not_available">태그, 필터, 장소는 사용 불가</string>
+    <string name="sort_ascending">오름차순</string>
+    <string name="sort_grouping">분류</string>
 </resources>

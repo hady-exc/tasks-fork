@@ -42,12 +42,6 @@
     <string name="TEA_control_reminders">یادآوری ها</string>
     <string name="TEA_control_timer">کنترل تایمر</string>
     <string name="TEA_control_hidden_section">----همیشه مخفی----</string>
-    <string name="CRA_ignore">رد کردن</string>
-    <string name="CRA_title">نیاز به لیست ملاقات دارید ؟</string>
-    <string name="CRA_ignore_all">نادیده گرفتن تمام رویداد ها</string>
-    <string name="CRA_ignore_this">فقط نادیده گرفتن این رویداد</string>
-    <string name="CRA_postpone">شاید یعدا</string>
-    <string name="CRA_calendar_reminders_pref_title">دستیار تقویم</string>
     <string name="none">هیچکدام</string>
     <string name="EPr_edit_screen_options">ویرایش تنظیمات صفحه</string>
     <string name="EPr_beastMode_reset">برگرداندن به پیش فرض</string>
@@ -124,8 +118,6 @@
     </plurals>
     <string name="repeat_type_due">تاریخ موعود</string>
     <string name="repeat_type_completion">تاریخ اتمام</string>
-    <string name="repeat_forever">تکرار بینهایت</string>
-    <string name="repeat_until">تکرار تا %s</string>
     <string name="new_tag">ایجاد تگ جدید</string>
     <string name="new_list">ایجاد لیست جدید</string>
     <string name="TFE_workingOn">وظایف زمانبندی شده</string>
@@ -188,7 +180,6 @@
     <string name="delete">حذف</string>
     <string name="filter_settings">تنظیمات فیلتر</string>
     <string name="show_completed">نمایش انجام شده ها</string>
-    <string name="reverse">برعکس</string>
     <string name="add_attachment">الصاق پیوست</string>
     <string name="take_a_picture">گرفتن عکس</string>
     <string name="send_anonymous_statistics">بهبود وظیفه</string>
@@ -223,4 +214,19 @@
     <string name="SSD_sort_my_order">خرید من</string>
     <string name="action_call">زنگ</string>
     <string name="action_open">باز</string>
+    <string name="TEA_control_location">مکان</string>
+    <string name="EPr_delete_task_data_warning">همه وظایف به شکل دائم حذف خواهند شد</string>
+    <string name="start_date">تاریخ شروع</string>
+    <string name="EPr_show_task_edit_comments">نمایش نظرات در ویرایش وظیفه</string>
+    <string name="EPr_reset_preferences_warning">ترجیحات به مقادیر پیشفرض برخواهند گشت</string>
+    <string name="sort_completed">براساس زمان تکمیل</string>
+    <string name="sort_list">براساس لیست</string>
+    <string name="always_display_full_date">نمایش تاریخ کامل</string>
+    <string name="SSD_sort_start">براساس زمان شروع</string>
+    <string name="TEA_add_subtask">اضافه کردن زیر وظیفه</string>
+    <string name="sort_created">براساس زمان ساخت</string>
+    <string name="EPr_reset_preferences">بازنشانی ترجیحات</string>
+    <string name="TEA_creation_date">تاریخ ساخت</string>
+    <string name="EPr_manage_delete_completed_gcal">وقایع تقویم را برای وضایف کامل شده حذف کن</string>
+    <string name="manage_drawer">مدیریت کشو‌</string>
 </resources>

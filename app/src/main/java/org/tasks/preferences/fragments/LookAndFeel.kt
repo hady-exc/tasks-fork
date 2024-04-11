@@ -4,7 +4,6 @@ import android.app.Activity.RESULT_OK
 import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Handler
 import androidx.annotation.StringRes
@@ -26,6 +25,7 @@ import org.tasks.dialogs.FilterPicker.Companion.newFilterPicker
 import org.tasks.dialogs.FilterPicker.Companion.setFilterPickerResultListener
 import org.tasks.dialogs.ThemePickerDialog
 import org.tasks.dialogs.ThemePickerDialog.Companion.newThemePickerDialog
+import org.tasks.extensions.Context.isNightMode
 import org.tasks.injection.InjectingPreferenceFragment
 import org.tasks.locale.LocalePickerDialog
 import org.tasks.preferences.DefaultFilterProvider
@@ -36,8 +36,7 @@ import org.tasks.themes.ThemeBase.DEFAULT_BASE_THEME
 import org.tasks.themes.ThemeBase.EXTRA_THEME_OVERRIDE
 import org.tasks.themes.ThemeColor
 import org.tasks.themes.ThemeColor.getLauncherColor
-import org.tasks.ui.NavigationDrawerFragment.Companion.REQUEST_PURCHASE
-import java.util.*
+import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -58,7 +57,7 @@ class LookAndFeel : InjectingPreferenceFragment() {
         super.onCreate(savedInstanceState)
         childFragmentManager.setFilterPickerResultListener(this) {
             defaultFilterProvider.setDefaultOpenFilter(it)
-            findPreference(R.string.p_default_open_filter).summary = it.listingTitle
+            findPreference(R.string.p_default_open_filter).summary = it.title
             localBroadcastManager.broadcastRefresh()
         }
     }
@@ -74,7 +73,7 @@ class LookAndFeel : InjectingPreferenceFragment() {
         }
 
         findPreference(R.string.p_desaturate_colors).setOnPreferenceChangeListener { _, _ ->
-            if (context?.resources?.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES) {
+            if (context?.isNightMode == true) {
                 activity?.recreate()
             }
             true
@@ -82,7 +81,7 @@ class LookAndFeel : InjectingPreferenceFragment() {
 
         val defaultList = findPreference(R.string.p_default_open_filter)
         val filter = defaultFilterProvider.getDefaultOpenFilter()
-        defaultList.summary = filter.listingTitle
+        defaultList.summary = filter.title
         defaultList.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             lifecycleScope.launch {
                 newFilterPicker(defaultFilterProvider.getDefaultOpenFilter())
@@ -246,6 +245,7 @@ class LookAndFeel : InjectingPreferenceFragment() {
         private const val REQUEST_ACCENT_PICKER = 10003
         private const val REQUEST_LAUNCHER_PICKER = 10004
         private const val REQUEST_LOCALE = 10006
+        private const val REQUEST_PURCHASE = 10007
         private const val FRAG_TAG_LOCALE_PICKER = "frag_tag_locale_picker"
         private const val FRAG_TAG_THEME_PICKER = "frag_tag_theme_picker"
         private const val FRAG_TAG_COLOR_PICKER = "frag_tag_color_picker"

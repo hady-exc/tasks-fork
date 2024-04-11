@@ -15,6 +15,7 @@ import org.tasks.R
 import org.tasks.calendars.CalendarPicker
 import org.tasks.calendars.CalendarPicker.Companion.newCalendarPicker
 import org.tasks.calendars.CalendarProvider
+import org.tasks.data.CaldavAccount
 import org.tasks.data.LocationDao
 import org.tasks.data.Place
 import org.tasks.data.TagData
@@ -28,7 +29,7 @@ import org.tasks.preferences.DefaultFilterProvider
 import org.tasks.preferences.IconPreference
 import org.tasks.preferences.Preferences
 import org.tasks.repeats.BasicRecurrenceDialog
-import org.tasks.repeats.BasicRecurrenceDialog.EXTRA_RRULE
+import org.tasks.repeats.BasicRecurrenceDialog.Companion.EXTRA_RRULE
 import org.tasks.repeats.RepeatRuleToString
 import org.tasks.tags.TagPickerActivityCompose
 import org.tasks.tags.TagPickerActivityCompose.Companion.EXTRA_SELECTED
@@ -84,7 +85,13 @@ class TaskDefaults : InjectingPreferenceFragment() {
                             .getStringValue(R.string.p_default_recurrence)
                             ?.takeIf { it.isNotBlank() }
                     BasicRecurrenceDialog
-                            .newBasicRecurrenceDialog(this, REQUEST_RECURRENCE, rrule, -1)
+                            .newBasicRecurrenceDialog(
+                                target = this,
+                                rc = REQUEST_RECURRENCE,
+                                rrule = rrule,
+                                dueDate = 0,
+                                accountType = CaldavAccount.TYPE_LOCAL
+                            )
                             .show(parentFragmentManager, FRAG_TAG_BASIC_RECURRENCE)
                     false
                 }
@@ -177,7 +184,7 @@ class TaskDefaults : InjectingPreferenceFragment() {
 
     private fun updateRemoteListSummary() = lifecycleScope.launch {
         val defaultFilter = defaultFilterProvider.getDefaultList()
-        findPreference(R.string.p_default_list).summary = defaultFilter.listingTitle
+        findPreference(R.string.p_default_list).summary = defaultFilter.title
     }
 
     private fun updateDefaultLocation() = lifecycleScope.launch {

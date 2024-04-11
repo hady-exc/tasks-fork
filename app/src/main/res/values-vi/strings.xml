@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="CRA_calendar_reminders_pref_title">Trợ lý lịch</string>
-    <string name="CRA_speech_bubble_end">Có vẻ là bạn vừa hoàn thành %s. Bạn có muốn tạo danh sách các mục hành động không\?</string>
-    <string name="CRA_speech_bubble_start">Có vẻ là %s sẽ sớm bắt đầu. Bạn có muốn tạo danh sách các mục hành động không\?</string>
-    <string name="CRA_ignore_this">Chỉ bỏ qua sự kiện này</string>
-    <string name="CRA_ignore_all">Bỏ qua tất cả sự kiện</string>
-    <string name="CRA_ignore_body">Bạn đã bỏ qua một vài sự kiện trong lịch. Tasks có nên dừng hỏi bạn về chúng không\?</string>
-    <string name="CRA_title">Cần danh sách cuộc họp không\?</string>
-    <string name="CRA_ignore">Bỏ qua</string>
     <string name="TEA_control_reminders">Lời nhắc</string>
     <string name="TEA_control_files">Tệp</string>
     <string name="TEA_control_notes">Mô tả</string>
@@ -136,7 +128,6 @@
     <string name="your_subscription_expired">Đăng ký của bạn đã hết hạn. Đăng ký ngay để tiếp tục dịch vụ.</string>
     <string name="custom_filter_is_subtask">Là công việc con</string>
     <string name="custom_filter_has_subtask">Có công việc con</string>
-    <string name="delete_comment">Xoá bình luận này\?</string>
     <string name="date_picker_multiple">Nhiều</string>
     <string name="multi_select_reschedule">Lên lịch lại</string>
     <string name="backup_location_warning">CẢNH BÁO: Các tệp được đặt ở %s sẽ bị xoá nếu Tasks bị gỡ cài đặt! Vui lòng chọn một vị trí tuỳ chỉnh để ngăn Android không xoá các tệp của bạn.</string>
@@ -162,9 +153,7 @@
     <string name="sort_due_group">Hạn %s</string>
     <string name="sort_start_group">Bắt đầu %s</string>
     <string name="got_it">Hiểu rồi!</string>
-    <string name="no_thanks">Không, cảm ơn</string>
     <string name="support_development_subscribe">Mở khoá các tính năng bổ sung và hỗ trợ phần mềm mã nguồn mở</string>
-    <string name="tell_me_how_im_doing">Vui lòng nói cho tôi xem tôi như thế nào</string>
     <string name="tasks_needs_your_support">Tasks cần sự hỗ trợ của bạn!</string>
     <string name="enjoying_tasks">Đang tận hưởng Tasks\?</string>
     <string name="filter_eisenhower_box_4">Không quan trọng và không gấp</string>
@@ -175,7 +164,6 @@
     <string name="filter_low_priority">Ưu tiên thấp</string>
     <string name="filter_medium_priority">Ưu tiên trung bình</string>
     <string name="filter_high_priority">Ưu tiên cao</string>
-    <string name="add_filter">Thêm bộ lọc</string>
     <string name="add_tags">Thêm thẻ</string>
     <string name="filter_no_tags">Không có thẻ</string>
     <string name="filter_after_today">Sau hôm nay</string>
@@ -198,7 +186,7 @@
     <string name="auto_dismiss_datetime_widget">Tiện ích</string>
     <string name="auto_dismiss_datetime_edit_summary">Tự động đóng khi chọn từ mục chỉnh sửa công việc</string>
     <string name="cancel">Huỷ</string>
-    <string name="ok">OK</string>
+    <string name="ok">Ôkê</string>
     <string name="auto_dismiss_datetime_edit">Chỉnh sửa công việc</string>
     <string name="auto_dismiss_datetime_list_summary">Tự động đóng khi chọn từ danh sách công việc</string>
     <string name="auto_dismiss_datetime_list">Danh sách công việc</string>
@@ -242,8 +230,6 @@
     <string name="choose_synchronization_service">Chọn nền tảng</string>
     <string name="create_new_tag">Tạo \"%s\"</string>
     <string name="enter_tag_name">Nhập tên thẻ</string>
-    <string name="disable_sort_groups">Tắt các nhóm sắp xếp</string>
-    <string name="enter_title_hint">Nhập tiêu đề</string>
     <string name="subtasks_multilevel_google_task">Các công việc con có nhiều cấp không được Google Tasks hỗ trợ</string>
     <string name="collapse_subtasks">Thu gọn các công việc con</string>
     <string name="expand_subtasks">Mở rộng các công việc con</string>
@@ -297,11 +283,9 @@
     <string name="repeat_monthly_last_week">cuối cùng</string>
     <string name="repeat_monthly_fifth_week">thứ năm</string>
     <string name="repeat_monthly_fourth_week">thứ tư</string>
-    <string name="repeat_monthly_same_day_each_month">vào ngày đó mỗi tháng</string>
     <string name="repeat_monthly_third_week">thứ ba</string>
     <string name="repeat_monthly_second_week">thứ hai</string>
     <string name="repeat_monthly_first_week">đầu tiên</string>
-    <string name="repeat_monthly_on_every_day_of_nth_week">vào mỗi %1$s %2$s</string>
     <string name="repeat_monthly_every_day_of_nth_week">mỗi %1$s %2$s</string>
     <string name="bundle_notifications_summary">Kết hợp nhiều thông báo thành một</string>
     <string name="badges_description">Hiển thị số lượng công việc trên biểu tượng trên launcher của Tasks. Không phải tất cả launcher đều hỗ trợ huy hiệu.</string>
@@ -347,11 +331,7 @@
     <string name="widget_due_date_hidden">Ẩn</string>
     <string name="widget_due_date_below_title">Dưới tiêu đề</string>
     <string name="widget_due_date_after_title">Sau tiêu đề</string>
-    <string name="widget_due_date_reschedule">Lên lịch lại công việc</string>
     <string name="widget_open_list">Mở danh sách</string>
-    <string name="widget_do_nothing">Không làm gì cả</string>
-    <string name="widget_on_click">Khi nhấn</string>
-    <string name="widget_footer">Chân trang</string>
     <string name="widget_row_settings">Cài đặt hàng</string>
     <string name="widget_header_settings">Cài đặt tiêu đề</string>
     <string name="widget_settings">Cài đặt tiện ích</string>
@@ -399,7 +379,6 @@
     <string name="take_a_picture">Chụp ảnh</string>
     <string name="add_attachment">Thêm tệp đính kèm</string>
     <string name="no_app_found">Không có ứng dụng nào có thể xử lý yêu cầu này</string>
-    <string name="reverse">Đảo ngược</string>
     <string name="filter_criteria_unstarted">Chưa bắt đầu</string>
     <string name="show_completed">Hiện mục đã hoàn thành</string>
     <string name="show_unstarted">Hiện mục chưa bắt đầu</string>
@@ -497,10 +476,6 @@
     <string name="new_list">Tạo danh sách mới</string>
     <string name="new_tag">Tạo thẻ mới</string>
     <string name="repeat_snackbar">%1$s đã được lên lịch lại cho %2$s</string>
-    <string name="repeat_occurs">Xảy ra</string>
-    <string name="repeat_number_of_times">Lặp lại một số lần</string>
-    <string name="repeat_until">Lặp lại đến %s</string>
-    <string name="repeat_forever">Lặp lại mãi mãi</string>
     <string name="repeat_type_completion_capitalized">Ngày hoàn thành</string>
     <string name="repeat_type_completion">ngày hoàn thành</string>
     <string name="repeat_type_due">ngày hạn</string>
@@ -552,19 +527,12 @@
     <plurals name="task_count">
         <item quantity="other">%d công việc</item>
     </plurals>
-    <string name="repeat_yearly">LẶP LẠI HÀNG NĂM</string>
-    <string name="repeat_monthly">LẶP LẠI HÀNG THÁNG</string>
-    <string name="repeat_weekly">LẶP LẠI HÀNG TUẦN</string>
-    <string name="repeat_daily">LẶP LẠI HÀNG NGÀY</string>
-    <string name="repeat_hourly">LẶP LẠI HÀNG TIẾNG</string>
-    <string name="repeat_minutely">LẶP LẠI HÀNG PHÚT</string>
     <string name="repeat_option_custom">Tuỳ chỉnh…</string>
     <string name="repeat_option_every_year">Mỗi năm</string>
     <string name="repeat_option_every_month">Mỗi tháng</string>
     <string name="repeat_option_every_week">Mỗi tuần</string>
     <string name="repeat_option_every_day">Mỗi ngày</string>
     <string name="repeat_option_does_not_repeat">Không lặp lại</string>
-    <string name="repeat_every">Mỗi</string>
     <string name="default_random_reminder_bi_weekly">Mỗi hai tuần</string>
     <string name="default_random_reminder_weekly">Hàng tuần</string>
     <string name="default_random_reminder_daily">Hàng ngày</string>
@@ -656,9 +624,6 @@
     <string name="EPr_beastMode_reset">Đặt lại về mặc định</string>
     <string name="EPr_edit_screen_options">Chỉnh sửa các tuỳ chọn màn hình</string>
     <string name="none">Không có</string>
-    <string name="CRA_default_list_name">Mục hành động: %s</string>
-    <string name="CRA_calendar_reminders_pref_desc_enabled">Tasks sẽ nhắc lại bạn về những sự kiện trong lịch sắp tới và nhắc bạn chuẩn bị cho chúng</string>
-    <string name="CRA_postpone">Có lẽ về sau</string>
     <string name="TEA_control_hidden_section">----Luôn ẩn----</string>
     <string name="TEA_control_timer">Điều khiển hẹn giờ</string>
     <string name="TEA_timer_est">Ước tính %s</string>
@@ -679,7 +644,6 @@
     <string name="snoozed_until">Đã đặt báo lại cho đến %s</string>
     <string name="snackbar_task_completed">Công việc đã hoàn tất</string>
     <string name="completed_tasks_at_bottom">Di chuyển công việc đã hoàn tất xuống dưới</string>
-    <string name="completed_tasks_sort">Sắp xếp theo ngày hoàn thành</string>
     <string name="snackbar_tasks_completed">%d công việc đã hoàn tất</string>
     <string name="alarm_before_start">%s trước bắt đầu</string>
     <string name="alarm_after_start">%s sau bắt đầu</string>
@@ -718,4 +682,25 @@
     <string name="sign_in">Đăng nhập</string>
     <string name="consent_agree">Đồng ý</string>
     <string name="consent_deny">Không phải bây giờ</string>
+    <plurals name="repeat_occurrence">
+        <item quantity="other">lần xảy ra</item>
+    </plurals>
+    <string name="repeats_weekly_on">Lặp lại vào</string>
+    <string name="repeats_never">Không bao giờ</string>
+    <string name="repeats_on">Bật</string>
+    <string name="repeats_after">Sau</string>
+    <string name="repeats_ends">Kết thúc</string>
+    <string name="repeat_monthly_on_day_number">Hàng tháng vào ngày %1d</string>
+    <string name="repeat_monthly_on_the_nth_weekday">Hàng tháng vào %1$s %2$s</string>
+    <string name="sort_not_available">Không có sẵn cho tag, bộ lọc hay nơi chốn</string>
+    <string name="repeats_custom_recurrence">Lặp lại tùy chỉnh</string>
+    <string name="repeats_every">Lặp lại mỗi</string>
+    <string name="sort_list">Theo danh sách</string>
+    <string name="sort_sorting">Sắp xếp</string>
+    <string name="sort_grouping">Gộp nhóm</string>
+    <string name="sort_ascending">Tăng dần</string>
+    <string name="sort_descending">Giảm dần</string>
+    <string name="sort_completed">Theo thời gian hoàn thành</string>
+    <string name="change_priority">Thay đổi mức độ ưu tiên</string>
+    <string name="clear_completed_tasks_count">%s sẽ bị xóa</string>
 </resources>

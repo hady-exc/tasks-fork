@@ -8,6 +8,7 @@ package com.todoroo.astrid.adapter
 import com.todoroo.astrid.core.SortHelper.SORT_DUE
 import com.todoroo.astrid.core.SortHelper.SORT_IMPORTANCE
 import com.todoroo.astrid.core.SortHelper.SORT_LIST
+import com.todoroo.astrid.core.SortHelper.SORT_MANUAL
 import com.todoroo.astrid.core.SortHelper.SORT_START
 import com.todoroo.astrid.dao.TaskDao
 import com.todoroo.astrid.data.Task
@@ -21,7 +22,6 @@ import org.tasks.data.GoogleTaskDao
 import org.tasks.data.TaskContainer
 import org.tasks.date.DateTimeUtils.toAppleEpoch
 import org.tasks.date.DateTimeUtils.toDateTime
-import org.tasks.tasklist.SectionedDataSource.Companion.HEADER_COMPLETED
 import org.tasks.time.DateTimeUtils.millisOfDay
 
 open class TaskAdapter(
@@ -32,9 +32,7 @@ open class TaskAdapter(
         private val localBroadcastManager: LocalBroadcastManager,
         private val taskMover: TaskMover,
 ) {
-
     private val selected = HashSet<Long>()
-    private val collapsed = mutableSetOf(HEADER_COMPLETED)
     private lateinit var dataSource: TaskAdapterDataSource
 
     val count: Int
@@ -56,19 +54,10 @@ open class TaskAdapter(
 
     fun clearSelections() = selected.clear()
 
-    fun getCollapsed() = HashSet(collapsed)
-
-    fun setCollapsed(groups: LongArray?) {
-        clearCollapsed()
-        groups?.toList()?.let(collapsed::addAll)
-    }
-
-    fun clearCollapsed() = collapsed.retainAll(listOf(HEADER_COMPLETED))
-
     open fun getIndent(task: TaskContainer): Int = task.indent
 
     open fun canMove(source: TaskContainer, from: Int, target: TaskContainer, to: Int): Boolean {
-        if (target.isGoogleTask) {
+        if (target.isSingleLevelSubtask) {
             return if (!source.hasChildren() || to <= 0 || to >= count - 1) {
                 true
             } else if (from < to) {
@@ -91,7 +80,7 @@ open class TaskAdapter(
 
     open fun maxIndent(previousPosition: Int, task: TaskContainer): Int {
         val previous = getTask(previousPosition)
-        return if (previous.isGoogleTask) {
+        return if (previous.isSingleLevelSubtask) {
             if (task.hasChildren()) 0 else 1
         } else {
             previous.indent + 1
@@ -104,7 +93,7 @@ open class TaskAdapter(
                 return 0
             }
             val next = getTask(it)
-            if (next.isGoogleTask) {
+            if (next.isSingleLevelSubtask) {
                 return if (task.hasChildren() || !next.hasParent()) 0 else 1
             }
             if (!taskIsChild(task, it)) {
@@ -125,28 +114,25 @@ open class TaskAdapter(
         }
     }
 
-    fun toggleCollapsed(group: Long) {
-        if (collapsed.contains(group)) {
-            collapsed.remove(group)
-        } else {
-            collapsed.add(group)
-        }
-    }
-
     open fun supportsAstridSorting(): Boolean = false
 
     open suspend fun moved(from: Int, to: Int, indent: Int) {
         val task = getTask(from)
         val newParent = findParent(indent, to)
-        if ((newParent?.id ?: 0) == task.parent) {
+        if ((newParent?.id ?: 0) == task.parent || (indent > 0 && dataSource.subtaskSortMode == SORT_MANUAL)) {
             if (indent == 0) {
                 changeSortGroup(task, if (from < to) to - 1 else to)
+            } else if (dataSource.subtaskSortMode == SORT_MANUAL) {
+                if (task.isGoogleTask) {
+                    moveGoogleTask(from, to, indent)
+                } else {
+                    moveCaldavTask(from, to, indent)
+                }
             }
             return
         } else if (newParent != null) {
             if (task.caldav != newParent.caldav) {
                 caldavDao.markDeleted(listOf(task.id))
-                task.caldavTask = null
             }
         }
         when {
@@ -187,7 +173,7 @@ open class TaskAdapter(
         return false
     }
 
-    internal fun findParent(indent: Int, to: Int): TaskContainer? {
+    private fun findParent(indent: Int, to: Int): TaskContainer? {
         if (indent == 0 || to == 0) {
             return null
         }
@@ -205,9 +191,7 @@ open class TaskAdapter(
             SORT_IMPORTANCE -> {
                 val newPriority = dataSource.nearestHeader(if (pos == 0) 1 else pos).toInt()
                 if (newPriority != task.priority) {
-                    val t = task.task
-                    t.priority = newPriority
-                    taskDao.save(t)
+                    taskDao.save(task.task.copy(priority = newPriority))
                 }
             }
             SORT_LIST -> taskMover.move(task.id, dataSource.nearestHeader(if (pos == 0) 1 else pos))
@@ -258,8 +242,15 @@ open class TaskAdapter(
             )
         } else {
             task.parent = newParent.id
-            task.caldavTask = CaldavTask(task.id, list, remoteId = null)
-            googleTaskDao.insertAndShift(task.task, task.caldavTask!!, newTasksOnTop)
+            googleTaskDao.insertAndShift(
+                task = task.task,
+                caldavTask = CaldavTask(
+                    task = task.id,
+                    calendar = list,
+                    remoteId = null
+                ),
+                top = newTasksOnTop
+            )
         }
         taskDao.touch(task.id)
         if (BuildConfig.DEBUG) {
@@ -269,17 +260,16 @@ open class TaskAdapter(
 
     private suspend fun changeCaldavParent(task: TaskContainer, newParent: TaskContainer?) {
         val list = newParent?.caldav ?: task.caldav!!
-        val caldavTask = task.caldavTask ?: CaldavTask(
-            task.id,
-            list,
+        val caldavTask = task.caldavTask.takeIf { list == task.caldav } ?: CaldavTask(
+            task = task.id,
+            calendar = list,
         )
         val newParentId = newParent?.id ?: 0
         if (newParentId == 0L) {
             caldavTask.remoteParent = ""
         } else {
-            val parentTask = caldavDao.getTask(newParentId) ?: return
             caldavTask.calendar = list
-            caldavTask.remoteParent = parentTask.remoteId
+            caldavTask.remoteParent = newParent?.caldavTask?.remoteId ?: return
         }
         task.task.order = if (newTasksOnTop) {
             caldavDao.findFirstTask(list, newParentId)
@@ -291,10 +281,13 @@ open class TaskAdapter(
                     ?.plus(1)
         }
         if (caldavTask.id == 0L) {
-            val newTask = CaldavTask(task.id, list)
-            newTask.remoteParent = caldavTask.remoteParent
-            caldavTask.id = caldavDao.insert(newTask)
-            task.caldavTask = caldavTask
+            caldavDao.insert(
+                CaldavTask(
+                    task = task.id,
+                    calendar = list,
+                    remoteParent = caldavTask.remoteParent,
+                )
+            )
         } else {
             caldavDao.update(caldavTask)
         }
@@ -302,5 +295,149 @@ open class TaskAdapter(
         taskDao.setParent(newParentId, listOf(task.id))
         taskDao.touch(task.id)
         localBroadcastManager.broadcastRefresh()
+    }
+
+    protected suspend fun moveGoogleTask(from: Int, to: Int, indent: Int) {
+        val task = getTask(from)
+        val googleTask = task.caldavTask ?: return
+        val list = googleTask.calendar ?: return
+        val previous = if (to > 0) getTask(to - 1) else null
+        if (previous == null) {
+            googleTaskDao.move(
+                task = task.task,
+                list = list,
+                newParent = 0,
+                newPosition = 0,
+            )
+        } else if (to == count || to <= from) {
+            when {
+                indent == 0 ->
+                    googleTaskDao.move(
+                        task = task.task,
+                        list = list,
+                        newParent = 0,
+                        newPosition = previous.primarySort + if (to == count) 0 else 1,
+                    )
+                previous.hasParent() && previous.parent == task.parent ->
+                    googleTaskDao.move(
+                        task = task.task,
+                        list = list,
+                        newParent = previous.parent,
+                        newPosition = previous.secondarySort + if (to == count) 0 else 1,
+                    )
+                previous.hasParent() ->
+                    googleTaskDao.move(
+                        task = task.task,
+                        list = list,
+                        newParent = previous.parent,
+                        newPosition = previous.secondarySort + 1,
+                    )
+                else ->
+                    googleTaskDao.move(
+                        task = task.task,
+                        list = list,
+                        newParent = previous.id,
+                        newPosition = 0,
+                    )
+            }
+        } else {
+            when {
+                indent == 0 ->
+                    googleTaskDao.move(
+                        task = task.task,
+                        list = list,
+                        newParent = 0,
+                        newPosition = previous.primarySort + if (task.hasParent()) 1 else 0,
+                    )
+                previous.hasParent() && previous.parent == task.parent ->
+                    googleTaskDao.move(
+                        task = task.task,
+                        list = list,
+                        newParent = previous.parent,
+                        newPosition = previous.secondarySort,
+                    )
+                previous.hasParent() ->
+                    googleTaskDao.move(
+                        task = task.task,
+                        list = list,
+                        newParent = previous.parent,
+                        newPosition = previous.secondarySort + 1,
+                    )
+                else ->
+                    googleTaskDao.move(
+                        task = task.task,
+                        list = list,
+                        newParent = previous.id,
+                        newPosition = 0,
+                    )
+            }
+        }
+        taskDao.touch(task.id)
+        localBroadcastManager.broadcastRefresh()
+        if (BuildConfig.DEBUG) {
+            googleTaskDao.validateSorting(task.caldav!!)
+        }
+    }
+
+    protected suspend fun moveCaldavTask(from: Int, to: Int, indent: Int) {
+        val task = getTask(from)
+        val oldParent = task.parent
+        val newParent = changeCaldavParent(task, indent, to)
+
+        if (oldParent == newParent && from == to) {
+            return
+        }
+
+        val previous = if (to > 0) getTask(to - 1) else null
+        val next = if (to < count) getTask(to) else null
+
+        val newPosition = when {
+            previous == null -> next!!.caldavSortOrder - 1
+            indent > previous.indent && next?.indent == indent -> next.caldavSortOrder - 1
+            indent > previous.indent -> null
+            indent == previous.indent -> previous.caldavSortOrder + 1
+            else -> getTask((to - 1 downTo 0).find { getTask(it).indent == indent }!!).caldavSortOrder + 1
+        }
+        caldavDao.move(
+            task = task,
+            previousParent = oldParent,
+            newParent = newParent,
+            newPosition = newPosition,
+        )
+        taskDao.touch(task.id)
+        localBroadcastManager.broadcastRefresh()
+    }
+
+    private suspend fun changeCaldavParent(task: TaskContainer, indent: Int, to: Int): Long {
+        val newParent = findParent(indent, to)?.id ?: 0
+        if (task.parent != newParent) {
+            changeCaldavParent(task, newParent)
+        }
+        return newParent
+    }
+
+    private suspend fun changeCaldavParent(task: TaskContainer, newParent: Long) {
+        val caldavTask = task.caldavTask ?: return
+        if (newParent == 0L) {
+            caldavTask.remoteParent = ""
+            caldavDao.update(caldavTask.id, caldavTask.remoteParent)
+        } else {
+            val parentTask = caldavDao.getTask(newParent) ?: return
+            if (parentTask.calendar == caldavTask.calendar) {
+                caldavTask.remoteParent = parentTask.remoteId
+                caldavDao.update(caldavTask.id, caldavTask.remoteParent)
+            } else {
+                caldavDao.markDeleted(listOf(task.id))
+                caldavDao.insert(
+                    CaldavTask(
+                        task = task.id,
+                        calendar = parentTask.calendar,
+                        remoteParent = parentTask.remoteId,
+                    )
+                )
+            }
+        }
+        task.parent = newParent
+        taskDao.save(task.task, null)
     }
 }

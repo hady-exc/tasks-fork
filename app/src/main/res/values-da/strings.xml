@@ -37,8 +37,6 @@
     <string name="TEA_control_files">Filer</string>
     <string name="TEA_control_reminders">Påmindelser</string>
     <string name="TEA_control_hidden_section">----Skjul altid----</string>
-    <string name="CRA_ignore_all">Ignorér alle begivenheder</string>
-    <string name="CRA_ignore_this">Ignorér kun denne begivenhed</string>
     <string name="EPr_default_importance_title">Standardprioritet</string>
     <string name="EPr_default_reminders_title">Standardpåmindelser</string>
     <string name="BFE_Active">Mine opgaver</string>
@@ -59,8 +57,6 @@
     <string name="rmd_EPr_quiet_hours_start_title">Hviletid begynder</string>
     <string name="rmd_EPr_quiet_hours_end_title">Hviletid slutter</string>
     <string name="rmd_EPr_defaultRemind_title">Tilfældige påmindelser</string>
-    <string name="repeat_forever">Gentag uendeligt</string>
-    <string name="repeat_until">Gentag indtil %s</string>
     <string name="delete_task">Slet opgave</string>
     <plurals name="Ntasks">
         <item quantity="one">1 opgave</item>
@@ -74,7 +70,6 @@
     <string name="repeats_single_on">Gentages %1$s hver %2$s</string>
     <string name="opacity_header">Topbjælkens ugennemsigtighed</string>
     <string name="back_button_saves_task">Tilbage-knappen gemmer opgaven</string>
-    <string name="reverse">Omvendt</string>
     <string name="date_shortcut_tomorrow_night">I morgen aften</string>
     <string name="date_shortcut_tomorrow_evening">I morgen eftermiddag</string>
     <string name="date_shortcut_tomorrow_afternoon">I morgen middag</string>
@@ -85,7 +80,6 @@
     <string name="quiet_hours">Hviletid</string>
     <string name="widget_show_header">Vis topbjælke</string>
     <string name="voice_command_added_task">Tilføjede en opgave</string>
-    <string name="repeat_occurs">Stopper efter</string>
     <string name="CFC_gtasks_list_name">På Google Huskelisten…</string>
     <string name="gtasks_error_accountNotFound">Kontoen %s ikke fundet. Prøv at logge ud og logge ind igen gennem Google Huskeliste-indstillingerne.</string>
     <string name="EPr_show_task_edit_comments">Vis kommentarer i opgaveredigering</string>
@@ -98,9 +92,7 @@
     <string name="on_launch">Ved opstart</string>
     <string name="sort_modified_group">Redigeret %s</string>
     <string name="got_it">Forstået!</string>
-    <string name="no_thanks">Nej tak</string>
     <string name="support_development_subscribe">Lås ekstra funktioner op og støt open-source software</string>
-    <string name="tell_me_how_im_doing">Fortæl mig, hvad jeg gør godt</string>
     <string name="enjoying_tasks">Nyder du Tasks\?</string>
     <string name="filter_eisenhower_box_4">Ikke vigtigt og ikke presserende</string>
     <string name="filter_eisenhower_box_3">Ikke vigtigt og presserende</string>
@@ -110,7 +102,6 @@
     <string name="filter_low_priority">Lav prioritet</string>
     <string name="filter_medium_priority">Middel prioritet</string>
     <string name="filter_high_priority">Høj prioritet</string>
-    <string name="add_filter">Tilføj filter</string>
     <string name="add_tags">Tilføj tags</string>
     <string name="filter_no_tags">Ingen tags</string>
     <string name="filter_after_today">Efter i dag</string>
@@ -175,8 +166,6 @@
     <string name="choose_synchronization_service">Vælg tjeneste</string>
     <string name="create_new_tag">Opret “%s”</string>
     <string name="enter_tag_name">Indtast tag</string>
-    <string name="disable_sort_groups">Slå sorteringsgrupper fra</string>
-    <string name="enter_title_hint">Indtast titel</string>
     <string name="subtasks_multilevel_google_task">Flere niveauer af underopgaver understøttes ikke af Google Tasks</string>
     <string name="collapse_subtasks">Skjul underopgaver</string>
     <string name="expand_subtasks">Udvid underopgaver</string>
@@ -226,7 +215,6 @@
     <string name="repeat_monthly_third_week">tredje</string>
     <string name="repeat_monthly_second_week">anden</string>
     <string name="repeat_monthly_first_week">første</string>
-    <string name="repeat_monthly_same_day_each_month">på samme dag hver måned</string>
     <string name="bundle_notifications_summary">Saml flere notifikationer i én</string>
     <string name="badges_description">Vis en opgavetæller på Tasks’ app-ikon. Ikke alle platforme understøtter badges.</string>
     <string name="default_calendar">Standardkalender</string>
@@ -265,11 +253,7 @@
     <string name="widget_due_date_hidden">Skjult</string>
     <string name="widget_due_date_below_title">Under titel</string>
     <string name="widget_due_date_after_title">Efter titel</string>
-    <string name="widget_due_date_reschedule">Udsæt opgave</string>
     <string name="widget_open_list">Åbn liste</string>
-    <string name="widget_do_nothing">Gør ingenting</string>
-    <string name="widget_on_click">Ved tryk</string>
-    <string name="widget_footer">Fodbjælke</string>
     <string name="widget_row_settings">Rækkeindstillinger</string>
     <string name="widget_header_settings">Topbjælkeindstillinger</string>
     <string name="widget_settings">Widget-indstillinger</string>
@@ -368,7 +352,6 @@
     <string name="upgrade_to_pro">Opgrader til pro</string>
     <string name="refresh_purchases">Opdater køb</string>
     <string name="manage_subscription">Administrer abonnement</string>
-    <string name="repeat_monthly_on_every_day_of_nth_week">hver %1$s i %2$s</string>
     <string name="repeat_monthly_every_day_of_nth_week">hver %1$s i %2$s</string>
     <string name="repeats_plural_on_number_of_times">Gentages %2$s hver %1$s, stopper efter %3$d %4$s</string>
     <string name="repeats_plural_on_until">Gentages %2$s hver %1$s indtil %3$s</string>
@@ -390,7 +373,6 @@
     <string name="new_list">Opret ny liste</string>
     <string name="new_tag">Opret nyt tag</string>
     <string name="repeat_snackbar">%1$s er planlagt næste gang til %2$s</string>
-    <string name="repeat_number_of_times">Gentag et bestemt antal gange</string>
     <string name="repeat_type_completion">udført-dato</string>
     <string name="repeat_type_due">frist-dato</string>
     <plurals name="repeat_n_years">
@@ -453,19 +435,12 @@
         <item quantity="one">%d opgave</item>
         <item quantity="other">%d opgaver</item>
     </plurals>
-    <string name="repeat_yearly">Gentag årligt</string>
-    <string name="repeat_monthly">Gentag månedligt</string>
-    <string name="repeat_weekly">Gentag ugentligt</string>
-    <string name="repeat_daily">Gentag dagligt</string>
-    <string name="repeat_hourly">Gentag hver time</string>
-    <string name="repeat_minutely">Gentag hvert minut</string>
     <string name="repeat_option_custom">Tilpas…</string>
     <string name="repeat_option_every_year">Hvert år</string>
     <string name="repeat_option_every_month">Hver måned</string>
     <string name="repeat_option_every_week">Hver uge</string>
     <string name="repeat_option_every_day">Hver dag</string>
     <string name="repeat_option_does_not_repeat">Gentages ikke</string>
-    <string name="repeat_every">Hver</string>
     <string name="default_random_reminder_bi_weekly">Hver anden uge</string>
     <string name="default_random_reminder_weekly">Ugentligt</string>
     <string name="default_random_reminder_daily">Dagligt</string>
@@ -520,15 +495,6 @@
     <string name="EPr_beastMode_reset">Gendan standardindstillinger</string>
     <string name="EPr_edit_screen_options">Rediger skærmindstillinger</string>
     <string name="none">Ingen</string>
-    <string name="CRA_default_list_name">Opgaver: %s</string>
-    <string name="CRA_calendar_reminders_pref_desc_enabled">Tasks vil minde dig om kommende begivenheder og foreslå dig at forberede dig på dem</string>
-    <string name="CRA_calendar_reminders_pref_title">Kalender-assistent</string>
-    <string name="CRA_postpone">Måske senere</string>
-    <string name="CRA_speech_bubble_end">%s er vist lige overstået. Vil du oprette en liste til opgaver\?</string>
-    <string name="CRA_speech_bubble_start">%s begynder vist snart. Vil du oprette en liste til opgaver\?</string>
-    <string name="CRA_ignore_body">Du har ignoreret flere begivenheder i din kalender. Skal Tasks stoppe med at minde dig om dem\?</string>
-    <string name="CRA_title">Brug for en mødeliste\?</string>
-    <string name="CRA_ignore">Ignorér</string>
     <string name="TEA_control_timer">Timer-indstillinger</string>
     <string name="TEA_control_location">Sted</string>
     <string name="TEA_control_gcal">Kalender</string>
@@ -642,7 +608,6 @@
     <string name="social">Social</string>
     <string name="chat_libera">Deltag i #tasks på Libera Chat</string>
     <string name="follow_twitter">Følg @tasks_org</string>
-    <string name="delete_comment">Slet denne kommentar\?</string>
     <string name="date_picker_multiple">Flere</string>
     <string name="multi_select_reschedule">Planlæg om</string>
     <string name="android_auto_backup_device_summary">Du skal også tilmelde dig backup-tjenesten via indstillingerne på din enhed. Det er ikke alle enheder, der tilbyder backup-tjeneste.</string>
@@ -695,7 +660,6 @@
     </plurals>
     <string name="randomly_every">Tilfældigt hver %s</string>
     <string name="snackbar_task_completed">Opgave udført</string>
-    <string name="completed_tasks_sort">Sorter efter færdiggørelsesdato</string>
     <plurals name="reminder_hours">
         <item quantity="one">Time</item>
         <item quantity="other">Timer</item>

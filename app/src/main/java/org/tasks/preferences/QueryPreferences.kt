@@ -3,19 +3,29 @@ package org.tasks.preferences
 interface QueryPreferences {
     var sortMode: Int
 
+    var groupMode: Int
+
+    var completedMode: Int
+
+    var subtaskMode: Int
+
     var isManualSort: Boolean
 
     var isAstridSort: Boolean
 
-    var isReverseSort: Boolean
+    var sortAscending: Boolean
+
+    var groupAscending: Boolean
+
+    var completedAscending: Boolean
+
+    var subtaskAscending: Boolean
 
     val showHidden: Boolean
 
     val showCompleted: Boolean
 
-    var alwaysDisplayFullDate: Boolean
+    val alwaysDisplayFullDate: Boolean
 
-    val completedTasksAtBottom: Boolean
-
-    val sortCompletedByCompletionDate: Boolean
+    var completedTasksAtBottom: Boolean
 }

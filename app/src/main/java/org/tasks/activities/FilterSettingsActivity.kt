@@ -1,12 +1,10 @@
 package org.tasks.activities
 
 import android.app.Activity
-import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
-import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.FrameLayout
 import androidx.core.widget.addTextChangedListener
@@ -27,6 +25,7 @@ import com.todoroo.astrid.activity.TaskListFragment
 import com.todoroo.astrid.api.BooleanCriterion
 import com.todoroo.astrid.api.CustomFilter
 import com.todoroo.astrid.api.CustomFilterCriterion
+import com.todoroo.astrid.api.Filter.Companion.NO_ORDER
 import com.todoroo.astrid.api.MultipleSelectCriterion
 import com.todoroo.astrid.api.PermaSql
 import com.todoroo.astrid.api.TextInputCriterion
@@ -44,7 +43,9 @@ import org.tasks.data.FilterDao
 import org.tasks.data.TaskDao.TaskCriteria.activeAndVisible
 import org.tasks.databinding.FilterSettingsActivityBinding
 import org.tasks.db.QueryUtils
+import org.tasks.extensions.Context.hideKeyboard
 import org.tasks.extensions.Context.openUri
+import org.tasks.extensions.hideKeyboard
 import org.tasks.filters.FilterCriteriaProvider
 import org.tasks.themes.CustomIcons
 import java.util.Locale
@@ -74,7 +75,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
         if (savedInstanceState == null && filter != null) {
             selectedColor = filter!!.tint
             selectedIcon = filter!!.icon
-            name.setText(filter!!.listingTitle)
+            name.setText(filter!!.title)
         }
         when {
             savedInstanceState != null -> lifecycleScope.launch {
@@ -164,7 +165,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
         }
 
     private fun addCriteria() {
-        AndroidUtilities.hideKeyboard(this)
+        hideKeyboard()
         fab.shrink()
         lifecycleScope.launch {
             val all = filterCriteriaProvider.all()
@@ -228,7 +229,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
         get() = filter == null
 
     override val toolbarTitle: String?
-        get() = if (isNew) getString(R.string.FLA_new_filter) else filter!!.listingTitle
+        get() = if (isNew) getString(R.string.FLA_new_filter) else filter!!.title
 
     override suspend fun save() {
         val newName = newName
@@ -237,24 +238,25 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
             return
         }
         if (hasChanges()) {
-            val f = Filter()
-            f.title = newName
-            f.setColor(selectedColor)
-            f.setIcon(selectedIcon)
-            f.values = AndroidUtilities.mapToSerializedString(criteria.values)
-            f.criterion = CriterionInstance.serialize(criteria)
+            var f = Filter(
+                id = filter?.id ?: 0L,
+                title = newName,
+                color = selectedColor,
+                icon = selectedIcon,
+                values = criteria.values,
+                criterion = CriterionInstance.serialize(criteria),
+                sql = criteria.sql,
+                order = filter?.order ?: NO_ORDER,
+            )
             if (f.criterion.isNullOrBlank()) {
                 throw RuntimeException("Criterion cannot be empty")
             }
-            f.setSql(criteria.sql)
             if (isNew) {
-                f.id = filterDao.insert(f)
+                f = f.copy(
+                    id = filterDao.insert(f)
+                )
             } else {
-                filter?.let {
-                    f.id = it.id
-                    f.order = it.order
-                    filterDao.update(f)
-                }
+                filterDao.update(f)
             }
             setResult(
                     Activity.RESULT_OK,
@@ -271,17 +273,16 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
         return if (isNew) {
             (!Strings.isNullOrEmpty(newName)
                     || selectedColor != 0 || selectedIcon != -1 || criteria.size > 1)
-        } else newName != filter!!.listingTitle
+        } else newName != filter!!.title
                 || selectedColor != filter!!.tint
                 || selectedIcon != filter!!.icon
-                || CriterionInstance.serialize(criteria) != filter!!.criterion.trim()
+                || CriterionInstance.serialize(criteria) != filter!!.criterion!!.trim()
                 || criteria.values != filter!!.valuesForNewTasks
-                || criteria.sql != filter!!.originalSqlQuery
+                || criteria.sql != filter!!.sql
     }
 
     override fun finish() {
-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(name.windowToken, 0)
+        hideKeyboard(name)
         super.finish()
     }
 
@@ -383,7 +384,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                 return sql.toString()
             }
 
-        private val List<CriterionInstance>.values: Map<String, Any>
+        private val List<CriterionInstance>.values: String
             get() {
                 val values: MutableMap<String, Any> = HashMap()
                 for (instance in this) {
@@ -395,7 +396,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                         }
                     }
                 }
-                return values
+                return AndroidUtilities.mapToSerializedString(values)
             }
     }
 }

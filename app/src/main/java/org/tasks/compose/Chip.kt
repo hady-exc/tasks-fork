@@ -6,8 +6,14 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.material.*
+import androidx.compose.material.ChipDefaults
+import androidx.compose.material.ContentAlpha
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.FilterChip
+import androidx.compose.material.Icon
+import androidx.compose.material.LocalMinimumInteractiveComponentEnforcement
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.runtime.Composable
@@ -56,12 +62,11 @@ fun Chip(
     clear: (() -> Unit)? = null,
 ) {
     CompositionLocalProvider(
-        LocalMinimumTouchTargetEnforcement provides false
+        LocalMinimumInteractiveComponentEnforcement provides false
     ) {
         FilterChip(
             selected = false,
             onClick = onClick,
-            shape =  MaterialTheme.shapes.small.copy(CornerSize(percent = 30)),
             border = BorderStroke(1.dp, color = color),
             leadingIcon = {
                 if (text != null) {

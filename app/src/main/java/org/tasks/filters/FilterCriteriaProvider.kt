@@ -40,11 +40,13 @@ class FilterCriteriaProvider @Inject constructor(
         private val caldavDao: CaldavDao) {
     private val r = context.resources
 
-    suspend fun rebuildFilter(filter: Filter) {
+    suspend fun rebuildFilter(filter: Filter): Filter {
         val serialized = filter.criterion?.takeIf { it.isNotBlank() }
         val criterion = fromString(serialized)
-        filter.setSql(criterion.sql)
-        filter.criterion = CriterionInstance.serialize(criterion)
+        return filter.copy(
+            sql = criterion.sql,
+            criterion = CriterionInstance.serialize(criterion),
+        )
     }
 
     suspend fun fromString(criterion: String?): List<CriterionInstance> {
@@ -259,8 +261,8 @@ class FilterCriteriaProvider @Inject constructor(
                                             // EOD today if the specified date is NOW
                                             or(Task.DUE_DATE.lte("?"),
                                                 and(field("${Task.DUE_DATE} / 1000 % 60").eq(0),
-                                                    field("?").eq(field("${PermaSql.VALUE_NOW}")),
-                                                    Task.DUE_DATE.lte("${PermaSql.VALUE_EOD}")))))
+                                                    field("?").eq(field(PermaSql.VALUE_NOW)),
+                                                    Task.DUE_DATE.lte(PermaSql.VALUE_EOD)))))
                             .toString(),
                     values,
                     r.getStringArray(R.array.CFC_dueBefore_entries),

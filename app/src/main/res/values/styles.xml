@@ -25,6 +25,14 @@
     <item name="textInputStyle">@style/OutlinedBox</item>
   </style>
 
+  <style name="TranslucentWindow" parent="TasksBase">
+    <item name="android:windowBackground">@android:color/transparent</item>
+    <item name="android:windowAnimationStyle">@null</item>
+    <item name="android:colorBackgroundCacheHint">@null</item>
+    <item name="android:windowIsTranslucent">true</item>
+    <item name="android:windowIsFloating">false</item>
+  </style>
+
   <style name="ToolbarTheme" parent="ThemeOverlay.MaterialComponents.Light">
     <item name="toolbarNavigationButtonStyle">@style/BlackNavigation</item>
     <item name="iconTint">@color/text_primary</item>
@@ -37,7 +45,6 @@
     <item name="overlay_theme">@style/WhiteToolbarOverlay</item>
     <item name="iconTint">@color/white_100</item>
     <item name="colorOnPrimary">@color/white_100</item>
-    <item name="colorOnPrimaryHint">@color/white_60</item>
     <item name="android:actionOverflowButtonStyle">@style/WhiteOverflow</item>
     <item name="toolbarNavigationButtonStyle">@style/WhiteNavigation</item>
   </style>
@@ -46,7 +53,6 @@
     <item name="overlay_theme">@style/BlackToolbarOverlay</item>
     <item name="iconTint">@color/black_87</item>
     <item name="colorOnPrimary">@color/black_87</item>
-    <item name="colorOnPrimaryHint">@color/black_60</item>
     <item name="android:actionOverflowButtonStyle">@style/BlackOverflow</item>
     <item name="toolbarNavigationButtonStyle">@style/BlackNavigation</item>
   </style>
@@ -109,12 +115,6 @@
     <item name="android:editTextColor">@color/black_87</item>
   </style>
 
-  <style name="CommentsRow" >
-    <item name="android:focusable">true</item>
-    <item name="android:layout_width">match_parent</item>
-    <item name="android:layout_height">wrap_content</item>
-  </style>
-
   <style name="TagSettingsRow" parent="Widget.Design.TextInputLayout">
     <item name="android:textSize">18sp</item>
     <item name="android:clickable">true</item>
@@ -175,11 +175,6 @@
 
   <style name="task_list_container">
     <item name="android:elevation" tools:ignore="NewApi">@dimen/elevation_refresh_indicator</item>
-  </style>
-
-  <style name="priority_button" parent="Widget.AppCompat.CompoundButton.RadioButton">
-    <item name="android:layout_width">@dimen/priority_button_width</item>
-    <item name="android:layout_height">24dp</item>
   </style>
 
   <style name="OutlineButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
@@ -267,19 +262,4 @@
     <item name="hintTextColor">?attr/colorSecondary</item>
   </style>
 
-  <style name="CustomBottomSheetDialog" parent="@style/ThemeOverlay.MaterialComponents.BottomSheetDialog">
-    <item name="bottomSheetStyle">@style/CustomBottomSheet</item>
-  </style>
-
-  <style name="CustomBottomSheet" parent="Widget.MaterialComponents.BottomSheet">
-    <item name="shapeAppearanceOverlay">@style/CustomShapeAppearanceBottomSheetDialog</item>
-  </style>
-
-  <style name="CustomShapeAppearanceBottomSheetDialog" parent="">
-    <item name="cornerFamily">rounded</item>
-    <item name="cornerSizeTopRight">@dimen/bottom_sheet_corners</item>
-    <item name="cornerSizeTopLeft">@dimen/bottom_sheet_corners</item>
-    <item name="cornerSizeBottomRight">0dp</item>
-    <item name="cornerSizeBottomLeft">0dp</item>
-  </style>
 </resources>

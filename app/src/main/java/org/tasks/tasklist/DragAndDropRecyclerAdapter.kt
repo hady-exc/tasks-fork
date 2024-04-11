@@ -23,6 +23,7 @@ import kotlinx.coroutines.runBlocking
 import org.tasks.activities.DragAndDropDiffer
 import org.tasks.data.TaskContainer
 import org.tasks.preferences.Preferences
+import org.tasks.ui.TaskListViewModel.UiItem
 import java.util.LinkedList
 import java.util.Queue
 import java.util.concurrent.Executors
@@ -30,22 +31,18 @@ import kotlin.math.max
 import kotlin.math.min
 
 class DragAndDropRecyclerAdapter(
-        private val adapter: TaskAdapter,
-        private val recyclerView: RecyclerView,
-        viewHolderFactory: ViewHolderFactory,
-        private val taskList: TaskListFragment,
-        tasks: List<TaskContainer>,
-        preferences: Preferences) : TaskListRecyclerAdapter(adapter, viewHolderFactory, taskList, preferences), DragAndDropDiffer<TaskContainer, SectionedDataSource> {
-    private val disableHeaders = taskList.getFilter().let {
-        !it.supportsSorting()
-                || !preferences.showGroupHeaders()
-                || (it.supportsManualSort() && preferences.isManualSort)
-                || (it.supportsAstridSorting() && preferences.isAstridSort)
-    }
+    private val adapter: TaskAdapter,
+    private val recyclerView: RecyclerView,
+    viewHolderFactory: ViewHolderFactory,
+    private val taskList: TaskListFragment,
+    tasks: SectionedDataSource,
+    preferences: Preferences,
+    private val toggleCollapsed: (Long) -> Unit,
+) : TaskListRecyclerAdapter(adapter, viewHolderFactory, taskList, preferences), DragAndDropDiffer<UiItem, SectionedDataSource> {
     private val itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback()).apply {
         attachToRecyclerView(recyclerView)
     }
-    override val channel = Channel<List<TaskContainer>>(Channel.UNLIMITED)
+    override val channel = Channel<SectionedDataSource>(Channel.UNLIMITED)
     override val updates: Queue<Pair<SectionedDataSource, DiffUtil.DiffResult?>> = LinkedList()
     override var dragging = false
     override val scope: CoroutineScope =
@@ -56,18 +53,21 @@ class DragAndDropRecyclerAdapter(
         val viewType = getItemViewType(position)
         if (viewType == 1) {
             val headerSection = items.getSection(position)
-            (holder as HeaderViewHolder).bind(taskList.getFilter(), preferences.sortMode, headerSection)
+            (holder as HeaderViewHolder).bind(taskList.getFilter(), preferences.groupMode, headerSection)
         } else {
             super.onBindViewHolder(holder, position)
         }
     }
 
     override val sortMode: Int
-        get() = items.sortMode
+        get() = items.groupMode
+
+    override val subtaskSortMode: Int
+        get() = items.subtaskMode
 
     override fun getItemViewType(position: Int) = if (items.isHeader(position)) 1 else 0
 
-    override fun submitList(list: List<TaskContainer>) {
+    override fun submitList(list: SectionedDataSource) {
         super.submitList(list)
     }
 
@@ -78,8 +78,7 @@ class DragAndDropRecyclerAdapter(
     }
 
     private fun toggleGroup(group: Long) {
-        adapter.toggleCollapsed(group)
-        taskList.loadTaskListContent()
+        toggleCollapsed(group)
     }
 
     override fun dragAndDropEnabled() = taskList.getFilter().supportsSubtasks()
@@ -90,17 +89,8 @@ class DragAndDropRecyclerAdapter(
 
     override fun getItem(position: Int) = items.getItem(position)
 
-    override fun transform(list: List<TaskContainer>): SectionedDataSource =
-            SectionedDataSource(
-                list,
-                disableHeaders,
-                preferences.sortMode,
-                adapter.getCollapsed(),
-                preferences.completedTasksAtBottom,
-            )
-
     override fun diff(last: SectionedDataSource, next: SectionedDataSource) =
-            DiffUtil.calculateDiff(DiffCallback(last, next, adapter), next.size < LONG_LIST_SIZE)
+        DiffUtil.calculateDiff(DiffCallback(last, next, adapter), next.size < LONG_LIST_SIZE)
 
     override fun drainQueue() {
         val recyclerViewState = recyclerView.layoutManager!!.onSaveInstanceState()
@@ -126,7 +116,7 @@ class DragAndDropRecyclerAdapter(
                 taskList.startActionMode()
                 (viewHolder as TaskViewHolder?)!!.moving = true
                 dragging = true
-                val position = viewHolder!!.adapterPosition
+                val position = viewHolder!!.bindingAdapterPosition
                 updateIndents(viewHolder as TaskViewHolder?, position, position)
             }
         }
@@ -134,19 +124,19 @@ class DragAndDropRecyclerAdapter(
         override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
             return when {
                 !dragAndDropEnabled() -> NO_MOVEMENT
-                adapter.isHeader(viewHolder.adapterPosition) -> NO_MOVEMENT
+                adapter.isHeader(viewHolder.bindingAdapterPosition) -> NO_MOVEMENT
                 adapter.numSelected > 0 -> NO_MOVEMENT
                 else -> ALLOW_DRAGGING
             }
-        }
+        }  
 
         override fun onMove(
                 recyclerView: RecyclerView,
                 src: RecyclerView.ViewHolder,
                 target: RecyclerView.ViewHolder): Boolean {
             taskList.finishActionMode()
-            val fromPosition = src.adapterPosition
-            val toPosition = target.adapterPosition
+            val fromPosition = src.bindingAdapterPosition
+            val toPosition = target.bindingAdapterPosition
             val source = src as TaskViewHolder
             val isHeader = isHeader(toPosition)
             if (!isHeader && !adapter.canMove(source.task, fromPosition, (target as TaskViewHolder).task, toPosition)) {
@@ -232,7 +222,7 @@ class DragAndDropRecyclerAdapter(
                     vh.indent = targetIndent
                     moved(from, to, targetIndent)
                 } else if (task.indent != targetIndent) {
-                    val position = vh.adapterPosition
+                    val position = vh.bindingAdapterPosition
                     vh.task.indent = targetIndent
                     vh.task.targetIndent = targetIndent
                     vh.indent = targetIndent

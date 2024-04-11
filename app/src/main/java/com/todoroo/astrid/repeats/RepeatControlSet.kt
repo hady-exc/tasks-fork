@@ -13,12 +13,17 @@ import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.composethemeadapter.MdcTheme
+import com.todoroo.astrid.api.CaldavFilter
+import com.todoroo.astrid.api.GtasksFilter
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import net.fortuna.ical4j.model.Recur
 import net.fortuna.ical4j.model.WeekDay
 import org.tasks.R
 import org.tasks.compose.collectAsStateLifecycleAware
 import org.tasks.compose.edit.RepeatRow
+import org.tasks.data.CaldavAccount
+import org.tasks.data.CaldavDao
 import org.tasks.repeats.BasicRecurrenceDialog
 import org.tasks.repeats.RecurrenceUtils.newRecur
 import org.tasks.repeats.RepeatRuleToString
@@ -30,11 +35,16 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class RepeatControlSet : TaskEditControlFragment() {
     @Inject lateinit var repeatRuleToString: RepeatRuleToString
+    @Inject lateinit var caldavDao: CaldavDao
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_RECURRENCE) {
             if (resultCode == RESULT_OK) {
-                viewModel.recurrence.value = data?.getStringExtra(BasicRecurrenceDialog.EXTRA_RRULE)
+                val result = data?.getStringExtra(BasicRecurrenceDialog.EXTRA_RRULE)
+                viewModel.recurrence.value = result
+                if (result?.isNotBlank() == true && viewModel.dueDate.value == 0L) {
+                    viewModel.setDueDate(DateTime().startOfDay().millis)
+                }
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data)
@@ -82,13 +92,27 @@ class RepeatControlSet : TaskEditControlFragment() {
                         },
                         repeatAfterCompletion = viewModel.repeatAfterCompletion.collectAsStateLifecycleAware().value,
                         onClick = {
-                            BasicRecurrenceDialog.newBasicRecurrenceDialog(
-                                this@RepeatControlSet,
-                                REQUEST_RECURRENCE,
-                                viewModel.recurrence.value,
-                                viewModel.dueDate.value.let { if (it > 0) it else currentTimeMillis() }
-                            )
-                                .show(parentFragmentManager, FRAG_TAG_BASIC_RECURRENCE)
+                            lifecycleScope.launch {
+                                val accountType = viewModel.selectedList.value
+                                    .let {
+                                        when (it) {
+                                            is CaldavFilter -> it.account
+                                            is GtasksFilter -> it.account
+                                            else -> null
+                                        }
+                                    }
+                                    ?.let { caldavDao.getAccountByUuid(it) }
+                                    ?.accountType
+                                    ?: CaldavAccount.TYPE_LOCAL
+                                BasicRecurrenceDialog.newBasicRecurrenceDialog(
+                                    target = this@RepeatControlSet,
+                                    rc = REQUEST_RECURRENCE,
+                                    rrule = viewModel.recurrence.value,
+                                    dueDate = viewModel.dueDate.value,
+                                    accountType = accountType,
+                                )
+                                    .show(parentFragmentManager, FRAG_TAG_BASIC_RECURRENCE)
+                            }
                         },
                         onRepeatFromChanged = { viewModel.repeatAfterCompletion.value = it }
                     )

@@ -18,8 +18,10 @@ data class Tasks(
         val isReminderOn: Boolean = false,
         val createdDateTime: String? = null,
         val lastModifiedDateTime: String? = null,
-        val completedDateTime: CompletedDateTime? = null,
+        val completedDateTime: DateTime? = null,
+        val dueDateTime: DateTime? = null,
         val linkedResources: List<LinkedResource>? = null,
+        val recurrence: Recurrence? = null,
         @field:Json(name = "@removed") val removed: Removed? = null,
     ) {
         data class Body(
@@ -38,10 +40,51 @@ data class Tasks(
             val reason: String,
         )
 
-        data class CompletedDateTime(
+        data class DateTime(
             val dateTime: String,
             val timeZone: String,
         )
+
+        data class Recurrence(
+            val pattern: Pattern,
+        )
+
+        data class Pattern(
+            val type: RecurrenceType,
+            val interval: Int,
+            val month: Int = 0,
+            val dayOfMonth: Int = 0,
+            val daysOfWeek: List<RecurrenceDayOfWeek>,
+            val firstDayOfWeek: RecurrenceDayOfWeek = RecurrenceDayOfWeek.sunday,
+            val index: RecurrenceIndex = RecurrenceIndex.first,
+        )
+
+        enum class RecurrenceType {
+            daily,
+            weekly,
+            absoluteMonthly,
+            relativeMonthly,
+            absoluteYearly,
+            relativeYearly,
+        }
+
+        enum class RecurrenceIndex {
+            first,
+            second,
+            third,
+            fourth,
+            last,
+        }
+
+        enum class RecurrenceDayOfWeek {
+            sunday,
+            monday,
+            tuesday,
+            wednesday,
+            thursday,
+            friday,
+            saturday,
+        }
 
         enum class Importance {
             low,

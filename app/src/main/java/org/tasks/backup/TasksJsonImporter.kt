@@ -126,17 +126,19 @@ class TasksJsonImporter @Inject constructor(
                     )
                 }
             }
-            backupContainer
-                .filters
-                ?.onEach {
+            backupContainer.filters
+                ?.map {
                     if (version < Upgrade_13_2.VERSION) filterCriteriaProvider.rebuildFilter(it)
+                    else it
+                }?.forEach { filter ->
+                    if (filterDao.getByName(filter.title!!) == null) {
+                        filterDao.insert(
+                            filter.copy(
+                                color = themeToColor(context, version, filter.color ?: 0)
+                            )
+                        )
+                    }
                 }
-                ?.forEach { filter ->
-                filter.setColor(themeToColor(context, version, filter.getColor()!!))
-                if (filterDao.getByName(filter.title!!) == null) {
-                    filterDao.insert(filter)
-                }
-            }
             backupContainer.caldavAccounts?.forEach { account ->
                 if (caldavDao.getAccountByUuid(account.uuid!!) == null) {
                     caldavDao.insert(account)
@@ -172,9 +174,23 @@ class TasksJsonImporter @Inject constructor(
                             result.skipCount++
                             return@forEach
                         }
-                if (true == backup.caldavTasks
-                                ?.filter { it.deleted == 0L }
-                                ?.any { caldavDao.getTask(it.calendar!!, it.`object`!!) != null }) {
+                if (
+                    backup.caldavTasks
+                        ?.filter { it.deleted == 0L }
+                        ?.any {
+                            val existing = if (
+                                it.`object`.isNullOrBlank() ||
+                                it.`object` == "null.ics" // caused by an old bug
+                            ) {
+                                it.remoteId?.let { remoteId ->
+                                    caldavDao.getTaskByRemoteId(it.calendar!!, remoteId)
+                                }
+                            } else {
+                                caldavDao.getTask(it.calendar!!, it.`object`!!)
+                            }
+                            existing != null
+                        } == true
+                    ) {
                     result.skipCount++
                     return@forEach
                 }
@@ -214,11 +230,10 @@ class TasksJsonImporter @Inject constructor(
                             task = taskId,
                             calendar = googleTask.listId,
                             remoteId = googleTask.remoteId,
-                        ).apply {
-                            remoteOrder = googleTask.remoteOrder
-                            remoteParent = googleTask.remoteParent
-                            lastSync = googleTask.lastSync
-                        }
+                            remoteOrder = googleTask.remoteOrder,
+                            remoteParent = googleTask.remoteParent,
+                            lastSync = googleTask.lastSync,
+                        )
                     )
                 }
                 for (location in backup.locations) {
@@ -263,8 +278,7 @@ class TasksJsonImporter @Inject constructor(
                     }
                     ?.let { taskAttachmentDao.insert(it) }
                 backup.caldavTasks?.forEach { caldavTask ->
-                    caldavTask.task = taskId
-                    caldavDao.insert(caldavTask)
+                    caldavDao.insert(caldavTask.copy(task = taskId))
                 }
                 backup.vtodo?.let {
                     val caldavTask =

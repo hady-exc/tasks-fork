@@ -24,6 +24,7 @@ import org.tasks.data.TagDao
 import org.tasks.data.TagData
 import org.tasks.data.TagDataDao
 import org.tasks.databinding.ActivityTagSettingsBinding
+import org.tasks.extensions.Context.hideKeyboard
 import org.tasks.themes.CustomIcons
 import javax.inject.Inject
 
@@ -51,11 +52,7 @@ class TagSettingsActivity : BaseListSettingsActivity() {
             selectedIcon = tagData.getIcon()!!
         }
         name.setText(tagData.name)
-        val autopopulateName = intent.getStringExtra(TOKEN_AUTOPOPULATE_NAME)
-        if (!isNullOrEmpty(autopopulateName)) {
-            name.setText(autopopulateName)
-            intent.removeExtra(TOKEN_AUTOPOPULATE_NAME)
-        } else if (isNewTag) {
+        if (isNewTag) {
             name.requestFocus()
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showSoftInput(name, InputMethodManager.SHOW_IMPLICIT)
@@ -118,8 +115,7 @@ class TagSettingsActivity : BaseListSettingsActivity() {
     }
 
     override fun finish() {
-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(name.windowToken, 0)
+        hideKeyboard(name)
         super.finish()
     }
 
@@ -143,7 +139,6 @@ class TagSettingsActivity : BaseListSettingsActivity() {
     }
 
     companion object {
-        const val TOKEN_AUTOPOPULATE_NAME = "autopopulateName" // $NON-NLS-1$
         const val EXTRA_TAG_DATA = "tagData" // $NON-NLS-1$
         private const val EXTRA_TAG_UUID = "uuid" // $NON-NLS-1$
     }

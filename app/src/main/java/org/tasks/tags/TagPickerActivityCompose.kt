@@ -14,6 +14,7 @@ package org.tasks.tags
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.clickable
@@ -53,6 +54,7 @@ import org.tasks.R
 import org.tasks.Strings
 import org.tasks.billing.Inventory
 import org.tasks.data.TagData
+import org.tasks.extensions.addBackPressedCallback
 import org.tasks.injection.ThemedInjectingAppCompatActivity
 import org.tasks.themes.ColorProvider
 import org.tasks.themes.CustomIcons
@@ -83,13 +85,15 @@ class TagPickerActivityCompose : ThemedInjectingAppCompatActivity() {
             }
         }
 
+        addBackPressedCallback { handleBackPressed() }
+
         viewModel.search("")
 
         setContent {
             MdcTheme {
                 TagPicker(
                     viewModel,
-                    onBackClicked = { onBackPressed() },
+                    onBackClicked = { handleBackPressed() },
                     getTagIcon = { tagData ->  getIcon(tagData) },
                     getTagColor = { tagData ->  getColor(tagData) }
                 )
@@ -97,7 +101,7 @@ class TagPickerActivityCompose : ThemedInjectingAppCompatActivity() {
         }
     } /* onCreate */
 
-    override fun onBackPressed() {
+    private fun handleBackPressed() {
         if (Strings.isNullOrEmpty(viewModel.searchText.value)) {
             val data = Intent()
             data.putExtra(EXTRA_TASKS, taskIds)
@@ -108,7 +112,7 @@ class TagPickerActivityCompose : ThemedInjectingAppCompatActivity() {
         } else {
             viewModel.search("")
         }
-    } /* onBackPressed */
+    } /* handleBackPressed */
 
     private fun getColor(tagData: TagData): Color {
         if (tagData.getColor() != 0) {

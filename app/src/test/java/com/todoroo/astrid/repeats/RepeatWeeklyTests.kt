@@ -2,6 +2,7 @@ package com.todoroo.astrid.repeats
 
 import com.natpryce.makeiteasy.MakeItEasy.with
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.tasks.makers.TaskMaker.COMPLETION_TIME
 
@@ -9,6 +10,15 @@ class RepeatWeeklyTests : RepeatTests() {
     @Test
     fun testRepeatWeeklyFromDueDate() {
         val task = newFromDue("FREQ=WEEKLY;INTERVAL=1", newDayTime(2016, 8, 28, 1, 34))
+
+        val next = calculateNextDueDate(task)
+
+        assertEquals(newDayTime(2016, 9, 4, 1, 34), next)
+    }
+
+    @Test
+    fun testRepeatWeeklyFromDueDateNoInterval() {
+        val task = newFromDue("FREQ=WEEKLY", newDayTime(2016, 8, 28, 1, 34))
 
         val next = calculateNextDueDate(task)
 
@@ -186,5 +196,29 @@ class RepeatWeeklyTests : RepeatTests() {
         val next = calculateNextDueDate(task)
 
         assertEquals(newDayTime(2016, 9, 12, 0, 25), next)
+    }
+
+    @Test
+    fun weeklyByDayFromDueDateOnUntil() {
+        val task = newFromDue(
+            "FREQ=WEEKLY;UNTIL=20240315;BYDAY=MO,TU,WE,TH,FR,SU",
+            newDayTime(2024, 3, 14, 3, 45)
+        )
+
+        val next = calculateNextDueDate(task)
+
+        assertEquals(newDayTime(2024, 3, 15, 3, 45), next)
+    }
+
+    @Test
+    fun weeklyByDayFromDueDateEndAfterUntil() {
+        val task = newFromDue(
+            "FREQ=WEEKLY;UNTIL=20240315;BYDAY=MO,TU,WE,TH,FR,SU",
+            newDayTime(2024, 3, 15, 3, 45)
+        )
+
+        calculateNextDueDate(task)
+
+        assertTrue(task.isCompleted)
     }
 }

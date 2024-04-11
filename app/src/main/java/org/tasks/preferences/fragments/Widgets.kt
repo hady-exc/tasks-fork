@@ -42,7 +42,7 @@ class Widgets : InjectingPreferenceFragment() {
     }
 
     private suspend fun createPreference(id: Int): Preference {
-        val widgetPrefs = WidgetPreferences(context, preferences, id)
+        val widgetPrefs = WidgetPreferences(requireContext(), preferences, id)
         val pref = IconPreference(requireContext())
         tintColorPreference(pref, widgetPrefs.color)
         pref.drawable = AppCompatResources.getDrawable(
@@ -52,7 +52,7 @@ class Widgets : InjectingPreferenceFragment() {
         pref.tint = context?.getColor(R.color.icon_tint_with_alpha)
         pref.iconVisible = true
         val filter = defaultFilterProvider.getFilterFromPreference(widgetPrefs.filterId)
-        pref.title = filter.listingTitle
+        pref.title = filter.title
         pref.summary = getString(R.string.widget_id, id)
         val intent = Intent(context, WidgetConfigActivity::class.java)
         intent.putExtra(android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID, id)

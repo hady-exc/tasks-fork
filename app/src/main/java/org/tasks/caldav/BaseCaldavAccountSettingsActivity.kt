@@ -42,7 +42,9 @@ import org.tasks.databinding.ActivityCaldavAccountSettingsBinding
 import org.tasks.dialogs.DialogBuilder
 import org.tasks.dialogs.Linkify
 import org.tasks.extensions.Context.cookiePersistor
+import org.tasks.extensions.Context.hideKeyboard
 import org.tasks.extensions.Context.openUri
+import org.tasks.extensions.addBackPressedCallback
 import org.tasks.injection.ThemedInjectingAppCompatActivity
 import org.tasks.security.KeyStoreEncryption
 import org.tasks.ui.DisplayableException
@@ -143,6 +145,10 @@ abstract class BaseCaldavAccountSettingsActivity : ThemedInjectingAppCompatActiv
                     selected = it
                 }
             }
+        }
+
+        addBackPressedCallback {
+            discard()
         }
     }
 
@@ -327,14 +333,9 @@ abstract class BaseCaldavAccountSettingsActivity : ThemedInjectingAppCompatActiv
 
     override fun finish() {
         if (!requestInProgress()) {
-            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(binding.name.windowToken, 0)
+            hideKeyboard(binding.name)
             super.finish()
         }
-    }
-
-    override fun onBackPressed() {
-        discard()
     }
 
     private fun removeAccountPrompt() {

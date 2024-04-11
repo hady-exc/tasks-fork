@@ -6,31 +6,36 @@
 package com.todoroo.astrid.activity
 
 import android.app.Activity
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.graphics.Paint
 import android.os.Bundle
-import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.Toolbar
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Divider
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidViewBinding
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.os.BundleCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -38,16 +43,13 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.Behavior.DragCallback
 import com.google.android.material.composethemeadapter.MdcTheme
-import com.todoroo.andlib.utility.AndroidUtilities
 import com.todoroo.andlib.utility.DateUtilities
-import com.todoroo.astrid.api.Filter
 import com.todoroo.astrid.dao.TaskDao
 import com.todoroo.astrid.data.Task
 import com.todoroo.astrid.files.FilesControlSet
 import com.todoroo.astrid.repeats.RepeatControlSet
 import com.todoroo.astrid.tags.TagsControlSet
 import com.todoroo.astrid.timers.TimerControlSet
-import com.todoroo.astrid.timers.TimerPlugin
 import com.todoroo.astrid.ui.ReminderControlSet
 import com.todoroo.astrid.ui.StartDateControlSet
 import dagger.hilt.android.AndroidEntryPoint
@@ -55,25 +57,36 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.tasks.LocalBroadcastManager
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
 import org.tasks.analytics.Firebase
 import org.tasks.calendars.CalendarPicker
 import org.tasks.compose.BeastModeBanner
 import org.tasks.compose.collectAsStateLifecycleAware
-import org.tasks.compose.edit.*
-import org.tasks.data.Alarm
-import org.tasks.data.Location
-import org.tasks.data.TagData
+import org.tasks.compose.edit.CommentsRow
+import org.tasks.compose.edit.DescriptionRow
+import org.tasks.compose.edit.DueDateRow
+import org.tasks.compose.edit.InfoRow
+import org.tasks.compose.edit.ListRow
+import org.tasks.compose.edit.PriorityRow
 import org.tasks.data.UserActivityDao
-import org.tasks.databinding.*
+import org.tasks.databinding.FragmentTaskEditBinding
+import org.tasks.databinding.TaskEditCalendarBinding
+import org.tasks.databinding.TaskEditFilesBinding
+import org.tasks.databinding.TaskEditLocationBinding
+import org.tasks.databinding.TaskEditRemindersBinding
+import org.tasks.databinding.TaskEditRepeatBinding
+import org.tasks.databinding.TaskEditStartDateBinding
+import org.tasks.databinding.TaskEditSubtasksBinding
+import org.tasks.databinding.TaskEditTagsBinding
+import org.tasks.databinding.TaskEditTimerBinding
 import org.tasks.date.DateTimeUtils.newDateTime
 import org.tasks.dialogs.DateTimePicker
 import org.tasks.dialogs.DialogBuilder
 import org.tasks.dialogs.FilterPicker.Companion.newFilterPicker
 import org.tasks.dialogs.FilterPicker.Companion.setFilterPickerResultListener
 import org.tasks.dialogs.Linkify
+import org.tasks.extensions.hideKeyboard
 import org.tasks.files.FileHelper
 import org.tasks.fragments.TaskEditControlSetFragmentManager
 import org.tasks.fragments.TaskEditControlSetFragmentManager.Companion.TAG_CREATION
@@ -83,14 +96,20 @@ import org.tasks.fragments.TaskEditControlSetFragmentManager.Companion.TAG_LIST
 import org.tasks.fragments.TaskEditControlSetFragmentManager.Companion.TAG_PRIORITY
 import org.tasks.markdown.MarkdownProvider
 import org.tasks.notifications.NotificationManager
+import org.tasks.play.PlayServices
 import org.tasks.preferences.Preferences
-import org.tasks.ui.*
+import org.tasks.ui.CalendarControlSet
+import org.tasks.ui.ChipProvider
+import org.tasks.ui.LocationControlSet
+import org.tasks.ui.SubtaskControlSet
+import org.tasks.ui.TaskEditEvent
+import org.tasks.ui.TaskEditEventBus
+import org.tasks.ui.TaskEditViewModel
 import org.tasks.ui.TaskEditViewModel.Companion.stripCarriageReturns
 import java.time.format.FormatStyle
-import java.util.*
+import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.abs
-import android.view.inputmethod.EditorInfo
 
 @AndroidEntryPoint
 class TaskEditFragment : Fragment(), Toolbar.OnMenuItemClickListener {
@@ -102,26 +121,36 @@ class TaskEditFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     @Inject lateinit var taskEditControlSetFragmentManager: TaskEditControlSetFragmentManager
     @Inject lateinit var preferences: Preferences
     @Inject lateinit var firebase: Firebase
-    @Inject lateinit var timerPlugin: TimerPlugin
     @Inject lateinit var linkify: Linkify
     @Inject lateinit var markdownProvider: MarkdownProvider
     @Inject lateinit var taskEditEventBus: TaskEditEventBus
-    @Inject lateinit var localBroadcastManager: LocalBroadcastManager
     @Inject lateinit var locale: Locale
     @Inject lateinit var chipProvider: ChipProvider
+    @Inject lateinit var playServices: PlayServices
 
     val editViewModel: TaskEditViewModel by viewModels()
-    val subtaskViewModel: TaskListViewModel by viewModels()
     lateinit var binding: FragmentTaskEditBinding
     private var showKeyboard = false
-    private val refreshReceiver = RefreshReceiver()
     private val beastMode =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             activity?.recreate()
         }
 
+    val task: Task?
+        get() = BundleCompat.getParcelable(requireArguments(), EXTRA_TASK, Task::class.java)
+
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        requireActivity().onBackPressedDispatcher.addCallback(owner = viewLifecycleOwner) {
+            if (preferences.backButtonSavesTask()) {
+                lifecycleScope.launch {
+                    save()
+                }
+            } else {
+                discardButtonClick()
+            }
+        }
+
         binding = FragmentTaskEditBinding.inflate(inflater)
         val view: View = binding.root
         val model = editViewModel.task
@@ -317,7 +346,6 @@ class TaskEditFragment : Fragment(), Toolbar.OnMenuItemClickListener {
 
     override fun onResume() {
         super.onResume()
-        localBroadcastManager.registerRefreshReceiver(refreshReceiver)
         if (showKeyboard) {
             binding.title.requestFocus()
             val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -328,13 +356,8 @@ class TaskEditFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        localBroadcastManager.unregisterReceiver(refreshReceiver)
-    }
-
     override fun onMenuItemClick(item: MenuItem): Boolean {
-        AndroidUtilities.hideKeyboard(activity)
+        activity?.hideKeyboard()
         if (item.itemId == R.id.menu_delete) {
             deleteButtonClick()
             return true
@@ -345,34 +368,12 @@ class TaskEditFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         return false
     }
 
-    suspend fun stopTimer(): Task {
-        val model = editViewModel.task
-        timerPlugin.stopTimer(model)
-        val elapsedTime = DateUtils.formatElapsedTime(model.elapsedSeconds.toLong())
-        editViewModel.addComment(String.format(
-                "%s %s\n%s %s",  // $NON-NLS-1$
-                getString(R.string.TEA_timer_comment_stopped),
-                DateUtilities.getTimeString(context, newDateTime()),
-                getString(R.string.TEA_timer_comment_spent),
-                elapsedTime),
-                null)
-        return model
+    suspend fun save(remove: Boolean = true) {
+        editViewModel.save(remove)
+        activity?.let { playServices.requestReview(it) }
     }
 
-    suspend fun startTimer(): Task {
-        val model = editViewModel.task
-        timerPlugin.startTimer(model)
-        editViewModel.addComment(String.format(
-                "%s %s",
-                getString(R.string.TEA_timer_comment_started),
-                DateUtilities.getTimeString(context, newDateTime())),
-                null)
-        return model
-    }
-
-    suspend fun save(remove: Boolean = true) = editViewModel.save(remove)
-
-    fun discardButtonClick() {
+    private fun discardButtonClick() {
        if (editViewModel.hasChanges()) {
            dialogBuilder
                    .newDialog(R.string.discard_confirmation)
@@ -417,12 +418,6 @@ class TaskEditFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         }
     }
 
-    private inner class RefreshReceiver : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            subtaskViewModel.invalidate()
-        }
-    }
-
     @Composable
     private fun DueDateRow() {
         val dueDate = editViewModel.dueDate.collectAsStateLifecycleAware().value
@@ -443,13 +438,14 @@ class TaskEditFragment : Fragment(), Toolbar.OnMenuItemClickListener {
             onClick = {
                 DateTimePicker
                     .newDateTimePicker(
-                        this@TaskEditFragment,
-                        REQUEST_DATE,
-                        editViewModel.dueDate.value,
-                        preferences.getBoolean(
+                        target = this@TaskEditFragment,
+                        rc = REQUEST_DATE,
+                        current = editViewModel.dueDate.value,
+                        autoClose = preferences.getBoolean(
                             R.string.p_auto_dismiss_datetime_edit_screen,
                             false
-                        )
+                        ),
+                        hideNoDate = editViewModel.recurrence.value?.isNotBlank() == true,
                     )
                     .show(parentFragmentManager, FRAG_TAG_DATE_PICKER)
             }
@@ -518,12 +514,7 @@ class TaskEditFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     }
 
     companion object {
-        const val TAG_TASKEDIT_FRAGMENT = "taskedit_fragment"
         const val EXTRA_TASK = "extra_task"
-        const val EXTRA_LIST = "extra_list"
-        const val EXTRA_LOCATION = "extra_location"
-        const val EXTRA_TAGS = "extra_tags"
-        const val EXTRA_ALARMS = "extra_alarms"
 
         private const val FRAG_TAG_GOOGLE_TASK_LIST_SELECTION =
             "frag_tag_google_task_list_selection"
@@ -541,18 +532,10 @@ class TaskEditFragment : Fragment(), Toolbar.OnMenuItemClickListener {
 
         fun newTaskEditFragment(
             task: Task,
-            list: Filter,
-            location: Location?,
-            tags: ArrayList<TagData>,
-            alarms: ArrayList<Alarm>,
         ): TaskEditFragment {
             val taskEditFragment = TaskEditFragment()
             val arguments = Bundle()
             arguments.putParcelable(EXTRA_TASK, task)
-            arguments.putParcelable(EXTRA_LIST, list)
-            arguments.putParcelable(EXTRA_LOCATION, location)
-            arguments.putParcelableArrayList(EXTRA_TAGS, tags)
-            arguments.putParcelableArrayList(EXTRA_ALARMS, alarms)
             taskEditFragment.arguments = arguments
             return taskEditFragment
         }

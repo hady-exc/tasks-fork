@@ -6,23 +6,25 @@ import com.todoroo.andlib.utility.DateUtilities.now
 import com.todoroo.astrid.core.SortHelper
 import org.tasks.data.TaskContainer
 import org.tasks.time.DateTimeUtils.startOfDay
+import org.tasks.ui.TaskListViewModel.UiItem
 
-class SectionedDataSource constructor(
-    tasks: List<TaskContainer>,
-    disableHeaders: Boolean,
-    val sortMode: Int,
-    private val collapsed: Set<Long>,
-    private val completedAtBottom: Boolean,
-) {
+class SectionedDataSource(
+    tasks: List<TaskContainer> = emptyList(),
+    disableHeaders: Boolean = false,
+    val groupMode: Int = SortHelper.GROUP_NONE,
+    val subtaskMode: Int = SortHelper.SORT_MANUAL,
+    private val collapsed: Set<Long> = emptySet(),
+    private val completedAtBottom: Boolean = true,
+): List<UiItem> {
     private val tasks = tasks.toMutableList()
 
-    private val sections = if (disableHeaders) {
+    private val sections = if (disableHeaders || groupMode == SortHelper.GROUP_NONE) {
         SparseArray()
     } else {
         getSections()
     }
 
-    fun getItem(position: Int): TaskContainer? = tasks.getOrNull(sectionedPositionToPosition(position))
+    fun getItem(position: Int): TaskContainer = tasks[sectionedPositionToPosition(position)]
 
     fun getHeaderValue(position: Int): Long = getSection(position).value
 
@@ -47,8 +49,51 @@ class SectionedDataSource constructor(
     val taskCount: Int
         get() = tasks.size
 
-    val size: Int
+    override val size: Int
         get() = tasks.size + sections.size()
+
+    override fun get(index: Int) =
+        sections[index]
+            ?.let { UiItem.Header(it.value) }
+            ?: UiItem.Task(getItem(index))
+
+    override fun isEmpty() = size == 0
+
+    override fun iterator(): Iterator<UiItem> {
+        return object : Iterator<UiItem> {
+            private var index = 0
+            override fun hasNext() = index < size
+            override fun next(): UiItem = get(index++)
+        }
+    }
+
+    override fun listIterator(): ListIterator<UiItem> {
+        TODO("Not yet implemented")
+    }
+
+    override fun listIterator(index: Int): ListIterator<UiItem> {
+        TODO("Not yet implemented")
+    }
+
+    override fun subList(fromIndex: Int, toIndex: Int): List<UiItem> {
+        TODO("Not yet implemented")
+    }
+
+    override fun lastIndexOf(element: UiItem): Int {
+        TODO("Not yet implemented")
+    }
+
+    override fun indexOf(element: UiItem): Int {
+        TODO("Not yet implemented")
+    }
+
+    override fun containsAll(elements: Collection<UiItem>): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun contains(element: UiItem): Boolean {
+        TODO("Not yet implemented")
+    }
 
     fun getSection(position: Int): AdapterSection = sections[position]
 
@@ -67,12 +112,12 @@ class SectionedDataSource constructor(
             } else if (sortGroup == null) {
                 continue
             } else if (
-                sortMode == SortHelper.SORT_LIST ||
-                sortMode == SortHelper.SORT_IMPORTANCE ||
+                groupMode == SortHelper.SORT_LIST ||
+                groupMode == SortHelper.SORT_IMPORTANCE ||
                 sortGroup == 0L
             ) {
                 sortGroup
-            } else if (sortMode == SortHelper.SORT_DUE) {
+            } else if (groupMode == SortHelper.SORT_DUE) {
                 when {
                     sortGroup == 0L -> 0
                     sortGroup < startOfToday -> HEADER_OVERDUE
@@ -93,12 +138,12 @@ class SectionedDataSource constructor(
                             sections.add(AdapterSection(i, header, 0, isCollapsed))
                         }
                     }
-                    sortMode == SortHelper.SORT_LIST ||
-                    sortMode == SortHelper.SORT_IMPORTANCE ->
+                    groupMode == SortHelper.SORT_LIST ||
+                    groupMode == SortHelper.SORT_IMPORTANCE ->
                         if (header != previous) {
                             sections.add(AdapterSection(i, header, 0, isCollapsed))
                         }
-                    sortMode == SortHelper.SORT_DUE -> {
+                    groupMode == SortHelper.SORT_DUE -> {
                         val previousOverdue = previous < startOfToday
                         val currentOverdue = header == HEADER_OVERDUE
                         if (previous > 0 &&
@@ -143,7 +188,7 @@ class SectionedDataSource constructor(
         sections.remove(toPosition)
         val newSectionedPosition = old.sectionedPosition + offset
         val previousSection = if (isHeader(newSectionedPosition - 1)) sections[newSectionedPosition - 1] else null
-        val newFirstPosition = previousSection?.firstPosition ?: old.firstPosition + offset
+        val newFirstPosition = previousSection?.firstPosition ?: (old.firstPosition + offset)
         val new = AdapterSection(newFirstPosition, old.value, newSectionedPosition, old.collapsed)
         sections.append(new.sectionedPosition, new)
     }

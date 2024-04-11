@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="ok">@android:string/ok</string>
-  <string name="cancel">@android:string/cancel</string>
+  <string name="ok">OK</string>
+  <string name="cancel">Cancel</string>
   <string name="actfm_picture_clear">Clear Picture</string>
   <string name="TVA_add_comment">Add a comment…</string>
   <string name="display_name">Display name</string>
@@ -43,6 +43,7 @@ File %1$s contained %2$s.\n\n
   <string name="SSD_sort_modified">By last modified</string>
   <string name="sort_created">By creation time</string>
   <string name="sort_list">By list</string>
+  <string name="sort_completed">By completion time</string>
   <string name="FLA_search_filter">Matching \'%s\'</string>
   <string name="FLA_new_filter">Create new filter</string>
   <string name="TEA_title_hint">Task name</string>
@@ -69,17 +70,6 @@ File %1$s contained %2$s.\n\n
   <string name="TEA_control_timer">Timer Controls</string>
   <string name="TEA_control_hidden_section">----Hide Always----</string>
   <string name="TEA_creation_date">Creation date</string>
-  <string name="CRA_ignore">Ignore</string>
-  <string name="CRA_title">Need a meeting list?</string>
-  <string name="CRA_ignore_body">You\'ve ignored several calendar events. Should Tasks stop asking you about them?</string>
-  <string name="CRA_ignore_all">Ignore all events</string>
-  <string name="CRA_ignore_this">Ignore this event only</string>
-  <string name="CRA_speech_bubble_start">Looks like %s is starting soon. Want to create a list for action items?</string>
-  <string name="CRA_speech_bubble_end">Looks like you just finished with %s. Want to create a list for action items?</string>
-  <string name="CRA_postpone">Maybe afterwards</string>
-  <string name="CRA_calendar_reminders_pref_title">Calendar assistant</string>
-  <string name="CRA_calendar_reminders_pref_desc_enabled">Tasks will remind you about upcoming calendar events and prompt you to prepare for them</string>
-  <string name="CRA_default_list_name">Action Items: %s</string>
   <string name="none">None</string>
   <string name="EPr_edit_screen_options">Edit screen options</string>
   <string name="EPr_beastMode_reset">Reset to defaults</string>
@@ -166,19 +156,16 @@ File %1$s contained %2$s.\n\n
   <string name="default_random_reminder_daily">Daily</string>
   <string name="default_random_reminder_weekly">Weekly</string>
   <string name="default_random_reminder_bi_weekly">Bi-weekly</string>
-  <string name="repeat_every">Every</string>
   <string name="repeat_option_does_not_repeat">Does not repeat</string>
   <string name="repeat_option_every_day">Every day</string>
   <string name="repeat_option_every_week">Every week</string>
   <string name="repeat_option_every_month">Every month</string>
   <string name="repeat_option_every_year">Every year</string>
   <string name="repeat_option_custom">Custom…</string>
-  <string name="repeat_minutely">REPEAT MINUTELY</string>
-  <string name="repeat_hourly">REPEAT HOURLY</string>
-  <string name="repeat_daily">REPEAT DAILY</string>
-  <string name="repeat_weekly">REPEAT WEEKLY</string>
-  <string name="repeat_monthly">REPEAT MONTHLY</string>
-  <string name="repeat_yearly">REPEAT YEARLY</string>
+  <plurals name="repeat_occurrence">
+    <item quantity="one">occurrence</item>
+    <item quantity="other">occurrences</item>
+  </plurals>
   <plurals name="task_count">
     <item quantity="one">%d task</item>
     <item quantity="other">%d tasks</item>
@@ -262,10 +249,6 @@ File %1$s contained %2$s.\n\n
   <string name="repeat_type_due">due date</string>
   <string name="repeat_type_completion">completion date</string>
   <string name="repeat_type_completion_capitalized">Completion date</string>
-  <string name="repeat_forever">Repeat forever</string>
-  <string name="repeat_until">Repeat until %s</string>
-  <string name="repeat_number_of_times">Repeat a number of times</string>
-  <string name="repeat_occurs">Occurs</string>
   <string name="repeat_snackbar">%1$s rescheduled for %2$s</string>
   <string name="new_tag">Create new tag</string>
   <string name="new_list">Create new list</string>
@@ -344,6 +327,7 @@ File %1$s contained %2$s.\n\n
   <string name="geofence_radius">Geofence radius</string>
   <string name="location_radius_meters">%s m</string>
   <string name="tags">Tags</string>
+  <string name="change_priority">Change priority</string>
   <string name="filters">Filters</string>
   <string name="date_shortcut_hour">For an hour</string>
   <string name="date_shortcut_morning">Morning</string>
@@ -368,7 +352,6 @@ File %1$s contained %2$s.\n\n
   <string name="show_unstarted">Show unstarted</string>
   <string name="show_completed">Show completed</string>
   <string name="filter_criteria_unstarted">Not started</string>
-  <string name="reverse">Reverse</string>
   <string name="no_app_found">No app could handle this request</string>
   <string name="add_attachment">Add attachment</string>
   <string name="take_a_picture">Take a picture</string>
@@ -406,6 +389,7 @@ File %1$s contained %2$s.\n\n
   <string name="theme_wallpaper">Wallpaper</string>
   <string name="theme_day_night">Day/Night</string>
   <string name="theme_system_default">System default</string>
+  <string name="theme_dynamic">Dynamic</string>
   <string name="language">Language</string>
   <string name="restart_required">Restart Tasks for this change to take effect</string>
   <string name="restart_now">Restart now</string>
@@ -416,15 +400,12 @@ File %1$s contained %2$s.\n\n
   <string name="widget_settings">Widget settings</string>
   <string name="widget_header_settings">Header settings</string>
   <string name="widget_row_settings">Row settings</string>
-  <string name="widget_footer">Footer</string>
-  <string name="widget_on_click">On click</string>
-  <string name="widget_do_nothing">Do nothing</string>
   <string name="widget_open_list">Open list</string>
-  <string name="widget_due_date_reschedule">Reschedule task</string>
   <string name="widget_due_date_after_title">After title</string>
   <string name="widget_due_date_below_title">Below title</string>
   <string name="widget_due_date_hidden">Hidden</string>
   <string name="clear_completed_tasks_confirmation">Clear completed tasks?</string>
+  <string name="clear_completed_tasks_count">%s will be deleted</string>
   <string name="copy_multiple_tasks_confirmation">%s copied</string>
   <string name="delete_multiple_tasks_confirmation">%s deleted</string>
   <string name="delete_selected_tasks">Delete selected tasks?</string>
@@ -445,9 +426,9 @@ File %1$s contained %2$s.\n\n
   <string name="repeats_from">Repeats from</string>
   <string name="repeats_single">Repeats %s</string>
   <string name="repeats_single_on">Repeats %1$s on %2$s</string>
-  <string name="repeats_single_until">Repeats %1$s until %2$s</string>
+  <string name="repeats_single_until">Repeats %1$s, ends on %2$s</string>
   <string name="repeats_single_number_of_times">Repeats %1$s, occurs %2$d %3$s</string>
-  <string name="repeats_single_on_until">Repeats %1$s on %2$s until %3$s</string>
+  <string name="repeats_single_on_until">Repeats %1$s on %2$s, ends on %3$s</string>
   <string name="repeats_single_on_number_of_times">Repeats %1$s on %2$s, occurs %3$d %4$s</string>
   <string name="repeats_minutely">minutely</string>
   <string name="repeats_hourly">hourly</string>
@@ -455,11 +436,18 @@ File %1$s contained %2$s.\n\n
   <string name="repeats_weekly">weekly</string>
   <string name="repeats_monthly">monthly</string>
   <string name="repeats_yearly">yearly</string>
+  <string name="repeats_custom_recurrence">Custom recurrence</string>
+  <string name="repeats_every">Repeats every</string>
+  <string name="repeats_weekly_on">Repeats on</string>
+  <string name="repeats_never">Never</string>
+  <string name="repeats_on">On</string>
+  <string name="repeats_after">After</string>
+  <string name="repeats_ends">Ends</string>
   <string name="repeats_plural">Repeats every %s</string>
   <string name="repeats_plural_on">Repeats every %1$s on %2$s</string>
-  <string name="repeats_plural_until">Repeats every %1$s until %2$s</string>
+  <string name="repeats_plural_until">Repeats every %1$s, ends on %2$s</string>
   <string name="repeats_plural_number_of_times">Repeats every %1$s, occurs %2$d %3$s</string>
-  <string name="repeats_plural_on_until">Repeats every %1$s on %2$s until %3$s</string>
+  <string name="repeats_plural_on_until">Repeats every %1$s on %2$s, ends on %3$s</string>
   <string name="repeats_plural_on_number_of_times">Repeats every %1$s on %2$s, occurs %3$d %4$s</string>
   <string name="list_separator_with_space">,\u0020</string>
   <string name="dont_add_to_calendar">Don\'t add to calendar</string>
@@ -467,9 +455,9 @@ File %1$s contained %2$s.\n\n
   <string name="rmd_time_description">Show notifications for tasks without due times</string>
   <string name="badges_description">Display a task count on Tasks\' launcher icon. Not all launchers support badges.</string>
   <string name="bundle_notifications_summary">Combine multiple notifications into one</string>
-  <string name="repeat_monthly_same_day_each_month">on the same day each month</string>
   <string name="repeat_monthly_every_day_of_nth_week">every %1$s %2$s</string>
-  <string name="repeat_monthly_on_every_day_of_nth_week">on every %1$s %2$s</string>
+  <string name="repeat_monthly_on_day_number">Monthly on day %1d</string>
+  <string name="repeat_monthly_on_the_nth_weekday">Monthly on the %1$s %2$s</string>
   <string name="repeat_monthly_first_week">first</string>
   <string name="repeat_monthly_second_week">second</string>
   <string name="repeat_monthly_third_week">third</string>
@@ -526,8 +514,6 @@ File %1$s contained %2$s.\n\n
   <string name="expand_subtasks">Expand subtasks</string>
   <string name="collapse_subtasks">Collapse subtasks</string>
   <string name="subtasks_multilevel_google_task">Multi-level subtasks not supported by Google Tasks</string>
-  <string name="enter_title_hint">Enter title</string>
-  <string name="disable_sort_groups">Disable sort groups</string>
   <string name="enter_tag_name">Enter tag name</string>
   <string name="create_new_tag">Create \"%s\"</string>
   <string name="choose_synchronization_service">Select a platform</string>
@@ -597,7 +583,6 @@ File %1$s contained %2$s.\n\n
   <string name="filter_after_today">After today</string>
   <string name="filter_no_tags">No tags</string>
   <string name="add_tags">Add tags</string>
-  <string name="add_filter">Add filter</string>
   <string name="filter_high_priority">High priority</string>
   <string name="filter_medium_priority">Medium priority</string>
   <string name="filter_low_priority">Low priority</string>
@@ -608,9 +593,7 @@ File %1$s contained %2$s.\n\n
   <string name="filter_eisenhower_box_4">Not important and not urgent</string>
   <string name="enjoying_tasks">Enjoying Tasks?</string>
   <string name="tasks_needs_your_support">Tasks needs your support!</string>
-  <string name="tell_me_how_im_doing">Please tell me how I\'m doing</string>
   <string name="support_development_subscribe">Unlock additional features and support open source software</string>
-  <string name="no_thanks">No thanks</string>
   <string name="got_it">Got it!</string>
   <string name="sort_start_group">Start %s</string>
   <string name="sort_due_group">Due %s</string>
@@ -637,7 +620,6 @@ File %1$s contained %2$s.\n\n
   <string name="backup_location_warning">WARNING: Files located in %s will be deleted if Tasks is uninstalled! Please choose a custom location to prevent Android from deleting your files.</string>
   <string name="multi_select_reschedule">Reschedule</string>
   <string name="date_picker_multiple">Multiple</string>
-  <string name="delete_comment">Delete this comment?</string>
   <string name="custom_filter_has_subtask">Has subtasks</string>
   <string name="custom_filter_is_subtask">Is subtask</string>
   <string name="custom_filter_has_reminder">Has reminder</string>
@@ -720,7 +702,6 @@ File %1$s contained %2$s.\n\n
   <string name="completed">Completed</string>
   <string name="snackbar_task_completed">Task completed</string>
   <string name="completed_tasks_at_bottom">Move completed tasks to bottom</string>
-  <string name="completed_tasks_sort">Sort by completion date</string>
   <string name="snackbar_tasks_completed">%d tasks completed</string>
   <string name="alarm_before_start">%s before start</string>
   <string name="alarm_after_start">%s after start</string>
@@ -740,4 +721,9 @@ File %1$s contained %2$s.\n\n
   <string name="sign_in">Sign in</string>
   <string name="consent_agree">Agree</string>
   <string name="consent_deny">Not now</string>
+  <string name="sort_sorting">Sorting</string>
+  <string name="sort_grouping">Grouping</string>
+  <string name="sort_ascending">Ascending</string>
+  <string name="sort_descending">Descending</string>
+  <string name="sort_not_available">Not available for tags, filters, or places</string>
 </resources>

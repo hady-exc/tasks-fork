@@ -89,8 +89,6 @@
         <item quantity="one">år</item>
         <item quantity="other">år</item>
     </plurals>
-    <string name="repeat_forever">Gjenta for alltid</string>
-    <string name="repeat_until">Gjenta til %s</string>
     <string name="TPl_notification">%s har aktive tidtakere!</string>
     <string name="TFE_workingOn">Gjøremål med tidtaker</string>
     <string name="TEA_timer_controls">Nedtelling</string>
@@ -165,17 +163,6 @@
     <string name="TEA_control_gcal">Kalneder</string>
     <string name="TEA_control_location">Sted</string>
     <string name="TEA_control_timer">Tidtakingskontroller</string>
-    <string name="CRA_ignore">Ignorer</string>
-    <string name="CRA_title">Trenger du en møteliste\?</string>
-    <string name="CRA_ignore_body">Du har ignorert flere kalenderhendelser. Skal Tasks slutte å påminne deg om dem\?</string>
-    <string name="CRA_ignore_all">Ignorer alle hendelser</string>
-    <string name="CRA_ignore_this">Kun ignorer denne hendelsen</string>
-    <string name="CRA_speech_bubble_start">Ser ut til at %s starter snart. Ønsker du å opprette en gjøremålsliste\?</string>
-    <string name="CRA_speech_bubble_end">Ser ut til at du akkurat fullførte %s. Ønsker du å opprette en gjøremålsliste\?</string>
-    <string name="CRA_postpone">Kanskje etterpå</string>
-    <string name="CRA_calendar_reminders_pref_title">Kalenderassistent</string>
-    <string name="CRA_calendar_reminders_pref_desc_enabled">Tasks påminner deg om kommende kalenderhendelser og formaner forberedelse</string>
-    <string name="CRA_default_list_name">Gjøremål: %s</string>
     <string name="none">Ingen</string>
     <string name="EPr_edit_screen_options">Rediger skjermvalg</string>
     <string name="EPr_beastMode_reset">Tilbakestill til forvalg</string>
@@ -229,19 +216,12 @@
     <string name="default_random_reminder_daily">Daglig</string>
     <string name="default_random_reminder_weekly">Ukentlig</string>
     <string name="default_random_reminder_bi_weekly">Annenhver uke</string>
-    <string name="repeat_every">Hver</string>
     <string name="repeat_option_does_not_repeat">Gjentas ikke</string>
     <string name="repeat_option_every_day">Hver dag</string>
     <string name="repeat_option_every_week">Hver uke</string>
     <string name="repeat_option_every_month">Månedlig</string>
     <string name="repeat_option_every_year">Årlig</string>
     <string name="repeat_option_custom">Egendefinert…</string>
-    <string name="repeat_minutely">GJENTA HVERT MINUTT</string>
-    <string name="repeat_hourly">GJENTA HVER TIME</string>
-    <string name="repeat_daily">GJENTA DAGLIG</string>
-    <string name="repeat_weekly">GJENTA UKENTLIG</string>
-    <string name="repeat_monthly">GJENTA MÅNEDLIG</string>
-    <string name="repeat_yearly">GJENTA ÅRLIG</string>
     <plurals name="task_count">
         <item quantity="one">%d gjøremål</item>
         <item quantity="other">%d gjøremål</item>
@@ -272,8 +252,6 @@
     </plurals>
     <string name="repeat_type_due">tidsfristsdato</string>
     <string name="repeat_type_completion">fullføringsdato</string>
-    <string name="repeat_number_of_times">Gjenta et antall ganger</string>
-    <string name="repeat_occurs">Inntreffer</string>
     <string name="repeat_snackbar">%1$s flyttet til %2$s</string>
     <string name="new_tag">Opprett en ny etikett</string>
     <string name="new_list">Opprett en ny liste</string>
@@ -321,7 +299,6 @@
     <string name="delete">Slett</string>
     <string name="copy">Kopier</string>
     <string name="move">Flytt</string>
-    <string name="reverse">Omvend</string>
     <string name="add_attachment">Legg til vedlegg</string>
     <string name="take_a_picture">Ta et bilde</string>
     <string name="pick_from_gallery">Velg fra galleri</string>
@@ -374,9 +351,7 @@
     <string name="dont_add_to_calendar">Ikke legg til i kalender</string>
     <string name="default_calendar">Forvalgt kalender</string>
     <string name="badges_description">Vis gjøremålsantall i Task-oppstarterikonet. Ikke alle oppstartere støtter merker.</string>
-    <string name="repeat_monthly_same_day_each_month">på samme dag hver måned</string>
     <string name="repeat_monthly_every_day_of_nth_week">hver %1$s %2$s</string>
-    <string name="repeat_monthly_on_every_day_of_nth_week">hver %1$s %2$s</string>
     <string name="repeat_monthly_first_week">første</string>
     <string name="repeat_monthly_second_week">andre</string>
     <string name="repeat_monthly_third_week">tredje</string>
@@ -432,7 +407,6 @@
     </plurals>
     <string name="expand_subtasks">Fold ut gjøremålssteg</string>
     <string name="collapse_subtasks">Fold sammen gjøremålssteg</string>
-    <string name="enter_title_hint">Skriv inn tittel</string>
     <string name="TEA_add_subtask">Legg til gjøremålssteg</string>
     <string name="subtasks">Gjøremålssteg</string>
     <string name="subtasks_multilevel_google_task">Gjøremålssteg med flere nivåer støttes ikke av Google Tasks</string>
@@ -458,8 +432,6 @@
     <string name="widget_id">Miniprograms-ID: %d</string>
     <string name="color_wheel">Fargehjul</string>
     <string name="widget_open_list">Åpne liste</string>
-    <string name="widget_do_nothing">Ikke gjør noe</string>
-    <string name="widget_on_click">Ved klikk</string>
     <string name="menu_discard_changes">Forkast endringer</string>
     <string name="widget_show_menu">Vis meny</string>
     <string name="preferences_look_and_feel">Utseende og oppførsel</string>
@@ -484,7 +456,6 @@
     <string name="widget_due_date_hidden">Skjult</string>
     <string name="widget_due_date_below_title">Under tittelen</string>
     <string name="widget_due_date_after_title">Etter tittel</string>
-    <string name="widget_footer">Bunntekst</string>
     <string name="opacity_footer">Bunntekst-dekkevne</string>
     <string name="opacity_row">Rad-dekkevne</string>
     <string name="opacity_header">Topptekst-dekkevne</string>
@@ -513,7 +484,6 @@
     <string name="filter_eisenhower_box_3">Ikke viktig og haster</string>
     <string name="filter_eisenhower_box_2">Viktig og haster ikke</string>
     <string name="filter_eisenhower_box_1">Viktig og haster</string>
-    <string name="add_filter">Legg til filter</string>
     <string name="add_tags">Legg til etiketter</string>
     <string name="filter_no_tags">Ingen etiketter</string>
     <string name="filter_after_today">Fra i morgen av</string>
@@ -521,7 +491,6 @@
     <string name="filter_today_only">Kun i dag</string>
     <string name="etesync_selection_description">Ende-til-ende-kryptert synkronisering</string>
     <string name="caldav_selection_description">Synkronisering basert på åpne internettstandarder</string>
-    <string name="widget_due_date_reschedule">Endre gjøremålstidspunkt</string>
     <string name="sort_created">Etter opprettelsestid</string>
     <string name="auto_dismiss_datetime_list">Gjøremålsliste</string>
     <string name="auto_dismiss_datetime_list_summary">Lukk automatisk når valgt fra gjøremålsliste</string>
@@ -530,8 +499,6 @@
     <string name="place_settings">Stedsinnstillinger</string>
     <string name="places">Steder</string>
     <string name="got_it">Skjønner!</string>
-    <string name="no_thanks">Nei takk</string>
-    <string name="tell_me_how_im_doing">Fortell meg hvordan jeg ligger an</string>
     <string name="sort_modified_group">Endret %s</string>
     <string name="sort_created_group">Opprettet %s</string>
     <string name="yesterday_lowercase">i går</string>
@@ -544,7 +511,6 @@
     <string name="whats_new">Hva er nytt</string>
     <string name="CFC_list_name">På listen…</string>
     <string name="date_shortcut_tomorrow_evening">I morgen på kvelden</string>
-    <string name="disable_sort_groups">Skru av sorteringsgrupper</string>
     <string name="action_new_task">Nytt gjøremål</string>
     <string name="permission_read_tasks">Full tilgang til Tasks-database</string>
     <string name="open_last_viewed_list">Åpne sist viste liste</string>
@@ -571,7 +537,6 @@
     <string name="default_tags">Forvalgte etiketter</string>
     <string name="repeat_type_completion_capitalized">Fullføringsdato</string>
     <string name="default_location">Forvalgt plassering</string>
-    <string name="delete_comment">Slett denne kommentaren\?</string>
     <string name="custom_filter_is_subtask">Er et gjøremålssteg</string>
     <string name="custom_filter_has_subtask">Har gjøremålssteg</string>
     <string name="date_picker_multiple">Flere</string>
@@ -709,7 +674,6 @@
     <string name="TEA_creation_date">Opprettelsesdato</string>
     <string name="microsoft_selection_description">Synkroniser med din personlige Microsoft-konto</string>
     <string name="sort_completion_group">Fullføring %s</string>
-    <string name="completed_tasks_sort">Sorter etter fullførelsesdato</string>
     <string name="snackbar_tasks_completed">%d gjøremål fullført</string>
     <string name="sign_in">Logg inn</string>
     <string name="custom_filter_has_reminder">Har påminnelse</string>

@@ -107,7 +107,6 @@
     <string name="your_subscription_expired">การสมัครใช้งานของคุณหมดอายุแล้ว สมัครสมาชิกตอนนี้เพื่อกลับมาใช้บริการต่อ</string>
     <string name="custom_filter_is_subtask">เป็นงานย่อย</string>
     <string name="custom_filter_has_subtask">มีงานย่อย</string>
-    <string name="delete_comment">ลบข้อคิดเห็นนี้หรือไม่\?</string>
     <string name="date_picker_multiple">หลายเท่า</string>
     <string name="multi_select_reschedule">จัดกําหนดการใหม่</string>
     <string name="backup_location_warning">คําเตือน: แฟ้มที่อยู่ใน %s จะถูกลบถ้างานถูกถอนการติดตั้ง! โปรดเลือกตําแหน่งที่ตั้งที่กําหนดเองเพื่อป้องกันไม่ให้ Android ลบไฟล์ของคุณ</string>
@@ -133,9 +132,7 @@
     <string name="sort_due_group">ครบกําหนด %s</string>
     <string name="sort_start_group">เริ่ม %s</string>
     <string name="got_it">เข้าใจแล้ว!</string>
-    <string name="no_thanks">ไม่เป็นไรขอบคุณ</string>
     <string name="support_development_subscribe">ปลดล็อกคุณสมบัติเพิ่มเติมและสนับสนุนซอฟต์แวร์โอเพ่นซอร์ส</string>
-    <string name="tell_me_how_im_doing">บอกฉันทีว่าฉันกําลังทําอะไร</string>
     <string name="tasks_needs_your_support">งานต้องการการสนับสนุนของคุณ!</string>
     <string name="enjoying_tasks">สนุกกับงาน\?</string>
     <string name="filter_eisenhower_box_4">ไม่สําคัญและไม่เร่งด่วน</string>
@@ -146,7 +143,6 @@
     <string name="filter_low_priority">ลําดับความสําคัญต่ํา</string>
     <string name="filter_medium_priority">ความสำคัญปานกลาง</string>
     <string name="filter_high_priority">ลําดับความสําคัญสูง</string>
-    <string name="add_filter">เพิ่มตัวกรอง</string>
     <string name="add_tags">เพิ่มแท็ก</string>
     <string name="places">สถานที่</string>
     <string name="desaturate_colors_summary_off">สีจะไม่ถูก desaturated ในธีมสีเข้ม</string>
@@ -181,8 +177,6 @@
     <string name="choose_synchronization_service">เลือกแพลตฟอร์ม</string>
     <string name="create_new_tag">สร้าง \"%s\"</string>
     <string name="enter_tag_name">ป้อนชื่อแท็ก</string>
-    <string name="disable_sort_groups">ปิดใช้งานกลุ่มการเรียงลําดับ</string>
-    <string name="enter_title_hint">ใส่ชื่อเรื่อง</string>
     <string name="subtasks_multilevel_google_task">งานย่อยหลายระดับไม่ได้รับการสนับสนุนโดย Google Tasks</string>
     <string name="collapse_subtasks">ยุบงานย่อย</string>
     <string name="expand_subtasks">ขยายงานย่อย</string>
@@ -240,9 +234,7 @@
     <string name="repeat_monthly_third_week">ที่สาม</string>
     <string name="repeat_monthly_second_week">ที่สอง</string>
     <string name="repeat_monthly_first_week">ก่อน</string>
-    <string name="repeat_monthly_on_every_day_of_nth_week">ทุกๆ %1$s %2$s</string>
     <string name="repeat_monthly_every_day_of_nth_week">ทุกๆ %1$s %2$s</string>
-    <string name="repeat_monthly_same_day_each_month">ในวันเดียวกันของทุกเดือน</string>
     <string name="bundle_notifications_summary">รวมการแจ้งเตือนหลายรายการไว้ในรายการเดียว</string>
     <string name="badges_description">แสดงจํานวนงานบนไอคอนตัวเปิดใช้งาน ตัวเรียกใช้งานไม่รองรับป้ายทั้งหมด</string>
     <string name="default_calendar">ปฏิทินเริ่มต้น</string>
@@ -287,11 +279,7 @@
     <string name="widget_due_date_hidden">ซ่อนเร้น</string>
     <string name="widget_due_date_below_title">ใต้ชื่อเรื่อง</string>
     <string name="widget_due_date_after_title">หลังชื่อเรื่อง</string>
-    <string name="widget_due_date_reschedule">กำหนดการงานใหม่</string>
     <string name="widget_open_list">เปิดรายการ</string>
-    <string name="widget_do_nothing">ไม่ต้องทําอะไร</string>
-    <string name="widget_on_click">เมื่อคลิก</string>
-    <string name="widget_footer">ส่วนท้าย</string>
     <string name="widget_row_settings">การตั้งค่าแถว</string>
     <string name="widget_header_settings">การตั้งค่าส่วนหัว</string>
     <string name="widget_settings">การตั้งค่าวิดเจ็ต</string>
@@ -339,7 +327,6 @@
     <string name="take_a_picture">ถ่ายรูป</string>
     <string name="add_attachment">เพิ่มสิ่งที่แนบมา</string>
     <string name="no_app_found">ไม่มีแอปใดที่สามารถจัดการคําขอนี้</string>
-    <string name="reverse">พลิกกลับ</string>
     <string name="filter_criteria_unstarted">ยังไม่เริ่มต้น</string>
     <string name="show_completed">การแสดงเสร็จสมบูรณ์</string>
     <string name="show_unstarted">แสดงสิ่งที่ไม่ได้เริ่มต้น</string>
@@ -423,10 +410,6 @@
     <string name="new_list">สร้างรายการใหม่</string>
     <string name="new_tag">สร้างแท็กใหม่</string>
     <string name="repeat_snackbar">%1$s จัดกําหนดการใหม่สําหรับ %2$s</string>
-    <string name="repeat_occurs">เกิดขึ้น</string>
-    <string name="repeat_number_of_times">ทําซ้ําหลายครั้ง</string>
-    <string name="repeat_until">ทําซ้ําจนถึง %s</string>
-    <string name="repeat_forever">ทําซ้ําตลอดไป</string>
     <string name="repeat_type_completion_capitalized">วันที่เสร็จสมบูรณ์</string>
     <string name="repeat_type_completion">วันที่เสร็จสมบูรณ์</string>
     <string name="repeat_type_due">วันที่ครบกําหนด</string>
@@ -478,18 +461,11 @@
     <plurals name="task_count">
         <item quantity="other">%d งาน</item>
     </plurals>
-    <string name="repeat_yearly">ทําซ้ําทุกปี</string>
-    <string name="repeat_monthly">ทําซ้ําทุกเดือน</string>
-    <string name="repeat_weekly">ทําซ้ําทุกสัปดาห์</string>
-    <string name="repeat_daily">ทำซ้ำทุกวัน</string>
-    <string name="repeat_hourly">ทําซ้ํารายชั่วโมง</string>
-    <string name="repeat_minutely">ทําซ้ําเป็นนาที</string>
     <string name="repeat_option_every_year">ทุกปี</string>
     <string name="repeat_option_every_month">ทุกเดือน</string>
     <string name="repeat_option_every_week">ทุกสัปดาห์</string>
     <string name="repeat_option_every_day">ทุกวัน</string>
     <string name="repeat_option_does_not_repeat">ไม่ซ้ำ</string>
-    <string name="repeat_every">ทุกๆ</string>
     <string name="default_random_reminder_bi_weekly">รายปักษ์</string>
     <string name="default_random_reminder_weekly">รายสัปดาห์</string>
     <string name="default_random_reminder_daily">ทุกวัน</string>
@@ -596,17 +572,6 @@
     <string name="EPr_beastMode_reset">รีเซ็ตเป็นค่าเริ่มต้น</string>
     <string name="EPr_edit_screen_options">แก้ไขตัวเลือกหน้าจอ</string>
     <string name="none">ไม่มีใคร</string>
-    <string name="CRA_default_list_name">รายการการกระทํา: %s</string>
-    <string name="CRA_calendar_reminders_pref_desc_enabled">งานจะเตือนคุณเกี่ยวกับเหตุการณ์ในปฏิทินที่กําลังจะมาถึง และพร้อมท์ให้คุณเตรียมพร้อมสําหรับเหตุการณ์เหล่านั้น</string>
-    <string name="CRA_calendar_reminders_pref_title">ผู้ช่วยปฏิทิน</string>
-    <string name="CRA_postpone">อาจจะหลังจากนั้น</string>
-    <string name="CRA_speech_bubble_end">ดูเหมือนคุณเพิ่งจบด้วย %s ต้องการสร้างรายการสําหรับรายการการกระทําหรือไม่\?</string>
-    <string name="CRA_speech_bubble_start">ดูเหมือนว่า %s จะเริ่มแล้ว ต้องการสร้างรายการสําหรับรายการการกระทําหรือไม่\?</string>
-    <string name="CRA_ignore_this">ละเว้นเหตุการณ์นี้เท่านั้น</string>
-    <string name="CRA_ignore_all">ละเว้นเหตุการณ์ทั้งหมด</string>
-    <string name="CRA_ignore_body">คุณละเว้นกิจกรรมในปฏิทินหลายกิจกรรม งานควรหยุดถามคุณเกี่ยวกับพวกเขาหรือไม่\?</string>
-    <string name="CRA_title">คุณต้องการรายชื่อการประชุม\?</string>
-    <string name="CRA_ignore">ละเว้น</string>
     <string name="date_shortcut_tomorrow_night">คืนพรุ่งนี้</string>
     <string name="date_shortcut_tomorrow_evening">พรุ่งนี้เย็น</string>
     <string name="date_shortcut_tomorrow_afternoon">พรุ่งนี้บ่าย</string>

@@ -56,17 +56,6 @@
     <string name="TEA_control_reminders">Anımsatıcılar</string>
     <string name="TEA_control_timer">Kronometre Denetimleri</string>
     <string name="TEA_control_hidden_section">----Sürekli Gizle----</string>
-    <string name="CRA_ignore">Yok say</string>
-    <string name="CRA_title">Toplantı listesine mi gereksiniyorsunuz\?</string>
-    <string name="CRA_ignore_body">Bir kaç tane takvim etkinliğini yok saydınız. Tasks\'in size bunlar hakkında sormayı kesmesini ister misiniz?</string>
-    <string name="CRA_ignore_all">Tüm etkinlikleri yok say</string>
-    <string name="CRA_ignore_this">Yalnızca bu etkinliği yok say</string>
-    <string name="CRA_speech_bubble_start">%s çok yakında başlayacak gözüküyor. Bir liste hazırlamak ister misiniz?</string>
-    <string name="CRA_speech_bubble_end">%s bitmiş gibi gözüküyor. Bir liste hazırlamak ister misiniz?</string>
-    <string name="CRA_postpone">Belki daha sonra</string>
-    <string name="CRA_calendar_reminders_pref_title">Takvim asistanı</string>
-    <string name="CRA_calendar_reminders_pref_desc_enabled">Tasks, gelecek takvim etkinliklerini anımsatacak ve hazırlanmanız için bilgilendirecek</string>
-    <string name="CRA_default_list_name">Eylem Ögeleri: %s</string>
     <string name="none">Hiçbiri</string>
     <string name="EPr_edit_screen_options">Düzenleme ekranı ayarları</string>
     <string name="EPr_beastMode_reset">Öntanımlılara sıfırla</string>
@@ -144,19 +133,12 @@
     <string name="default_random_reminder_daily">her gün</string>
     <string name="default_random_reminder_weekly">her hafta</string>
     <string name="default_random_reminder_bi_weekly">haftada 2 kez</string>
-    <string name="repeat_every">Her</string>
     <string name="repeat_option_does_not_repeat">Yinelemez</string>
     <string name="repeat_option_every_day">Her gün</string>
     <string name="repeat_option_every_week">Her hafta</string>
     <string name="repeat_option_every_month">Her ay</string>
     <string name="repeat_option_every_year">Her yıl</string>
     <string name="repeat_option_custom">Özel…</string>
-    <string name="repeat_minutely">DAKİKALIK YİNELE</string>
-    <string name="repeat_hourly">SAATLİK YİNELE</string>
-    <string name="repeat_daily">GÜNLÜK YİNELE</string>
-    <string name="repeat_weekly">HAFTALIK YİNELE</string>
-    <string name="repeat_monthly">AYLIK YİNELE</string>
-    <string name="repeat_yearly">YILLIK YİNELE</string>
     <plurals name="task_count">
         <item quantity="one">%d görev</item>
         <item quantity="other">%d görev</item>
@@ -215,10 +197,6 @@
     </plurals>
     <string name="repeat_type_due">bitiş tarihi</string>
     <string name="repeat_type_completion">tamamlanma tarihi</string>
-    <string name="repeat_forever">Sürekli yinele</string>
-    <string name="repeat_until">%s\'e kadar yinele</string>
-    <string name="repeat_number_of_times">Birkaç kez yinele</string>
-    <string name="repeat_occurs">Şu kadar gerçekleşir</string>
     <string name="repeat_snackbar">%1$s, %2$s için yeniden zamanlandı</string>
     <string name="new_tag">Yeni etiket oluştur</string>
     <string name="new_list">Yeni liste oluştur</string>
@@ -245,7 +223,7 @@
     <string name="tmrw">Yarın</string>
     <string name="yest">Dün</string>
     <string name="widget_show_checkboxes">Onay kutularını göster</string>
-    <string name="widget_show_header">Başlığı göster</string>
+    <string name="widget_show_header">Üstü göster</string>
     <string name="widget_show_settings">Ayarları göster</string>
     <string name="notifications">Bildirimler</string>
     <string name="silent">Sessiz</string>
@@ -294,7 +272,6 @@
     <string name="move">Taşı</string>
     <string name="filter_settings">Süzgeç ayarları</string>
     <string name="show_completed">Tamamlananları göster</string>
-    <string name="reverse">Ters</string>
     <string name="add_attachment">Ek ekle</string>
     <string name="take_a_picture">Bir fotoğraf çek</string>
     <string name="pick_from_gallery">Galeriden seç</string>
@@ -371,9 +348,7 @@
     <string name="default_calendar">Öntanımlı takvim</string>
     <string name="badges_description">Tasks başlatıcı simgesinde görev sayısı göster. Tüm başlatıcılar rozetleri desteklemez.</string>
     <string name="bundle_notifications_summary">Birden çok bildirimi tek bildirime birleştir</string>
-    <string name="repeat_monthly_same_day_each_month">her ayın aynı gününde</string>
     <string name="repeat_monthly_every_day_of_nth_week">her %1$s %2$s</string>
-    <string name="repeat_monthly_on_every_day_of_nth_week">her %1$s %2$s</string>
     <string name="repeat_monthly_first_week">birinci</string>
     <string name="repeat_monthly_second_week">ikinci</string>
     <string name="repeat_monthly_third_week">üçüncü</string>
@@ -435,7 +410,6 @@
     <string name="TEA_add_subtask">Alt görev ekle</string>
     <string name="subtasks">Alt görevler</string>
     <string name="subtasks_multilevel_google_task">Google Görevler, çoklu düzey alt görevleri desteklemez</string>
-    <string name="enter_title_hint">Başlık girin</string>
     <string name="enter_tag_name">Etiket adı girin</string>
     <string name="create_new_tag">\"%s\" oluştur</string>
     <string name="display_name">Gösterim adı</string>
@@ -494,21 +468,17 @@
     <string name="widget_due_date_below_title">Başlığın altında</string>
     <string name="widget_due_date_after_title">Başlıktan sonra</string>
     <string name="widget_open_list">Listeyi aç</string>
-    <string name="widget_do_nothing">Bir şey yapma</string>
-    <string name="widget_on_click">Tıkladığında</string>
     <string name="opacity_footer">Alt bölüm opaklığı</string>
     <string name="opacity_row">Satır opaklığı</string>
     <string name="opacity_header">Başlık opaklığı</string>
     <string name="widget_show_dividers">Ayırıcıları göster</string>
     <string name="widget_show_menu">Menüyü göster</string>
     <string name="auto_dismiss_datetime_edit">Görev düzenleme</string>
-    <string name="widget_due_date_reschedule">Görevi yeniden zamanla</string>
     <string name="auto_dismiss_datetime_widget_summary">Widget\'tan seçerken kendiliğinden kapat</string>
     <string name="auto_dismiss_datetime_widget">Widget</string>
     <string name="auto_dismiss_datetime_edit_summary">Görev düzenlemeden seçerken kendiliğinden kapat</string>
     <string name="auto_dismiss_datetime_list_summary">Görev listesinden seçerken kendiliğinden kapat</string>
     <string name="auto_dismiss_datetime_list">Görev listesi</string>
-    <string name="widget_footer">Alt bölüm</string>
     <string name="filter_overdue">Geciken</string>
     <string name="filter_any_due_date">Herhangi bitiş tarihi</string>
     <string name="filter_eisenhower_box_4">Önemli veya ivedi değil</string>
@@ -519,7 +489,6 @@
     <string name="filter_low_priority">Düşük öncelik</string>
     <string name="filter_medium_priority">Orta öncelik</string>
     <string name="filter_high_priority">Yüksek öncelik</string>
-    <string name="add_filter">Süzgeç ekle</string>
     <string name="add_tags">Etiket ekle</string>
     <string name="filter_no_tags">Etiket yok</string>
     <string name="filter_after_today">Bugünden sonra</string>
@@ -529,9 +498,7 @@
     <string name="custom_filter_and">VE</string>
     <string name="custom_filter_criteria">Süzme ölçütü</string>
     <string name="sort_created">Oluşturulma zamanına göre</string>
-    <string name="tell_me_how_im_doing">Lütfen nasıl yaptığımı anlat</string>
     <string name="got_it">Anladım!</string>
-    <string name="no_thanks">Teşekkürler</string>
     <string name="support_development_subscribe">Ek özellikleri açın ve açık kaynaklı yazılımı destekleyin</string>
     <string name="enjoying_tasks">Tasks\'ı Beğeniyor Musunuz\?</string>
     <string name="whats_new">Yenilikler</string>
@@ -544,7 +511,6 @@
     <string name="lists">Listeler</string>
     <string name="open_last_viewed_list">Son görülen listeyi aç</string>
     <string name="on_launch">Başlangıçta</string>
-    <string name="disable_sort_groups">Sıra kümelerini devre dışı bırak</string>
     <string name="CFC_list_name">Listede…</string>
     <string name="astrid_sort_order_summary">\'Görevlerim\', \'Bugün\' ve etiketler için elle sıralama kipini etkinleştirir. Bu sıralama kipi, gelecek güncellemede \'Düzenim\' ile değiştirilecek</string>
     <string name="astrid_sort_order">Astrid elle sıralama</string>
@@ -571,7 +537,6 @@
     <string name="repeat_type_completion_capitalized">Tamamlanma tarihi</string>
     <string name="default_tags">Öntanımlı etiketler</string>
     <string name="default_location">Öntanımlı konum</string>
-    <string name="delete_comment">Bu yorum silinsin mi\?</string>
     <string name="date_picker_multiple">Birden çok</string>
     <string name="multi_select_reschedule">Yeniden zamanla</string>
     <string name="cancel">İptal</string>
@@ -695,7 +660,6 @@
     <string name="snackbar_task_completed">Görev tamamlandı</string>
     <string name="completed_tasks_at_bottom">Tamamlanan görevleri alta taşı</string>
     <string name="snackbar_tasks_completed">%d görev tamamlandı</string>
-    <string name="completed_tasks_sort">Tamamlanma tarihine göre sırala</string>
     <string name="custom_filter_has_reminder">Anımsatıcılı</string>
     <plurals name="reminder_hours">
         <item quantity="one">Saat</item>
@@ -740,4 +704,25 @@
     <string name="default_reminder">Öntanımlı Anımsatıcı</string>
     <string name="rmd_time_description">Bitiş zamanı olmayan görevler için bildirimleri göster</string>
     <string name="sort_list">Listeye göre</string>
+    <string name="repeats_ends">Biter</string>
+    <plurals name="repeat_occurrence">
+        <item quantity="one">gerçekleşim</item>
+        <item quantity="other">gerçekleşim</item>
+    </plurals>
+    <string name="repeats_custom_recurrence">Özel yineleme</string>
+    <string name="repeats_every">Her ... yineler</string>
+    <string name="repeats_weekly_on">Yineler</string>
+    <string name="repeats_never">Asla</string>
+    <string name="repeats_on">Şunda</string>
+    <string name="repeats_after">Sonra</string>
+    <string name="sort_completed">Tamamlanma zamanına göre</string>
+    <string name="repeat_monthly_on_day_number">%1d. günde aylık</string>
+    <string name="repeat_monthly_on_the_nth_weekday">%1$s %2$s günde aylık</string>
+    <string name="sort_not_available">Etiketler, süzgeçler veya yerler için kullanılamaz</string>
+    <string name="sort_sorting">Sıralama</string>
+    <string name="sort_ascending">Artan</string>
+    <string name="sort_descending">Azalan</string>
+    <string name="sort_grouping">Kümeleme</string>
+    <string name="change_priority">Önceliği değiştir</string>
+    <string name="clear_completed_tasks_count">%s silinecek</string>
 </resources>

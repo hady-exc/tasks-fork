@@ -43,10 +43,6 @@
     <string name="TEA_control_files">Failid</string>
     <string name="TEA_control_reminders">Meelespead</string>
     <string name="TEA_control_hidden_section">----Peida alati----</string>
-    <string name="CRA_ignore">Ignoreeri</string>
-    <string name="CRA_ignore_this">Ignoreeri ainult seda sündmust</string>
-    <string name="CRA_postpone">Võib-olla hiljem</string>
-    <string name="CRA_calendar_reminders_pref_title">Kalendri assistent</string>
     <string name="none">Pole</string>
     <string name="EPr_edit_screen_options">Muutmise vaate valikud</string>
     <string name="EPr_beastMode_reset">Taasta vaikeväärtused</string>
@@ -109,7 +105,6 @@
     <string name="rmd_EPr_rmd_time_title">Vaikimisi meeldetuletus</string>
     <string name="persistent_notifications">Püsiv meeldetuletus</string>
     <string name="default_random_reminder_disabled">Välja lülitatud</string>
-    <string name="repeat_every">Iga</string>
     <string name="repeat_option_does_not_repeat">Ei kordu</string>
     <string name="repeat_option_every_day">Iga päev</string>
     <string name="repeat_option_every_week">Iga nädal</string>
@@ -117,9 +112,6 @@
     <string name="repeat_option_every_year">Iga aasta</string>
     <string name="repeat_option_custom">Kohandatud…</string>
     <string name="repeat_type_completion">lõpetamise kuupäev</string>
-    <string name="repeat_forever">Korda igavesti</string>
-    <string name="repeat_until">Korda kuni %s</string>
-    <string name="repeat_number_of_times">Korda määratud arv kordi</string>
     <string name="new_list">Loo uus nimekiri</string>
     <string name="TEA_timer_controls">Taimer</string>
     <string name="delete_task">Kustuta ülesanne</string>
@@ -179,7 +171,6 @@
     <string name="move">Liiguta</string>
     <string name="filter_settings">Filtri seaded</string>
     <string name="show_completed">Nõita lõpetatuid</string>
-    <string name="reverse">Pööra ümber</string>
     <string name="add_attachment">Lisa fail</string>
     <string name="take_a_picture">Tee pilt</string>
     <string name="pick_from_gallery">Vali galeriist</string>

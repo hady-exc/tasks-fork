@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.todoroo.astrid.data.Task
 import com.todoroo.astrid.service.TaskCreator
@@ -13,7 +14,6 @@ import kotlinx.coroutines.launch
 import org.tasks.analytics.Firebase
 import org.tasks.data.TaskAttachment
 import org.tasks.files.FileHelper
-import org.tasks.injection.InjectingAppCompatActivity
 import org.tasks.intents.TaskIntents
 import org.tasks.preferences.Preferences
 import timber.log.Timber
@@ -25,7 +25,7 @@ import javax.inject.Inject
  * Create a new task based on incoming links from the "share" menu
  */
 @AndroidEntryPoint
-class ShareLinkActivity : InjectingAppCompatActivity() {
+class ShareLinkActivity : AppCompatActivity() {
     @Inject lateinit var taskCreator: TaskCreator
     @Inject lateinit var preferences: Preferences
     @Inject lateinit var firebase: Firebase
@@ -33,9 +33,8 @@ class ShareLinkActivity : InjectingAppCompatActivity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val intent = intent
-        val action = intent.action
-        when {
-            Intent.ACTION_PROCESS_TEXT == action -> lifecycleScope.launch {
+        when (intent.action) {
+            Intent.ACTION_PROCESS_TEXT -> lifecycleScope.launch {
                 val text = intent.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT)
                 if (text != null) {
                     val task = taskCreator.createWithValues(text.toString())
@@ -44,10 +43,9 @@ class ShareLinkActivity : InjectingAppCompatActivity() {
                 }
                 finish()
             }
-            Intent.ACTION_SEND == action -> lifecycleScope.launch {
-                val subject = intent.getStringExtra(Intent.EXTRA_SUBJECT)
-                val task = taskCreator.createWithValues(subject)
-                task.notes = intent.getStringExtra(Intent.EXTRA_TEXT)
+
+            Intent.ACTION_SEND -> lifecycleScope.launch {
+                val task = taskCreator.create(intent)
                 if (hasAttachments(intent)) {
                     task.putTransitory(TaskAttachment.KEY, copyAttachment(intent))
                     firebase.addTask("share_attachment")
@@ -57,9 +55,9 @@ class ShareLinkActivity : InjectingAppCompatActivity() {
                 editTask(task)
                 finish()
             }
-            Intent.ACTION_SEND_MULTIPLE == action -> lifecycleScope.launch {
-                val task = taskCreator.createWithValues(intent.getStringExtra(Intent.EXTRA_SUBJECT))
-                task.notes = intent.getStringExtra(Intent.EXTRA_TEXT)
+
+            Intent.ACTION_SEND_MULTIPLE -> lifecycleScope.launch {
+                val task = taskCreator.create(intent)
                 if (hasAttachments(intent)) {
                     task.putTransitory(TaskAttachment.KEY, copyMultipleAttachments(intent))
                     firebase.addTask("share_multiple_attachments")
@@ -69,11 +67,13 @@ class ShareLinkActivity : InjectingAppCompatActivity() {
                 editTask(task)
                 finish()
             }
-            Intent.ACTION_VIEW == action -> lifecycleScope.launch {
+
+            Intent.ACTION_VIEW -> lifecycleScope.launch {
                 editTask(taskCreator.createWithValues(""))
                 firebase.addTask("action_view")
                 finish()
             }
+
             else -> {
                 Timber.e("Unhandled intent: %s", intent)
                 finish()
@@ -111,5 +111,16 @@ class ShareLinkActivity : InjectingAppCompatActivity() {
 
     companion object {
         private val ATTACHMENT_TYPES = listOf("image/", "application/", "audio/")
+
+        private suspend fun TaskCreator.create(intent: Intent): Task {
+            val subject = intent.getStringExtra(Intent.EXTRA_SUBJECT)
+            val hasSubject = subject?.isNotBlank() == true
+            val text = intent.getStringExtra(Intent.EXTRA_TEXT)
+            val task = createWithValues(if (hasSubject) subject else text)
+            if (hasSubject) {
+                task.notes = text
+            }
+            return task
+        }
     }
 }

@@ -66,4 +66,66 @@ class ConvertFromMicrosoftTests {
             assertEquals(DateTime(2022, 9, 18, 0, 0).millis, local.completionDate)
         }
     }
+
+    @Test
+    fun parseDueDate() {
+        val (local, _) = TestUtilities.mstodo("microsoft/basic_task_with_due_date.txt")
+        withTZ("America/Chicago") {
+            assertEquals(DateTime(2023, 7, 19, 0, 0).millis, local.dueDate)
+        }
+    }
+
+    @Test
+    fun parseCreationDate() {
+        val (local, _) = TestUtilities.mstodo("microsoft/basic_task_with_due_date.txt")
+        withTZ("America/Chicago") {
+            assertEquals(
+                DateTime(2023, 7, 19, 23, 20, 56, 9).millis,
+                local.creationDate
+            )
+        }
+    }
+
+    @Test
+    fun parseModificationDate() {
+        val (local, _) = TestUtilities.mstodo("microsoft/basic_task_with_due_date.txt")
+        withTZ("America/Chicago") {
+            assertEquals(
+                DateTime(2023, 7, 19, 23, 21, 6, 269).millis,
+                local.modificationDate
+            )
+        }
+    }
+
+    @Test
+    fun parseDailyRecurrence() {
+        withTZ("America/Chicago") {
+            val (local, _) = TestUtilities.mstodo("microsoft/repeat_daily.txt")
+            assertEquals("FREQ=DAILY", local.recurrence)
+        }
+    }
+
+    @Test
+    fun parseWeekdayRecurrence() {
+        withTZ("America/Chicago") {
+            val (local, _) = TestUtilities.mstodo("microsoft/repeat_weekdays.txt")
+            assertEquals("FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,TU,WE,TH,FR", local.recurrence)
+        }
+    }
+
+    @Test
+    fun parseAbsoluteMonthlyRecurrence() {
+        withTZ("America/Chicago") {
+            val (local, _) = TestUtilities.mstodo("microsoft/repeat_monthly.txt")
+            assertEquals("FREQ=MONTHLY", local.recurrence)
+        }
+    }
+
+    @Test
+    fun parseAbsoluteYearlyRecurrence() {
+        withTZ("America/Chicago") {
+            val (local, _) = TestUtilities.mstodo("microsoft/repeat_yearly.txt")
+            assertEquals("FREQ=YEARLY", local.recurrence)
+        }
+    }
 }

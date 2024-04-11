@@ -35,12 +35,6 @@
     <string name="TEA_control_files">الملفات</string>
     <string name="TEA_control_reminders">مذكرات</string>
     <string name="TEA_control_hidden_section">---إخفاء دائمًا---</string>
-    <string name="CRA_ignore">تجاهل</string>
-    <string name="CRA_title">تريد قائمة للمقابلات؟</string>
-    <string name="CRA_ignore_all">تجاهل جميع الأحداث</string>
-    <string name="CRA_ignore_this">تجاهل هذا الحدث فقط</string>
-    <string name="CRA_postpone">ربَّما لاحقًا</string>
-    <string name="CRA_calendar_reminders_pref_desc_enabled">تاسكس سوف يذكرك في أحداث التقويم القادمة وسوف يحثك لتكون جاهزاً</string>
     <string name="EPr_edit_screen_options">تعديل خيارات الشاشة</string>
     <string name="EPr_beastMode_reset">إعادة التعيين إلى الإعدادات الافتراضية</string>
     <string name="EPr_fullTask_title">إظهار عنوان المهمة الكامل</string>
@@ -79,7 +73,6 @@
     <string name="default_random_reminder_daily">يومي</string>
     <string name="default_random_reminder_weekly">أسبوعي</string>
     <string name="default_random_reminder_bi_weekly">مرتين في الأسبوع</string>
-    <string name="repeat_forever">كرِّر للأبد</string>
     <string name="TEA_timer_controls">مؤقت</string>
     <string name="TEA_timer_comment_started">بدء هذه المهمة:</string>
     <string name="TEA_timer_comment_spent">الوقت المنقضي:</string>
@@ -144,7 +137,6 @@
     <string name="action_call">اتصل</string>
     <string name="TLA_no_items">لا يوجد مهمات هنا.</string>
     <string name="action_open">افتح</string>
-    <string name="no_thanks">لا شكراً</string>
     <string name="color">اللون</string>
     <string name="import_progress_read">قراءة المهمة %d…</string>
     <string name="EPr_delete_task_data_warning">سيتم حذف جميع المهام بشكل دائم</string>
@@ -160,7 +152,6 @@
     <string name="on_launch">عند فتح التطبيق</string>
     <string name="desaturate_colors_summary_off">ستكون الألوان مشبعة في المظهر الداكن</string>
     <string name="desaturate_colors_summary_on">ستكون الألوان غير مشبعة في المظهر الداكن</string>
-    <string name="disable_sort_groups">تعطيل مجموعات الترتيب</string>
     <string name="default_list">القائمة الافتراضية</string>
     <string name="google_tasks_add_to_top">اضف المهام الجديدة لاعلى القائمة</string>
     <string name="add_account">أضف حساب</string>
@@ -198,7 +189,6 @@
     <string name="priority_medium">متوسط</string>
     <string name="priority_high">عال</string>
     <string name="date_and_time">التاريخ والوقت</string>
-    <string name="repeat_until">كرِّر حتَّى %s</string>
     <plurals name="task_count">
         <item quantity="zero">لا مهام</item>
         <item quantity="one">مهمة واحدة</item>
@@ -209,12 +199,6 @@
     </plurals>
     <string name="repeat_type_completion_capitalized">تاريخ الإكمال</string>
     <string name="repeat_type_completion">تاريخ الإكمال</string>
-    <string name="repeat_minutely">كرِّر كل دقيقة</string>
-    <string name="repeat_yearly">كرِّر سنويًّا</string>
-    <string name="repeat_monthly">كرِّر شهريًّا</string>
-    <string name="repeat_weekly">كرِّر أسبوعيًّا</string>
-    <string name="repeat_daily">كرِّر يوميًّا</string>
-    <string name="repeat_hourly">كرِّر كلّ ساعة</string>
     <string name="above_average">فوق المتوسط</string>
     <string name="icon">الأيقونة</string>
     <string name="copy">نسخ</string>
@@ -224,8 +208,6 @@
     <string name="date_shortcut_night">ليلًا</string>
     <string name="date_shortcut_evening">مساءً</string>
     <string name="date_shortcut_morning">صباحًا</string>
-    <string name="repeat_number_of_times">كرّر عددًا من المرات</string>
-    <string name="repeat_every">كلّ</string>
     <string name="default_random_reminder_hourly">كل ساعة</string>
     <string name="no_reminders">لا منبهات</string>
     <string name="always_display_full_date">أظهر التاريخ الكامل</string>
@@ -244,7 +226,6 @@
     <string name="default_start_date">تاريخ البدأ الافتراضي</string>
     <string name="EPr_delete_task_data">حذف معلومات المهام</string>
     <string name="EPr_reset_preferences">إعادة ضبط الإعدادات</string>
-    <string name="CRA_calendar_reminders_pref_title">مساعد التقويم</string>
     <string name="TEA_timer_est">تقريبًا %s</string>
     <string name="FLA_search_filter">موافقًا ل\'%s\'</string>
     <string name="logout">تسجيل الخروج</string>
@@ -268,8 +249,6 @@
     <string name="user">المستعمل</string>
     <string name="copy_selected_tasks">نسخ المهام المختارة؟</string>
     <string name="delete_selected_tasks">حذف المهام المختارة؟</string>
-    <string name="widget_do_nothing">لا تفعل شيئًا</string>
-    <string name="widget_on_click">عند النّقر</string>
     <string name="restart_now">إعادة التشغيل الآن</string>
     <string name="name_cannot_be_empty">لا يمكن أن يكون الاسم فارغًا</string>
     <string name="send_anonymous_statistics">طوّر Tasks</string>
@@ -328,9 +307,7 @@
     <string name="sign_in_with_google">تسجيل الدخول بجوجل</string>
     <string name="privacy">الخصوصيّة</string>
     <string name="current_subscription">الاشتراك الحالي: %s</string>
-    <string name="delete_comment">حذف هذا التعليق؟</string>
     <string name="account">حساب</string>
-    <string name="tell_me_how_im_doing">رجاءً أخبرني كيف أبدي</string>
     <string name="tasks_needs_your_support">Tasks يحتاج دعمك!</string>
     <string name="enjoying_tasks">مستمتع بTasks؟</string>
     <string name="filter_eisenhower_box_4">غير مهم وغير مستعجل</string>
@@ -341,7 +318,6 @@
     <string name="filter_low_priority">أولويّة منخفضة</string>
     <string name="filter_high_priority">أولويّة عالية</string>
     <string name="filter_medium_priority">أولويّة متوسّطة</string>
-    <string name="add_filter">أضف تصفية</string>
     <string name="filter_after_today">بعد اليوم</string>
     <string name="select_all">اختيار الكلّ</string>
     <string name="share">مشاركة</string>
@@ -404,7 +380,6 @@
     <string name="place_settings">إعدادات الأماكن</string>
     <string name="upgrade_blurb_1">أهلًا! أنا أليكس (Alex). أنا المطور المستقل وراء Tasks</string>
     <string name="enter_tag_name">أدخل اسم العلامة</string>
-    <string name="enter_title_hint">أدخل العنوان</string>
     <string name="version_string">نسخة %s</string>
     <string name="third_party_licenses">رخص طرف ثالث</string>
     <string name="choose_new_location">اختر موقعًا جديدًا</string>
@@ -416,7 +391,6 @@
     <string name="this_feature_requires_a_subscription">هذه الميزة تحتاج إلى اشتراك</string>
     <string name="network_error">لم يمكن الاتصال</string>
     <string name="tasker_create_task">أنشأ مهمّة</string>
-    <string name="repeat_monthly_same_day_each_month">في نفس اليوم شهريًّا</string>
     <string name="default_calendar">التقويم الافتراضي</string>
     <string name="dont_add_to_calendar">لا تضف إلى التقويم</string>
     <string name="repeats_from">تكرار من</string>
@@ -424,8 +398,6 @@
     <string name="error_adding_account">خطأ: %s</string>
     <string name="url">رابط</string>
     <string name="widget_due_date_hidden">مخفي</string>
-    <string name="widget_footer">تذييل</string>
-    <string name="reverse">عكس</string>
     <string name="show_unstarted">إظهار الغير مبدوء</string>
     <string name="discard">رمي</string>
     <string name="menu_discard_changes">رمي التغييرات</string>
@@ -444,9 +416,6 @@
     <string name="miscellaneous">متنوّع</string>
     <string name="CFC_tag_text">علامة: \?</string>
     <string name="CFC_importance_text">الأولويّة على الأقل \?</string>
-    <string name="CRA_default_list_name">عناصر العمل: %s</string>
-    <string name="CRA_speech_bubble_end">يبدو أنك انتهيت للتو من %s. هل تريد إنشاء قائمة بعناصر العمل؟</string>
-    <string name="CRA_speech_bubble_start">يبدو أن %s سيبدأ قريبًا. هل تريد إنشاء قائمة بعناصر العمل؟</string>
     <string name="TEA_control_timer">ضوابط المؤقت</string>
     <string name="more_options">خيارات أكثر</string>
     <string name="upgrade_open_source_description">اشتراكك يدعم التطور المستمر</string>
@@ -486,7 +455,6 @@
     <string name="gtasks_error_accountNotFound">لم يتم العثور على الحساب %s، الرجاء تسجيل الخروج ثم تسجيل الدخول من إعدادات Google Tasks.</string>
     <string name="CFC_startBefore_name">بدأ عند…</string>
     <string name="CFC_startBefore_text">بدأ عند: \?</string>
-    <string name="CRA_ignore_body">لقد تجاهلت بضعاً من أحداث التقويم. هل يجب أن يتوقف تاسكس عن سؤالك عنها؟</string>
     <string name="astrid_sort_order_summary">تشغيل وضع ترتيب Astrid اليدوي ل\'مهامي\' و\'اليوم\' والعلامات. وضع الترتيب هذا سيستبدل ب\'ترتيبي\' في تحديثٍ مستقبلي</string>
     <string name="manage_drawer">إدارة الدرج</string>
     <string name="markdown_description">تشغيل الماركداون في العنوان والوصف</string>
@@ -581,7 +549,6 @@
     <string name="upgrade_to_pro">طور لاصدار متقدم</string>
     <string name="help_and_feedback">مساعدة وتبليغات</string>
     <string name="tasker_list_notification">قائمة الاشعارات</string>
-    <string name="repeat_monthly_on_every_day_of_nth_week">في كل %1$s %2$s</string>
     <string name="repeat_monthly_every_day_of_nth_week">كل %1$s %2$s</string>
     <string name="repeats_plural_on_until">كرره كل %1$s في %2$s حتى %3$s</string>
     <string name="repeats_plural_number_of_times">كرره كل %1$s، يحدث %2$d %3$s</string>
@@ -595,7 +562,6 @@
     <string name="bundle_notifications">حزمة الاشعارات</string>
     <string name="use_locale_default">استخدم الإعدادات المحلية الافتراضية</string>
     <string name="clear_completed_tasks_confirmation">أزل المهام المتممة؟</string>
-    <string name="widget_due_date_reschedule">أعد جدولة المهمة</string>
     <string name="hardware_support_required">مطلوب دعم الأجهزة</string>
     <string name="restart_required">أعد تشغيل التطبيق ليأخذ هذا التغيير تأثيره</string>
     <string name="map_theme">قالب الخارطة</string>
@@ -698,7 +664,6 @@
         <item quantity="many">%d ساعة</item>
         <item quantity="other">%d ساعة</item>
     </plurals>
-    <string name="repeat_occurs">يحدث</string>
     <string name="background_location">موقع الخلفية</string>
     <string name="foreground_location">موقع المقدمة</string>
     <string name="sort_due_group">مستحق %s</string>
@@ -768,7 +733,6 @@
     <string name="app_bar_position">موقع شريط التطبيق</string>
     <string name="alarm_after_start">%s بعد البدئ</string>
     <string name="alarm_before_due">%s حتى موعد الإنتهاء</string>
-    <string name="completed_tasks_sort">فرز حسب تاريخ الإكتمال</string>
     <string name="completed_tasks_at_bottom">انقل المهام المكتملة إلى الأسفل</string>
     <string name="snackbar_tasks_completed">%d مهمة اكتملت</string>
     <string name="alarm_before_start">%s قبل البدئ</string>

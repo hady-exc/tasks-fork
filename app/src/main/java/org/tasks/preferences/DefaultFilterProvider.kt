@@ -1,8 +1,11 @@
 package org.tasks.preferences
 
 import android.content.Context
-import com.todoroo.astrid.api.*
+import com.todoroo.astrid.api.CaldavFilter
+import com.todoroo.astrid.api.CustomFilter
 import com.todoroo.astrid.api.Filter
+import com.todoroo.astrid.api.GtasksFilter
+import com.todoroo.astrid.api.TagFilter
 import com.todoroo.astrid.core.BuiltInFilterExposer
 import com.todoroo.astrid.core.BuiltInFilterExposer.Companion.getMyTasksFilter
 import com.todoroo.astrid.data.Task
@@ -10,8 +13,15 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.runBlocking
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
-import org.tasks.data.*
 import org.tasks.data.CaldavCalendar.Companion.ACCESS_READ_ONLY
+import org.tasks.data.CaldavDao
+import org.tasks.data.CaldavTask
+import org.tasks.data.FilterDao
+import org.tasks.data.GoogleTask
+import org.tasks.data.GoogleTaskDao
+import org.tasks.data.GoogleTaskListDao
+import org.tasks.data.LocationDao
+import org.tasks.data.TagDataDao
 import org.tasks.filters.PlaceFilter
 import timber.log.Timber
 import javax.inject.Inject
@@ -31,10 +41,6 @@ class DefaultFilterProvider @Inject constructor(
         @Deprecated("use coroutines") get() = runBlocking { getFilterFromPreference(R.string.p_dashclock_filter) }
         set(filter) = setFilterPreference(filter, R.string.p_dashclock_filter)
 
-    var lastViewedFilter: Filter
-        @Deprecated("use coroutines") get() = runBlocking { getFilterFromPreference(R.string.p_last_viewed_list) }
-        set(filter) = setFilterPreference(filter, R.string.p_last_viewed_list)
-
     var defaultList: Filter
         @Deprecated("use coroutines") get() = runBlocking { getDefaultList() }
         set(filter) = setFilterPreference(filter, R.string.p_default_list)
@@ -52,7 +58,9 @@ class DefaultFilterProvider @Inject constructor(
                     ?.takeIf { it.isWritable }
                     ?: getAnyList()
 
-    suspend fun getLastViewedFilter() = getFilterFromPreference(R.string.p_last_viewed_list)
+    fun setLastViewedFilter(filter: Filter) = setFilterPreference(filter, R.string.p_last_viewed_list)
+
+    private suspend fun getLastViewedFilter() = getFilterFromPreference(R.string.p_last_viewed_list)
 
     suspend fun getDefaultOpenFilter() = getFilterFromPreference(R.string.p_default_open_filter)
 

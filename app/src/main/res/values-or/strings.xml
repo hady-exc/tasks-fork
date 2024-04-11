@@ -95,7 +95,6 @@
     <string name="theme_light">ହାଲୁକା</string>
     <string name="theme_dark">ଗାଢ଼</string>
     <string name="theme_day_night">ଦିନ/ରାତି</string>
-    <string name="widget_do_nothing">କିଛି କରନ୍ତୁନି</string>
     <string name="date_and_time">ତାରିଖ ଓ ସମୟ</string>
     <string name="start_of_week">ସପ୍ତାହ ଆରମ୍ଭ</string>
     <string name="user">ଉପଭୋକ୍ତା</string>
@@ -109,7 +108,6 @@
     <string name="help">ସହାୟତା</string>
     <string name="help_and_feedback">ସାହାଯ୍ୟ ଓ ମତାମତ</string>
     <string name="version_string">ସଂସ୍କରଣ %s</string>
-    <string name="enter_title_hint">ଆଖ୍ୟା ପ୍ରଵେଶ କରନ୍ତୁ</string>
     <string name="preferences_advanced">ଵିକଶିତ</string>
     <string name="more_settings">ଅଧିକ ସେଟିଂ</string>
     <string name="custom_filter_or">କିମ୍ବା</string>
@@ -127,7 +125,6 @@
     <string name="TEA_note_label">ଵର୍ଣ୍ଣନା</string>
     <string name="TEA_importance_label">ପ୍ରାଥମିକତା</string>
     <string name="default_random_reminder_hourly">ପ୍ରତି ଘଣ୍ଟା</string>
-    <string name="repeat_every">ପ୍ରତ୍ୟେକ</string>
     <string name="repeat_option_every_year">ପ୍ରତିଵର୍ଷ</string>
     <string name="repeat_option_every_month">ପ୍ରତି ମାସ</string>
     <plurals name="repeat_n_hours">
@@ -168,14 +165,13 @@
     <string name="repeat_monthly_first_week">ପ୍ରଥମ</string>
     <string name="repeat_monthly_fifth_week">ପଞ୍ଚମ</string>
     <string name="network_error">ସଂଯୋଗ କରିହେଲା ନାହିଁ</string>
-    <string name="about">ଵିଷୟରେ</string>
+    <string name="about">ସମ୍ବନ୍ଧରେ</string>
     <string name="show_description">ଵର୍ଣ୍ଣନା ଦେଖାଅ</string>
     <string name="show_full_description">ସମ୍ପୂର୍ଣ୍ଣ ଵର୍ଣ୍ଣନା ଦେଖାଅ</string>
     <string name="preferences_look_and_feel">ରୂପ ଏଵଂ ଅନୁଭଵ</string>
     <string name="color_wheel">ରଙ୍ଗ ଚକ୍ର</string>
     <string name="custom_filter_and">ଏଵଂ</string>
     <string name="filter_overdue">ଅତିଦେୟ</string>
-    <string name="no_thanks">ନାହିଁ ଥାଉ</string>
     <string name="got_it">ବୁଝିଗଲି!</string>
     <string name="last_backup">ଗତ ବ୍ୟାକଅପ୍: %s</string>
     <string name="invite_awaiting_response">ନିମନ୍ତ୍ରଣ ପ୍ରତିକ୍ରିୟାର ଅପେକ୍ଷାରେ</string>

@@ -27,13 +27,6 @@
     <string name="EPr_beastMode_reset">இயல்புநிலைக்கு மீட்டமை</string>
     <string name="EPr_edit_screen_options">திரை விருப்பங்களைத் திருத்து</string>
     <string name="none">எதுவுமில்லை</string>
-    <string name="CRA_calendar_reminders_pref_title">நாள்காட்டி உதவியாளர்</string>
-    <string name="CRA_postpone">ஒருவேளை பின்னர்</string>
-    <string name="CRA_ignore_this">இந்த நிகழ்வை மட்டும் புறக்கணிக்கவும்</string>
-    <string name="CRA_ignore_all">எல்லா நிகழ்வுகளையும் புறக்கணிக்கவும்</string>
-    <string name="CRA_ignore_body">பல காலண்டர் நிகழ்வுகளை நீங்கள் புறக்கணித்துவிட்டீர்கள். பணிகள் அவற்றைப் பற்றி உங்களிடம் கேட்பதை நிறுத்த வேண்டுமா\?</string>
-    <string name="CRA_title">சந்திப்பு பட்டியல் வேண்டுமா\?</string>
-    <string name="CRA_ignore">புறக்கணிக்கவும்</string>
     <string name="TEA_control_hidden_section">---- எப்போதும் மறை ----</string>
     <string name="TEA_control_timer">டைமர் கட்டுப்பாடுகள்</string>
     <string name="TEA_control_reminders">நினைவூட்டல்கள்</string>
@@ -84,18 +77,12 @@
     <string name="backup_BAc_export">இப்போதே நகல் எடு</string>
     <string name="backup_BAc_import">நகலை இறக்குமதி செய்</string>
     <string name="display_name">பெயர்</string>
-    <string name="repeat_yearly">வருடந்தோறும் மீண்டும் செய்யவும்</string>
-    <string name="repeat_monthly">மாதந்தோறும் செய்யவும்</string>
-    <string name="repeat_weekly">வாரந்தோறும் செய்யவும்</string>
-    <string name="repeat_daily">தினமும் செய்யவும்</string>
-    <string name="repeat_hourly">மணிநேரம் மீண்டும் செய்யவும்</string>
     <string name="repeat_option_custom">தனிப்பயன்…</string>
     <string name="repeat_option_every_year">ஒவ்வொரு வருடமும்</string>
     <string name="repeat_option_every_month">ஒவ்வொரு மாதமும்</string>
     <string name="repeat_option_every_week">ஒவ்வொரு வாரமும்</string>
     <string name="repeat_option_every_day">தினமும்</string>
     <string name="repeat_option_does_not_repeat">மீண்டும் செய்யாது</string>
-    <string name="repeat_every">ஒவ்வொரு</string>
     <string name="default_random_reminder_bi_weekly">இரு வாராந்திர</string>
     <string name="default_random_reminder_weekly">வாராந்திர</string>
     <string name="default_random_reminder_daily">தினசரி</string>
@@ -152,8 +139,6 @@
     <string name="sort_modified_group">மாற்றியமைக்கப்பட்ட %s</string>
     <string name="sort_created_group">%s உருவாக்கப்பட்டது</string>
     <string name="got_it">அறிந்துகொண்டேன்!</string>
-    <string name="no_thanks">நன்றி இல்லை</string>
-    <string name="tell_me_how_im_doing">நான் எப்படி செய்கிறேன் என்று சொல்லுங்கள்</string>
     <string name="enjoying_tasks">பணிகளை அனுபவிக்கிறீர்களா\?</string>
     <string name="filter_eisenhower_box_4">ஐசனோவர் பெட்டி 4</string>
     <string name="filter_eisenhower_box_3">ஐசனோவர் பெட்டி 3</string>
@@ -163,7 +148,6 @@
     <string name="filter_low_priority">குறைந்த முன்னுரிமை</string>
     <string name="filter_medium_priority">நடுத்தர முன்னுரிமை</string>
     <string name="filter_high_priority">அதி முக்கியத்துவம்</string>
-    <string name="add_filter">வடிப்பானைச் சேர்க்கவும்</string>
     <string name="add_tags">குறிச்சொற்களைச் சேர்க்கவும்</string>
     <string name="filter_no_tags">குறிச்சொற்கள் இல்லை</string>
     <string name="filter_after_today">இன்றுக்குப் பிறகு</string>
@@ -221,8 +205,6 @@
     <string name="choose_synchronization_service">ஒரு தளத்தைத் தேர்ந்தெடுக்கவும்</string>
     <string name="create_new_tag">\"%s\" ஐ உருவாக்கவும்</string>
     <string name="enter_tag_name">குறிச்சொல் பெயரை உள்ளிடவும்</string>
-    <string name="disable_sort_groups">வரிசை குழுக்களை முடக்கு</string>
-    <string name="enter_title_hint">தலைப்பை உள்ளிடவும்</string>
     <string name="subtasks_multilevel_google_task">கூகிள் பணிகளால் பல நிலை துணை பணிகள் ஆதரிக்கப்படவில்லை</string>
     <string name="collapse_subtasks">துணை பணிகளைச் சுருக்கவும்</string>
     <string name="expand_subtasks">துணை பணிகளை விரிவாக்குங்கள்</string>
@@ -276,9 +258,7 @@
     <string name="repeat_monthly_third_week">மூன்றாவது</string>
     <string name="repeat_monthly_second_week">இரண்டாவது</string>
     <string name="repeat_monthly_first_week">முதல்</string>
-    <string name="repeat_monthly_on_every_day_of_nth_week">ஒவ்வொரு %1$s %2$s இல்</string>
     <string name="repeat_monthly_every_day_of_nth_week">ஒவ்வொரு %1$s %2$s</string>
-    <string name="repeat_monthly_same_day_each_month">ஒவ்வொரு மாதமும் ஒரே நாளில்</string>
     <string name="bundle_notifications_summary">பல அறிவிப்புகளை ஒன்றில் இணைக்கவும்</string>
     <string name="default_calendar">இயல்புநிலை காலண்டர்</string>
     <string name="dont_add_to_calendar">நாள்காட்டியில் சேர்க்க வேண்டாம்</string>
@@ -312,11 +292,7 @@
     <string name="widget_due_date_hidden">மறைக்கப்பட்டுள்ளது</string>
     <string name="widget_due_date_below_title">தலைப்புக்கு கீழே</string>
     <string name="widget_due_date_after_title">தலைப்புக்குப் பிறகு</string>
-    <string name="widget_due_date_reschedule">பணியை மறுபரிசீலனை செய்யுங்கள்</string>
     <string name="widget_open_list">திறந்த பட்டியல்</string>
-    <string name="widget_do_nothing">எதுவும் செய்ய வேண்டாம்</string>
-    <string name="widget_on_click">கிளிக் செய்தால்</string>
-    <string name="widget_footer">அடிக்குறிப்பு</string>
     <string name="widget_row_settings">வரிசை அமைப்புகள்</string>
     <string name="widget_header_settings">தலைப்பு அமைப்புகள்</string>
     <string name="widget_settings">விட்ஜெட் அமைப்புகள்</string>
@@ -359,7 +335,6 @@
     <string name="pick_from_gallery">கேலரியில் இருந்து எடுக்கவும்</string>
     <string name="take_a_picture">படம் எடுக்கவும்</string>
     <string name="add_attachment">இணைப்பை சேர்க்கவும்</string>
-    <string name="reverse">தலைகீழ்</string>
     <string name="show_completed">நிகழ்ச்சி முடிந்தது</string>
     <string name="filter_settings">அமைப்புகளை வடிகட்டவும்</string>
     <string name="move">நகர்வு</string>
@@ -443,10 +418,6 @@
     <string name="delete_tag_confirmation">%s ஐ நீக்கவா\?</string>
     <string name="new_list">புதிய பட்டியலை உருவாக்கவும்</string>
     <string name="new_tag">புதிய குறிச்சொல்லை உருவாக்கவும்</string>
-    <string name="repeat_occurs">நிகழ்கிறது</string>
-    <string name="repeat_number_of_times">பல முறை செய்யவும்</string>
-    <string name="repeat_until">%s வரை மீண்டும் செய்யவும்</string>
-    <string name="repeat_forever">என்றென்றும் செய்யவும்</string>
     <string name="repeat_type_completion">நிறைவு தேதி</string>
     <string name="repeat_type_due">உரிய தேதி</string>
     <plurals name="repeat_n_years">
@@ -510,10 +481,6 @@
         <item quantity="other">%d பணிகள்</item>
     </plurals>
     <string name="EPr_manage_delete_gcal_status">%d நாள்காட்டி நிகழ்வுகள் நீக்கப்பட்டன!</string>
-    <string name="CRA_default_list_name">செயல் உருப்படிகள்: %s</string>
-    <string name="CRA_calendar_reminders_pref_desc_enabled">வரவிருக்கும் காலண்டர் நிகழ்வுகளைப் பற்றி பணிகள் உங்களுக்கு நினைவூட்டுவதோடு, அவற்றைத் தயாரிக்கும்படி கேட்கும்</string>
-    <string name="CRA_speech_bubble_end">நீங்கள் %s உடன் முடித்ததாகத் தெரிகிறது. செயல் உருப்படிகளுக்கான பட்டியலை உருவாக்க விரும்புகிறீர்களா\?</string>
-    <string name="CRA_speech_bubble_start">%s விரைவில் தொடங்குவது போல் தெரிகிறது. செயல் உருப்படிகளுக்கான பட்டியலை உருவாக்க விரும்புகிறீர்களா\?</string>
     <string name="TEA_timer_elap">கழிந்தது %s</string>
     <string name="TEA_timer_est">எஸ்டி. %s</string>
     <string name="FLA_search_filter">பொருந்தும் \'%s\'</string>
