@@ -1,6 +1,7 @@
 @file:Suppress("UnstableApiUsage")
 
 import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
+import org.jetbrains.kotlin.gradle.plugin.extraProperties
 
 plugins {
     id("com.android.application")
@@ -69,15 +70,10 @@ android {
 
     signingConfigs {
         create("release") {
-            val tasksKeyAlias: String? by project
-            val tasksStoreFile: String? by project
-            val tasksStorePassword: String? by project
-            val tasksKeyPassword: String? by project
-
-            keyAlias = tasksKeyAlias
-            storeFile = file(tasksStoreFile ?: "none")
-            storePassword = tasksStorePassword
-            keyPassword = tasksKeyPassword
+            keyAlias = project.ext["tasksKeyAlias"] as String
+            storeFile = file(project.ext["tasksStoreFile"] as String)
+            storePassword = project.ext["tasksStorePassword"] as String
+            keyPassword = project.ext["tasksKeyPassword"] as String
         }
     }
 
