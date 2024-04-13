@@ -707,10 +707,10 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 lifecycleScope.launch {
                     val modified = tagDataDao.applyTags(
                             taskDao
-                                .fetch(data!!.getSerializableExtra(TagPickerActivity.EXTRA_TASKS) as ArrayList<Long>)
+                                .fetch(data!!.getSerializableExtra(TagPickerActivityCompose.EXTRA_TASKS) as ArrayList<Long>)
                                 .filterNot { it.readOnly },
-                            data.getParcelableArrayListExtra(TagPickerActivity.EXTRA_PARTIALLY_SELECTED)!!,
-                            data.getParcelableArrayListExtra(TagPickerActivity.EXTRA_SELECTED)!!
+                            data.getParcelableArrayListExtra(TagPickerActivityCompose.EXTRA_PARTIALLY_SELECTED)!!,
+                            data.getParcelableArrayListExtra(TagPickerActivityCompose.EXTRA_SELECTED)!!
                     )
                     taskDao.touch(modified)
                 }
@@ -776,13 +776,13 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             R.id.edit_tags -> {
                 lifecycleScope.launch {
                     val tags = tagDataDao.getTagSelections(selected)
-                    val intent = Intent(context, TagPickerActivity::class.java)
-                    intent.putExtra(TagPickerActivity.EXTRA_TASKS, selected)
+                    val intent = Intent(context, TagPickerActivityCompose::class.java)
+                    intent.putExtra(TagPickerActivityCompose.EXTRA_TASKS, selected)
                     intent.putParcelableArrayListExtra(
-                            TagPickerActivity.EXTRA_PARTIALLY_SELECTED,
+                            TagPickerActivityCompose.EXTRA_PARTIALLY_SELECTED,
                             ArrayList(tagDataDao.getByUuid(tags.first!!)))
                     intent.putParcelableArrayListExtra(
-                            TagPickerActivity.EXTRA_SELECTED, ArrayList(tagDataDao.getByUuid(tags.second!!)))
+                            TagPickerActivityCompose.EXTRA_SELECTED, ArrayList(tagDataDao.getByUuid(tags.second!!)))
                     startActivityForResult(intent, REQUEST_TAG_TASKS)
                 }
                 true
