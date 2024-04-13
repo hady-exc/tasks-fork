@@ -77,6 +77,7 @@ import com.todoroo.astrid.service.TaskMover
 import com.todoroo.astrid.timers.TimerPlugin
 import com.todoroo.astrid.utility.Flags
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
@@ -116,12 +117,13 @@ import org.tasks.extensions.Fragment.safeStartActivityForResult
 import org.tasks.extensions.hideKeyboard
 import org.tasks.extensions.setOnQueryTextListener
 import org.tasks.filters.PlaceFilter
+import org.tasks.markdown.MarkdownProvider
 import org.tasks.intents.TaskIntents
 import org.tasks.notifications.NotificationManager
 import org.tasks.preferences.DefaultFilterProvider
-import org.tasks.markdown.MarkdownProvider
 import org.tasks.preferences.Device
 import org.tasks.preferences.Preferences
+import org.tasks.receivers.RefreshReceiver
 import org.tasks.sync.SyncAdapters
 import org.tasks.tags.TagPickerActivityCompose
 import org.tasks.tasklist.*
@@ -161,6 +163,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     @Inject lateinit var caldavDao: CaldavDao
     @Inject lateinit var defaultThemeColor: ThemeColor
     @Inject lateinit var colorProvider: ColorProvider
+    @Inject lateinit var notificationManager: NotificationManager
     @Inject lateinit var shortcutManager: ShortcutManager
     @Inject lateinit var taskCompleter: TaskCompleter
     @Inject lateinit var locale: Locale
@@ -168,21 +171,18 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     @Inject lateinit var repeatTaskHelper: RepeatTaskHelper
     @Inject lateinit var taskListEventBus: TaskListEventBus
     @Inject lateinit var taskEditEventBus: TaskEditEventBus
-    @Inject lateinit var defaultFilterProvider: DefaultFilterProvider
-
-    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
-    private lateinit var emptyRefreshLayout: SwipeRefreshLayout
-    private lateinit var coordinatorLayout: CoordinatorLayout
-    private lateinit var recyclerView: RecyclerView
     @Inject lateinit var database: Database
     @Inject lateinit var markdown: MarkdownProvider
+    @Inject lateinit var defaultFilterProvider: DefaultFilterProvider
 
     private val listViewModel: TaskListViewModel by viewModels()
     private val mainViewModel: MainActivityViewModel by activityViewModels()
     private lateinit var taskAdapter: TaskAdapter
     private var recyclerAdapter: DragAndDropRecyclerAdapter? = null
     private lateinit var filter: Filter
+    private var searchJob: Job? = null
     private lateinit var search: MenuItem
+    private var searchQuery: String? = null
     private var mode: ActionMode? = null
     lateinit var themeColor: ThemeColor
     private lateinit var binding: FragmentTaskListBinding
@@ -489,12 +489,14 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 item.isChecked = !item.isChecked
                 preferences.showHidden = item.isChecked
                 loadTaskListContent()
+                localBroadcastManager.broadcastRefresh()
                 true
             }
             R.id.menu_show_completed -> {
                 item.isChecked = !item.isChecked
                 preferences.showCompleted = item.isChecked
                 loadTaskListContent()
+                localBroadcastManager.broadcastRefresh()
                 true
             }
             R.id.menu_clear_completed -> {
@@ -592,7 +594,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     }
 
     private fun createNewTask(title: String = "") {
-        lifecycleScope.launch {
+       lifecycleScope.launch {
             shortcutManager.reportShortcutUsed(ShortcutManager.SHORTCUT_NEW_TASK)
             onTaskListItemClicked(addTask(title))
             firebase.addTask("fab")
@@ -705,10 +707,10 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 lifecycleScope.launch {
                     val modified = tagDataDao.applyTags(
                             taskDao
-                                .fetch(data!!.getSerializableExtra(TagPickerActivityCompose.EXTRA_TASKS) as ArrayList<Long>)
+                                .fetch(data!!.getSerializableExtra(TagPickerActivity.EXTRA_TASKS) as ArrayList<Long>)
                                 .filterNot { it.readOnly },
-                            data.getParcelableArrayListExtra(TagPickerActivityCompose.EXTRA_PARTIALLY_SELECTED)!!,
-                            data.getParcelableArrayListExtra(TagPickerActivityCompose.EXTRA_SELECTED)!!
+                            data.getParcelableArrayListExtra(TagPickerActivity.EXTRA_PARTIALLY_SELECTED)!!,
+                            data.getParcelableArrayListExtra(TagPickerActivity.EXTRA_SELECTED)!!
                     )
                     taskDao.touch(modified)
                 }
@@ -723,7 +725,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     }
 
     override fun onMenuItemActionExpand(item: MenuItem): Boolean {
-        onBackPressed.isEnabled = true
+        onBackPressed.isEnabled = true    
         search.setOnQueryTextListener(this)
         listViewModel.setSearchQuery("")
         if (preferences.isTopAppBar) {
@@ -733,7 +735,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     }
 
     override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
-        onBackPressed.isEnabled = false
+        onBackPressed.isEnabled = false    
         search.setOnQueryTextListener(null)
         listViewModel.setFilter(filter)
         listViewModel.setSearchQuery(null)
@@ -774,13 +776,13 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             R.id.edit_tags -> {
                 lifecycleScope.launch {
                     val tags = tagDataDao.getTagSelections(selected)
-                    val intent = Intent(context, TagPickerActivityCompose::class.java)
-                    intent.putExtra(TagPickerActivityCompose.EXTRA_TASKS, selected)
+                    val intent = Intent(context, TagPickerActivity::class.java)
+                    intent.putExtra(TagPickerActivity.EXTRA_TASKS, selected)
                     intent.putParcelableArrayListExtra(
-                            TagPickerActivityCompose.EXTRA_PARTIALLY_SELECTED,
+                            TagPickerActivity.EXTRA_PARTIALLY_SELECTED,
                             ArrayList(tagDataDao.getByUuid(tags.first!!)))
                     intent.putParcelableArrayListExtra(
-                            TagPickerActivityCompose.EXTRA_SELECTED, ArrayList(tagDataDao.getByUuid(tags.second!!)))
+                            TagPickerActivity.EXTRA_SELECTED, ArrayList(tagDataDao.getByUuid(tags.second!!)))
                     startActivityForResult(intent, REQUEST_TAG_TASKS)
                 }
                 true
