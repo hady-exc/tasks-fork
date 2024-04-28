@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.inputmethod.InputMethodManager
+import androidx.activity.compose.setContent
 import androidx.core.widget.addTextChangedListener
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -20,6 +21,8 @@ import com.todoroo.astrid.helper.UUIDHelper
 import dagger.hilt.android.AndroidEntryPoint
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
+import org.tasks.compose.drawer.BaseSettingsDrawer
+import org.tasks.compose.drawer.BaseSettingsDrawerParam
 import org.tasks.data.TagDao
 import org.tasks.data.TagData
 import org.tasks.data.TagDataDao
@@ -58,6 +61,16 @@ class TagSettingsActivity : BaseListSettingsActivity() {
             imm.showSoftInput(name, InputMethodManager.SHOW_IMPLICIT)
         }
         updateTheme()
+
+        setContent {
+            val param = BaseSettingsDrawerParam(
+                if (isNewTag) getString(R.string.new_tag) else tagData.name!!,
+                isNewTag,
+                if (isNewTag) "" else tagData.name!!,
+                selectedColor,
+                selectedIcon) /* TODO(expression for name) */
+            BaseSettingsDrawer(param)
+        }
     }
 
     override val isNew: Boolean
@@ -143,3 +156,4 @@ class TagSettingsActivity : BaseListSettingsActivity() {
         private const val EXTRA_TAG_UUID = "uuid" // $NON-NLS-1$
     }
 }
+
