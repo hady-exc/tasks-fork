@@ -51,6 +51,13 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), To
     protected lateinit var toolbar: Toolbar
     protected lateinit var colorRow: ViewGroup
 
+    /* descendants which are @Compose'ed shall override it and return true */
+    protected open val compose: Boolean
+        get() = false
+    protected val textState = mutableStateOf("")
+    protected val colorState = mutableStateOf(Color.Unspecified)
+    protected val iconState = mutableStateOf(R.drawable.ic_outline_label_24px)  //mutableStateOf(getIconResId(defaultIcon)!!)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val view = bind()
@@ -87,13 +94,15 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), To
             selectedColor = savedInstanceState.getInt(EXTRA_SELECTED_THEME)
             selectedIcon.update { savedInstanceState.getString(EXTRA_SELECTED_ICON) }
         }
-        toolbar.title = toolbarTitle
-        toolbar.navigationIcon = getDrawable(R.drawable.ic_outline_save_24px)
-        toolbar.setNavigationOnClickListener { lifecycleScope.launch { save() } }
-        if (!isNew) {
-            toolbar.inflateMenu(R.menu.menu_tag_settings)
+        if (!compose) {
+            toolbar.title = toolbarTitle
+            toolbar.navigationIcon = getDrawable(R.drawable.ic_outline_save_24px)
+            toolbar.setNavigationOnClickListener { lifecycleScope.launch { save() } }
+            if (!isNew) {
+                toolbar.inflateMenu(R.menu.menu_tag_settings)
+            }
+            toolbar.setOnMenuItemClickListener(this)
         }
-        toolbar.setOnMenuItemClickListener(this)
 
         addBackPressedCallback {
             discard()
@@ -124,11 +133,11 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), To
         }
     }
 
-    private fun clearColor() {
+    protected fun clearColor() {
         onColorPicked(0)
     }
 
-    private fun showThemePicker() {
+    protected fun showThemePicker() {
         newColorPalette(null, 0, selectedColor, Palette.COLORS)
                 .show(supportFragmentManager, FRAG_TAG_COLOR_PICKER)
     }
@@ -164,16 +173,22 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), To
 
     protected fun updateTheme() {
         val themeColor: ThemeColor
-        if (selectedColor == 0) {
-            themeColor = this.themeColor
-            DrawableUtil.setLeftDrawable(this, color, R.drawable.ic_outline_not_interested_24px)
-            DrawableUtil.getLeftDrawable(color).setTint(getColor(R.color.icon_tint_with_alpha))
-            clear.visibility = View.GONE
+        if (compose) {
+            colorState.value =
+                if (selectedColor == 0) Color.Unspecified
+                else Color((colorProvider.getThemeColor(selectedColor, true)).primaryColor)
+            iconState.value = (getIconResId(selectedIcon) ?: getIconResId(defaultIcon))!!
         } else {
-            themeColor = colorProvider.getThemeColor(selectedColor, true)
-            DrawableUtil.setLeftDrawable(this, color, R.drawable.color_picker)
-            val leftDrawable = DrawableUtil.getLeftDrawable(color)
-            (if (leftDrawable is LayerDrawable) leftDrawable.getDrawable(0) else leftDrawable)
+            if (selectedColor == 0) {
+                themeColor = this.themeColor
+                DrawableUtil.setLeftDrawable(this, color, R.drawable.ic_outline_not_interested_24px)
+                DrawableUtil.getLeftDrawable(color).setTint(getColor(R.color.icon_tint_with_alpha))
+                clear.visibility = View.GONE
+            } else {
+                themeColor = colorProvider.getThemeColor(selectedColor, true)
+                DrawableUtil.setLeftDrawable(this, color, R.drawable.color_picker)
+                val leftDrawable = DrawableUtil.getLeftDrawable(color)
+                (if (leftDrawable is LayerDrawable) leftDrawable.getDrawable(0) else leftDrawable)
                     .setTint(themeColor.primaryColor)
             clear.visibility = View.VISIBLE
         }

@@ -12,13 +12,12 @@ import android.os.Bundle
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.compose.setContent
 import androidx.core.widget.addTextChangedListener
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.todoroo.astrid.activity.MainActivity
 import com.todoroo.astrid.activity.TaskListFragment
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.update
-import org.tasks.LocalBroadcastManager
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
 import org.tasks.data.dao.TagDao
@@ -29,6 +28,7 @@ import org.tasks.extensions.Context.hideKeyboard
 import org.tasks.filters.TagFilter
 import org.tasks.themes.TasksIcons
 import javax.inject.Inject
+import kotlin.coroutines.coroutineContext
 
 @AndroidEntryPoint
 class TagSettingsActivity : BaseListSettingsActivity() {
@@ -45,30 +45,43 @@ class TagSettingsActivity : BaseListSettingsActivity() {
 
     override val defaultIcon = TasksIcons.LABEL
 
+    override val compose: Boolean
+        get() = true
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         tagData = intent.getParcelableExtra(EXTRA_TAG_DATA) ?: TagData()
         super.onCreate(savedInstanceState)
+
         if (savedInstanceState == null) {
             selectedColor = tagData.color ?: 0
             selectedIcon.update { tagData.icon }
         }
+
+        setContent {
+            BaseSettingsDrawer(
+                title = toolbarTitle,
+                isNew = isNewTag,
+                text = textState,
+                color = colorState,
+                icon = iconState,
+                delete = { lifecycleScope.launch { delete() } },
+                save = { lifecycleScope.launch { save() } },
+                selectColor = { showThemePicker() },
+                clearColor = { clearColor() },
+                selectIcon = { showIconPicker() }
+            )
+        }
+/*
         name.setText(tagData.name)
         if (isNewTag) {
             name.requestFocus()
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showSoftInput(name, InputMethodManager.SHOW_IMPLICIT)
         }
+*/
         updateTheme()
 
-        setContent {
-            val param = BaseSettingsDrawerParam(
-                if (isNewTag) getString(R.string.new_tag) else tagData.name!!,
-                isNewTag,
-                if (isNewTag) "" else tagData.name!!,
-                selectedColor,
-                selectedIcon) /* TODO(expression for name) */
-            BaseSettingsDrawer(param)
-        }
     }
 
     override val isNew: Boolean
@@ -78,7 +91,7 @@ class TagSettingsActivity : BaseListSettingsActivity() {
         get() = if (isNew) getString(R.string.new_tag) else tagData.name!!
 
     private val newName: String
-        get() = name.text.toString().trim { it <= ' ' }
+        get() = textState.value.trim { it <= ' ' }
 
     private suspend fun clashes(newName: String): Boolean {
         return ((isNewTag || !newName.equals(tagData.name, ignoreCase = true))
@@ -146,6 +159,9 @@ class TagSettingsActivity : BaseListSettingsActivity() {
         super.finish()
     }
 
+    override fun bind(): View { TODO() }
+
+/*
     override fun bind() = ActivityTagSettingsBinding.inflate(layoutInflater).let {
         name = it.name.apply {
             addTextChangedListener(
@@ -155,6 +171,7 @@ class TagSettingsActivity : BaseListSettingsActivity() {
         nameLayout = it.nameLayout
         it.root
     }
+*/
 
     override suspend fun delete() {
         val uuid = tagData.remoteId
