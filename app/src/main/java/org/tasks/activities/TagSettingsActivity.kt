@@ -6,12 +6,10 @@
 package org.tasks.activities
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.inputmethod.InputMethodManager
+import android.view.View
 import androidx.activity.compose.setContent
-import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -20,22 +18,16 @@ import com.todoroo.astrid.activity.TaskListFragment
 import com.todoroo.astrid.api.TagFilter
 import com.todoroo.astrid.helper.UUIDHelper
 import dagger.hilt.android.AndroidEntryPoint
-import android.view.View
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
 import org.tasks.compose.drawer.BaseSettingsDrawer
-import org.tasks.compose.drawer.BaseSettingsDrawerParam
 import org.tasks.data.TagDao
 import org.tasks.data.TagData
 import org.tasks.data.TagDataDao
-import org.tasks.databinding.ActivityTagSettingsBinding
 import org.tasks.extensions.Context.hideKeyboard
 import org.tasks.themes.CustomIcons
 import javax.inject.Inject
-import kotlin.coroutines.coroutineContext
 
 @AndroidEntryPoint
 class TagSettingsActivity : BaseListSettingsActivity() {
@@ -73,6 +65,7 @@ class TagSettingsActivity : BaseListSettingsActivity() {
                 title = toolbarTitle,
                 isNew = isNewTag,
                 text = textState,
+                error = errorState,
                 color = colorState,
                 icon = iconState,
                 delete = { lifecycleScope.launch { delete() } },
@@ -111,11 +104,13 @@ class TagSettingsActivity : BaseListSettingsActivity() {
     override suspend fun save() {
         val newName = newName
         if (isNullOrEmpty(newName)) {
-            nameLayout.error = getString(R.string.name_cannot_be_empty)
+            //nameLayout.error = getString(R.string.name_cannot_be_empty)
+            errorState.value = getString(R.string.name_cannot_be_empty)
             return
         }
         if (clashes(newName)) {
-            nameLayout.error = getString(R.string.tag_already_exists)
+            //nameLayout.error = getString(R.string.tag_already_exists)
+            errorState.value = getString(R.string.tag_already_exists)
             return
         }
         if (isNewTag) {
@@ -149,7 +144,7 @@ class TagSettingsActivity : BaseListSettingsActivity() {
     }
 
     override fun finish() {
-        hideKeyboard(name)
+        //hideKeyboard(name)
         super.finish()
     }
 

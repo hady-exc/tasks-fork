@@ -45,6 +45,7 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Ic
     protected open val compose: Boolean
         get() = false
     protected val textState = mutableStateOf("")
+    protected val errorState = mutableStateOf("")
     protected val colorState = mutableStateOf(Color.Unspecified)
     protected val iconState = mutableStateOf(R.drawable.ic_outline_label_24px)  //mutableStateOf(getIconResId(defaultIcon)!!)
 

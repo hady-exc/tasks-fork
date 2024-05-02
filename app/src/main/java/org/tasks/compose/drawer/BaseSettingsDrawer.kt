@@ -46,20 +46,13 @@ import org.tasks.compose.DeleteButton
 import org.tasks.compose.border
 import org.tasks.themes.CustomIcons
 
-data class BaseSettingsDrawerParam (
-    val title: String,
-    val isNew: Boolean,
-    val text: String,
-    val color: Int,
-    val icon: Int
-)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BaseSettingsDrawer(
     title: String,
     isNew: Boolean,
     text: MutableState<String>,
+    error: MutableState<String>,
     color: State<Color>,
     icon: State<Int>,
     save: () -> Unit,
@@ -72,125 +65,130 @@ fun BaseSettingsDrawer(
     val textsPaddingLeft = 18.dp
 
     MdcTheme {
-        Column(
-            modifier = Modifier
-                .background(colorResource(id = R.color.window_background))
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Top
-        ) {
-            /* Toolbar */
-            Surface (shadowElevation = 8.dp, modifier = Modifier.requiredHeight(56.dp))
-            {
-                Row(
-                    verticalAlignment = Alignment.Bottom,
-                )
+        Surface (color = colorResource(id = R.color.window_background)) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                //verticalArrangement = Arrangement.Top
+            ) {
+                /* Toolbar */
+                Surface(shadowElevation = 8.dp, modifier = Modifier.requiredHeight(56.dp))
                 {
-                    IconButton( onClick = save ) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.ic_outline_save_24px),
-                            contentDescription = stringResource(id = R.string.save),
-                        )
-                    }
-                    Text(
-                        text = title,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier
-                            .weight(0.8f)
-                            .padding(start = textsPaddingLeft, bottom = 12.dp)
+                    Row(
+                        verticalAlignment = Alignment.Bottom,
                     )
-                    if (!isNew)
-                        Box(modifier = Modifier.align(Alignment.Bottom)) {
-                            DeleteButton(onClick = delete)
-                        }
-                    }
-            } /* end Toolbar*/
-            Column ( modifier = Modifier.padding(horizontal = 0.dp) ){
-
-                /*  text input */
-                Row(
-                    modifier = Modifier.padding(horizontal = 14.dp)
-                ) {
-                    Column {
-                        val color = remember { mutableStateOf(Color.Gray) }
-                        Text(
-                            modifier = Modifier.padding(top = 18.dp, bottom = 4.dp),
-                            text = stringResource(id = R.string.display_name),
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = color.value
-                        )
-                        BasicTextField(
-                            value = text.value,
-                            onValueChange = { text.value = it },
-                            modifier = Modifier
-                                .padding(bottom = 6.dp)
-                                .onFocusChanged { state ->
-                                    color.value = if (state.hasFocus) Color.Red else Color.Gray
-                                }
-                        )
-                        HorizontalDivider(
-                            color = color.value,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-                    }
-                } /* end text input */
-
-                /* color selection */
-                Row(verticalAlignment = Alignment.CenterVertically)
-                {
-                    IconButton(
-                        onClick = { selectColor() }
-                    ) {
-                        if (color.value == Color.Unspecified) {
+                    {
+                        IconButton(onClick = save) {
                             Icon(
-                                imageVector = ImageVector.vectorResource(R.drawable.ic_outline_not_interested_24px),
-                                tint = colorResource(R.color.icon_tint_with_alpha),
-                                contentDescription = null
+                                imageVector = ImageVector.vectorResource(R.drawable.ic_outline_save_24px),
+                                contentDescription = stringResource(id = R.string.save),
                             )
-                        } else {
-                            val borderColor = colorResource(R.color.text_tertiary)
-                            Canvas(modifier = Modifier.size(24.dp)) {
-                                drawCircle( color = color.value )
-                                drawCircle(
-                                    color = borderColor,
-                                    style = Stroke(width = 3f)
+                        }
+                        Text(
+                            text = title,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier
+                                .weight(0.8f)
+                                .padding(start = textsPaddingLeft, bottom = 12.dp)
+                        )
+                        if (!isNew)
+                            Box(modifier = Modifier.align(Alignment.Bottom)) {
+                                DeleteButton(onClick = delete)
+                            }
+                    }
+                } /* end Toolbar*/
+                Column(modifier = Modifier.padding(horizontal = 0.dp)) {
+
+                    /*  text input */
+                    Row(
+                        modifier = Modifier.padding(horizontal = 14.dp)
+                    ) {
+                        val normalColor = colorResource(R.color.text_primary)
+                        val errorColor = colorResource(R.color.red_a400)  /* TODO(find correct accent color *) */
+                        val color =  remember { mutableStateOf(normalColor) }
+                        Column {
+                            val labelColor = if ( error.value =="" ) normalColor else errorColor
+                            val labelText = if ( error.value != "" ) error.value else stringResource(R.string.display_name)
+
+                            Text(
+                                modifier = Modifier.padding(top = 18.dp, bottom = 4.dp),
+                                text = labelText,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = labelColor
+                            )
+                            BasicTextField(
+                                value = text.value,
+                                onValueChange = {
+                                    text.value = it
+                                    if (error.value != "") error.value = ""
+                                },
+                                modifier = Modifier.padding(bottom = 6.dp)
+                            )
+                            HorizontalDivider(
+                                color = labelColor,
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
+                        }
+                    } /* end text input */
+
+                    /* color selection */
+                    Row(verticalAlignment = Alignment.CenterVertically)
+                    {
+                        IconButton(
+                            onClick = { selectColor() }
+                        ) {
+                            if (color.value == Color.Unspecified) {
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(R.drawable.ic_outline_not_interested_24px),
+                                    tint = colorResource(R.color.icon_tint_with_alpha),
+                                    contentDescription = null
+                                )
+                            } else {
+                                val borderColor = colorResource(R.color.icon_tint_with_alpha)// colorResource(R.color.text_tertiary)
+                                Canvas(modifier = Modifier.size(24.dp)) {
+                                    drawCircle(color = color.value)
+                                    drawCircle(
+                                        color = borderColor,
+                                        style = Stroke(width = 4.0f)
+                                    )
+                                }
+                            }
+                        }
+                        Text(
+                            text = LocalContext.current.getString(R.string.color),
+                            modifier = Modifier
+                                .weight(0.8f)
+                                .padding(start = textsPaddingLeft)
+                        )
+                        if (color.value != Color.Unspecified) {
+                            IconButton(onClick = clearColor) {
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_outline_clear_24px),
+                                    contentDescription = null
                                 )
                             }
                         }
-                    }
-                    Text(
-                        text = LocalContext.current.getString(R.string.color),
-                        modifier = Modifier
-                            .weight(0.8f)
-                            .padding(start = textsPaddingLeft)
-                    )
-                    if (color.value != Color.Unspecified) {
-                        IconButton( onClick = clearColor ) {
+                    } /* end color selection */
+
+                    /* icon selection */
+                    Row(verticalAlignment = Alignment.CenterVertically)
+                    {
+                        IconButton(onClick = selectIcon) {
                             Icon(
-                                imageVector = ImageVector.vectorResource(id = R.drawable.ic_outline_clear_24px),
-                                contentDescription = null
+                                imageVector = ImageVector.vectorResource(icon.value),
+                                contentDescription = null,
+                                tint = colorResource(R.color.icon_tint_with_alpha)
                             )
                         }
-                    }
-                } /* end color selection */
-
-                /* icon selection */
-                Row(verticalAlignment = Alignment.CenterVertically)
-                {
-                    IconButton(onClick = selectIcon) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(icon.value),
-                            contentDescription = null
+                        Text(
+                            text = LocalContext.current.getString(R.string.icon),
+                            fontSize = 14.sp,
+                            modifier = Modifier
+                                .weight(0.8f)
+                                .padding(start = textsPaddingLeft)
                         )
-                    }
-                    Text(
-                        text = LocalContext.current.getString(R.string.icon),
-                        fontSize = 14.sp,
-                        modifier = Modifier
-                            .weight(0.8f)
-                            .padding(start = textsPaddingLeft)
-                    )
-                } /* end icon selection */
+                    } /* end icon selection */
+                }
             }
         }
     }
@@ -203,6 +201,7 @@ fun BaseSettingsDrawerPreview () {
         title ="Create New Tag",
         isNew = false,
         text = remember { mutableStateOf("Tag Name") },
+        error = remember { mutableStateOf("") },
         color = remember { mutableStateOf(Color.Red) },
         icon = remember { mutableStateOf(R.drawable.ic_outline_label_24px) },
         delete = {},
