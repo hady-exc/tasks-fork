@@ -19,16 +19,20 @@ import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -38,6 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.android.material.composethemeadapter.MdcTheme
+import kotlinx.coroutines.delay
 import org.tasks.R
 import org.tasks.compose.DeleteButton
 
@@ -61,7 +66,10 @@ fun BaseSettingsDrawer(
     MdcTheme {
         ProvideTextStyle( LocalTextStyle.current.copy(fontSize = 22.sp) ) {
             Surface(color = colorResource(id = R.color.window_background)) {
-                val fontSize = 24.sp
+
+                val keyboardController = LocalSoftwareKeyboardController.current
+                val requester = remember { FocusRequester() }
+
                 Column(
                     modifier = Modifier.fillMaxSize(),
                 ) {
@@ -105,7 +113,6 @@ fun BaseSettingsDrawer(
                                 val labelColor = if (error.value == "") normalColor else errorColor
                                 val labelText =
                                     if (error.value != "") error.value else stringResource(R.string.display_name)
-
                                 Text(
                                     modifier = Modifier.padding(top = 18.dp, bottom = 4.dp),
                                     text = labelText,
@@ -124,7 +131,9 @@ fun BaseSettingsDrawer(
                                         text.value = it
                                         if (error.value != "") error.value = ""
                                     },
-                                    modifier = Modifier.padding(bottom = 3.dp)
+                                    modifier = Modifier
+                                        .padding(bottom = 3.dp)
+                                        .focusRequester(requester)
                                 )
                                 Divider(
                                     color = labelColor,
@@ -132,6 +141,21 @@ fun BaseSettingsDrawer(
                                 )
                             }
                         } /* end text input */
+
+                        if (isNew) {
+                            LaunchedEffect(null) {
+                                requester.requestFocus()
+
+                                /* part of requester.requestFocus id performed in separate coroutine,
+                                so the actual view may not be really focused right upon return
+                                from it, that makes the ".show" call ignored by the system.
+                                The delay below is a workaround trick for it.
+                                The delay period is not the guarantee but makes it working almost always
+                                */
+                                delay(30)
+                                keyboardController!!.show()
+                            }
+                        }
 
                         /* color selection */
                         Row(verticalAlignment = Alignment.CenterVertically)
