@@ -146,13 +146,13 @@ fun BaseSettingsDrawer(
                             LaunchedEffect(null) {
                                 requester.requestFocus()
 
-                                /* part of requester.requestFocus id performed in separate coroutine,
+                                /* Part of requester.requestFocus logic is performed in separate coroutine,
                                 so the actual view may not be really focused right upon return
-                                from it, that makes the ".show" call ignored by the system.
+                                from it, what makes the subsequent "IME.show" call to be ignored by the system.
                                 The delay below is a workaround trick for it.
-                                The delay period is not the guarantee but makes it working almost always
-                                */
+                                30ms period is not the guarantee but makes it working almost always */
                                 delay(30)
+
                                 keyboardController!!.show()
                             }
                         }
