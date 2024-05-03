@@ -147,7 +147,7 @@
     <string name="CFC_tag_name">Etikedo…</string>
     <string name="CFC_tag_text">Etikedo: \?</string>
     <string name="CFC_importance_name">Prioritato…</string>
-    <string name="next_month">Sekvanta Monato</string>
+    <string name="next_month">Venontmonate</string>
     <string name="CFC_startBefore_name">Ek…</string>
     <string name="CFC_startBefore_text">Ek: \?</string>
     <string name="CFC_dueBefore_name">Ĝis…</string>
@@ -163,9 +163,9 @@
     <string name="EPr_default_reminders_title">Defaŭltaj memorigiloj</string>
     <string name="default_start_date">Defaŭlta komencdato</string>
     <string name="EPr_manage_delete_gcal_status">Forigis %d kalendarajn eventojn!</string>
-    <string name="EPr_delete_task_data">Forigi datumon de Tasks</string>
+    <string name="EPr_delete_task_data">Forigi taskan datumon</string>
     <string name="EPr_fullTask_title">Vidigi tutan taskan titolon</string>
-    <string name="EPr_edit_screen_options">Redakti ekranajn opciojn</string>
+    <string name="EPr_edit_screen_options">Redakti ekranajn agordojn</string>
     <string name="TEA_control_reminders">Memorigiloj</string>
     <string name="TEA_control_importance">Prioritato</string>
     <string name="TEA_control_repeat">Ripeti</string>
@@ -182,21 +182,21 @@
     <string name="SSD_sort_alpha">Laŭ titolo</string>
     <string name="SSD_sort_auto">Saĝe</string>
     <string name="TLA_menu_sort">Ordigi</string>
-    <string name="keep_editing">Daŭrige redakti</string>
+    <string name="keep_editing">Plu redakti</string>
     <string name="discard_confirmation">Ĉu vi certas ke vi volas nuligi viajn ŝanĝojn\?</string>
     <string name="import_summary_message">Dosiero %1$s enhavis %2$s.
 \n
 \n%3$s importitaj,
 \n%4$s jam ekzistas
-\n%5$s havis eraroj
+\n%5$s havis erarojn
 \n</string>
     <string name="export_toast">Savkopiis %1$s al %2$s.</string>
     <string name="backup_BAc_import">Importi savkopion</string>
-    <string name="backup_BAc_export">Savkopii nun</string>
+    <string name="backup_BAc_export">Savkopii tuj</string>
     <string name="backup_BPr_header">Savkopioj</string>
     <string name="email">Retpoŝto</string>
     <string name="filter_overdue">Posttempa</string>
-    <string name="TEA_control_timer">Tempokontroloj</string>
+    <string name="TEA_control_timer">Tempokontroliloj</string>
     <string name="TEA_control_location">Loko</string>
     <string name="TEA_elapsedDuration_label">Tempo jam pasinta</string>
     <string name="TEA_estimatedDuration_label">Kiom da tempo ĝi daŭros\?</string>
@@ -204,7 +204,7 @@
     <string name="manage_drawer">Administri tirkeston</string>
     <string name="read_permission_label">Permesoj de Tasks</string>
     <string name="import_summary_title">Restaŭri resumon</string>
-    <string name="import_progress_read">Legado de tasko %d…</string>
+    <string name="import_progress_read">Legas taskon, %d…</string>
     <string name="password">Pasvorto</string>
     <string name="user">Uzanto</string>
     <string name="add_account">Aldoni konton</string>
@@ -260,7 +260,7 @@
     <string name="geofence_radius">Virtuala periferio</string>
     <string name="pick_a_date_and_time">Elekti daton kaj horon</string>
     <string name="add_location">Aldoni lokon</string>
-    <string name="add_reminder">Aldoni memorigilo</string>
+    <string name="add_reminder">Aldoni memorigilon</string>
     <string name="source_code">Fontkodo</string>
     <string name="row_spacing">Intervica spaco</string>
     <string name="header_spacing">Interspaco</string>
@@ -279,10 +279,10 @@
     <string name="next_friday">Sekva ven</string>
     <string name="next_wednesday">Sekva mer</string>
     <string name="next_tuesday">Sekva mar</string>
-    <string name="next_monday">Sekva lun</string>
+    <string name="next_monday">Venonta lun</string>
     <string name="next_sunday">Sekva dim</string>
     <string name="next_thursday">Sekva ĵaŭ</string>
-    <string name="voice_command_added_task">Aldonita tasko</string>
+    <string name="voice_command_added_task">Tasko Aldonite</string>
     <string name="EPr_voiceInputEnabled_title">Voĉa enigo</string>
     <string name="voice_create_prompt">Diri por krei taskon</string>
     <string name="TEA_timer_comment_stopped">ĉesigis ĉi tiun taskon:</string>
@@ -367,7 +367,7 @@
     <string name="snoozed_until">Paŭzigite ĝis %s</string>
     <string name="repeats_plural">Ripetiĝas ĉiu %s</string>
     <string name="repeats_plural_on">Ripetiĝas ĉiu %1$s je %2$s</string>
-    <string name="repeats_plural_until">Ripetiĝas ĉiu %1$s ĝis %2$s</string>
+    <string name="repeats_plural_until">Ripetiĝas ĉiu %1$s, finiĝos %2$s</string>
     <string name="randomly_every">Hazarde ĉiu %s</string>
     <string name="alarm_after_due">%s post limdato</string>
     <string name="widget_due_date_after_title">Post titolo</string>
@@ -494,7 +494,7 @@
     <string name="persistent_notifications">Daŭraj sciigoj</string>
     <string name="invite_declined">Malakceptis inviton</string>
     <string name="notification_disable_battery_optimizations_description">Optimumigoj de baterio povus prokrastigi sciigojn</string>
-    <string name="sort_completed">Per fintempo</string>
+    <string name="sort_completed">Laŭ fintempo</string>
     <string name="customize_edit_screen">Adapti redaktan ekranon</string>
     <string name="change_priority">Ŝanĝi prioritaton</string>
     <string name="filter_settings">Agordoj de filtrilo</string>
@@ -577,7 +577,7 @@
     <string name="decsync_selection_description">Perdosiersistema sinkronigo</string>
     <string name="repeats_single_on">Ripetiĝas %1$s je %2$s</string>
     <string name="google_drive_backup">Savkopio de Google Drive</string>
-    <string name="repeats_single_until">Ripetiĝas %1$s ĝis %2$s</string>
+    <string name="repeats_single_until">Ripetiĝas %1$s, finiĝos %2$s</string>
     <string name="got_it">Komprenite!</string>
     <string name="backups_ignore_warnings_summary">Ignori avertojn pri savkopioj se vi ne bezonas savkopiojn aŭ jam havas propran savkopian solvon</string>
     <string name="use_locale_default">Uzi defaŭltan lokaĵaron</string>
@@ -594,7 +594,7 @@
     <string name="url">URL</string>
     <string name="list">Listo</string>
     <string name="repeats_single_number_of_times">Ripetiĝas %1$s, okazas %2$d%3$s</string>
-    <string name="repeats_single_on_until">Ripetiĝas %1$s de %2$s ĝis %3$s</string>
+    <string name="repeats_single_on_until">Ripetiĝas %1$s je %2$s, finiĝos %3$s</string>
     <string name="upgrade_to_pro">Altgradigi al profesia</string>
     <string name="requires_pro_subscription">Bezonas profesian abonon</string>
     <string name="cannot_access_account">Ne povas atingi konton</string>
@@ -694,7 +694,7 @@
     <string name="bundle_notifications">Paki sciigojn</string>
     <string name="repeats_single_on_number_of_times">Ripetiĝas %1$s je %2$s, okazas %3$d%4$s</string>
     <string name="repeats_plural_number_of_times">Ripetiĝas ĉiu %1$s, okazas %2$d%3$s</string>
-    <string name="repeats_plural_on_until">Ripetiĝas ĉiu %1$s ĉe %2$s ĝis %3$s</string>
+    <string name="repeats_plural_on_until">Ripetiĝas ĉiu %1$s ĉe %2$s, finiĝos %3$s</string>
     <string name="repeats_plural_on_number_of_times">Ripetiĝas ĉiu %1$s ĉe %2$s, okazas %3$d%4$s</string>
     <string name="etesync_account_description">Bezonas konton de EteSync.com aŭ memgastigan servilon</string>
     <string name="wearable_notifications">Sciigoj per portebla aparataro</string>
@@ -725,4 +725,15 @@
     <string name="app_bar_collapse">Maletendi apbreton</string>
     <string name="chips">Elementoj</string>
     <string name="chip_appearance">Aspekto de elemento</string>
+    <string name="theme_dynamic">Dinamika</string>
+    <string name="show_edit_screen_without_unlock">Vidigi redaktilon sen malŝlosi</string>
+    <string name="show_edit_screen_without_unlock_summary">Permesi uzon de Rapidaj Agordoj sen malŝlosi aparaton</string>
+    <string name="swipe_to_snooze_time_description">Forigita sciigo paŭziĝos kaj rekreiĝos je %s</string>
+    <string name="swipe_to_snooze_description">Daŭro por paŭzigi</string>
+    <string name="swipe_to_snooze_time_immediately">tuj</string>
+    <string name="swipe_to_snooze_time_15_minutes">post 15 minutoj</string>
+    <string name="swipe_to_snooze_time_1_hour">post 1 horo</string>
+    <string name="swipe_to_snooze_time_24_hours">post 24 horoj</string>
+    <string name="swipe_to_snooze_title">Ŝovumi por paŭzigi</string>
+    <string name="swipe_to_snooze_time_30_minutes">post 30 minutoj</string>
 </resources>
