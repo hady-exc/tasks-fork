@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -64,8 +65,11 @@ fun BaseSettingsDrawer(
     val textsPaddingLeft = 18.dp
 
     MdcTheme {
-        ProvideTextStyle( LocalTextStyle.current.copy(fontSize = 22.sp) ) {
-            Surface(color = colorResource(id = R.color.window_background)) {
+        ProvideTextStyle( LocalTextStyle.current.copy(fontSize = 20.sp) ) {
+            Surface(
+                color = colorResource(id = R.color.window_background),
+                contentColor = colorResource(id = R.color.text_primary)
+            ) {
 
                 val keyboardController = LocalSoftwareKeyboardController.current
                 val requester = remember { FocusRequester() }
@@ -74,7 +78,7 @@ fun BaseSettingsDrawer(
                     modifier = Modifier.fillMaxSize(),
                 ) {
                     /* Toolbar */
-                    Surface(elevation = 3.dp, modifier = Modifier.requiredHeight(56.dp))
+                    Surface(elevation = 4.dp, modifier = Modifier.requiredHeight(56.dp))
                     {
                         Row(
                             verticalAlignment = Alignment.Bottom,
@@ -131,6 +135,7 @@ fun BaseSettingsDrawer(
                                         text.value = it
                                         if (error.value != "") error.value = ""
                                     },
+                                    cursorBrush = SolidColor(LocalContentColor.current),
                                     modifier = Modifier
                                         .padding(bottom = 3.dp)
                                         .focusRequester(requester)
