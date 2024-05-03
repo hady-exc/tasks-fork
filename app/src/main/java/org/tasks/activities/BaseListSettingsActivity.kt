@@ -8,6 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import org.tasks.R
@@ -39,31 +41,43 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Ic
     protected lateinit var colorRow: ViewGroup
     protected abstract val defaultIcon: Int
 
+    /* descendants which are @Compose'ed shall override it and return true */
+    protected open val compose: Boolean
+        get() = false
+    protected val textState = mutableStateOf("")
+    protected val errorState = mutableStateOf("")
+    protected val colorState = mutableStateOf(Color.Unspecified)
+    protected val iconState = mutableStateOf(R.drawable.ic_outline_label_24px)  //mutableStateOf(getIconResId(defaultIcon)!!)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val view = bind()
-        setContentView(view)
-        clear = findViewById<View>(R.id.clear).apply {
-            setOnClickListener { clearColor() }
+        if (!compose) {
+            val view = bind()
+            setContentView(view)
+            clear = findViewById<View>(R.id.clear).apply {
+                setOnClickListener { clearColor() }
+            }
+            color = findViewById(R.id.color)
+            colorRow = findViewById<ViewGroup>(R.id.color_row).apply {
+                setOnClickListener { showThemePicker() }
+            }
+            icon = findViewById(R.id.icon)
+            findViewById<View>(R.id.icon_row).setOnClickListener { showIconPicker() }
+            toolbar = view.findViewById(R.id.toolbar)
         }
-        color = findViewById(R.id.color)
-        colorRow = findViewById<ViewGroup>(R.id.color_row).apply {
-            setOnClickListener { showThemePicker() }
-        }
-        icon = findViewById(R.id.icon)
-        findViewById<View>(R.id.icon_row).setOnClickListener { showIconPicker() }
-        toolbar = view.findViewById(R.id.toolbar)
         if (savedInstanceState != null) {
             selectedColor = savedInstanceState.getInt(EXTRA_SELECTED_THEME)
             selectedIcon = savedInstanceState.getInt(EXTRA_SELECTED_ICON)
         }
-        toolbar.title = toolbarTitle
-        toolbar.navigationIcon = getDrawable(R.drawable.ic_outline_save_24px)
-        toolbar.setNavigationOnClickListener { lifecycleScope.launch { save() } }
-        if (!isNew) {
-            toolbar.inflateMenu(R.menu.menu_tag_settings)
+        if (!compose) {
+            toolbar.title = toolbarTitle
+            toolbar.navigationIcon = getDrawable(R.drawable.ic_outline_save_24px)
+            toolbar.setNavigationOnClickListener { lifecycleScope.launch { save() } }
+            if (!isNew) {
+                toolbar.inflateMenu(R.menu.menu_tag_settings)
+            }
+            toolbar.setOnMenuItemClickListener(this)
         }
-        toolbar.setOnMenuItemClickListener(this)
 
         addBackPressedCallback {
             discard()
@@ -94,16 +108,16 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Ic
         }
     }
 
-    private fun clearColor() {
+    protected fun clearColor() {
         onColorPicked(0)
     }
 
-    private fun showThemePicker() {
+    protected fun showThemePicker() {
         newColorPalette(null, 0, selectedColor, Palette.COLORS)
                 .show(supportFragmentManager, FRAG_TAG_COLOR_PICKER)
     }
 
-    private fun showIconPicker() {
+    protected fun showIconPicker() {
         IconPickerDialog.newIconPicker(selectedIcon).show(supportFragmentManager, FRAG_TAG_ICON_PICKER)
     }
 
@@ -136,23 +150,30 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Ic
 
     protected fun updateTheme() {
         val themeColor: ThemeColor
-        if (selectedColor == 0) {
-            themeColor = this.themeColor
-            DrawableUtil.setLeftDrawable(this, color, R.drawable.ic_outline_not_interested_24px)
-            DrawableUtil.getLeftDrawable(color).setTint(getColor(R.color.icon_tint_with_alpha))
-            clear.visibility = View.GONE
+        if (compose) {
+            colorState.value =
+                if (selectedColor == 0) Color.Unspecified
+                else Color((colorProvider.getThemeColor(selectedColor, true)).primaryColor)
+            iconState.value = (getIconResId(selectedIcon) ?: getIconResId(defaultIcon))!!
         } else {
-            themeColor = colorProvider.getThemeColor(selectedColor, true)
-            DrawableUtil.setLeftDrawable(this, color, R.drawable.color_picker)
-            val leftDrawable = DrawableUtil.getLeftDrawable(color)
-            (if (leftDrawable is LayerDrawable) leftDrawable.getDrawable(0) else leftDrawable)
+            if (selectedColor == 0) {
+                themeColor = this.themeColor
+                DrawableUtil.setLeftDrawable(this, color, R.drawable.ic_outline_not_interested_24px)
+                DrawableUtil.getLeftDrawable(color).setTint(getColor(R.color.icon_tint_with_alpha))
+                clear.visibility = View.GONE
+            } else {
+                themeColor = colorProvider.getThemeColor(selectedColor, true)
+                DrawableUtil.setLeftDrawable(this, color, R.drawable.color_picker)
+                val leftDrawable = DrawableUtil.getLeftDrawable(color)
+                (if (leftDrawable is LayerDrawable) leftDrawable.getDrawable(0) else leftDrawable)
                     .setTint(themeColor.primaryColor)
-            clear.visibility = View.VISIBLE
+                clear.visibility = View.VISIBLE
+            }
+            themeColor.applyToNavigationBar(this)
+            val icon = getIconResId(selectedIcon) ?: getIconResId(defaultIcon)
+            DrawableUtil.setLeftDrawable(this, this.icon, icon!!)
+            DrawableUtil.getLeftDrawable(this.icon).setTint(getColor(R.color.icon_tint_with_alpha))
         }
-        themeColor.applyToNavigationBar(this)
-        val icon = getIconResId(selectedIcon) ?: getIconResId(defaultIcon)
-        DrawableUtil.setLeftDrawable(this, this.icon, icon!!)
-        DrawableUtil.getLeftDrawable(this.icon).setTint(getColor(R.color.icon_tint_with_alpha))
     }
 
     companion object {

@@ -6,11 +6,11 @@
 package org.tasks.activities
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.inputmethod.InputMethodManager
-import androidx.core.widget.addTextChangedListener
+import android.view.View
+import androidx.activity.compose.setContent
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.todoroo.astrid.activity.MainActivity
@@ -18,12 +18,13 @@ import com.todoroo.astrid.activity.TaskListFragment
 import com.todoroo.astrid.api.TagFilter
 import com.todoroo.astrid.helper.UUIDHelper
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
+import org.tasks.compose.drawer.BaseSettingsDrawer
 import org.tasks.data.TagDao
 import org.tasks.data.TagData
 import org.tasks.data.TagDataDao
-import org.tasks.databinding.ActivityTagSettingsBinding
 import org.tasks.extensions.Context.hideKeyboard
 import org.tasks.themes.CustomIcons
 import javax.inject.Inject
@@ -40,24 +41,50 @@ class TagSettingsActivity : BaseListSettingsActivity() {
     private lateinit var tagData: TagData
     override val defaultIcon: Int = CustomIcons.LABEL
 
+    override val compose: Boolean
+        get() = true
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         tagData = intent.getParcelableExtra(EXTRA_TAG_DATA)
                 ?: TagData().apply {
                     isNewTag = true
                     remoteId = UUIDHelper.newUUID()
                 }
+        if (!isNewTag) textState.value = tagData.name!!
+
         super.onCreate(savedInstanceState)
+
         if (savedInstanceState == null) {
             selectedColor = tagData.getColor()!!
             selectedIcon = tagData.getIcon()!!
         }
+
+        setContent {
+            BaseSettingsDrawer(
+                title = toolbarTitle,
+                isNew = isNewTag,
+                text = textState,
+                error = errorState,
+                color = colorState,
+                icon = iconState,
+                delete = { lifecycleScope.launch { delete() } },
+                save = { lifecycleScope.launch { save() } },
+                selectColor = { showThemePicker() },
+                clearColor = { clearColor() },
+                selectIcon = { showIconPicker() }
+            )
+        }
+/*
         name.setText(tagData.name)
         if (isNewTag) {
             name.requestFocus()
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showSoftInput(name, InputMethodManager.SHOW_IMPLICIT)
         }
+*/
         updateTheme()
+
     }
 
     override val isNew: Boolean
@@ -67,7 +94,7 @@ class TagSettingsActivity : BaseListSettingsActivity() {
         get() = if (isNew) getString(R.string.new_tag) else tagData.name!!
 
     private val newName: String
-        get() = name.text.toString().trim { it <= ' ' }
+        get() = textState.value.trim { it <= ' ' }
 
     private suspend fun clashes(newName: String): Boolean {
         return ((isNewTag || !newName.equals(tagData.name, ignoreCase = true))
@@ -77,11 +104,13 @@ class TagSettingsActivity : BaseListSettingsActivity() {
     override suspend fun save() {
         val newName = newName
         if (isNullOrEmpty(newName)) {
-            nameLayout.error = getString(R.string.name_cannot_be_empty)
+            //nameLayout.error = getString(R.string.name_cannot_be_empty)
+            errorState.value = getString(R.string.name_cannot_be_empty)
             return
         }
         if (clashes(newName)) {
-            nameLayout.error = getString(R.string.tag_already_exists)
+            //nameLayout.error = getString(R.string.tag_already_exists)
+            errorState.value = getString(R.string.tag_already_exists)
             return
         }
         if (isNewTag) {
@@ -115,10 +144,13 @@ class TagSettingsActivity : BaseListSettingsActivity() {
     }
 
     override fun finish() {
-        hideKeyboard(name)
+        //hideKeyboard(name)
         super.finish()
     }
 
+    override fun bind(): View { TODO() }
+
+/*
     override fun bind() = ActivityTagSettingsBinding.inflate(layoutInflater).let {
         name = it.name.apply {
             addTextChangedListener(
@@ -128,6 +160,7 @@ class TagSettingsActivity : BaseListSettingsActivity() {
         nameLayout = it.nameLayout
         it.root
     }
+*/
 
     override suspend fun delete() {
         val uuid = tagData.remoteId
@@ -143,3 +176,4 @@ class TagSettingsActivity : BaseListSettingsActivity() {
         private const val EXTRA_TAG_UUID = "uuid" // $NON-NLS-1$
     }
 }
+
