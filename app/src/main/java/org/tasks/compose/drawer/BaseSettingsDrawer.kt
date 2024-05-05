@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.requiredHeight
@@ -13,6 +14,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.ProvideTextStyle
@@ -60,7 +62,8 @@ fun BaseSettingsDrawer(
     delete: () -> Unit,
     selectIcon: () -> Unit,
     clearColor: () -> Unit,
-    selectColor: () -> Unit
+    selectColor: () -> Unit,
+    showProgress: State<Boolean> = remember { mutableStateOf(false) }
 ) {
 
     val textsPaddingLeft = 20.dp
@@ -102,6 +105,18 @@ fun BaseSettingsDrawer(
                     } /* end Toolbar*/
 
                     Column(modifier = Modifier.padding(horizontal = 0.dp)) {
+
+                        Box(modifier = Modifier
+                            .fillMaxWidth()
+                            .requiredHeight(4.dp)) {
+                            if (showProgress.value) {
+                                LinearProgressIndicator(
+                                    modifier = Modifier.fillMaxSize(),
+                                    backgroundColor = LocalContentColor.current.copy(alpha = 0.3f),  //Color.LightGray,
+                                    color = colorResource(R.color.red_a400)
+                                )
+                            }
+                        }
 
                         SimpleTextInput(
                             text = text,
@@ -222,7 +237,7 @@ private fun SimpleTextInput(
                 modifier = Modifier
                     .padding(bottom = 3.dp)
                     .focusRequester(requester)
-                    .onFocusChanged {focused.value = (it.isFocused) }
+                    .onFocusChanged { focused.value = (it.isFocused) }
             )
             Divider(
                 color = labelColor,
