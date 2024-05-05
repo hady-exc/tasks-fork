@@ -68,7 +68,7 @@ class TagSettingsActivity : BaseListSettingsActivity() {
                 error = errorState,
                 color = colorState,
                 icon = iconState,
-                delete = { lifecycleScope.launch { delete() } },
+                delete = { lifecycleScope.launch { promptDelete() } },
                 save = { lifecycleScope.launch { save() } },
                 selectColor = { showThemePicker() },
                 clearColor = { clearColor() },
