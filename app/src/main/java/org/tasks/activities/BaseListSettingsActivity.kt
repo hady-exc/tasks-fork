@@ -57,7 +57,7 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), To
     protected val textState = mutableStateOf("")
     protected val errorState = mutableStateOf("")
     protected val colorState = mutableStateOf(Color.Unspecified)
-    protected val iconState = mutableStateOf(R.drawable.ic_outline_label_24px)  //mutableStateOf(getIconResId(defaultIcon)!!)
+    protected val iconState = mutableStateOf(R.drawable.ic_outline_not_interested_24px)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
