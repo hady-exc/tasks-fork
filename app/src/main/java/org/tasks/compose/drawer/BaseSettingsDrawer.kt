@@ -107,15 +107,11 @@ fun BaseSettingsDrawer(
                             text = text,
                             error = error,
                             requestKeyboard = isNew,
-                            modifier = Modifier.padding(horizontal = 16.dp)
+                            modifier = Modifier.padding(horizontal = 18.dp)
                         )
 
                         /* color selection */
-                        Row(
-                            verticalAlignment = Alignment.Bottom,
-                            modifier = Modifier.padding(start = 4.dp)
-                        )
-                        {
+                        SelectorRow {
                             IconButton(
                                 onClick = { selectColor() }
                             ) {
@@ -142,7 +138,7 @@ fun BaseSettingsDrawer(
                                 text = LocalContext.current.getString(R.string.color),
                                 modifier = Modifier
                                     .weight(0.8f)
-                                    .padding(start = textsPaddingLeft, bottom = 12.dp)
+                                    .padding(start = textsPaddingLeft)
                             )
                             if (color.value != Color.Unspecified) {
                                 IconButton(onClick = clearColor) {
@@ -155,11 +151,7 @@ fun BaseSettingsDrawer(
                         } /* end color selection */
 
                         /* icon selection */
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(start = 4.dp)
-                        )
-                        {
+                        SelectorRow {
                             IconButton(onClick = selectIcon) {
                                 Icon(
                                     imageVector = ImageVector.vectorResource(icon.value),
@@ -211,6 +203,7 @@ private fun SimpleTextInput(
                 modifier = Modifier.padding(top = 18.dp, bottom = 4.dp),
                 text = labelText,
                 fontSize = 12.sp,
+                letterSpacing = 0.sp,
                 fontWeight = FontWeight.Medium,
                 color = labelColor
             )
@@ -256,6 +249,22 @@ private fun SimpleTextInput(
 }
 
 @Composable
+fun SelectorRow (
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit = {}
+) {
+    Row(
+        modifier = modifier
+            .padding(start = 4.dp)
+            .requiredHeight(56.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        content()
+    }
+
+}
+
+@Composable
 @Preview
 fun BaseSettingsDrawerPreview () {
     BaseSettingsDrawer(
@@ -272,24 +281,3 @@ fun BaseSettingsDrawerPreview () {
         selectIcon = { 1 }
     )
 }
-
-
-/*
-                Row(verticalAlignment = Alignment.CenterVertically)
-                {
-                    TextField(
-                        value = param.text,
-                        onValueChange = { },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 6.dp),
-                        singleLine = true,
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent,
-                            disabledContainerColor = Color.Transparent
-                        ),
-                        label = { Text(stringResource(id = R.string.display_name)) }
-                    )
-                }
-*/
