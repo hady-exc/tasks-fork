@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.ProgressBar
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.material.SnackbarHostState
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.textfield.TextInputEditText
 import com.google.api.services.tasks.model.TaskList
@@ -21,10 +22,10 @@ import kotlinx.coroutines.withContext
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
 import org.tasks.compose.drawer.BaseSettingsDrawer
+import org.tasks.compose.drawer.LocalSnackBar
 import org.tasks.data.CaldavAccount
 import org.tasks.data.CaldavCalendar
 import org.tasks.data.GoogleTaskListDao
-import org.tasks.extensions.Context.toast
 import org.tasks.themes.CustomIcons
 import timber.log.Timber
 import javax.inject.Inject
@@ -46,6 +47,7 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
 
     override val compose: Boolean
         get() = true
+    val snackbar = SnackbarHostState()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         gtasksList = intent.getParcelableExtra(EXTRA_STORE_DATA)
@@ -97,6 +99,9 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
                 selectIcon = { showIconPicker() },
                 showProgress = showProgress
             )
+
+            LocalSnackBar(state = snackbar)
+
         }
 
         updateTheme()
@@ -240,7 +245,8 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
     private fun requestFailed(error: Throwable) {
         Timber.e(error)
         hideProgressIndicator()
-        toast(R.string.gtasks_GLA_errorIOAuth)
+        lifecycleScope.launch { snackbar.showSnackbar(getString(R.string.gtasks_GLA_errorIOAuth)) }
+        //toast(R.string.gtasks_GLA_errorIOAuth)
         return
     }
 

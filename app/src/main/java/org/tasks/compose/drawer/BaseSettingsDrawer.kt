@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -18,6 +19,9 @@ import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.ProvideTextStyle
+import androidx.compose.material.Snackbar
+import androidx.compose.material.SnackbarHost
+import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -151,9 +155,7 @@ fun BaseSettingsDrawer(
 
                             Text(
                                 text = LocalContext.current.getString(R.string.color),
-                                modifier = Modifier
-                                    .weight(0.8f)
-                                    .padding(start = textsPaddingLeft)
+                                modifier = Modifier.weight(0.8f).padding(start = textsPaddingLeft)
                             )
                             if (color.value != Color.Unspecified) {
                                 IconButton(onClick = clearColor) {
@@ -176,9 +178,7 @@ fun BaseSettingsDrawer(
                             }
                             Text(
                                 text = LocalContext.current.getString(R.string.icon),
-                                modifier = Modifier
-                                    .weight(0.8f)
-                                    .padding(start = textsPaddingLeft)
+                                modifier = Modifier.weight(0.8f).padding(start = textsPaddingLeft)
                             )
                         } /* end icon selection */
                     }
@@ -268,16 +268,34 @@ fun SelectorRow (
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit = {}
 ) {
-    Row(
-        modifier = modifier
-            .padding(start = 4.dp)
-            .requiredHeight(56.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+    Row(modifier = modifier.padding(start = 4.dp).requiredHeight(56.dp),
+        verticalAlignment = Alignment.CenterVertically )
+    {
         content()
     }
 
 }
+
+@Composable
+fun LocalSnackBar(state: SnackbarHostState) {
+    SnackbarHost(state) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Snackbar(
+                modifier = Modifier.padding(horizontal = 24.dp),
+                shape = RoundedCornerShape(10.dp),
+                backgroundColor = colorResource(id = R.color.snackbar_background),
+                contentColor = colorResource(id = R.color.snackbar_text_color),
+                elevation = 8.dp
+            ) {
+                Text(text = it.message, fontSize = 18.sp)
+            }
+        }
+    }
+}
+
 
 @Composable
 @Preview
@@ -293,6 +311,8 @@ fun BaseSettingsDrawerPreview () {
         save = {},
         selectColor = { Color.Red },
         clearColor = { },
-        selectIcon = { 1 }
+        selectIcon = { }
     )
 }
+
+
