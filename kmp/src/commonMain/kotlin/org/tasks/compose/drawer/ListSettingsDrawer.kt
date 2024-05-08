@@ -135,7 +135,7 @@ private fun DrawerProgressBar(showProgress: State<Boolean>) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .requiredHeight(4.dp)
+            .requiredHeight(3.dp)
     ) {
         if (showProgress.value) {
             LinearProgressIndicator(
