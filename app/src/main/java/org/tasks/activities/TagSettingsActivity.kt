@@ -22,6 +22,11 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
+import org.tasks.compose.drawer.ListSettingsDrawer
+import org.tasks.data.TagDao
+import org.tasks.data.TagData
+import org.tasks.data.TagDataDao
+import org.tasks.themes.CustomIcons
 import org.tasks.data.dao.TagDao
 import org.tasks.data.dao.TagDataDao
 import org.tasks.data.entity.TagData
@@ -60,7 +65,7 @@ class TagSettingsActivity : BaseListSettingsActivity() {
         }
 
         setContent {
-            BaseSettingsDrawer(
+            ListSettingsDrawer(
                 title = toolbarTitle,
                 isNew = isNewTag,
                 text = textState,

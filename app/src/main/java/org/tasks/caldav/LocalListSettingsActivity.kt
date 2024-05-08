@@ -11,10 +11,14 @@ import org.tasks.data.dao.CaldavDao
 @AndroidEntryPoint
 class LocalListSettingsActivity : BaseCaldavCalendarSettingsActivity() {
 
+    override val compose: Boolean
+        get() = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        toolbar.menu.findItem(R.id.delete)?.isVisible =
+        if (!compose)
+            toolbar.menu.findItem(R.id.delete)?.isVisible =
                 runBlocking { caldavDao.getCalendarsByAccount(CaldavDao.LOCAL).size > 1 }
     }
 

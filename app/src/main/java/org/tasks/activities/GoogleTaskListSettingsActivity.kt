@@ -30,6 +30,12 @@ import org.tasks.extensions.Context.hideKeyboard
 import org.tasks.extensions.Context.toast
 import org.tasks.filters.GtasksFilter
 import org.tasks.themes.TasksIcons
+import org.tasks.compose.drawer.ListSettingsDrawer
+import org.tasks.compose.drawer.DrawerSnackBar
+import org.tasks.data.CaldavAccount
+import org.tasks.data.CaldavCalendar
+import org.tasks.data.GoogleTaskListDao
+import org.tasks.themes.CustomIcons
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -89,7 +95,7 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
         deleteListViewModel.observe(this, this::onListDeleted, this::requestFailed)
 
         setContent {
-            BaseSettingsDrawer(
+            ListSettingsDrawer(
                 title = toolbarTitle,
                 isNew = isNewList,
                 text = textState,
@@ -104,7 +110,7 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
                 showProgress = showProgress
             )
 
-            LocalSnackBar(state = snackbar)
+            DrawerSnackBar(state = snackbar)
 
         }
 
