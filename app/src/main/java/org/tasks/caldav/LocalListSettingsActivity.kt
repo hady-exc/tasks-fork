@@ -1,9 +1,15 @@
 package org.tasks.caldav
 
 import android.os.Bundle
+import androidx.activity.compose.setContent
+import androidx.compose.material.SnackbarHostState
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.tasks.R
+import org.tasks.compose.drawer.DrawerSnackBar
+import org.tasks.compose.drawer.ListSettingsDrawer
 import org.tasks.data.CaldavAccount
 import org.tasks.data.CaldavCalendar
 import org.tasks.data.CaldavDao
@@ -17,9 +23,31 @@ class LocalListSettingsActivity : BaseCaldavCalendarSettingsActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val canDelete = runBlocking { caldavDao.getCalendarsByAccount(CaldavDao.LOCAL).size > 1 }
         if (!compose)
-            toolbar.menu.findItem(R.id.delete)?.isVisible =
-                runBlocking { caldavDao.getCalendarsByAccount(CaldavDao.LOCAL).size > 1 }
+            toolbar.menu.findItem(R.id.delete)?.isVisible = !canDelete
+
+        if (compose) {
+            setContent {
+                ListSettingsDrawer(
+                    title = toolbarTitle,
+                    isNew = isNew,
+                    text = textState,
+                    error = errorState,
+                    color = colorState,
+                    icon = iconState,
+                    delete = { lifecycleScope.launch { promptDelete() } },
+                    save = { lifecycleScope.launch { save() } },
+                    selectColor = { showThemePicker() },
+                    clearColor = { clearColor() },
+                    selectIcon = { showIconPicker() },
+                    showProgress = showProgress,
+                    suppressDeleteButton = !canDelete
+                )
+
+                DrawerSnackBar(state = snackbar)
+            }
+        }
     }
 
     override suspend fun createCalendar(caldavAccount: CaldavAccount, name: String, color: Int) =

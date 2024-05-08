@@ -52,7 +52,7 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
     protected lateinit var caldavAccount: CaldavAccount
     override val defaultIcon: Int = CustomIcons.LIST
 
-    val snackbar = SnackbarHostState()
+    protected val snackbar = SnackbarHostState() // to be used by descendants
 
     override fun bind() =
         if ( compose ) { TODO() }
@@ -91,27 +91,6 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
             name.requestFocus()
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showSoftInput(name, InputMethodManager.SHOW_IMPLICIT)
-        }
-
-        if (compose) {
-            setContent {
-                ListSettingsDrawer(
-                    title = toolbarTitle,
-                    isNew = isNew,
-                    text = textState,
-                    error = errorState,
-                    color = colorState,
-                    icon = iconState,
-                    delete = { lifecycleScope.launch { promptDelete() } },
-                    save = { lifecycleScope.launch { save() } },
-                    selectColor = { showThemePicker() },
-                    clearColor = { clearColor() },
-                    selectIcon = { showIconPicker() },
-                    showProgress = showProgress
-                )
-
-                DrawerSnackBar(state = snackbar)
-            }
         }
 
         updateTheme()
