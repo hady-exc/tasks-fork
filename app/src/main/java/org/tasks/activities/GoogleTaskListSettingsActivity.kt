@@ -21,8 +21,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
-import org.tasks.compose.drawer.BaseSettingsDrawer
-import org.tasks.compose.drawer.LocalSnackBar
+import org.tasks.compose.drawer.ListSettingsDrawer
+import org.tasks.compose.drawer.DrawerSnackBar
 import org.tasks.data.CaldavAccount
 import org.tasks.data.CaldavCalendar
 import org.tasks.data.GoogleTaskListDao
@@ -85,7 +85,7 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
         deleteListViewModel.observe(this, this::onListDeleted, this::requestFailed)
 
         setContent {
-            BaseSettingsDrawer(
+            ListSettingsDrawer(
                 title = toolbarTitle,
                 isNew = isNewList,
                 text = textState,
@@ -100,7 +100,7 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
                 showProgress = showProgress
             )
 
-            LocalSnackBar(state = snackbar)
+            DrawerSnackBar(state = snackbar)
 
         }
 

@@ -3,6 +3,7 @@ package org.tasks.compose.drawer
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -55,154 +56,111 @@ import org.tasks.R
 import org.tasks.compose.DeleteButton
 
 @Composable
-fun BaseSettingsDrawer(
+fun ListSettingsDrawer(
     title: String,
     isNew: Boolean,
     text: MutableState<String>,
     error: MutableState<String>,
     color: State<Color>,
     icon: State<Int>,
-    save: () -> Unit,
-    delete: () -> Unit,
-    selectIcon: () -> Unit,
-    clearColor: () -> Unit,
-    selectColor: () -> Unit,
-    showProgress: State<Boolean> = remember { mutableStateOf(false) }
+    save: () -> Unit = {},
+    delete: () -> Unit = {},
+    selectIcon: () -> Unit = {},
+    clearColor: () -> Unit = {},
+    selectColor: () -> Unit = {},
+    showProgress: State<Boolean> = remember { mutableStateOf(false) },
+    suppressDeleteButton: Boolean = false
 ) {
 
     val textsPaddingLeft = 20.dp
 
-    MdcTheme {
-        ProvideTextStyle( LocalTextStyle.current.copy(fontSize = 18.sp) ) {
-            Surface(
-                color = colorResource(id = R.color.window_background),
-                contentColor = colorResource(id = R.color.text_primary)
-            ) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    /* Toolbar */
-                    Surface(elevation = 4.dp, modifier = Modifier.requiredHeight(56.dp))
-                    {
-                        Row(
-                            verticalAlignment = Alignment.Bottom,
-                            modifier = Modifier.padding(start = 4.dp)
-                        )
-                        {
-                            IconButton(onClick = save) {
-                                Icon(
-                                    imageVector = ImageVector.vectorResource(R.drawable.ic_outline_save_24px),
-                                    contentDescription = stringResource(id = R.string.save),
-                                )
-                            }
-                            Text(
-                                text = title,
-                                fontWeight = FontWeight.Medium,
-                                fontSize = 20.sp,
-                                modifier = Modifier
-                                    .weight(0.8f)
-                                    .paddingFromBaseline(bottom = 16.dp)
-                                    .padding(start = textsPaddingLeft)
-                            )
-                            if (!isNew) DeleteButton(onClick = delete)
-                        }
-                    } /* end Toolbar*/
+    DrawerSurface {
 
-                    Column(modifier = Modifier.padding(horizontal = 0.dp)) {
+        DrawerToolbar(
+            isNew = isNew,
+            title = title,
+            save = save,
+            delete = delete,
+            suppressDeleteButton = suppressDeleteButton
+        )
 
-                        Box(modifier = Modifier
-                            .fillMaxWidth()
-                            .requiredHeight(4.dp)) {
-                            if (showProgress.value) {
-                                LinearProgressIndicator(
-                                    modifier = Modifier.fillMaxSize(),
-                                    backgroundColor = LocalContentColor.current.copy(alpha = 0.3f),  //Color.LightGray,
-                                    color = colorResource(R.color.red_a400)
-                                )
-                            }
-                        }
+        DrawerProgressBar(showProgress)
 
-                        SimpleTextInput(
-                            text = text,
-                            error = error,
-                            requestKeyboard = isNew,
-                            modifier = Modifier.padding(horizontal = 18.dp)
-                        )
+        TextInput(text = text, error = error, requestKeyboard = isNew)
 
-                        /* color selection */
-                        SelectorRow {
-                            IconButton(
-                                onClick = { selectColor() }
-                            ) {
-                                if (color.value == Color.Unspecified) {
-                                    Icon(
-                                        imageVector = ImageVector.vectorResource(R.drawable.ic_outline_not_interested_24px),
-                                        tint = colorResource(R.color.icon_tint_with_alpha),
-                                        contentDescription = null
-                                    )
-                                } else {
-                                    val borderColor =
-                                        colorResource(R.color.icon_tint_with_alpha)// colorResource(R.color.text_tertiary)
-                                    Canvas(modifier = Modifier.size(24.dp)) {
-                                        drawCircle(color = color.value)
-                                        drawCircle(
-                                            color = borderColor,
-                                            style = Stroke(width = 4.0f)
-                                        )
-                                    }
-                                }
-                            }
+        Selectors {
 
-                            Text(
-                                text = LocalContext.current.getString(R.string.color),
-                                modifier = Modifier.weight(0.8f).padding(start = textsPaddingLeft)
-                            )
-                            if (color.value != Color.Unspecified) {
-                                IconButton(onClick = clearColor) {
-                                    Icon(
-                                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_outline_clear_24px),
-                                        contentDescription = null
-                                    )
-                                }
-                            }
-                        } /* end color selection */
+            SelectColor(color = color, selectColor = selectColor, clearColor = clearColor)
 
-                        /* icon selection */
-                        SelectorRow {
-                            IconButton(onClick = selectIcon) {
-                                Icon(
-                                    imageVector = ImageVector.vectorResource(icon.value),
-                                    contentDescription = null,
-                                    tint = colorResource(R.color.icon_tint_with_alpha)
-                                )
-                            }
-                            Text(
-                                text = LocalContext.current.getString(R.string.icon),
-                                modifier = Modifier.weight(0.8f).padding(start = textsPaddingLeft)
-                            )
-                        } /* end icon selection */
-                    }
-                }
+            SelectIcon(icon = icon, selectIcon = selectIcon)
+        }
+
+    }
+}
+
+@Composable
+private fun DrawerToolbar(
+    isNew: Boolean,
+    title: String,
+    save: () -> Unit,
+    delete: () -> Unit,
+    suppressDeleteButton: Boolean
+) {
+    Surface(elevation = 4.dp, modifier = Modifier.requiredHeight(56.dp))
+    {
+        Row(verticalAlignment = Alignment.Bottom,
+            modifier = Modifier.padding(start = 4.dp)) {
+            IconButton(onClick = save) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_outline_save_24px),
+                    contentDescription = stringResource(id = R.string.save),
+                )
             }
+            Text(
+                text = title,
+                fontWeight = FontWeight.Medium,
+                fontSize = 20.sp,
+                modifier = Modifier
+                    .weight(0.8f)
+                    .paddingFromBaseline(bottom = 16.dp)
+                    .padding(start = 20.dp)
+            )
+            if (!isNew && !suppressDeleteButton) DeleteButton(onClick = delete)
+        }
+    }
+} /* DrawerToolBar */
+
+@Composable
+private fun DrawerProgressBar(showProgress: State<Boolean>) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .requiredHeight(4.dp)
+    ) {
+        if (showProgress.value) {
+            LinearProgressIndicator(
+                modifier = Modifier.fillMaxSize(),
+                backgroundColor = LocalContentColor.current.copy(alpha = 0.3f),  //Color.LightGray,
+                color = colorResource(R.color.red_a400)
+            )
         }
     }
 }
 
 @Composable
-private fun SimpleTextInput(
+private fun TextInput(
     text: MutableState<String>,
     error: MutableState<String>,
     requestKeyboard: Boolean,
-    modifier: Modifier = Modifier,
     label: String = stringResource(R.string.display_name),
     errorState: Color = colorResource(R.color.red_a400),  /* TODO(find correct accent color *) */
     activeState: Color = LocalContentColor.current.copy(alpha = 0.75f),
     inactiveState: Color = LocalContentColor.current.copy(alpha = 0.5f),
+    modifier: Modifier = Modifier.padding(horizontal = 18.dp),
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val requester = remember { FocusRequester() }
 
-    /*  text input */
     Row(
         modifier = modifier
     ) {
@@ -244,7 +202,7 @@ private fun SimpleTextInput(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
         }
-    } /* end text input */
+    }
 
     if (requestKeyboard) {
         LaunchedEffect(null) {
@@ -260,24 +218,97 @@ private fun SimpleTextInput(
             keyboardController!!.show()
         }
     }
-
-}
+} /* TextInput */
 
 @Composable
-fun SelectorRow (
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit = {}
+private fun SelectColor(
+    color: State<Color>,
+    selectColor: () -> Unit,
+    clearColor: () -> Unit
 ) {
-    Row(modifier = modifier.padding(start = 4.dp).requiredHeight(56.dp),
+    Row(modifier = Modifier.requiredHeight(56.dp),
         verticalAlignment = Alignment.CenterVertically )
     {
-        content()
+        IconButton(onClick = { selectColor() }) {
+            if (color.value == Color.Unspecified) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_outline_not_interested_24px),
+                    tint = colorResource(R.color.icon_tint_with_alpha),
+                    contentDescription = null
+                )
+            } else {
+                val borderColor =
+                    colorResource(R.color.icon_tint_with_alpha)  // colorResource(R.color.text_tertiary)
+                Canvas(modifier = Modifier.size(24.dp)) {
+                    drawCircle(color = color.value)
+                    drawCircle(color = borderColor, style = Stroke(width = 4.0f)
+                    )
+                }
+            }
+        }
+        Text(
+            text = LocalContext.current.getString(R.string.color),
+            modifier = Modifier
+                .weight(0.8f)
+                .padding(start = 20.dp)
+        )
+        if (color.value != Color.Unspecified) {
+            IconButton(onClick = clearColor) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_outline_clear_24px),
+                    contentDescription = null
+                )
+            }
+        }
     }
+} /* SelectColor */
 
+@Composable
+private fun SelectIcon(
+    icon: State<Int>,
+    selectIcon: () -> Unit
+) {
+    /* icon selection */
+    Row(modifier = Modifier.requiredHeight(56.dp),
+        verticalAlignment = Alignment.CenterVertically )
+    {
+        IconButton(onClick = selectIcon) {
+            Icon(
+                imageVector = ImageVector.vectorResource(icon.value),
+                contentDescription = null,
+                tint = colorResource(R.color.icon_tint_with_alpha)
+            )
+        }
+        Text(
+            text = LocalContext.current.getString(R.string.icon),
+            modifier = Modifier
+                .weight(0.8f)
+                .padding(start = 20.dp)
+        )
+    }
 }
 
 @Composable
-fun LocalSnackBar(state: SnackbarHostState) {
+fun DrawerSurface(content: @Composable ColumnScope.() -> Unit) {
+    MdcTheme {
+        ProvideTextStyle(LocalTextStyle.current.copy(fontSize = 18.sp)) {
+            Surface(
+                color = colorResource(id = R.color.window_background),
+                contentColor = colorResource(id = R.color.text_primary)
+            ) {
+                Column( modifier = Modifier.fillMaxSize() )
+                    { content() }
+            }
+        }
+    }
+}
+
+@Composable
+fun Selectors(content: @Composable ColumnScope.() -> Unit )
+{ Column(modifier = Modifier.padding(start = 4.dp)) { content() } }
+
+@Composable
+fun DrawerSnackBar(state: SnackbarHostState) {
     SnackbarHost(state) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -298,9 +329,9 @@ fun LocalSnackBar(state: SnackbarHostState) {
 
 
 @Composable
-@Preview
+@Preview(apiLevel = 34)
 fun BaseSettingsDrawerPreview () {
-    BaseSettingsDrawer(
+    ListSettingsDrawer(
         title ="Create New Tag",
         isNew = false,
         text = remember { mutableStateOf("Tag Name") },
