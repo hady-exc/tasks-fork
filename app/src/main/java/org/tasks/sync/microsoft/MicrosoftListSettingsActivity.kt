@@ -17,6 +17,9 @@ import org.tasks.data.CaldavCalendar
 class MicrosoftListSettingsActivity : BaseCaldavCalendarSettingsActivity() {
     private val viewModel: MicrosoftListSettingsActivityViewModel by viewModels()
 
+    override val compose: Boolean
+        get() = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

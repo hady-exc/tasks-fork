@@ -19,6 +19,8 @@ class LocalListSettingsActivity : BaseCaldavCalendarSettingsActivity() {
 
     override val compose: Boolean
         get() = true
+    override val setContent
+        get() = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
