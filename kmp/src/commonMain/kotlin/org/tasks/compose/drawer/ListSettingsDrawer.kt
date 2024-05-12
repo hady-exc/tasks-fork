@@ -69,7 +69,8 @@ fun ListSettingsDrawer(
     clearColor: () -> Unit = {},
     selectColor: () -> Unit = {},
     showProgress: State<Boolean> = remember { mutableStateOf(false) },
-    suppressDeleteButton: Boolean = false
+    suppressDeleteButton: Boolean = false,
+    extensionContent: @Composable ColumnScope.() -> Unit = {}
 ) {
 
     val textsPaddingLeft = 20.dp
@@ -93,13 +94,15 @@ fun ListSettingsDrawer(
             SelectColor(color = color, selectColor = selectColor, clearColor = clearColor)
 
             SelectIcon(icon = icon, selectIcon = selectIcon)
+
+            extensionContent()
         }
 
     }
 }
 
 @Composable
-private fun DrawerToolbar(
+fun DrawerToolbar(
     isNew: Boolean,
     title: String,
     save: () -> Unit,
@@ -131,7 +134,7 @@ private fun DrawerToolbar(
 } /* DrawerToolBar */
 
 @Composable
-private fun DrawerProgressBar(showProgress: State<Boolean>) {
+fun DrawerProgressBar(showProgress: State<Boolean>) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -148,7 +151,7 @@ private fun DrawerProgressBar(showProgress: State<Boolean>) {
 }
 
 @Composable
-private fun TextInput(
+fun TextInput(
     text: MutableState<String>,
     error: MutableState<String>,
     requestKeyboard: Boolean,

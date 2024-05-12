@@ -13,6 +13,9 @@ class EtebaseCalendarSettingsActivity : BaseCaldavCalendarSettingsActivity() {
     private val deleteCalendarViewModel: DeleteCalendarViewModel by viewModels()
     private val updateCalendarViewModel: UpdateCalendarViewModel by viewModels()
 
+    override val compose: Boolean
+        get() = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

@@ -9,6 +9,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import androidx.activity.compose.setContent
+import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.SnackbarHostState
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
@@ -56,6 +57,8 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
     protected lateinit var caldavAccount: CaldavAccount
     override val defaultIcon = TasksIcons.LIST
 
+    protected open val setContent
+        get() = true
     protected val snackbar = SnackbarHostState() // to be used by descendants
 
     override fun bind() =
@@ -96,6 +99,26 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showSoftInput(name, InputMethodManager.SHOW_IMPLICIT)
         }
+
+        if (setContent)
+            setContent {
+                ListSettingsDrawer(
+                    title = toolbarTitle,
+                    isNew = isNew,
+                    text = textState,
+                    error = errorState,
+                    color = colorState,
+                    icon = iconState,
+                    delete = { lifecycleScope.launch { promptDelete() } },
+                    save = { lifecycleScope.launch { save() } },
+                    selectColor = { showThemePicker() },
+                    clearColor = { clearColor() },
+                    selectIcon = { showIconPicker() },
+                    showProgress = showProgress
+                )
+
+                DrawerSnackBar(state = snackbar)
+            }
 
         updateTheme()
     }
