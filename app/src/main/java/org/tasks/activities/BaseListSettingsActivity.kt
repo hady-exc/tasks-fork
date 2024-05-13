@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
@@ -57,37 +58,25 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), To
     protected val textState = mutableStateOf("")
     protected val errorState = mutableStateOf("")
     protected val colorState = mutableStateOf(Color.Unspecified)
-    protected val iconState = mutableStateOf(R.drawable.ic_outline_not_interested_24px)
+    protected val iconState = mutableIntStateOf(R.drawable.ic_outline_not_interested_24px)
     protected val showProgress = mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val view = bind()
-        setContentView(view)
-        clear = findViewById<View>(R.id.clear).apply {
-            setOnClickListener { clearColor() }
-        }
-        color = findViewById(R.id.color)
-        colorRow = findViewById<ViewGroup>(R.id.color_row).apply {
-            setOnClickListener { showThemePicker() }
-        }
-        findViewById<ComposeView>(R.id.icon).setContent {
-            TasksTheme {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    TasksIcon(
-                        label = selectedIcon.collectAsStateWithLifecycle().value ?: defaultIcon
-                    )
-                    Spacer(modifier = Modifier.width(34.dp))
-                    Text(
-                        text = "Icon",
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontSize = 18.sp,
-                        ),
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
+
+        /* defaultIcon is initialized in the descendant's constructor so it can not be used
+           in constructor of the base class. So valid initial value for iconState is set here  */
+        iconState.intValue = getIconResId(defaultIcon)!!
+
+        if (!compose) {
+            val view = bind()
+            setContentView(view)
+            clear = findViewById<View>(R.id.clear).apply {
+                setOnClickListener { clearColor() }
+            }
+            color = findViewById(R.id.color)
+            colorRow = findViewById<ViewGroup>(R.id.color_row).apply {
+                setOnClickListener { showThemePicker() }
             }
         }
         findViewById<View>(R.id.icon_row).setOnClickListener { showIconPicker() }
@@ -176,10 +165,13 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), To
     protected fun updateTheme() {
         val themeColor: ThemeColor
         if (compose) {
+            themeColor = if (selectedColor == 0) this.themeColor
+                else colorProvider.getThemeColor(selectedColor, true)
             colorState.value =
                 if (selectedColor == 0) Color.Unspecified
                 else Color((colorProvider.getThemeColor(selectedColor, true)).primaryColor)
-            iconState.value = (getIconResId(selectedIcon) ?: getIconResId(defaultIcon))!!
+            iconState.intValue = (getIconResId(selectedIcon) ?: getIconResId(defaultIcon))!!
+            themeColor.applyToNavigationBar(this)
         } else {
             if (selectedColor == 0) {
                 themeColor = this.themeColor
