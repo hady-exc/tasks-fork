@@ -3,39 +3,26 @@ package org.tasks.activities
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-import android.view.ViewParent
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.material.Slider
+import androidx.compose.material.SliderDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.slider.Slider
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import com.todoroo.astrid.activity.MainActivity
 import com.todoroo.astrid.activity.TaskListFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -46,7 +33,6 @@ import org.tasks.Strings.isNullOrEmpty
 import org.tasks.compose.drawer.ListSettingsDrawer
 import org.tasks.data.LocationDao
 import org.tasks.data.Place
-import org.tasks.databinding.ActivityLocationSettingsBinding
 import org.tasks.extensions.formatNumber
 import org.tasks.filters.PlaceFilter
 import org.tasks.location.MapFragment
@@ -54,11 +40,10 @@ import org.tasks.preferences.Preferences
 import org.tasks.themes.CustomIcons
 import java.util.Locale
 import javax.inject.Inject
-import kotlin.math.roundToInt
 
 @AndroidEntryPoint
-class PlaceSettingsActivity : BaseListSettingsActivity(), MapFragment.MapFragmentCallback,
-    Slider.OnChangeListener {
+class PlaceSettingsActivity : BaseListSettingsActivity(),
+    MapFragment.MapFragmentCallback/*, Slider.OnChangeListener*/ {
 
     companion object {
         const val EXTRA_PLACE = "extra_place"
@@ -66,10 +51,6 @@ class PlaceSettingsActivity : BaseListSettingsActivity(), MapFragment.MapFragmen
         private const val MAX_RADIUS = 1000
         private const val STEP = 25
     }
-
-    private lateinit var name: TextInputEditText
-    private lateinit var nameLayout: TextInputLayout
-    private lateinit var slider: Slider
 
     @Inject lateinit var locationDao: LocationDao
     @Inject lateinit var map: MapFragment
@@ -82,9 +63,8 @@ class PlaceSettingsActivity : BaseListSettingsActivity(), MapFragment.MapFragmen
 
     override val compose: Boolean
         get() = true
-    val mapViewReady = mutableStateOf(false)
-    val sliderPos = mutableFloatStateOf(100f)
-    lateinit var viewHolder: ViewGroup
+    private val sliderPos = mutableFloatStateOf(100f)
+    private lateinit var viewHolder: ViewGroup
 
     override fun onCreate(savedInstanceState: Bundle?) {
         if (intent?.hasExtra(EXTRA_PLACE) != true) {
@@ -108,12 +88,12 @@ class PlaceSettingsActivity : BaseListSettingsActivity(), MapFragment.MapFragmen
             selectedIcon = place.icon
         }
 
-        sliderPos.value = (place.radius / STEP * STEP).toFloat()
+        sliderPos.floatValue = (place.radius / STEP * STEP).toFloat()
 
         val dark = preferences.mapTheme == 2
                 || preferences.mapTheme == 0 && tasksTheme.themeBase.isDarkTheme(this)
 
-        //map.init(this, this, dark)
+        updateTheme()
 
         setContent {
             ListSettingsDrawer(
@@ -129,7 +109,10 @@ class PlaceSettingsActivity : BaseListSettingsActivity(), MapFragment.MapFragmen
                 clearColor = { clearColor() },
                 selectIcon = { showIconPicker() }
             ) {
-                Row(modifier = Modifier.requiredHeight(56.dp).fillMaxWidth().padding(horizontal = 12.dp),
+                Row(modifier = Modifier
+                    .requiredHeight(56.dp)
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween)
                 {
@@ -137,33 +120,26 @@ class PlaceSettingsActivity : BaseListSettingsActivity(), MapFragment.MapFragmen
                     Row (horizontalArrangement = Arrangement.End ){
                         Text(getString(
                             R.string.location_radius_meters,
-                            locale.formatNumber(sliderPos.value.toInt())
+                            locale.formatNumber(sliderPos.floatValue.toInt())
                         ))
                     }
 
                 }
                 Slider(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .requiredHeight(56.dp),
-                    value = sliderPos.value,
+                    modifier = Modifier.fillMaxWidth(),
+                    value = sliderPos.floatValue,
                     valueRange = (MIN_RADIUS.toFloat() .. MAX_RADIUS.toFloat()),
                     steps = (MAX_RADIUS - MIN_RADIUS) / STEP,
-                    onValueChange = { sliderPos.value = it; updateGeofenceCircle() }
-                )
-/* TODO("delete after debugged")
-                setLabelFormatter { value ->
-                    getString(
-                        R.string.location_radius_meters,
-                        locale.formatNumber(value.toInt())
+                    onValueChange = { sliderPos.floatValue = it },
+                    colors = SliderDefaults.colors(
+                        thumbColor = colorResource(id = R.color.red_a400),
+                        activeTrackColor = colorResource(id = R.color.red_a400),
+                        inactiveTrackColor = colorResource(id = R.color.text_tertiary),
+                        activeTickColor = colorResource(id = R.color.red_a400),
+                        inactiveTickColor = colorResource(id = R.color.text_tertiary)
                     )
-                }
-                valueTo = MAX_RADIUS.toFloat()
-                valueFrom = MIN_RADIUS.toFloat()
-                stepSize = STEP.toFloat()
-                haloRadius = 0
-                value = (place.radius / STEP * STEP).roundToInt().toFloat()
-*/
+                )
+
                 AndroidView(factory = { ctx ->
                     viewHolder = LinearLayout(ctx).apply {
                         layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
@@ -172,65 +148,18 @@ class PlaceSettingsActivity : BaseListSettingsActivity(), MapFragment.MapFragmen
                     map.init(this@PlaceSettingsActivity, this@PlaceSettingsActivity, dark, viewHolder)
                     viewHolder
                 }, update = {
-//                    it.setBackgroundColor(((((127*256)+127)*256)+127)*256+127)
+                    updateGeofenceCircle(sliderPos.floatValue)
                 },
                     modifier = Modifier
                         .fillMaxWidth()
                         .requiredHeight(300.dp)
                         .padding(horizontal = 8.dp)
                 )
-
-                /*
-                                if (mapViewReady.value) {
-                                    val view = LocalView.current
-                                    AndroidView(
-                                        modifier = Modifier.fillMaxWidth().requiredHeight(550.dp),
-                                        factory = {ctx ->
-                                            val view = map.getView()
-                                            view.layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, height)
-                                            view.setLayoutParams(view.getLayoutParams())
-                                            view
-                                        },
-                                        update = {view ->
-                                            view.layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, height)
-                                            view.setLayoutParams(view.getLayoutParams())
-                                        }
-                                    )
-                                }
-                */
             }
-
         }
-
-        updateTheme()
     }
 
     override fun bind() = TODO("Bind must NOT be called for @Compose'ed activity")
-/*
-    override fun bind() = ActivityLocationSettingsBinding.inflate(layoutInflater).let {
-        name = it.name.apply {
-            addTextChangedListener(
-                onTextChanged = { _, _, _, _ -> nameLayout.error = null }
-            )
-        }
-        nameLayout = it.nameLayout
-        slider = it.slider.apply {
-            setLabelFormatter { value ->
-                getString(
-                    R.string.location_radius_meters,
-                    locale.formatNumber(value.toInt())
-                )
-            }
-            valueTo = MAX_RADIUS.toFloat()
-            valueFrom = MIN_RADIUS.toFloat()
-            stepSize = STEP.toFloat()
-            haloRadius = 0
-            value = (place.radius / STEP * STEP).roundToInt().toFloat()
-        }
-        slider.addOnChangeListener(this)
-        it.root
-    }
-*/
 
     override fun hasChanges() = textState.value != place.displayName
                     || selectedColor != place.color
@@ -248,7 +177,7 @@ class PlaceSettingsActivity : BaseListSettingsActivity(), MapFragment.MapFragmen
             name = newName,
             color = selectedColor,
             icon = selectedIcon,
-            radius = sliderPos.value.toInt(),
+            radius = sliderPos.floatValue.toInt(),
         )
         locationDao.update(place)
         setResult(
@@ -277,18 +206,13 @@ class PlaceSettingsActivity : BaseListSettingsActivity(), MapFragment.MapFragmen
         map.setMarkers(listOf(place))
         map.disableGestures()
         map.movePosition(place.mapPosition, false)
-        updateGeofenceCircle()
-        mapViewReady.value = true
+        updateGeofenceCircle(sliderPos.floatValue)
     }
 
     override fun onPlaceSelected(place: Place) {}
-    override fun onValueChange(slider: Slider, value: Float, fromUser: Boolean) {
-        updateGeofenceCircle()
-        TODO("Delete this")
-    }
 
-    private fun updateGeofenceCircle() {
-        val radius = sliderPos.value.toDouble()
+    private fun updateGeofenceCircle(radius: Float) {
+        val radius = radius.toDouble()
         val zoom = when (radius) {
             in 0f..300f -> 15f
             in 300f..500f -> 14.5f
