@@ -140,16 +140,20 @@ class PlaceSettingsActivity : BaseListSettingsActivity(),
                     )
                 )
 
-                AndroidView(factory = { ctx ->
-                    viewHolder = LinearLayout(ctx).apply {
-                        layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                    }
-                    viewHolder.setBackgroundColor(((((127*256)+127)*256)+127)*256+127)
-                    map.init(this@PlaceSettingsActivity, this@PlaceSettingsActivity, dark, viewHolder)
-                    viewHolder
-                }, update = {
-                    updateGeofenceCircle(sliderPos.floatValue)
-                },
+                AndroidView(
+                    factory = { ctx ->
+                        viewHolder = LinearLayout(ctx).apply {
+                            layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                        }
+                        map.init(
+                            this@PlaceSettingsActivity,
+                            this@PlaceSettingsActivity,
+                            dark,
+                            viewHolder
+                        )
+                        viewHolder
+                    },
+                    update = { updateGeofenceCircle(sliderPos.floatValue) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .requiredHeight(300.dp)
