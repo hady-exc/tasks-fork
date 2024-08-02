@@ -7,12 +7,25 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.widget.EditText
 import android.widget.FrameLayout
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.material.Text
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.unit.dp
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButtonToggleGroup
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -38,6 +51,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.tasks.R
 import org.tasks.Strings
+import org.tasks.compose.FilterCondition
 import org.tasks.data.Filter
 import org.tasks.data.FilterDao
 import org.tasks.data.TaskDao.TaskCriteria.activeAndVisible
@@ -59,15 +73,21 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
     @Inject lateinit var database: Database
     @Inject lateinit var filterCriteriaProvider: FilterCriteriaProvider
 
-    private lateinit var name: TextInputEditText
-    private lateinit var nameLayout: TextInputLayout
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var fab: ExtendedFloatingActionButton
+    private lateinit var name: TextInputEditText  /* TODO(eliminate) */
+    private lateinit var nameLayout: TextInputLayout /* TODO(eliminate) */
+    private lateinit var recyclerView: RecyclerView /* TODO(eliminate) */
+    private lateinit var composeView: ComposeView /* TODO(eliminate) */
+    private lateinit var fab: ExtendedFloatingActionButton /* TODO(probably eliminate) */
     
     private var filter: CustomFilter? = null
-    private lateinit var adapter: CustomFilterAdapter
+    private lateinit var adapter: CustomFilterAdapter /* TODO(eliminate) */
     private var criteria: MutableList<CriterionInstance> = ArrayList()
+        get() = _criteria
     override val defaultIcon: Int = CustomIcons.FILTER
+
+    private lateinit var _criteria: SnapshotStateList<CriterionInstance> //= ArrayList<CriterionInstance>().toMutableStateList()
+    //MutableState<MutableList<CriterionInstance>> = mutableStateOf(ArrayList())
+    //MutableState<List<CriterionInstance>> = mutableStateOf( emptyList() )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         filter = intent.getParcelableExtra(TOKEN_FILTER)
@@ -96,6 +116,13 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
             }
             else -> setCriteria(universe())
         }
+        composeView.setContent {
+            FilterCondition(
+                _criteria,
+                { index -> onDelete(index) }
+            )
+        }
+
         recyclerView.layoutManager = LinearLayoutManager(this)
         ItemTouchHelper(
                 CustomFilterItemTouchHelper(this, this::onMove, this::onDelete, this::updateList))
@@ -112,9 +139,9 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
     })
 
     private fun setCriteria(criteria: List<CriterionInstance>) {
-        this.criteria = criteria
+        this._criteria = criteria  // !!!
                 .ifEmpty { universe() }
-                .toMutableList()
+                .toMutableStateList()
         adapter = CustomFilterAdapter(criteria, locale) { replaceId: String -> onClick(replaceId) }
         recyclerView.adapter = adapter
         fab.isExtended = isNew || adapter.itemCount <= 1
@@ -122,13 +149,13 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
     }
 
     private fun onDelete(index: Int) {
-        criteria.removeAt(index)
+        _criteria.removeAt(index)
         updateList()
     }
 
     private fun onMove(from: Int, to: Int) {
-        val criterion = criteria.removeAt(from)
-        criteria.add(to, criterion)
+        val criterion = _criteria.removeAt(from)
+        _criteria.add(to, criterion)
         adapter.notifyItemMoved(from, to)
     }
 
@@ -175,7 +202,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                         val instance = CriterionInstance()
                         instance.criterion = all[which]
                         showOptionsFor(instance) {
-                            criteria.add(instance)
+                            _criteria.add(instance)
                             updateList()
                         }
                         dialog.dismiss()
@@ -294,6 +321,8 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
         }
         nameLayout = it.nameLayout
         recyclerView = it.recyclerView
+        composeView = it.filterCriteriaList
+
         fab = it.fab.apply {
             setOnClickListener { addCriteria() }
         }
@@ -353,6 +382,9 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
             instance.max = max
         }
         adapter.submitList(criteria)
+
+        //_criteria.value = criteria
+
     }
 
     companion object {
