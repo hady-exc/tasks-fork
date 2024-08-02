@@ -25,7 +25,7 @@ import kotlin.math.roundToInt
 
 object SwipeOut {
 
-    enum class Anchors { Left, LeftStop, Center, RightStop, Right }
+    private enum class Anchors { Left, LeftStop, Center, RightStop, Right }
 
     @OptIn(ExperimentalFoundationApi::class)
     @Composable

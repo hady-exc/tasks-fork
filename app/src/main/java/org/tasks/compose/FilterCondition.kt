@@ -22,6 +22,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,10 +32,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.os.ConfigurationCompat
 import com.google.android.material.composethemeadapter.MdcTheme
 import com.todoroo.astrid.core.CriterionInstance
 import org.tasks.R
 import org.tasks.compose.SwipeOut.SwipeOut
+import org.tasks.extensions.formatNumber
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -131,16 +134,23 @@ fun FilterCondition (
                                     }
                                     Text(
                                         text = criterion.titleFromCriterion,
-                                        fontSize = 18.sp,
+                                        fontSize = 17.sp,
                                         modifier = Modifier
                                             .weight(0.8f)
                                             .padding(start = 20.dp, top = 16.dp, bottom = 16.dp)
                                     )
+                                    val context = LocalContext.current
+                                    val locale = remember {
+                                        ConfigurationCompat
+                                            .getLocales(context.resources.configuration)
+                                            .get(0)
+                                            ?: java.util.Locale.getDefault()
+                                    }
                                     Text(
-                                        text = "${criterion.max}",
+                                        text = locale.formatNumber(criterion.max),
                                         modifier = Modifier.padding(16.dp),
                                         color = Color.Gray,
-                                        fontSize = 16.sp,
+                                        fontSize = 14.sp,
                                         textAlign = TextAlign.End
                                     )
                                 }
