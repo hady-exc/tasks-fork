@@ -2,6 +2,7 @@ package org.tasks.compose
 
 import android.graphics.drawable.Drawable
 import android.view.View
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
@@ -20,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -44,10 +46,12 @@ import org.tasks.R
 import org.tasks.compose.SwipeOut.SwipeOut
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FilterCondition (
     items: SnapshotStateList<CriterionInstance>,  //MutableState<MutableList<CriterionInstance>>, //State<List<CriterionInstance>>,
-    onDelete: (Int) -> Unit
+    onDelete: (Int) -> Unit,
+    doSwap: (Int, Int) -> Unit
 ) {
 
     val getIcon: (CriterionInstance) -> Int = { criterion ->
@@ -72,45 +76,69 @@ fun FilterCondition (
 
     MdcTheme {
         Box(modifier = Modifier.fillMaxWidth()) {
-            LazyColumn(modifier = Modifier.height(800.dp), userScrollEnabled = false) {
+
+            val listState = rememberLazyListState()
+            val dragDropState = rememberDragDropState(listState) { fromIndex, toIndex ->
+                doSwap(fromIndex, toIndex)
+            }
+
+            Text(text = "Header will be here", modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp))
+
+            LazyColumn(
+                modifier = Modifier
+                    .height(800.dp)
+                    .doDrag(dragDropState),
+                userScrollEnabled = false,
+                state = listState
+            ) {
+/*
                 item {
                     Text(text = "Header will be here", modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp))
                 }
 
+*/
                 itemsIndexed(
                     items = items,
                     key = { _,item -> item.id }
                 ) { index, criterion ->
-                    SwipeOut(
-                        decoration = { SwipeOutDecoration() },
-                        onSwipe = { index -> onDelete(index) },
-                        index = index
+                    DraggableItem(
+                        dragDropState = dragDropState, index = index
                     ) {
-                        if (criterion.type == CriterionInstance.TYPE_ADD) {
-                            Divider(color = Color.Black)
-                        }
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
+
+
+                        SwipeOut(
+                            decoration = { SwipeOutDecoration() },
+                            onSwipe = { index -> onDelete(index) },
+                            index = index
                         ) {
-                            Box(
-                                modifier = Modifier.requiredSize(48.dp),
-                                contentAlignment = Alignment.Center
-                            )
-                            {
-                                if (criterion.type != CriterionInstance.TYPE_UNIVERSE) {
-                                    Icon(
-                                        painter = painterResource(id = getIcon(criterion)),
-                                        contentDescription = null
-                                    )
-                                }
+                            if (criterion.type == CriterionInstance.TYPE_ADD) {
+                                Divider(color = Color.Black)
                             }
-                            Text(
-                                text = criterion.titleFromCriterion,
-                                modifier = Modifier.weight(0.8f)
-                            )
-                            Text("${criterion.max}", modifier = Modifier.padding(8.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Box(
+                                    modifier = Modifier.requiredSize(48.dp),
+                                    contentAlignment = Alignment.Center
+                                )
+                                {
+                                    if (criterion.type != CriterionInstance.TYPE_UNIVERSE) {
+                                        Icon(
+                                            painter = painterResource(id = getIcon(criterion)),
+                                            contentDescription = null
+                                        )
+                                    }
+                                }
+                                Text(
+                                    text = criterion.titleFromCriterion,
+                                    modifier = Modifier.weight(0.8f)
+                                )
+                                Text("${criterion.max}", modifier = Modifier.padding(8.dp))
+                            }
                         }
                     }
                 }
