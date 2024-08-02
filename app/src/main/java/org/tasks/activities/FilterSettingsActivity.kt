@@ -5,8 +5,10 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.FrameLayout
+import androidx.activity.compose.setContent
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.platform.ComposeView
@@ -42,6 +44,8 @@ import kotlinx.coroutines.launch
 import org.tasks.R
 import org.tasks.Strings
 import org.tasks.compose.FilterCondition
+import org.tasks.compose.drawer.DrawerSnackBar
+import org.tasks.compose.drawer.ListSettingsDrawer
 import org.tasks.data.Filter
 import org.tasks.data.FilterDao
 import org.tasks.data.TaskDao.TaskCriteria.activeAndVisible
@@ -75,6 +79,9 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
         get() = _criteria
     override val defaultIcon: Int = CustomIcons.FILTER
 
+    override val compose: Boolean
+        get() = true
+
     private lateinit var _criteria: SnapshotStateList<CriterionInstance>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,7 +90,8 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
         if (savedInstanceState == null && filter != null) {
             selectedColor = filter!!.tint
             selectedIcon = filter!!.icon
-            name.setText(filter!!.title)
+            //name.setText(filter!!.title)
+            textState.value = filter!!.title ?: ""
         }
         when {
             savedInstanceState != null -> lifecycleScope.launch {
@@ -104,6 +112,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
             }
             else -> setCriteria(universe())
         }
+/*
         composeView.setContent {
             FilterCondition(
                 _criteria,
@@ -111,14 +120,42 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                 { from, to -> onMove(from, to) }
             )
         }
+*/
 
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        //recyclerView.layoutManager = LinearLayoutManager(this)
+/*
         ItemTouchHelper(
                 CustomFilterItemTouchHelper(this, this::onMove, this::onDelete, this::updateList))
                 .attachToRecyclerView(recyclerView)
+*/
         if (isNew) {
             toolbar.inflateMenu(R.menu.menu_help)
         }
+
+        setContent {
+            ListSettingsDrawer(
+                title = toolbarTitle,
+                isNew = isNew,
+                text = textState,
+                error = errorState,
+                color = colorState,
+                icon = iconState,
+                delete = { lifecycleScope.launch { promptDelete() } },
+                save = { lifecycleScope.launch { save() } },
+                selectColor = { showThemePicker() },
+                clearColor = { clearColor() },
+                selectIcon = { showIconPicker() },
+                showProgress = showProgress
+            ) {
+                FilterCondition(
+                    _criteria,
+                    { index -> onDelete(index) },
+                    { from, to -> onMove(from, to) },
+                    { id -> onClick(id) }
+                )
+            }
+        }
+
         updateTheme()
     }
 
@@ -131,9 +168,11 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
         this._criteria = criteria  // !!!
                 .ifEmpty { universe() }
                 .toMutableStateList()
+/*
         adapter = CustomFilterAdapter(criteria, locale) { replaceId: String -> onClick(replaceId) }
         recyclerView.adapter = adapter
         fab.isExtended = isNew || adapter.itemCount <= 1
+*/
         updateList()
     }
 
@@ -145,12 +184,13 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
     private fun onMove(from: Int, to: Int) {
         val criterion = _criteria.removeAt(from)
         _criteria.add(to, criterion)
-        adapter.notifyItemMoved(from, to)
+        //adapter.notifyItemMoved(from, to)
     }
 
     private fun onClick(replaceId: String) {
+///* !!!
         val criterionInstance = criteria.find { it.id == replaceId }!!
-        val view = layoutInflater.inflate(R.layout.dialog_custom_filter_row_edit, recyclerView, false)
+        val view = layoutInflater.inflate(R.layout.dialog_custom_filter_row_edit, window.decorView.rootView as ViewGroup, false)
         val group: MaterialButtonToggleGroup = view.findViewById(R.id.button_toggle)
         val selected = getSelected(criterionInstance)
         group.check(selected)
@@ -164,6 +204,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                 }
                 .setNeutralButton(R.string.help) { _, _ -> help() }
                 .show()
+//*/
     }
 
     private fun getSelected(instance: CriterionInstance): Int =
@@ -244,8 +285,8 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
     override val isNew: Boolean
         get() = filter == null
 
-    override val toolbarTitle: String?
-        get() = if (isNew) getString(R.string.FLA_new_filter) else filter!!.title
+    override val toolbarTitle: String
+        get() = if (isNew) getString(R.string.FLA_new_filter) else filter?.title ?: ""
 
     override suspend fun save() {
         val newName = newName
@@ -283,7 +324,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
     }
 
     private val newName: String
-        get() = name.text.toString().trim { it <= ' ' }
+        get() = textState.value.trim { it <= ' ' }
 
     override fun hasChanges(): Boolean {
         return if (isNew) {
@@ -298,7 +339,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
     }
 
     override fun finish() {
-        hideKeyboard(name)
+        //hideKeyboard(name)
         super.finish()
     }
 
@@ -370,7 +411,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
         for (instance in criteria) {
             instance.max = max
         }
-        adapter.submitList(criteria)
+        //adapter.submitList(criteria)
 
         //_criteria.value = criteria
 

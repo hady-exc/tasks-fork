@@ -2,6 +2,7 @@ package org.tasks.compose
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,7 +46,8 @@ import org.tasks.extensions.formatNumber
 fun FilterCondition (
     items: SnapshotStateList<CriterionInstance>,  //MutableState<MutableList<CriterionInstance>>, //State<List<CriterionInstance>>,
     onDelete: (Int) -> Unit,
-    doSwap: (Int, Int) -> Unit
+    doSwap: (Int, Int) -> Unit,
+    onClick: (String) -> Unit
 ) {
 
     val getIcon: (CriterionInstance) -> Int = { criterion ->
@@ -117,7 +119,7 @@ fun FilterCondition (
                                     if (dragging) Modifier.background(Color.LightGray)
                                     else Modifier
                                 Row(
-                                    modifier = modifier,
+                                    modifier = modifier.clickable{ onClick(criterion.id) },
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
                                     Box(
