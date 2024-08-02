@@ -25,7 +25,7 @@ import kotlin.math.roundToInt
 
 object SwipeOut {
 
-    enum class Anchors { Left, Center, Right }
+    enum class Anchors { Left, LeftStop, Center, RightStop, Right }
 
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
@@ -40,17 +40,20 @@ object SwipeOut {
             with(LocalDensity.current) {
                 LocalConfiguration.current.screenWidthDp.dp.roundToPx()
             }
+        val iconGap = with(LocalDensity.current) { 64.dp.roundToPx().toFloat() }
         val half = (screenWidthPx / 2).toFloat()
 
         val dragState = remember {
             AnchoredDraggableState(
                 initialValue = Anchors.Center,
                 anchors = DraggableAnchors<Anchors> {
-                    Anchors.Left at -(half)
+                    Anchors.Left at -half * 3/2
+                    Anchors.LeftStop at -iconGap
                     Anchors.Center at 0f
-                    Anchors.Right at half
+                    Anchors.RightStop at iconGap
+                    Anchors.Right at half * 3/2
                 },
-                positionalThreshold = { distance: Float -> distance * 10f },
+                positionalThreshold = { _ -> iconGap/4 },
                 velocityThreshold = { 100f },
                 animationSpec = tween()
             )
@@ -77,7 +80,7 @@ object SwipeOut {
                             y = 0
                         )
                     }
-                    .background(Color.White)
+                    .background(Color.White) // MUST BE AFTER .offset modifier (?!?!)
                     .anchoredDraggable(dragState, Orientation.Horizontal, reverseDirection = false)
             ) {
                 content()
