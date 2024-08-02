@@ -76,9 +76,6 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
     override val defaultIcon: Int = CustomIcons.FILTER
 
     private lateinit var _criteria: SnapshotStateList<CriterionInstance>
-    //= ArrayList<CriterionInstance>().toMutableStateList()
-    //MutableState<MutableList<CriterionInstance>> = mutableStateOf(ArrayList())
-    //MutableState<List<CriterionInstance>> = mutableStateOf( emptyList() )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         filter = intent.getParcelableExtra(TOKEN_FILTER)
