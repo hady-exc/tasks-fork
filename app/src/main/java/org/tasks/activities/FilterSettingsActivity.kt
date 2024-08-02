@@ -7,25 +7,15 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.widget.EditText
 import android.widget.FrameLayout
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.requiredHeight
-import androidx.compose.material.Text
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.unit.dp
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButtonToggleGroup
-import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -85,7 +75,8 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
         get() = _criteria
     override val defaultIcon: Int = CustomIcons.FILTER
 
-    private lateinit var _criteria: SnapshotStateList<CriterionInstance> //= ArrayList<CriterionInstance>().toMutableStateList()
+    private lateinit var _criteria: SnapshotStateList<CriterionInstance>
+    //= ArrayList<CriterionInstance>().toMutableStateList()
     //MutableState<MutableList<CriterionInstance>> = mutableStateOf(ArrayList())
     //MutableState<List<CriterionInstance>> = mutableStateOf( emptyList() )
 
@@ -119,7 +110,8 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
         composeView.setContent {
             FilterCondition(
                 _criteria,
-                { index -> onDelete(index) }
+                { index -> onDelete(index) },
+                { from, to -> onMove(from, to) }
             )
         }
 
