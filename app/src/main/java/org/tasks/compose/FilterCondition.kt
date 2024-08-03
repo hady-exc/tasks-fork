@@ -15,14 +15,18 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
+import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -39,7 +43,6 @@ import com.todoroo.astrid.core.CriterionInstance
 import org.tasks.R
 import org.tasks.compose.SwipeOut.SwipeOut
 import org.tasks.extensions.formatNumber
-
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -195,3 +198,41 @@ private fun SwipeOutDecoration(onClick: () -> Unit = {}) {
         }
     }
 } /* end SwipeOutDecoration */
+
+@Composable
+fun AddCriteriaButton(
+    isExtended: MutableState<Boolean>,
+    onClick: () -> Unit
+) {
+    Box( // lays out over main content as space to layout FAB
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.BottomEnd
+    ) {
+
+        FloatingActionButton(
+            onClick = onClick,
+            modifier = Modifier.padding(8.dp),
+            shape = RoundedCornerShape(50),
+            backgroundColor = MaterialTheme.colors.secondary,
+            contentColor = Color.White,
+        ) {
+
+            val extended = isExtended.value
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = "New Criteria",
+                    modifier = Modifier.padding(
+                        start = if (extended) 16.dp else 0.dp
+                    )
+                )
+                if (extended)
+                    Text(
+                        text = LocalContext.current.getString(R.string.CFA_button_add),
+                        modifier = Modifier.padding(end = 16.dp)
+                    )
+            }
+        } /* end FloatingActionButton */
+    }
+}

@@ -9,15 +9,19 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.FrameLayout
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButtonToggleGroup
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -36,22 +40,20 @@ import com.todoroo.astrid.api.PermaSql
 import com.todoroo.astrid.api.TextInputCriterion
 import com.todoroo.astrid.core.CriterionInstance
 import com.todoroo.astrid.core.CustomFilterAdapter
-import com.todoroo.astrid.core.CustomFilterItemTouchHelper
 import com.todoroo.astrid.dao.Database
 import com.todoroo.astrid.data.Task
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.tasks.R
 import org.tasks.Strings
+import org.tasks.compose.AddCriteriaButton
 import org.tasks.compose.FilterCondition
-import org.tasks.compose.drawer.DrawerSnackBar
 import org.tasks.compose.drawer.ListSettingsDrawer
 import org.tasks.data.Filter
 import org.tasks.data.FilterDao
 import org.tasks.data.TaskDao.TaskCriteria.activeAndVisible
 import org.tasks.databinding.FilterSettingsActivityBinding
 import org.tasks.db.QueryUtils
-import org.tasks.extensions.Context.hideKeyboard
 import org.tasks.extensions.Context.openUri
 import org.tasks.extensions.hideKeyboard
 import org.tasks.filters.FilterCriteriaProvider
@@ -83,6 +85,8 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
         get() = true
 
     private lateinit var _criteria: SnapshotStateList<CriterionInstance>
+    private val fabExtended = mutableStateOf(false)
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         filter = intent.getParcelableExtra(TOKEN_FILTER)
@@ -105,7 +109,8 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                 setCriteria(filterCriteriaProvider.fromString(filter!!.criterion))
             }
             intent.hasExtra(EXTRA_CRITERIA) -> lifecycleScope.launch {
-                name.setText(intent.getStringExtra(EXTRA_TITLE))
+                //name.setText(intent.getStringExtra(EXTRA_TITLE))
+                textState.value = intent.getStringExtra(EXTRA_TITLE) ?: ""
                 setCriteria(
                     filterCriteriaProvider.fromString(intent.getStringExtra(EXTRA_CRITERIA)!!)
                 )
@@ -129,35 +134,45 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                 .attachToRecyclerView(recyclerView)
 */
         if (isNew) {
-            toolbar.inflateMenu(R.menu.menu_help)
+            // toolbar.inflateMenu(R.menu.menu_help) TODO(introduce @composable in BaseListSettingActivity)
         }
 
         setContent {
-            ListSettingsDrawer(
-                title = toolbarTitle,
-                isNew = isNew,
-                text = textState,
-                error = errorState,
-                color = colorState,
-                icon = iconState,
-                delete = { lifecycleScope.launch { promptDelete() } },
-                save = { lifecycleScope.launch { save() } },
-                selectColor = { showThemePicker() },
-                clearColor = { clearColor() },
-                selectIcon = { showIconPicker() },
-                showProgress = showProgress
-            ) {
-                FilterCondition(
-                    _criteria,
-                    { index -> onDelete(index) },
-                    { from, to -> onMove(from, to) },
-                    { id -> onClick(id) }
-                )
+            MdcTheme {
+                Box(  // to layout FAB over the main content
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.TopStart
+                ) {
+                    ListSettingsDrawer(
+                        title = toolbarTitle,
+                        isNew = isNew,
+                        text = textState,
+                        error = errorState,
+                        color = colorState,
+                        icon = iconState,
+                        delete = { lifecycleScope.launch { promptDelete() } },
+                        save = { lifecycleScope.launch { save() } },
+                        selectColor = { showThemePicker() },
+                        clearColor = { clearColor() },
+                        selectIcon = { showIconPicker() },
+                        showProgress = showProgress
+                    ) {
+                        FilterCondition(
+                            _criteria,
+                            { index -> onDelete(index) },
+                            { from, to -> onMove(from, to) },
+                            { id -> onClick(id) }
+                        )
+                    }
+                    AddCriteriaButton(fabExtended, { addCriteria() })
+                }
             }
         }
 
         updateTheme()
-    }
+
+    } /* end onCreate */
+
 
     private fun universe() = listOf(CriterionInstance().apply {
         criterion = filterCriteriaProvider.startingUniverse
@@ -165,7 +180,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
     })
 
     private fun setCriteria(criteria: List<CriterionInstance>) {
-        this._criteria = criteria  // !!!
+        this._criteria = criteria
                 .ifEmpty { universe() }
                 .toMutableStateList()
 /*
@@ -173,6 +188,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
         recyclerView.adapter = adapter
         fab.isExtended = isNew || adapter.itemCount <= 1
 */
+        fabExtended.value = isNew || _criteria.size <= 1
         updateList()
     }
 
@@ -188,7 +204,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
     }
 
     private fun onClick(replaceId: String) {
-///* !!!
+    // TODO(replace by Composable)
         val criterionInstance = criteria.find { it.id == replaceId }!!
         val view = layoutInflater.inflate(R.layout.dialog_custom_filter_row_edit, window.decorView.rootView as ViewGroup, false)
         val group: MaterialButtonToggleGroup = view.findViewById(R.id.button_toggle)
@@ -204,7 +220,6 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                 }
                 .setNeutralButton(R.string.help) { _, _ -> help() }
                 .show()
-//*/
     }
 
     private fun getSelected(instance: CriterionInstance): Int =
@@ -223,7 +238,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
 
     private fun addCriteria() {
         hideKeyboard()
-        fab.shrink()
+        fabExtended.value = false //  fab.shrink()
         lifecycleScope.launch {
             val all = filterCriteriaProvider.all()
             val names = all.map(CustomFilterCriterion::getName)
@@ -241,7 +256,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
         }
     }
 
-    /** Show options menu for the given criterioninstance  */
+    /** Show options menu for the given CriterionInstance  */
     private fun showOptionsFor(item: CriterionInstance, onComplete: Runnable?) {
         if (item.criterion is BooleanCriterion) {
             onComplete?.run()
