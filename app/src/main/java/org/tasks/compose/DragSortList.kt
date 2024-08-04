@@ -1,6 +1,5 @@
 package org.tasks.compose
 
-import android.util.Log
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -28,6 +27,7 @@ import kotlinx.coroutines.launch
 class DragDropState internal constructor(
     val state: LazyListState,
     private val scope: CoroutineScope,
+    private val confirmDrag: (Int) -> Boolean,
     private val onSwap: (Int, Int) -> Unit
 ) {
     /* primary ID of the item being dragged */
@@ -36,8 +36,6 @@ class DragDropState internal constructor(
     private var draggedDistance by mutableFloatStateOf(0f)
     private var draggingElementOffset: Int = 0 // cached drugged element offset and size
     private var draggingElementSize: Int = -1  // size must not be negative when dragging is in progress
-
-    //private var draggingElement: LazyListItemInfo? = null
 
     /* for use in animation, so cached values are unacceptable */
     internal val draggingItemOffset: Float
@@ -53,9 +51,8 @@ class DragDropState internal constructor(
         }
 
     fun startDragging(item: LazyListItemInfo?) {
-        Log.d("HADY", "start dragging ${item}")
-        //draggingElement = item
-        if (item != null) {
+        //Log.d("HADY", "start dragging ${item}")
+        if (item != null && confirmDrag(item.index)) {
             draggedItemIndex = item.index
             draggingElementOffset = item.offset
             draggingElementSize = item.size
@@ -74,9 +71,8 @@ class DragDropState internal constructor(
 
         draggedDistance += offset.y
 
-        if (draggedDistance != 0f) {
-            /* It is supposed that non-zero distance is possible only if dragged
-            * element exists. The "assert" below guards this assumption  */
+        //if (draggedDistance != 0f) {
+        if (draggedItemIndex != null) {
             assert(draggingElementSize >= 0) { "FATAL: Invalid dragging element" }
 
             val startOffset = draggingElementOffset + draggedDistance
@@ -106,6 +102,7 @@ class DragDropState internal constructor(
 @Composable
 fun rememberDragDropState(
     lazyListState: LazyListState,
+    confirmDrag: (Int) -> Boolean = { true },
     onSwap: (Int, Int) -> Unit
 ): DragDropState {
     val scope = rememberCoroutineScope()
@@ -113,7 +110,8 @@ fun rememberDragDropState(
         DragDropState(
             state = lazyListState,
             onSwap = onSwap,
-            scope = scope
+            scope = scope,
+            confirmDrag = confirmDrag
         )
     }
     return state
