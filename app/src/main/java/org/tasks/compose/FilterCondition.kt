@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -41,11 +40,12 @@ import com.todoroo.astrid.core.CriterionInstance
 import org.tasks.R
 import org.tasks.compose.SwipeOut.SwipeOut
 import org.tasks.extensions.formatNumber
+import java.util.Locale
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FilterCondition (
-    items: SnapshotStateList<CriterionInstance>,  //MutableState<MutableList<CriterionInstance>>, //State<List<CriterionInstance>>,
+    items: SnapshotStateList<CriterionInstance>,
     onDelete: (Int) -> Unit,
     doSwap: (Int, Int) -> Unit,
     onClick: (String) -> Unit
@@ -71,19 +71,25 @@ fun FilterCondition (
 
     }
 
+/*
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
+            //modifier = Modifier
+            //    .fillMaxWidth()
                 //.verticalScroll(state = rememberScrollState())
         ) {
+*/
 
         val listState = rememberLazyListState()
-        val dragDropState = rememberDragDropState(listState) { fromIndex, toIndex ->
-            doSwap(fromIndex, toIndex)
+        val dragDropState = rememberDragDropState(
+            lazyListState = listState,
+            confirmDrag = { index -> index != 0 }
+        ) { fromIndex, toIndex ->
+            if (fromIndex != 0 && toIndex != 0) doSwap(fromIndex, toIndex)
         }
 
-        Column (/*modifier = Modifier.verticalScroll(rememberScrollState())*/) {
+        //Column (/*modifier = Modifier.verticalScroll(rememberScrollState())*/) {
 
+        Row {
             Text(
                 text = LocalContext.current.getString(R.string.custom_filter_criteria), //"Header will be here",  //R.string.custom_filter_criteria
                 color = MaterialTheme.colors.secondary,
@@ -91,94 +97,94 @@ fun FilterCondition (
                     .fillMaxWidth()
                     .padding(16.dp)
             )
-
+        }
+        Row {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .doDrag(dragDropState),
-                    //.verticalScroll(state = rememberScrollState()),
+                modifier = Modifier.fillMaxSize().doDrag(dragDropState),
                 userScrollEnabled = true,
                 state = listState
             ) {
-/*
-                item {
-                    Text(
-                        text = LocalContext.current.getString(R.string.custom_filter_criteria), //"Header will be here",  //R.string.custom_filter_criteria
-                        color = MaterialTheme.colors.secondary,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    )
-                }
-*/
                 itemsIndexed(
                     items = items,
                     key = { _, item -> item.id }
                 ) { index, criterion ->
-                    DraggableItem(
-                        dragDropState = dragDropState, index = index
-                    ) { dragging ->
-                        SwipeOut(
-                            decoration = { SwipeOutDecoration{ onDelete(index) } },
-                            onSwipe = { index -> onDelete(index) },
-                            index = index
-                        ) {
-
-                            Divider(
-                                color = when (criterion.type) {
-                                    CriterionInstance.TYPE_ADD -> Color.LightGray
-                                    else -> Color.Transparent
-                                }
-                            )
-
-                            val modifier =
-                                if (dragging) Modifier.background(Color.LightGray)
-                                else Modifier
-                            Row(
-                                modifier = modifier.clickable{ onClick(criterion.id) },
-                                verticalAlignment = Alignment.CenterVertically,
+                    if (index == 0) {
+                        FilterConditionRow(criterion, false, getIcon, onClick)
+                    } else {
+                        DraggableItem(
+                            dragDropState = dragDropState, index = index
+                        ) { dragging ->
+                            SwipeOut(
+                                decoration = { SwipeOutDecoration { onDelete(index) } },
+                                onSwipe = { index -> onDelete(index) },
+                                index = index
                             ) {
-                                Box(
-                                    modifier = Modifier.requiredSize(56.dp),
-                                    contentAlignment = Alignment.Center
-                                )
-                                {
-                                    if (criterion.type != CriterionInstance.TYPE_UNIVERSE) {
-                                        Icon(
-                                            painter = painterResource(id = getIcon(criterion)),
-                                            contentDescription = null
-                                        )
-                                    }
-                                }
-                                Text(
-                                    text = criterion.titleFromCriterion,
-                                    fontSize = 17.sp,
-                                    modifier = Modifier
-                                        .weight(0.8f)
-                                        .padding(start = 20.dp, top = 16.dp, bottom = 16.dp)
-                                )
-                                val context = LocalContext.current
-                                val locale = remember {
-                                    ConfigurationCompat
-                                        .getLocales(context.resources.configuration)
-                                        .get(0)
-                                        ?: java.util.Locale.getDefault()
-                                }
-                                Text(
-                                    text = locale.formatNumber(criterion.max),
-                                    modifier = Modifier.padding(16.dp),
-                                    color = Color.Gray,
-                                    fontSize = 14.sp,
-                                    textAlign = TextAlign.End
-                                )
+                                FilterConditionRow(criterion, dragging, getIcon, onClick )
                             }
                         }
                     }
                 }
             }
         }
-    }
+    //}
 } /* FilterCondition */
+
+@Composable
+private fun FilterConditionRow(
+    criterion: CriterionInstance,
+    dragging: Boolean,
+    getIcon: (CriterionInstance) -> Int,
+    onClick: (String) -> Unit
+) {
+    Divider(
+        color = when (criterion.type) {
+            CriterionInstance.TYPE_ADD -> Color.LightGray
+            else -> Color.Transparent
+        }
+    )
+
+    val modifier =
+        if (dragging) Modifier.background(Color.LightGray)
+        else Modifier
+    Row(
+        modifier = modifier.clickable { onClick(criterion.id) },
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier = Modifier.requiredSize(56.dp),
+            contentAlignment = Alignment.Center
+        )
+        {
+            if (criterion.type != CriterionInstance.TYPE_UNIVERSE) {
+                Icon(
+                    painter = painterResource(id = getIcon(criterion)),
+                    contentDescription = null
+                )
+            }
+        }
+        Text(
+            text = criterion.titleFromCriterion,
+            fontSize = 17.sp,
+            modifier = Modifier
+                .weight(0.8f)
+                .padding(start = 20.dp, top = 16.dp, bottom = 16.dp)
+        )
+        val context = LocalContext.current
+        val locale = remember {
+            ConfigurationCompat
+                .getLocales(context.resources.configuration)
+                .get(0)
+                ?: Locale.getDefault()
+        }
+        Text(
+            text = locale.formatNumber(criterion.max),
+            modifier = Modifier.padding(16.dp),
+            color = Color.Gray,
+            fontSize = 14.sp,
+            textAlign = TextAlign.End
+        )
+    }
+}
 
 @Composable
 private fun SwipeOutDecoration(onClick: () -> Unit = {}) {

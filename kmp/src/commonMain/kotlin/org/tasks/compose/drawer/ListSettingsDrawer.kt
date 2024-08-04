@@ -50,7 +50,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.android.material.composethemeadapter.MdcTheme
 import kotlinx.coroutines.delay
 import org.tasks.R
 import org.tasks.compose.DeleteButton
@@ -293,15 +292,13 @@ private fun SelectIcon(
 
 @Composable
 fun DrawerSurface(content: @Composable ColumnScope.() -> Unit) {
-    MdcTheme {
-        ProvideTextStyle(LocalTextStyle.current.copy(fontSize = 18.sp)) {
-            Surface(
-                color = colorResource(id = R.color.window_background),
-                contentColor = colorResource(id = R.color.text_primary)
-            ) {
-                Column( modifier = Modifier.fillMaxSize() )
-                    { content() }
-            }
+    ProvideTextStyle(LocalTextStyle.current.copy(fontSize = 18.sp)) {
+        Surface(
+            color = colorResource(id = R.color.window_background),
+            contentColor = colorResource(id = R.color.text_primary)
+        ) {
+            Column( modifier = Modifier.fillMaxSize() )
+                { content() }
         }
     }
 }
