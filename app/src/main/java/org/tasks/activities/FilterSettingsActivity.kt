@@ -208,7 +208,10 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
 
     private fun onClick(replaceId: String) {
     // TODO(replace by Composable)
-        val criterionInstance = criteria.find { it.id == replaceId }!!
+        val index = criteria.indexOfFirst { it.id == replaceId }
+        assert(index >= 0)
+        //val criterionInstance = criteria.find { it.id == replaceId }!!
+        val criterionInstance = criteria[index]
         val view = layoutInflater.inflate(R.layout.dialog_custom_filter_row_edit, window.decorView.rootView as ViewGroup, false)
         val group: MaterialButtonToggleGroup = view.findViewById(R.id.button_toggle)
         val selected = getSelected(criterionInstance)
@@ -219,6 +222,8 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.ok) { _, _ ->
                     criterionInstance.type = getType(group.checkedButtonId)
+                    _criteria.removeAt(index)  // remove - add pair triggers the item recomposition
+                    _criteria.add(index,criterionInstance)
                     updateList()
                 }
                 .setNeutralButton(R.string.help) { _, _ -> help() }
