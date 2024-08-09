@@ -37,7 +37,7 @@ class DragDropState internal constructor(
     private var draggingElementOffset: Int = 0 // cached drugged element offset and size
     private var draggingElementSize: Int = -1  // size must not be negative when dragging is in progress
 
-    /* for use in animation, so cached values are unacceptable */
+    /* sibling of draggingElementOffset, not cached, for use in animation  */
     internal val draggingItemOffset: Float
         get() = state.layoutInfo.visibleItemsInfo
             .firstOrNull { it.index == draggedItemIndex }
