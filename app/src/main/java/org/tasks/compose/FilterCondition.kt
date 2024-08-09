@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,7 +25,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -35,6 +38,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.core.os.ConfigurationCompat
 import com.todoroo.astrid.core.CriterionInstance
 import org.tasks.R
@@ -100,7 +104,9 @@ fun FilterCondition (
         }
         Row {
             LazyColumn(
-                modifier = Modifier.fillMaxSize().doDrag(dragDropState),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .doDrag(dragDropState),
                 userScrollEnabled = true,
                 state = listState
             ) {
@@ -251,5 +257,66 @@ fun AddCriteriaButton(
                     )
             }
         } /* end FloatingActionButton */
+    }
+}
+
+
+@Composable
+fun ToggleGroup (
+    items: List<String>,
+    selected: MutableIntState = remember { mutableIntStateOf( 0 ) }
+) {
+    assert(selected.value in items.indices)
+    Row {
+        for (index in items.indices) {
+            val highlight = (index == selected.value)
+            Text(
+                text = items[index],
+                modifier = Modifier
+                    .padding(horizontal = 20.dp, vertical = 12.dp)
+                    .clickable { selected.value = index }
+                    .background(
+                        color =
+                        if (highlight) Color.Red.copy(alpha = 0.3f)
+                        else Color.Transparent
+                    )
+            )
+        }
+    }
+}
+
+@Composable
+fun SelectCriterionType(
+    title: String,
+    selected: Int,
+    types: List<String>,
+    onCancel: () -> Unit,
+    onSelected: (Int) -> Unit
+) {
+    val selected = remember { mutableIntStateOf(selected) }
+    Dialog(onDismissRequest = onCancel)
+    {
+        Column {
+            Text(
+                text = title,
+                color = MaterialTheme.colors.onSurface,
+                style = MaterialTheme.typography.body1,
+            )
+            ToggleGroup(items = types, selected = selected)
+            Row {
+                Text(
+                    text = "Cancel",
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .clickable { onCancel() }
+                )
+                Text(
+                    text = "OK",
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .clickable { onSelected(selected.value) }
+                )
+            }
+        }
     }
 }

@@ -11,12 +11,14 @@ import android.widget.FrameLayout
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.stringResource
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
@@ -48,6 +50,7 @@ import org.tasks.R
 import org.tasks.Strings
 import org.tasks.compose.AddCriteriaButton
 import org.tasks.compose.FilterCondition
+import org.tasks.compose.SelectCriterionType
 import org.tasks.compose.drawer.ListSettingsDrawer
 import org.tasks.data.Filter
 import org.tasks.data.FilterDao
@@ -86,7 +89,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
 
     private lateinit var _criteria: SnapshotStateList<CriterionInstance>
     private val fabExtended = mutableStateOf(false)
-
+    private val editTypeId: MutableState<String?> = mutableStateOf(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         filter = intent.getParcelableExtra(TOKEN_FILTER)
@@ -161,10 +164,44 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                             _criteria,
                             { index -> onDelete(index) },
                             { from, to -> onMove(from, to) },
-                            { id -> onClick(id) }
+                            { id -> editTypeId.value = id }
                         )
                     }
                     AddCriteriaButton(fabExtended, { addCriteria() })
+
+                    if (editTypeId.value != null) {
+                        val index = _criteria.indexOfFirst { it.id == editTypeId.value }
+                        assert(index >= 0)
+                        val criterionInstance = criteria[index]
+
+                        SelectCriterionType(
+                            title = criterionInstance.titleFromCriterion,
+                            selected = when (criterionInstance.type) {
+                                CriterionInstance.TYPE_INTERSECT -> 0
+                                CriterionInstance.TYPE_ADD -> 1
+                                else -> 2
+                            },
+                            types = listOf(
+                                stringResource(R.string.custom_filter_and),
+                                stringResource(R.string.custom_filter_or),
+                                stringResource(R.string.custom_filter_not)
+                            ),
+                            onCancel = { editTypeId.value = null }
+                        ) {
+                            val type = when (it) {
+                                0 -> CriterionInstance.TYPE_INTERSECT
+                                1 -> CriterionInstance.TYPE_ADD
+                                else -> CriterionInstance.TYPE_SUBTRACT
+                            }
+                            if (criterionInstance.type != type) {
+                                criterionInstance.type = type
+                                _criteria.removeAt(index)  // remove - add pair triggers the item recomposition
+                                _criteria.add(index,criterionInstance)
+                                updateList()
+                            }
+                            editTypeId.value = null
+                        }
+                    }
                 }
             }
         }
