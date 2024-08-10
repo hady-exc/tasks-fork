@@ -2,6 +2,7 @@ package org.tasks.compose
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,12 +10,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
@@ -35,10 +39,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.zIndex
 import androidx.core.os.ConfigurationCompat
 import com.todoroo.astrid.core.CriterionInstance
 import org.tasks.R
@@ -58,81 +64,64 @@ fun FilterCondition (
     val getIcon: (CriterionInstance) -> Int = { criterion ->
         when (criterion.type) {
             CriterionInstance.TYPE_ADD -> {
-
                 R.drawable.ic_call_split_24px
-                //divider.visibility = View.VISIBLE
             }
             CriterionInstance.TYPE_SUBTRACT -> {
                 R.drawable.ic_outline_not_interested_24px
-                //divider.visibility = View.GONE
             }
             CriterionInstance.TYPE_INTERSECT -> {
                 R.drawable.ic_outline_add_24px
-                //divider.visibility = View.GONE
             }
             else -> { 0 }  /* assert */
-        }
-
+       }
+    }
+    val listState = rememberLazyListState()
+    val dragDropState = rememberDragDropState(
+        lazyListState = listState,
+        confirmDrag = { index -> index != 0 }
+    ) { fromIndex, toIndex ->
+        if (fromIndex != 0 && toIndex != 0) doSwap(fromIndex, toIndex)
     }
 
-/*
-        Box(
-            //modifier = Modifier
-            //    .fillMaxWidth()
-                //.verticalScroll(state = rememberScrollState())
+    Row {
+        Text(
+            text = LocalContext.current.getString(R.string.custom_filter_criteria), //"Header will be here",  //R.string.custom_filter_criteria
+            color = MaterialTheme.colors.secondary,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        )
+    }
+    Row {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .doDrag(dragDropState),
+            userScrollEnabled = true,
+            state = listState
         ) {
-*/
-
-        val listState = rememberLazyListState()
-        val dragDropState = rememberDragDropState(
-            lazyListState = listState,
-            confirmDrag = { index -> index != 0 }
-        ) { fromIndex, toIndex ->
-            if (fromIndex != 0 && toIndex != 0) doSwap(fromIndex, toIndex)
-        }
-
-        //Column (/*modifier = Modifier.verticalScroll(rememberScrollState())*/) {
-
-        Row {
-            Text(
-                text = LocalContext.current.getString(R.string.custom_filter_criteria), //"Header will be here",  //R.string.custom_filter_criteria
-                color = MaterialTheme.colors.secondary,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            )
-        }
-        Row {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .doDrag(dragDropState),
-                userScrollEnabled = true,
-                state = listState
-            ) {
-                itemsIndexed(
-                    items = items,
-                    key = { _, item -> item.id }
-                ) { index, criterion ->
-                    if (index == 0) {
-                        FilterConditionRow(criterion, false, getIcon, onClick)
-                    } else {
-                        DraggableItem(
-                            dragDropState = dragDropState, index = index
-                        ) { dragging ->
-                            SwipeOut(
-                                decoration = { SwipeOutDecoration { onDelete(index) } },
-                                onSwipe = { index -> onDelete(index) },
-                                index = index
-                            ) {
-                                FilterConditionRow(criterion, dragging, getIcon, onClick )
-                            }
+            itemsIndexed(
+                items = items,
+                key = { _, item -> item.id }
+            ) { index, criterion ->
+                if (index == 0) {
+                    FilterConditionRow(criterion, false, getIcon, onClick)
+                } else {
+                    DraggableItem(
+                        dragDropState = dragDropState, index = index
+                    ) { dragging ->
+                        SwipeOut(
+                            decoration = { SwipeOutDecoration { onDelete(index) } },
+                            onSwipe = { index -> onDelete(index) },
+                            index = index
+                        ) {
+                            FilterConditionRow(criterion, dragging, getIcon, onClick )
                         }
                     }
                 }
             }
         }
-    //}
+    }
 } /* FilterCondition */
 
 @Composable
@@ -258,32 +247,7 @@ fun AddCriteriaButton(
             }
         } /* end FloatingActionButton */
     }
-}
-
-
-@Composable
-fun ToggleGroup (
-    items: List<String>,
-    selected: MutableIntState = remember { mutableIntStateOf( 0 ) }
-) {
-    assert(selected.value in items.indices)
-    Row {
-        for (index in items.indices) {
-            val highlight = (index == selected.value)
-            Text(
-                text = items[index],
-                modifier = Modifier
-                    .padding(horizontal = 20.dp, vertical = 12.dp)
-                    .clickable { selected.value = index }
-                    .background(
-                        color =
-                        if (highlight) Color.Red.copy(alpha = 0.3f)
-                        else Color.Transparent
-                    )
-            )
-        }
-    }
-}
+} /* end AddCriteriaButton */
 
 @Composable
 fun SelectCriterionType(
@@ -291,32 +255,98 @@ fun SelectCriterionType(
     selected: Int,
     types: List<String>,
     onCancel: () -> Unit,
+    help: () -> Unit = {},
     onSelected: (Int) -> Unit
 ) {
     val selected = remember { mutableIntStateOf(selected) }
+    
     Dialog(onDismissRequest = onCancel)
     {
-        Column {
-            Text(
-                text = title,
-                color = MaterialTheme.colors.onSurface,
-                style = MaterialTheme.typography.body1,
-            )
-            ToggleGroup(items = types, selected = selected)
-            Row {
+        Card(
+            backgroundColor = MaterialTheme.colors.background
+        ) {
+            Column (modifier = Modifier.padding(horizontal = 20.dp)){
                 Text(
-                    text = "Cancel",
+                    text = title,
+                    color = MaterialTheme.colors.onSurface,
+                    style = MaterialTheme.typography.body1,
                     modifier = Modifier
-                        .padding(12.dp)
-                        .clickable { onCancel() }
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .padding(top = 16.dp)
                 )
-                Text(
-                    text = "OK",
-                    modifier = Modifier
-                        .padding(12.dp)
-                        .clickable { onSelected(selected.value) }
-                )
+                ToggleGroup(items = types, selected = selected)
+                Row (
+                    modifier = Modifier.height(48.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box( contentAlignment = Alignment.CenterStart ) {
+                        Text(
+                            text = stringResource(R.string.help).uppercase(),
+                            color = MaterialTheme.colors.secondary,
+                            modifier = Modifier.clickable { help() }
+                        )
+                    }
+                    Box(
+                        contentAlignment = Alignment.CenterEnd,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row {
+                            Text(
+                                text = stringResource(R.string.cancel).uppercase(),
+                                color = MaterialTheme.colors.secondary,
+                                modifier = Modifier.padding(start = 16.dp).clickable { onCancel() }
+                            )
+                            Text(
+                                text = stringResource(R.string.ok).uppercase(),
+                                color = MaterialTheme.colors.secondary,
+                                modifier = Modifier.padding(start = 16.dp).clickable { onSelected(selected.value) }
+                            )
+                        }
+                    }
+                }
             }
         }
     }
-}
+} /* end SelectCriterionType */
+
+@Composable
+fun ToggleGroup (
+    items: List<String>,
+    selected: MutableIntState = remember { mutableIntStateOf( 0 ) }
+) {
+    assert(selected.value in items.indices)
+
+    Box(
+        modifier = Modifier.fillMaxWidth().height(48.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row {
+            for (index in items.indices) {
+                val highlight = (index == selected.value)
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .width(88.dp)
+                        .background(
+                            color =
+                            if (highlight) MaterialTheme.colors.secondary.copy(alpha = 0.3f)
+                            else Color.Transparent
+                        )
+                        .clickable { selected.value = index }
+                        .border(
+                            width = (1.5).dp,
+                            color = if (highlight) MaterialTheme.colors.secondary else Color.LightGray
+                        )
+                        .zIndex(zIndex = if (highlight) 1f else 0f)
+                ) {
+                    Text(
+                        text = items[index],
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                    )
+                }
+            }
+        }
+    }
+} /* end ToggleGroup */
