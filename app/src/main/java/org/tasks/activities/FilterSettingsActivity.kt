@@ -189,6 +189,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                                 stringResource(R.string.custom_filter_or),
                                 stringResource(R.string.custom_filter_not)
                             ),
+                            help = { help() },
                             onCancel = { editTypeId.value = null }
                         ) {
                             val type = when (it) {
