@@ -44,7 +44,7 @@ object SwipeOut {
         val dragState = remember {
             AnchoredDraggableState(
                 initialValue = Anchors.Center,
-                anchors = DraggableAnchors<Anchors> {
+                anchors = DraggableAnchors {
                     Anchors.Left at -screenWidthPx * 3/4
                     Anchors.Center at 0f
                     Anchors.Right at screenWidthPx * 3/4

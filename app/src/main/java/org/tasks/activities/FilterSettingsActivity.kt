@@ -212,37 +212,41 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                     /** Show options menu for the given CriterionInstance  */
                     newCriterionOptions.value?.let { instance ->
 
-                        if (instance.criterion is MultipleSelectCriterion) {
-                            val multiSelectCriterion = instance.criterion as MultipleSelectCriterion
-                            val list = multiSelectCriterion.entryTitles.toList()
-                            SelectFromList(
-                                names = list,
-                                title = instance.criterion.name,
-                                onCancel = { newCriterionOptions.value = null },
-                                onSelected = { which ->
-                                    instance.selectedIndex = which
-                                    criteria.add(instance)
-                                    updateList()
-                                    newCriterionOptions.value = null
-                                }
-                            )
+                        when (instance.criterion) {
+                            is MultipleSelectCriterion -> {
+                                val multiSelectCriterion = instance.criterion as MultipleSelectCriterion
+                                val list = multiSelectCriterion.entryTitles.toList()
+                                SelectFromList(
+                                    names = list,
+                                    title = instance.criterion.name,
+                                    onCancel = { newCriterionOptions.value = null },
+                                    onSelected = { which ->
+                                        instance.selectedIndex = which
+                                        criteria.add(instance)
+                                        updateList()
+                                        newCriterionOptions.value = null
+                                    }
+                                )
+                            }
 
-                        } else if (instance.criterion is TextInputCriterion) {
-                            val textInCriterion = instance.criterion as TextInputCriterion
-                            val editText = remember { mutableStateOf(instance.selectedText?: "") }
-                            InputTextOption (
-                                title = textInCriterion.name,
-                                text = editText,
-                                onCancel = { newCriterionOptions.value = null },
-                                onDone = {
-                                    instance.selectedText = editText.value
-                                    criteria.add(instance)
-                                    updateList()
-                                    newCriterionOptions.value = null
-                                }
-                            )
+                            is TextInputCriterion -> {
+                                val textInCriterion = instance.criterion as TextInputCriterion
+                                val editText = remember { mutableStateOf(instance.selectedText?: "") }
+                                InputTextOption (
+                                    title = textInCriterion.name,
+                                    text = editText,
+                                    onCancel = { newCriterionOptions.value = null },
+                                    onDone = {
+                                        instance.selectedText = editText.value
+                                        criteria.add(instance)
+                                        updateList()
+                                        newCriterionOptions.value = null
+                                    }
+                                )
+                            }
 
-                        } else assert(false) { "Unexpected Criterion type" }
+                            else -> assert(false) { "Unexpected Criterion type" }
+                        }
                     } /* end given criteria options dialog */
                 }
             }
