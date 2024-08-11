@@ -62,23 +62,8 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
     @Inject lateinit var database: Database
     @Inject lateinit var filterCriteriaProvider: FilterCriteriaProvider
 
-/*
-    */
-/* TODO(eliminate all) *//*
-
-    private lateinit var name: TextInputEditText
-    private lateinit var nameLayout: TextInputLayout
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var composeView: ComposeView
-    private lateinit var fab: ExtendedFloatingActionButton
-*/
 
     private var filter: CustomFilter? = null
-    //private lateinit var adapter: CustomFilterAdapter /* TODO(eliminate) */
-/*
-    private var criteria: MutableList<CriterionInstance> = ArrayList()
-        get() = _criteria
-*/
     override val defaultIcon: Int = CustomIcons.FILTER
 
     override val compose: Boolean
@@ -275,48 +260,6 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
         criteria.add(to, criterion)
     }
 
-/*
-    private fun onClick(replaceId: String) {
-    // TODO(replace by Composable)
-        val index = criteria.indexOfFirst { it.id == replaceId }
-        assert(index >= 0)
-        //val criterionInstance = criteria.find { it.id == replaceId }!!
-        val criterionInstance = criteria[index]
-        val view = layoutInflater.inflate(R.layout.dialog_custom_filter_row_edit, window.decorView.rootView as ViewGroup, false)
-        val group: MaterialButtonToggleGroup = view.findViewById(R.id.button_toggle)
-        val selected = getSelected(criterionInstance)
-        group.check(selected)
-        dialogBuilder
-                .newDialog(criterionInstance.titleFromCriterion)
-                .setView(view)
-                .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.ok) { _, _ ->
-                    criterionInstance.type = getType(group.checkedButtonId)
-                    _criteria.removeAt(index)  // remove - add pair triggers the item recomposition
-                    _criteria.add(index,criterionInstance)
-                    updateList()
-                }
-                .setNeutralButton(R.string.help) { _, _ -> help() }
-                .show()
-    }
-*/
-
-/*
-    private fun getSelected(instance: CriterionInstance): Int =
-        when (instance.type) {
-            CriterionInstance.TYPE_ADD -> R.id.button_or
-            CriterionInstance.TYPE_SUBTRACT -> R.id.button_not
-            else -> R.id.button_and
-        }
-
-    private fun getType(selected: Int): Int =
-        when (selected) {
-            R.id.button_or -> CriterionInstance.TYPE_ADD
-            R.id.button_not -> CriterionInstance.TYPE_SUBTRACT
-            else -> CriterionInstance.TYPE_INTERSECT
-        }
-
-*/
 
     private fun newCriterion() {
         fabExtended.value = false // a.k.a. fab.shrink()
@@ -325,67 +268,6 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
         }
     }
 
-/*
-    private fun addCriteria() {
-        hideKeyboard()
-        fabExtended.value = false //  fab.shrink()
-        lifecycleScope.launch {
-            val all = filterCriteriaProvider.all()
-            val names = all.map(CustomFilterCriterion::getName)
-            dialogBuilder.newDialog()
-                    .setItems(names) { dialog: DialogInterface, which: Int ->
-                        val instance = CriterionInstance()
-                        instance.criterion = all[which]
-                        showOptionsFor(instance) {
-                            criteria.add(instance)
-                            updateList()
-                        }
-                        dialog.dismiss()
-                    }
-                    .show()
-        }
-    }
-*/
-
-/*
-    */
-/** Show options menu for the given CriterionInstance  *//*
-
-    private fun showOptionsFor(item: CriterionInstance, onComplete: Runnable?) {
-        if (item.criterion is BooleanCriterion) {
-            onComplete?.run()
-            return
-        }
-        val dialog = dialogBuilder.newDialog(item.criterion.name)
-        if (item.criterion is MultipleSelectCriterion) {
-            val multiSelectCriterion = item.criterion as MultipleSelectCriterion
-            val titles = multiSelectCriterion.entryTitles
-            val listener = DialogInterface.OnClickListener { _: DialogInterface?, which: Int ->
-                item.selectedIndex = which
-                onComplete?.run()
-            }
-            dialog.setItems(titles, listener)
-        } else if (item.criterion is TextInputCriterion) {
-            val textInCriterion = item.criterion as TextInputCriterion
-            val frameLayout = FrameLayout(this)
-            frameLayout.setPadding(10, 0, 10, 0)
-            val editText = EditText(this)
-            editText.setText(item.selectedText)
-            editText.hint = textInCriterion.hint
-            frameLayout.addView(
-                    editText,
-                    FrameLayout.LayoutParams(
-                            FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT))
-            dialog
-                    .setView(frameLayout)
-                    .setPositiveButton(R.string.ok) { _, _ ->
-                        item.selectedText = editText.text.toString()
-                        onComplete?.run()
-                    }
-        }
-        dialog.show()
-    }
-*/
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
@@ -453,23 +335,6 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
     }
 
     override fun bind(): RelativeLayout { TODO("must be deleted") }
-/*
-    override fun bind() = FilterSettingsActivityBinding.inflate(layoutInflater).let {
-        name = it.name.apply {
-            addTextChangedListener(
-                onTextChanged = { _, _, _, _ -> nameLayout.error = null }
-            )
-        }
-        nameLayout = it.nameLayout
-        recyclerView = it.recyclerView
-        composeView = it.filterCriteriaList
-
-        fab = it.fab.apply {
-            setOnClickListener { addCriteria() }
-        }
-        it.root
-    }
-*/
 
     override suspend fun delete() {
         filterDao.delete(filter!!.id)
