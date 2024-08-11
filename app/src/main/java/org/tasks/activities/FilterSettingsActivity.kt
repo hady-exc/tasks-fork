@@ -1,13 +1,10 @@
 package org.tasks.activities
 
 import android.app.Activity
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
-import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.FrameLayout
+import android.widget.RelativeLayout
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,16 +15,9 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
-import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.composethemeadapter.MdcTheme
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import com.todoroo.andlib.sql.Field
 import com.todoroo.andlib.sql.Query
 import com.todoroo.andlib.sql.UnaryCriterion
@@ -42,26 +32,23 @@ import com.todoroo.astrid.api.MultipleSelectCriterion
 import com.todoroo.astrid.api.PermaSql
 import com.todoroo.astrid.api.TextInputCriterion
 import com.todoroo.astrid.core.CriterionInstance
-import com.todoroo.astrid.core.CustomFilterAdapter
 import com.todoroo.astrid.dao.Database
 import com.todoroo.astrid.data.Task
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.tasks.R
 import org.tasks.Strings
-import org.tasks.compose.AddCriteriaButton
 import org.tasks.compose.FilterCondition
 import org.tasks.compose.InputTextOption
+import org.tasks.compose.NewCriterionFAB
 import org.tasks.compose.SelectCriterionType
 import org.tasks.compose.SelectFromList
 import org.tasks.compose.drawer.ListSettingsDrawer
 import org.tasks.data.Filter
 import org.tasks.data.FilterDao
 import org.tasks.data.TaskDao.TaskCriteria.activeAndVisible
-import org.tasks.databinding.FilterSettingsActivityBinding
 import org.tasks.db.QueryUtils
 import org.tasks.extensions.Context.openUri
-import org.tasks.extensions.hideKeyboard
 import org.tasks.filters.FilterCriteriaProvider
 import org.tasks.themes.CustomIcons
 import java.util.Locale
@@ -75,26 +62,33 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
     @Inject lateinit var database: Database
     @Inject lateinit var filterCriteriaProvider: FilterCriteriaProvider
 
-    private lateinit var name: TextInputEditText  /* TODO(eliminate) */
-    private lateinit var nameLayout: TextInputLayout /* TODO(eliminate) */
-    private lateinit var recyclerView: RecyclerView /* TODO(eliminate) */
-    private lateinit var composeView: ComposeView /* TODO(eliminate) */
-    private lateinit var fab: ExtendedFloatingActionButton /* TODO(probably eliminate) */
-    
+/*
+    */
+/* TODO(eliminate all) *//*
+
+    private lateinit var name: TextInputEditText
+    private lateinit var nameLayout: TextInputLayout
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var composeView: ComposeView
+    private lateinit var fab: ExtendedFloatingActionButton
+*/
+
     private var filter: CustomFilter? = null
-    private lateinit var adapter: CustomFilterAdapter /* TODO(eliminate) */
+    //private lateinit var adapter: CustomFilterAdapter /* TODO(eliminate) */
+/*
     private var criteria: MutableList<CriterionInstance> = ArrayList()
         get() = _criteria
+*/
     override val defaultIcon: Int = CustomIcons.FILTER
 
     override val compose: Boolean
         get() = true
 
-    private lateinit var _criteria: SnapshotStateList<CriterionInstance>
+    private lateinit var criteria: SnapshotStateList<CriterionInstance>
     private val fabExtended = mutableStateOf(false)
-    private val editTypeId: MutableState<String?> = mutableStateOf(null)
-    private val newCriteriaTypes: MutableState<List<CustomFilterCriterion>?> = mutableStateOf(null)
-    private val criteriaForOptions: MutableState<CriterionInstance?> = mutableStateOf(null)
+    private val editCriterionType: MutableState<String?> = mutableStateOf(null)
+    private val newCriterionTypes: MutableState<List<CustomFilterCriterion>?> = mutableStateOf(null)
+    private val newCriterionOptions: MutableState<CriterionInstance?> = mutableStateOf(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         filter = intent.getParcelableExtra(TOKEN_FILTER)
@@ -102,7 +96,6 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
         if (savedInstanceState == null && filter != null) {
             selectedColor = filter!!.tint
             selectedIcon = filter!!.icon
-            //name.setText(filter!!.title)
             textState.value = filter!!.title ?: ""
         }
         when {
@@ -117,7 +110,6 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                 setCriteria(filterCriteriaProvider.fromString(filter!!.criterion))
             }
             intent.hasExtra(EXTRA_CRITERIA) -> lifecycleScope.launch {
-                //name.setText(intent.getStringExtra(EXTRA_TITLE))
                 textState.value = intent.getStringExtra(EXTRA_TITLE) ?: ""
                 setCriteria(
                     filterCriteriaProvider.fromString(intent.getStringExtra(EXTRA_CRITERIA)!!)
@@ -125,24 +117,8 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
             }
             else -> setCriteria(universe())
         }
-/*
-        composeView.setContent {
-            FilterCondition(
-                _criteria,
-                { index -> onDelete(index) },
-                { from, to -> onMove(from, to) }
-            )
-        }
-*/
-
-        //recyclerView.layoutManager = LinearLayoutManager(this)
-/*
-        ItemTouchHelper(
-                CustomFilterItemTouchHelper(this, this::onMove, this::onDelete, this::updateList))
-                .attachToRecyclerView(recyclerView)
-*/
         if (isNew) {
-            // toolbar.inflateMenu(R.menu.menu_help) TODO(introduce @composable in BaseListSettingActivity)
+            // toolbar.inflateMenu(R.menu.menu_help) TODO(introduce @composable for help in BaseListSettingActivity)
         }
 
         setContent {
@@ -166,17 +142,18 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                         showProgress = showProgress
                     ) {
                         FilterCondition(
-                            _criteria,
-                            { index -> onDelete(index) },
-                            { from, to -> onMove(from, to) },
-                            { id -> editTypeId.value = id }
+                            items = criteria,
+                            onDelete = { index -> onDelete(index) },
+                            doSwap = { from, to -> onMove(from, to) },
+                            onClick = { id -> editCriterionType.value = id }
                         )
                     }
 
-                    AddCriteriaButton(fabExtended, { newCriteria() /*addCriteria()*/ })
+                    NewCriterionFAB(fabExtended) { newCriterion() }
 
-                    if (editTypeId.value != null) {
-                        val index = _criteria.indexOfFirst { it.id == editTypeId.value }
+                    /** edit given criterion type (AND|OR|NOT) **/
+                    editCriterionType.value?.let { itemId ->
+                        val index = criteria.indexOfFirst { it.id == itemId }
                         assert(index >= 0)
                         val criterionInstance = criteria[index]
 
@@ -193,71 +170,76 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                                 stringResource(R.string.custom_filter_not)
                             ),
                             help = { help() },
-                            onCancel = { editTypeId.value = null }
-                        ) {
-                            val type = when (it) {
+                            onCancel = { editCriterionType.value = null }
+                        ) { selected ->
+                            val type = when (selected) {
                                 0 -> CriterionInstance.TYPE_INTERSECT
                                 1 -> CriterionInstance.TYPE_ADD
                                 else -> CriterionInstance.TYPE_SUBTRACT
                             }
                             if (criterionInstance.type != type) {
                                 criterionInstance.type = type
-                                _criteria.removeAt(index)  // remove - add pair triggers the item recomposition
-                                _criteria.add(index, criterionInstance)
+                                criteria.removeAt(index)  // remove - add pair triggers the item recomposition
+                                criteria.add(index, criterionInstance)
                                 updateList()
                             }
-                            editTypeId.value = null
+                            editCriterionType.value = null
                         }
-                    } /* end SetCriterionType composition */
+                    } /* end (AND|OR|NOT) dialog */
 
-                    newCriteriaTypes.value?.let  {list ->
+                    /** dialog to select new criterion category **/
+                    newCriterionTypes.value?.let  { list ->
                         SelectFromList(
                             names = list.map(CustomFilterCriterion::getName),
-                            onCancel = { newCriteriaTypes.value = null },
+                            onCancel = { newCriterionTypes.value = null },
                             onSelected = { which ->
                                 val instance = CriterionInstance()
                                 instance.criterion = list[which]
-                                newCriteriaTypes.value = null
+                                newCriterionTypes.value = null
                                 if (instance.criterion is BooleanCriterion) {
-                                    _criteria.add(instance)
+                                    criteria.add(instance)
                                     updateList()
                                 } else
-                                    criteriaForOptions.value = instance
+                                    newCriterionOptions.value = instance
                             }
                         )
-                    } /* end SelectNewCriteria composition  */
+                    } /* end dialog  */
 
-                    criteriaForOptions.value?.let { instance ->
+                    /** Show options menu for the given CriterionInstance  */
+                    newCriterionOptions.value?.let { instance ->
+
                         if (instance.criterion is MultipleSelectCriterion) {
                             val multiSelectCriterion = instance.criterion as MultipleSelectCriterion
                             val list = multiSelectCriterion.entryTitles.toList()
                             SelectFromList(
                                 names = list,
                                 title = instance.criterion.name,
-                                onCancel = { criteriaForOptions.value = null },
+                                onCancel = { newCriterionOptions.value = null },
                                 onSelected = { which ->
                                     instance.selectedIndex = which
-                                    _criteria.add(instance)
+                                    criteria.add(instance)
                                     updateList()
-                                    criteriaForOptions.value = null
+                                    newCriterionOptions.value = null
                                 }
                             )
+
                         } else if (instance.criterion is TextInputCriterion) {
                             val textInCriterion = instance.criterion as TextInputCriterion
                             val editText = remember { mutableStateOf(instance.selectedText?: "") }
                             InputTextOption (
                                 title = textInCriterion.name,
                                 text = editText,
-                                onCancel = { criteriaForOptions.value = null },
+                                onCancel = { newCriterionOptions.value = null },
                                 onDone = {
                                     instance.selectedText = editText.value
-                                    _criteria.add(instance)
+                                    criteria.add(instance)
                                     updateList()
-                                    criteriaForOptions.value = null
+                                    newCriterionOptions.value = null
                                 }
                             )
+
                         } else assert(false) { "Unexpected Criterion type" }
-                    } /* end of new criteria options composition */
+                    } /* end given criteria options dialog */
                 }
             }
         }
@@ -266,36 +248,30 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
 
     } /* end onCreate */
 
-
     private fun universe() = listOf(CriterionInstance().apply {
         criterion = filterCriteriaProvider.startingUniverse
         type = CriterionInstance.TYPE_UNIVERSE
     })
 
     private fun setCriteria(criteria: List<CriterionInstance>) {
-        this._criteria = criteria
+        this.criteria = criteria
                 .ifEmpty { universe() }
                 .toMutableStateList()
-/*
-        adapter = CustomFilterAdapter(criteria, locale) { replaceId: String -> onClick(replaceId) }
-        recyclerView.adapter = adapter
-        fab.isExtended = isNew || adapter.itemCount <= 1
-*/
-        fabExtended.value = isNew || _criteria.size <= 1
+        fabExtended.value = isNew || this.criteria.size <= 1
         updateList()
     }
 
     private fun onDelete(index: Int) {
-        _criteria.removeAt(index)
+        criteria.removeAt(index)
         updateList()
     }
 
     private fun onMove(from: Int, to: Int) {
-        val criterion = _criteria.removeAt(from)
-        _criteria.add(to, criterion)
-        //adapter.notifyItemMoved(from, to)
+        val criterion = criteria.removeAt(from)
+        criteria.add(to, criterion)
     }
 
+/*
     private fun onClick(replaceId: String) {
     // TODO(replace by Composable)
         val index = criteria.indexOfFirst { it.id == replaceId }
@@ -319,7 +295,9 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                 .setNeutralButton(R.string.help) { _, _ -> help() }
                 .show()
     }
+*/
 
+/*
     private fun getSelected(instance: CriterionInstance): Int =
         when (instance.type) {
             CriterionInstance.TYPE_ADD -> R.id.button_or
@@ -334,15 +312,16 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
             else -> CriterionInstance.TYPE_INTERSECT
         }
 
+*/
 
-    private fun newCriteria() {
-        fabExtended.value = false //  fab.shrink()
+    private fun newCriterion() {
+        fabExtended.value = false // a.k.a. fab.shrink()
         lifecycleScope.launch {
-            //val all = filterCriteriaProvider.all()
-            newCriteriaTypes.value = filterCriteriaProvider.all()
+            newCriterionTypes.value = filterCriteriaProvider.all()
         }
     }
 
+/*
     private fun addCriteria() {
         hideKeyboard()
         fabExtended.value = false //  fab.shrink()
@@ -354,7 +333,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                         val instance = CriterionInstance()
                         instance.criterion = all[which]
                         showOptionsFor(instance) {
-                            _criteria.add(instance)
+                            criteria.add(instance)
                             updateList()
                         }
                         dialog.dismiss()
@@ -362,8 +341,12 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                     .show()
         }
     }
+*/
 
-    /** Show options menu for the given CriterionInstance  */
+/*
+    */
+/** Show options menu for the given CriterionInstance  *//*
+
     private fun showOptionsFor(item: CriterionInstance, onComplete: Runnable?) {
         if (item.criterion is BooleanCriterion) {
             onComplete?.run()
@@ -398,6 +381,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
         }
         dialog.show()
     }
+*/
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
@@ -413,9 +397,9 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
     override suspend fun save() {
         val newName = newName
         if (Strings.isNullOrEmpty(newName)) {
-            nameLayout.error = getString(R.string.name_cannot_be_empty)
-            return
+           errorState.value = getString(R.string.name_cannot_be_empty)
         }
+
         if (hasChanges()) {
             var f = Filter(
                 id = filter?.id ?: 0L,
@@ -461,10 +445,11 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
     }
 
     override fun finish() {
-        //hideKeyboard(name)
         super.finish()
     }
 
+    override fun bind(): RelativeLayout { TODO("must be deleted") }
+/*
     override fun bind() = FilterSettingsActivityBinding.inflate(layoutInflater).let {
         name = it.name.apply {
             addTextChangedListener(
@@ -480,6 +465,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
         }
         it.root
     }
+*/
 
     override suspend fun delete() {
         filterDao.delete(filter!!.id)
@@ -489,6 +475,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
     }
 
     override fun onMenuItemClick(item: MenuItem): Boolean =
+        /* TODO(delete after help button introduced) */
         if (item.itemId == R.id.menu_help) {
             help()
             true
@@ -533,10 +520,6 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
         for (instance in criteria) {
             instance.max = max
         }
-        //adapter.submitList(criteria)
-
-        //_criteria.value = criteria
-
     }
 
     companion object {

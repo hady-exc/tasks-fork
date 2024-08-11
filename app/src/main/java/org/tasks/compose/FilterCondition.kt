@@ -218,7 +218,7 @@ private fun SwipeOutDecoration(onClick: () -> Unit = {}) {
 } /* end SwipeOutDecoration */
 
 @Composable
-fun AddCriteriaButton(
+fun NewCriterionFAB(
     isExtended: MutableState<Boolean>,
     onClick: () -> Unit
 ) {
@@ -252,7 +252,7 @@ fun AddCriteriaButton(
             }
         } /* end FloatingActionButton */
     }
-} /* end AddCriteriaButton */
+} /* end NewCriterionFAB */
 
 @Composable
 fun SelectCriterionType(
