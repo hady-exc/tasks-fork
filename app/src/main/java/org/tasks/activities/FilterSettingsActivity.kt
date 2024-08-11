@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
@@ -50,7 +51,9 @@ import org.tasks.R
 import org.tasks.Strings
 import org.tasks.compose.AddCriteriaButton
 import org.tasks.compose.FilterCondition
+import org.tasks.compose.InputTextOption
 import org.tasks.compose.SelectCriterionType
+import org.tasks.compose.SelectFromList
 import org.tasks.compose.drawer.ListSettingsDrawer
 import org.tasks.data.Filter
 import org.tasks.data.FilterDao
@@ -90,6 +93,8 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
     private lateinit var _criteria: SnapshotStateList<CriterionInstance>
     private val fabExtended = mutableStateOf(false)
     private val editTypeId: MutableState<String?> = mutableStateOf(null)
+    private val newCriteriaTypes: MutableState<List<CustomFilterCriterion>?> = mutableStateOf(null)
+    private val criteriaForOptions: MutableState<CriterionInstance?> = mutableStateOf(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         filter = intent.getParcelableExtra(TOKEN_FILTER)
@@ -167,7 +172,8 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                             { id -> editTypeId.value = id }
                         )
                     }
-                    AddCriteriaButton(fabExtended, { addCriteria() })
+
+                    AddCriteriaButton(fabExtended, { newCriteria() /*addCriteria()*/ })
 
                     if (editTypeId.value != null) {
                         val index = _criteria.indexOfFirst { it.id == editTypeId.value }
@@ -197,12 +203,61 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                             if (criterionInstance.type != type) {
                                 criterionInstance.type = type
                                 _criteria.removeAt(index)  // remove - add pair triggers the item recomposition
-                                _criteria.add(index,criterionInstance)
+                                _criteria.add(index, criterionInstance)
                                 updateList()
                             }
                             editTypeId.value = null
                         }
-                    }
+                    } /* end SetCriterionType composition */
+
+                    newCriteriaTypes.value?.let  {list ->
+                        SelectFromList(
+                            names = list.map(CustomFilterCriterion::getName),
+                            onCancel = { newCriteriaTypes.value = null },
+                            onSelected = { which ->
+                                val instance = CriterionInstance()
+                                instance.criterion = list[which]
+                                newCriteriaTypes.value = null
+                                if (instance.criterion is BooleanCriterion) {
+                                    _criteria.add(instance)
+                                    updateList()
+                                } else
+                                    criteriaForOptions.value = instance
+                            }
+                        )
+                    } /* end SelectNewCriteria composition  */
+
+                    criteriaForOptions.value?.let { instance ->
+                        if (instance.criterion is MultipleSelectCriterion) {
+                            val multiSelectCriterion = instance.criterion as MultipleSelectCriterion
+                            val list = multiSelectCriterion.entryTitles.toList()
+                            SelectFromList(
+                                names = list,
+                                title = instance.criterion.name,
+                                onCancel = { criteriaForOptions.value = null },
+                                onSelected = { which ->
+                                    instance.selectedIndex = which
+                                    _criteria.add(instance)
+                                    updateList()
+                                    criteriaForOptions.value = null
+                                }
+                            )
+                        } else if (instance.criterion is TextInputCriterion) {
+                            val textInCriterion = instance.criterion as TextInputCriterion
+                            val editText = remember { mutableStateOf(instance.selectedText?: "") }
+                            InputTextOption (
+                                title = textInCriterion.name,
+                                text = editText,
+                                onCancel = { criteriaForOptions.value = null },
+                                onDone = {
+                                    instance.selectedText = editText.value
+                                    _criteria.add(instance)
+                                    updateList()
+                                    criteriaForOptions.value = null
+                                }
+                            )
+                        } else assert(false) { "Unexpected Criterion type" }
+                    } /* end of new criteria options composition */
                 }
             }
         }
@@ -278,6 +333,15 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
             R.id.button_not -> CriterionInstance.TYPE_SUBTRACT
             else -> CriterionInstance.TYPE_INTERSECT
         }
+
+
+    private fun newCriteria() {
+        fabExtended.value = false //  fab.shrink()
+        lifecycleScope.launch {
+            //val all = filterCriteriaProvider.all()
+            newCriteriaTypes.value = filterCriteriaProvider.all()
+        }
+    }
 
     private fun addCriteria() {
         hideKeyboard()

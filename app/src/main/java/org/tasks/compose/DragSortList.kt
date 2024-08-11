@@ -24,7 +24,7 @@ import androidx.compose.ui.zIndex
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-class DragDropState internal constructor(
+class DragDropState internal constructor( /* TODO(reintroduce overscroll handling) */
     val state: LazyListState,
     private val scope: CoroutineScope,
     private val confirmDrag: (Int) -> Boolean,

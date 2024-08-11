@@ -18,11 +18,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -32,14 +34,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -85,7 +92,8 @@ fun FilterCondition (
 
     Row {
         Text(
-            text = LocalContext.current.getString(R.string.custom_filter_criteria), //"Header will be here",  //R.string.custom_filter_criteria
+            text =  stringResource(id = R.string.custom_filter_criteria),
+                    // LocalContext.current.getString(R.string.custom_filter_criteria),
             color = MaterialTheme.colors.secondary,
             modifier = Modifier
                 .fillMaxWidth()
@@ -94,9 +102,7 @@ fun FilterCondition (
     }
     Row {
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .doDrag(dragDropState),
+            modifier = Modifier.fillMaxSize().doDrag(dragDropState),
             userScrollEnabled = true,
             state = listState
         ) {
@@ -159,7 +165,7 @@ private fun FilterConditionRow(
         }
         Text(
             text = criterion.titleFromCriterion,
-            fontSize = 17.sp,
+            fontSize = 18.sp,
             modifier = Modifier
                 .weight(0.8f)
                 .padding(start = 20.dp, top = 16.dp, bottom = 16.dp)
@@ -186,7 +192,6 @@ private fun SwipeOutDecoration(onClick: () -> Unit = {}) {
     Box( modifier = Modifier
         .fillMaxSize()
         .background(MaterialTheme.colors.secondary)
-        //.background(Color.Red)
     ) {
 
         @Composable
@@ -295,12 +300,16 @@ fun SelectCriterionType(
                             Text(
                                 text = stringResource(R.string.cancel).uppercase(),
                                 color = MaterialTheme.colors.secondary,
-                                modifier = Modifier.padding(start = 16.dp).clickable { onCancel() }
+                                modifier = Modifier
+                                    .padding(start = 16.dp)
+                                    .clickable { onCancel() }
                             )
                             Text(
                                 text = stringResource(R.string.ok).uppercase(),
                                 color = MaterialTheme.colors.secondary,
-                                modifier = Modifier.padding(start = 16.dp).clickable { onSelected(selected.value) }
+                                modifier = Modifier
+                                    .padding(start = 16.dp)
+                                    .clickable { onSelected(selected.value) }
                             )
                         }
                     }
@@ -318,7 +327,9 @@ fun ToggleGroup (
     assert(selected.value in items.indices)
 
     Box(
-        modifier = Modifier.fillMaxWidth().height(48.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp),
         contentAlignment = Alignment.Center
     ) {
         Row {
@@ -350,3 +361,113 @@ fun ToggleGroup (
         }
     }
 } /* end ToggleGroup */
+
+
+@Composable
+fun SelectFromList(
+    names: List<String>,
+    title: String? = null,
+    onCancel: () -> Unit,
+    onSelected: (Int) -> Unit
+) {
+    Dialog(onDismissRequest = onCancel) {
+        Card (backgroundColor = MaterialTheme.colors.background) {
+            Column (modifier = Modifier.padding(horizontal = 20.dp)) {
+                title?.let { title ->
+                    Text(
+                        text = title,
+                        color = MaterialTheme.colors.onSurface,
+                        style = MaterialTheme.typography.body1,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                            .padding(top = 16.dp)
+                    )
+                }
+                names.forEachIndexed() { index, name ->
+                    Text(
+                        text = name,
+                        color = MaterialTheme.colors.onSurface,
+                        style = MaterialTheme.typography.body1,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                            .padding(top = 16.dp)
+                            .clickable { onSelected(index) }
+                    )
+                }
+            }
+        }
+    }
+} /* end SelectFromList */
+
+
+@Composable
+fun InputTextOption(
+    title: String,
+    text: MutableState<String>,
+    onCancel: () -> Unit,
+    onDone: () -> Unit
+) {
+    Dialog(onDismissRequest = onCancel) {
+        Card (backgroundColor = MaterialTheme.colors.background) {
+            Column {
+                Text(
+                    text = title,
+                    color = MaterialTheme.colors.onSurface,
+                    style = MaterialTheme.typography.body1,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+                )
+                val focused = remember { mutableStateOf( false ) }
+
+                BasicTextField(
+                    value = text.value,
+                    textStyle = TextStyle(
+                        fontSize = LocalTextStyle.current.fontSize,
+                        color = MaterialTheme.colors.onSurface
+                    ),
+                    onValueChange = {text.value = it },
+                    cursorBrush = SolidColor(MaterialTheme.colors.secondary),
+                    modifier = Modifier
+                        .padding(bottom = 3.dp, start = 12.dp, end = 12.dp)
+                        .onFocusChanged { focused.value = (it.isFocused) }
+                )
+                Divider(
+                    color =
+                        if (focused.value) MaterialTheme.colors.secondary
+                        else MaterialTheme.colors.onSurface.copy(alpha = 0.5f),
+                    modifier = Modifier.padding(horizontal = 6.dp)
+                )
+                Box(
+                    contentAlignment = Alignment.CenterEnd,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                ) {
+                    Row (modifier = Modifier.padding(end = 16.dp)){
+                        Text(
+                            text = stringResource(R.string.cancel).uppercase(),
+                            color = MaterialTheme.colors.secondary,
+                            modifier = Modifier
+                                .padding(start = 16.dp)
+                                .clickable { onCancel() }
+                        )
+                        Text(
+                            text = stringResource(R.string.ok).uppercase(),
+                            color = MaterialTheme.colors.secondary,
+                            modifier = Modifier
+                                .padding(start = 16.dp)
+                                .clickable { onDone() }
+                        )
+                    }
+                }
+            }
+        }
+    }
+} /* end InputTextOption */
