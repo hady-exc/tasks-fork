@@ -309,7 +309,7 @@ fun SelectCriterionType(
                                 color = MaterialTheme.colors.secondary,
                                 modifier = Modifier
                                     .padding(start = 16.dp)
-                                    .clickable { onSelected(selected.value) }
+                                    .clickable { onSelected(selected.intValue) }
                             )
                         }
                     }
@@ -324,7 +324,7 @@ fun ToggleGroup (
     items: List<String>,
     selected: MutableIntState = remember { mutableIntStateOf( 0 ) }
 ) {
-    assert(selected.value in items.indices)
+    assert(selected.intValue in items.indices)
 
     Box(
         modifier = Modifier
@@ -334,7 +334,7 @@ fun ToggleGroup (
     ) {
         Row {
             for (index in items.indices) {
-                val highlight = (index == selected.value)
+                val highlight = (index == selected.intValue)
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
@@ -344,7 +344,7 @@ fun ToggleGroup (
                             if (highlight) MaterialTheme.colors.secondary.copy(alpha = 0.3f)
                             else Color.Transparent
                         )
-                        .clickable { selected.value = index }
+                        .clickable { selected.intValue = index }
                         .border(
                             width = (1.5).dp,
                             color = if (highlight) MaterialTheme.colors.secondary else Color.LightGray
@@ -385,7 +385,7 @@ fun SelectFromList(
                             .padding(top = 16.dp)
                     )
                 }
-                names.forEachIndexed() { index, name ->
+                names.forEachIndexed { index, name ->
                     Text(
                         text = name,
                         color = MaterialTheme.colors.onSurface,

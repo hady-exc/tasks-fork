@@ -56,7 +56,7 @@ class DragDropState internal constructor( /* TODO(reintroduce overscroll handlin
             draggedItemIndex = item.index
             draggingElementOffset = item.offset
             draggingElementSize = item.size
-            assert(item.size >= 0, { "Invalid size of element ${item.size}" })
+            assert(item.size >= 0) { "Invalid size of element ${item.size}" }
         }
     }
 
