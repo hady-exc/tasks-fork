@@ -1,13 +1,13 @@
 package org.tasks.activities
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import android.widget.ProgressBar
+import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.material.SnackbarHostState
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.textfield.TextInputEditText
 import com.google.api.services.tasks.model.TaskList
@@ -21,12 +21,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
+import org.tasks.compose.drawer.ListSettingsDrawer
+import org.tasks.compose.drawer.DrawerSnackBar
 import org.tasks.data.CaldavAccount
 import org.tasks.data.CaldavCalendar
 import org.tasks.data.GoogleTaskListDao
-import org.tasks.databinding.ActivityGoogleTaskListSettingsBinding
-import org.tasks.extensions.Context.hideKeyboard
-import org.tasks.extensions.Context.toast
 import org.tasks.themes.CustomIcons
 import timber.log.Timber
 import javax.inject.Inject
@@ -46,6 +45,10 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
     private val deleteListViewModel: DeleteListViewModel by viewModels()
     override val defaultIcon: Int = CustomIcons.LIST
 
+    override val compose: Boolean
+        get() = true
+    val snackbar = SnackbarHostState()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         gtasksList = intent.getParcelableExtra(EXTRA_STORE_DATA)
                 ?: CaldavCalendar(
@@ -58,21 +61,49 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
             selectedColor = gtasksList.color
             selectedIcon = gtasksList.getIcon()!!
         }
-        if (isNewList) {
-            name.requestFocus()
-            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.showSoftInput(name, InputMethodManager.SHOW_IMPLICIT)
-        } else {
-            name.setText(gtasksList.name)
-        }
+
+        if (!isNewList) textState.value = gtasksList.name!!
+
+        /*
+                if (isNewList) {
+                    name.requestFocus()
+                    val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.showSoftInput(name, InputMethodManager.SHOW_IMPLICIT)
+                } else {
+                    name.setText(gtasksList.name)
+                }
+        */
+
         if (createListViewModel.inProgress
                 || renameListViewModel.inProgress
                 || deleteListViewModel.inProgress) {
             showProgressIndicator()
         }
+
         createListViewModel.observe(this, this::onListCreated, this::requestFailed)
         renameListViewModel.observe(this, this::onListRenamed, this::requestFailed)
         deleteListViewModel.observe(this, this::onListDeleted, this::requestFailed)
+
+        setContent {
+            ListSettingsDrawer(
+                title = toolbarTitle,
+                isNew = isNewList,
+                text = textState,
+                error = errorState,
+                color = colorState,
+                icon = iconState,
+                delete = { lifecycleScope.launch { promptDelete() } },
+                save = { lifecycleScope.launch { save() } },
+                selectColor = { showThemePicker() },
+                clearColor = { clearColor() },
+                selectIcon = { showIconPicker() },
+                showProgress = showProgress
+            )
+
+            DrawerSnackBar(state = snackbar)
+
+        }
+
         updateTheme()
     }
 
@@ -80,17 +111,17 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
         get() = isNewList
 
     override val toolbarTitle: String
-        get() = if (isNew) getString(R.string.new_list) else gtasksList.name!!
+        get() = if (isNew) "NEW " + getString(R.string.new_list) else gtasksList.name!!
 
     private fun showProgressIndicator() {
-        progressView.visibility = View.VISIBLE
+        showProgress.value = true
     }
 
     private fun hideProgressIndicator() {
-        progressView.visibility = View.GONE
+        showProgress.value = false
     }
 
-    private fun requestInProgress() = progressView.visibility == View.VISIBLE
+    private fun requestInProgress() = showProgress.value
 
     override suspend fun save() {
         if (requestInProgress()) {
@@ -98,7 +129,7 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
         }
         val newName = newName
         if (isNullOrEmpty(newName)) {
-            toast(R.string.name_cannot_be_empty)
+            errorState.value = getString(R.string.name_cannot_be_empty)
             return
         }
         when {
@@ -126,15 +157,18 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
     }
 
     override fun finish() {
-        hideKeyboard(name)
         super.finish()
     }
 
+    override fun bind(): View { TODO() }
+
+/*
     override fun bind() = ActivityGoogleTaskListSettingsBinding.inflate(layoutInflater).let {
         name = it.name
         progressView = it.progressBar.progressBar
         it.root
     }
+*/
 
     override fun promptDelete() {
         if (!requestInProgress()) {
@@ -154,7 +188,7 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
     }
 
     private val newName: String
-        get() = name.text.toString().trim { it <= ' ' }
+        get() = textState.value.trim { it <= ' ' }
 
     override fun hasChanges(): Boolean =
         if (isNewList) {
@@ -211,7 +245,8 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
     private fun requestFailed(error: Throwable) {
         Timber.e(error)
         hideProgressIndicator()
-        toast(R.string.gtasks_GLA_errorIOAuth)
+        lifecycleScope.launch { snackbar.showSnackbar(getString(R.string.gtasks_GLA_errorIOAuth)) }
+        //toast(R.string.gtasks_GLA_errorIOAuth)
         return
     }
 

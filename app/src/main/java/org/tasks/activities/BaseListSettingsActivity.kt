@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.lifecycleScope
@@ -47,10 +48,16 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Ic
     protected val textState = mutableStateOf("")
     protected val errorState = mutableStateOf("")
     protected val colorState = mutableStateOf(Color.Unspecified)
-    protected val iconState = mutableStateOf(R.drawable.ic_outline_label_24px)  //mutableStateOf(getIconResId(defaultIcon)!!)
+    protected val iconState = mutableIntStateOf(R.drawable.ic_outline_not_interested_24px)
+    protected val showProgress = mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        /* defaultIcon is initialized in the descendant's constructor so it can not be used
+           in constructor of the base class. So valid initial value for iconState is set here  */
+        iconState.intValue = getIconResId(defaultIcon)!!
+
         if (!compose) {
             val view = bind()
             setContentView(view)
@@ -151,10 +158,13 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Ic
     protected fun updateTheme() {
         val themeColor: ThemeColor
         if (compose) {
+            themeColor = if (selectedColor == 0) this.themeColor
+                else colorProvider.getThemeColor(selectedColor, true)
             colorState.value =
                 if (selectedColor == 0) Color.Unspecified
                 else Color((colorProvider.getThemeColor(selectedColor, true)).primaryColor)
-            iconState.value = (getIconResId(selectedIcon) ?: getIconResId(defaultIcon))!!
+            iconState.intValue = (getIconResId(selectedIcon) ?: getIconResId(defaultIcon))!!
+            themeColor.applyToNavigationBar(this)
         } else {
             if (selectedColor == 0) {
                 themeColor = this.themeColor

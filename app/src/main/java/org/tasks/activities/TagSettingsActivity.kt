@@ -21,11 +21,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
-import org.tasks.compose.drawer.BaseSettingsDrawer
+import org.tasks.compose.drawer.ListSettingsDrawer
 import org.tasks.data.TagDao
 import org.tasks.data.TagData
 import org.tasks.data.TagDataDao
-import org.tasks.extensions.Context.hideKeyboard
 import org.tasks.themes.CustomIcons
 import javax.inject.Inject
 
@@ -61,7 +60,7 @@ class TagSettingsActivity : BaseListSettingsActivity() {
         }
 
         setContent {
-            BaseSettingsDrawer(
+            ListSettingsDrawer(
                 title = toolbarTitle,
                 isNew = isNewTag,
                 text = textState,
