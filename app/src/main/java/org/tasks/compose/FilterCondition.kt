@@ -1,5 +1,9 @@
 package org.tasks.compose
 
+/**
+ *  Composables for FilterSettingActivity
+ **/
+
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,7 +27,6 @@ import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -70,15 +73,9 @@ fun FilterCondition (
 
     val getIcon: (CriterionInstance) -> Int = { criterion ->
         when (criterion.type) {
-            CriterionInstance.TYPE_ADD -> {
-                R.drawable.ic_call_split_24px
-            }
-            CriterionInstance.TYPE_SUBTRACT -> {
-                R.drawable.ic_outline_not_interested_24px
-            }
-            CriterionInstance.TYPE_INTERSECT -> {
-                R.drawable.ic_outline_add_24px
-            }
+            CriterionInstance.TYPE_ADD -> R.drawable.ic_call_split_24px
+            CriterionInstance.TYPE_SUBTRACT -> R.drawable.ic_outline_not_interested_24px
+            CriterionInstance.TYPE_INTERSECT -> R.drawable.ic_outline_add_24px
             else -> { 0 }  /* assert */
        }
     }
@@ -93,7 +90,6 @@ fun FilterCondition (
     Row {
         Text(
             text =  stringResource(id = R.string.custom_filter_criteria),
-                    // LocalContext.current.getString(R.string.custom_filter_criteria),
             color = MaterialTheme.colors.secondary,
             modifier = Modifier
                 .fillMaxWidth()
@@ -195,24 +191,22 @@ private fun SwipeOutDecoration(onClick: () -> Unit = {}) {
     ) {
 
         @Composable
-        fun delIcon() {
-            IconButton(onClick = onClick) {
-                Icon(
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
-                    imageVector = Icons.Filled.Delete,
-                    contentDescription = "Delete",
-                    tint = Color.White
-                )
-            }
+        fun deleteIcon() {
+            Icon(
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+                imageVector = Icons.Filled.Delete,
+                contentDescription = "Delete",
+                tint = Color.White
+            )
         }
 
         Row(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().height(56.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Bottom
         ) {
-            delIcon()
-            delIcon()
+            deleteIcon()
+            deleteIcon()
         }
     }
 } /* end SwipeOutDecoration */
@@ -223,13 +217,13 @@ fun NewCriterionFAB(
     onClick: () -> Unit
 ) {
 
-    Box( // lays out over main content as space to layout FAB
+    Box( // lays out over main content as a space to layout FAB
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.BottomEnd
     ) {
         FloatingActionButton(
             onClick = onClick,
-            modifier = Modifier.padding(8.dp),
+            modifier = Modifier.padding(16.dp),
             shape = RoundedCornerShape(50),
             backgroundColor = MaterialTheme.colors.secondary,
             contentColor = Color.White,

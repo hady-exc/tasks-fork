@@ -1,5 +1,9 @@
 package org.tasks.compose
 
+/**
+ * Simple Swipe-to-delete implementation
+ */
+
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
