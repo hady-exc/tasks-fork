@@ -4,6 +4,7 @@ import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.lazy.LazyItemScope
@@ -22,9 +23,25 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.zIndex
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlin.math.max
+import kotlin.math.min
 
-class DragDropState internal constructor( /* TODO(reintroduce overscroll handling) */
+/**
+ * Drag - drop to reorder elements of LazyColumn
+ *
+ * Implementation is based on:
+ *      https://github.com/realityexpander/DragDropColumnCompose
+ *
+ * Scheme of use:
+ *      1. Hoist state of the LazyColumn (create your own and set it as LazyColumn parameter)
+ *      2. Create and remember DragDropState object by call to "rememberDragDropState"
+ *      3. Use Modifier.doDrag in the LazyColumn
+ *      4. enclose LazyList items into DraggableItem
+ * **/
+
+class DragDropState internal constructor(
     val state: LazyListState,
     private val scope: CoroutineScope,
     private val confirmDrag: (Int) -> Boolean,
@@ -36,6 +53,8 @@ class DragDropState internal constructor( /* TODO(reintroduce overscroll handlin
     private var draggedDistance by mutableFloatStateOf(0f)
     private var draggingElementOffset: Int = 0 // cached drugged element offset and size
     private var draggingElementSize: Int = -1  // size must not be negative when dragging is in progress
+
+    private var overscrollJob by mutableStateOf<Job?>( null )
 
     /* sibling of draggingElementOffset, not cached, for use in animation  */
     internal val draggingItemOffset: Float
@@ -65,6 +84,7 @@ class DragDropState internal constructor( /* TODO(reintroduce overscroll handlin
         draggedItemIndex = null
         draggingElementOffset = 0
         draggingElementSize = -1
+        overscrollJob?.cancel()
     }
 
     fun onDrag(offset: Offset) {
@@ -94,10 +114,25 @@ class DragDropState internal constructor( /* TODO(reintroduce overscroll handlin
                     scope.launch { onSwap(draggedIndex, hovered.index) }
                     draggedItemIndex = hovered.index
                 }
+
+                if (overscrollJob?.isActive != true) {
+                    val overscroll = when {
+                        draggedDistance > 0 -> max(endOffset - state.layoutInfo.viewportEndOffset+50f, 0f)
+                        draggedDistance < 0 -> min(startOffset - state.layoutInfo.viewportStartOffset-50f, 0f)
+                        else -> 0f
+                    }
+                    if (overscroll != 0f) {
+                        overscrollJob = scope.launch {
+                            state.animateScrollBy(
+                                overscroll * 1.3f, tween(easing = FastOutLinearInEasing)
+                            )
+                        }
+                    }
+                }
             }
         }
     } /* end onDrag */
-}
+} /* end DragDropState */
 
 @Composable
 fun rememberDragDropState(
