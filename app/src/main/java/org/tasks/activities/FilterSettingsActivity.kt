@@ -8,6 +8,7 @@ import android.widget.RelativeLayout
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -77,7 +78,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
     override val compose: Boolean
         get() = true
 
-    private lateinit var criteria: SnapshotStateList<CriterionInstance>
+    private var criteria: SnapshotStateList<CriterionInstance> = emptyList<CriterionInstance>().toMutableStateList()
     private val fabExtended = mutableStateOf(false)
     private val editCriterionType: MutableState<String?> = mutableStateOf(null)
     private val newCriterionTypes: MutableState<List<CustomFilterCriterion>?> = mutableStateOf(null)
@@ -115,132 +116,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
             // toolbar.inflateMenu(R.menu.menu_help) TODO(introduce @composable for help in BaseListSettingActivity)
         }
 
-        setContent {
-            MdcTheme {
-                Box(  // to layout FAB over the main content
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.TopStart
-                ) {
-                    ListSettingsDrawer(
-                        title = toolbarTitle,
-                        isNew = isNew,
-                        text = textState,
-                        error = errorState,
-                        color = colorState,
-                        icon = iconState,
-                        delete = { lifecycleScope.launch { promptDelete() } },
-                        save = { lifecycleScope.launch { save() } },
-                        selectColor = { showThemePicker() },
-                        clearColor = { clearColor() },
-                        selectIcon = { showIconPicker() },
-                        showProgress = showProgress
-                    ) {
-                        FilterCondition(
-                            items = criteria,
-                            onDelete = { index -> onDelete(index) },
-                            doSwap = { from, to -> onMove(from, to) },
-                            onClick = { id -> editCriterionType.value = id }
-                        )
-                    }
-
-                    NewCriterionFAB(fabExtended) { newCriterion() }
-
-                    /** edit given criterion type (AND|OR|NOT) **/
-                    editCriterionType.value?.let { itemId ->
-                        val index = criteria.indexOfFirst { it.id == itemId }
-                        assert(index >= 0)
-                        val criterionInstance = criteria[index]
-
-                        SelectCriterionType(
-                            title = criterionInstance.titleFromCriterion,
-                            selected = when (criterionInstance.type) {
-                                CriterionInstance.TYPE_INTERSECT -> 0
-                                CriterionInstance.TYPE_ADD -> 1
-                                else -> 2
-                            },
-                            types = listOf(
-                                stringResource(R.string.custom_filter_and),
-                                stringResource(R.string.custom_filter_or),
-                                stringResource(R.string.custom_filter_not)
-                            ),
-                            help = { help() },
-                            onCancel = { editCriterionType.value = null }
-                        ) { selected ->
-                            val type = when (selected) {
-                                0 -> CriterionInstance.TYPE_INTERSECT
-                                1 -> CriterionInstance.TYPE_ADD
-                                else -> CriterionInstance.TYPE_SUBTRACT
-                            }
-                            if (criterionInstance.type != type) {
-                                criterionInstance.type = type
-                                criteria.removeAt(index)  // remove - add pair triggers the item recomposition
-                                criteria.add(index, criterionInstance)
-                                updateList()
-                            }
-                            editCriterionType.value = null
-                        }
-                    } /* end (AND|OR|NOT) dialog */
-
-                    /** dialog to select new criterion category **/
-                    newCriterionTypes.value?.let  { list ->
-                        SelectFromList(
-                            names = list.map(CustomFilterCriterion::getName),
-                            onCancel = { newCriterionTypes.value = null },
-                            onSelected = { which ->
-                                val instance = CriterionInstance()
-                                instance.criterion = list[which]
-                                newCriterionTypes.value = null
-                                if (instance.criterion is BooleanCriterion) {
-                                    criteria.add(instance)
-                                    updateList()
-                                } else
-                                    newCriterionOptions.value = instance
-                            }
-                        )
-                    } /* end dialog  */
-
-                    /** Show options menu for the given CriterionInstance  */
-                    newCriterionOptions.value?.let { instance ->
-
-                        when (instance.criterion) {
-                            is MultipleSelectCriterion -> {
-                                val multiSelectCriterion = instance.criterion as MultipleSelectCriterion
-                                val list = multiSelectCriterion.entryTitles.toList()
-                                SelectFromList(
-                                    names = list,
-                                    title = instance.criterion.name,
-                                    onCancel = { newCriterionOptions.value = null },
-                                    onSelected = { which ->
-                                        instance.selectedIndex = which
-                                        criteria.add(instance)
-                                        updateList()
-                                        newCriterionOptions.value = null
-                                    }
-                                )
-                            }
-
-                            is TextInputCriterion -> {
-                                val textInCriterion = instance.criterion as TextInputCriterion
-                                val editText = remember { mutableStateOf(instance.selectedText?: "") }
-                                InputTextOption (
-                                    title = textInCriterion.name,
-                                    text = editText,
-                                    onCancel = { newCriterionOptions.value = null },
-                                    onDone = {
-                                        instance.selectedText = editText.value
-                                        criteria.add(instance)
-                                        updateList()
-                                        newCriterionOptions.value = null
-                                    }
-                                )
-                            }
-
-                            else -> assert(false) { "Unexpected Criterion type" }
-                        }
-                    } /* end given criteria options dialog */
-                }
-            }
-        }
+        // setContent { activityContent() }
 
         updateTheme()
 
@@ -251,12 +127,14 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
         type = CriterionInstance.TYPE_UNIVERSE
     })
 
-    private fun setCriteria(criteria: List<CriterionInstance>) {
-        this.criteria = criteria
+    private fun setCriteria(criteriaList: List<CriterionInstance>) {
+        criteria = criteriaList
                 .ifEmpty { universe() }
                 .toMutableStateList()
-        fabExtended.value = isNew || this.criteria.size <= 1
+        fabExtended.value = isNew || criteria.size <= 1
         updateList()
+
+        this.setContent { activityContent() }
     }
 
     private fun onDelete(index: Int) {
@@ -269,14 +147,12 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
         criteria.add(to, criterion)
     }
 
-
     private fun newCriterion() {
         fabExtended.value = false // a.k.a. fab.shrink()
         lifecycleScope.launch {
             newCriterionTypes.value = filterCriteriaProvider.all()
         }
     }
-
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
@@ -400,6 +276,136 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
             instance.max = max
         }
     }
+
+    @Composable
+    private fun activityContent ()
+    {
+        MdcTheme {
+            Box(  // to layout FAB over the main content
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.TopStart
+            ) {
+                ListSettingsDrawer(
+                    title = toolbarTitle,
+                    isNew = isNew,
+                    text = textState,
+                    error = errorState,
+                    color = colorState,
+                    icon = iconState,
+                    delete = { lifecycleScope.launch { promptDelete() } },
+                    save = { lifecycleScope.launch { save() } },
+                    selectColor = { showThemePicker() },
+                    clearColor = { clearColor() },
+                    selectIcon = { showIconPicker() },
+                    showProgress = showProgress
+                ) {
+                    FilterCondition(
+                        items = criteria,
+                        onDelete = { index -> onDelete(index) },
+                        doSwap = { from, to -> onMove(from, to) },
+                        onClick = { id -> editCriterionType.value = id }
+                    )
+                }
+
+                NewCriterionFAB(fabExtended) { newCriterion() }
+
+
+                /** edit given criterion type (AND|OR|NOT) **/
+                editCriterionType.value?.let { itemId ->
+                    val index = criteria.indexOfFirst { it.id == itemId }
+                    assert(index >= 0)
+                    val criterionInstance = criteria[index]
+
+                    SelectCriterionType(
+                        title = criterionInstance.titleFromCriterion,
+                        selected = when (criterionInstance.type) {
+                            CriterionInstance.TYPE_INTERSECT -> 0
+                            CriterionInstance.TYPE_ADD -> 1
+                            else -> 2
+                        },
+                        types = listOf(
+                            stringResource(R.string.custom_filter_and),
+                            stringResource(R.string.custom_filter_or),
+                            stringResource(R.string.custom_filter_not)
+                        ),
+                        help = { help() },
+                        onCancel = { editCriterionType.value = null }
+                    ) { selected ->
+                        val type = when (selected) {
+                            0 -> CriterionInstance.TYPE_INTERSECT
+                            1 -> CriterionInstance.TYPE_ADD
+                            else -> CriterionInstance.TYPE_SUBTRACT
+                        }
+                        if (criterionInstance.type != type) {
+                            criterionInstance.type = type
+                            criteria.removeAt(index)  // remove - add pair triggers the item recomposition
+                            criteria.add(index, criterionInstance)
+                            updateList()
+                        }
+                        editCriterionType.value = null
+                    }
+                } /* end (AND|OR|NOT) dialog */
+
+                /** dialog to select new criterion category **/
+                newCriterionTypes.value?.let  { list ->
+                    SelectFromList(
+                        names = list.map(CustomFilterCriterion::getName),
+                        onCancel = { newCriterionTypes.value = null },
+                        onSelected = { which ->
+                            val instance = CriterionInstance()
+                            instance.criterion = list[which]
+                            newCriterionTypes.value = null
+                            if (instance.criterion is BooleanCriterion) {
+                                criteria.add(instance)
+                                updateList()
+                            } else
+                                newCriterionOptions.value = instance
+                        }
+                    )
+                } /* end dialog  */
+
+                /** Show options menu for the given CriterionInstance  */
+                newCriterionOptions.value?.let { instance ->
+
+                    when (instance.criterion) {
+                        is MultipleSelectCriterion -> {
+                            val multiSelectCriterion = instance.criterion as MultipleSelectCriterion
+                            val list = multiSelectCriterion.entryTitles.toList()
+                            SelectFromList(
+                                names = list,
+                                title = instance.criterion.name,
+                                onCancel = { newCriterionOptions.value = null },
+                                onSelected = { which ->
+                                    instance.selectedIndex = which
+                                    criteria.add(instance)
+                                    updateList()
+                                    newCriterionOptions.value = null
+                                }
+                            )
+                        }
+
+                        is TextInputCriterion -> {
+                            val textInCriterion = instance.criterion as TextInputCriterion
+                            val editText = remember { mutableStateOf(instance.selectedText?: "") }
+                            InputTextOption (
+                                title = textInCriterion.name,
+                                text = editText,
+                                onCancel = { newCriterionOptions.value = null },
+                                onDone = {
+                                    instance.selectedText = editText.value
+                                    criteria.add(instance)
+                                    updateList()
+                                    newCriterionOptions.value = null
+                                }
+                            )
+                        }
+
+                        else -> assert(false) { "Unexpected Criterion type" }
+                    }
+                } /* end given criteria options dialog */
+            }
+        }
+    } /* activityContent */
 
     companion object {
         const val TOKEN_FILTER = "token_filter"
