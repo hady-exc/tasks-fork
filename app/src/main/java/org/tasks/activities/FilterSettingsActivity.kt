@@ -299,40 +299,40 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
 
                 NewCriterionFAB(fabExtended) { newCriterion() }
 
-
                 /** edit given criterion type (AND|OR|NOT) **/
                 editCriterionType.value?.let { itemId ->
                     val index = criteria.indexOfFirst { it.id == itemId }
                     assert(index >= 0)
                     val criterionInstance = criteria[index]
-
-                    SelectCriterionType(
-                        title = criterionInstance.titleFromCriterion,
-                        selected = when (criterionInstance.type) {
-                            CriterionInstance.TYPE_INTERSECT -> 0
-                            CriterionInstance.TYPE_ADD -> 1
-                            else -> 2
-                        },
-                        types = listOf(
-                            stringResource(R.string.custom_filter_and),
-                            stringResource(R.string.custom_filter_or),
-                            stringResource(R.string.custom_filter_not)
-                        ),
-                        help = { help() },
-                        onCancel = { editCriterionType.value = null }
-                    ) { selected ->
-                        val type = when (selected) {
-                            0 -> CriterionInstance.TYPE_INTERSECT
-                            1 -> CriterionInstance.TYPE_ADD
-                            else -> CriterionInstance.TYPE_SUBTRACT
+                    if (criterionInstance.type != CriterionInstance.TYPE_UNIVERSE) {
+                        SelectCriterionType(
+                            title = criterionInstance.titleFromCriterion,
+                            selected = when (criterionInstance.type) {
+                                CriterionInstance.TYPE_INTERSECT -> 0
+                                CriterionInstance.TYPE_ADD -> 1
+                                else -> 2
+                            },
+                            types = listOf(
+                                stringResource(R.string.custom_filter_and),
+                                stringResource(R.string.custom_filter_or),
+                                stringResource(R.string.custom_filter_not)
+                            ),
+                            help = { help() },
+                            onCancel = { editCriterionType.value = null }
+                        ) { selected ->
+                            val type = when (selected) {
+                                0 -> CriterionInstance.TYPE_INTERSECT
+                                1 -> CriterionInstance.TYPE_ADD
+                                else -> CriterionInstance.TYPE_SUBTRACT
+                            }
+                            if (criterionInstance.type != type) {
+                                criterionInstance.type = type
+                                criteria.removeAt(index)  // remove - add pair triggers the item recomposition
+                                criteria.add(index, criterionInstance)
+                                updateList()
+                            }
+                            editCriterionType.value = null
                         }
-                        if (criterionInstance.type != type) {
-                            criterionInstance.type = type
-                            criteria.removeAt(index)  // remove - add pair triggers the item recomposition
-                            criteria.add(index, criterionInstance)
-                            updateList()
-                        }
-                        editCriterionType.value = null
                     }
                 } /* end (AND|OR|NOT) dialog */
 
