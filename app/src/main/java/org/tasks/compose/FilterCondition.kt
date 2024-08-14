@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -148,12 +147,13 @@ private fun FilterConditionRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
-            modifier = Modifier.requiredSize(56.dp),
+            modifier = Modifier.height(56.dp),
             contentAlignment = Alignment.Center
         )
         {
             if (criterion.type != CriterionInstance.TYPE_UNIVERSE) {
                 Icon(
+                    modifier = Modifier.padding(horizontal = 12.dp),
                     painter = painterResource(id = getIcon(criterion)),
                     contentDescription = null
                 )
@@ -164,7 +164,7 @@ private fun FilterConditionRow(
             fontSize = 18.sp,
             modifier = Modifier
                 .weight(0.8f)
-                .padding(start = 20.dp, top = 16.dp, bottom = 16.dp)
+                .padding(start = 16.dp, top = 16.dp, bottom = 16.dp)
         )
         val context = LocalContext.current
         val locale = remember {
