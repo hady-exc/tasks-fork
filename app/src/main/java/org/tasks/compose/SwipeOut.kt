@@ -20,11 +20,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import org.tasks.R
 import kotlin.math.roundToInt
 
 object SwipeOut {
@@ -60,7 +61,6 @@ object SwipeOut {
         }
 
         if (dragState.currentValue == Anchors.Left || dragState.currentValue == Anchors.Right) {
-            //Log.d("SWIPEOUT", "calling OnSwipe")
             onSwipe(index)
         }
 
@@ -76,11 +76,13 @@ object SwipeOut {
                     .fillMaxWidth()
                     .offset {
                         IntOffset(
-                            x = dragState.requireOffset().roundToInt(),
+                            x = dragState
+                                .requireOffset()
+                                .roundToInt(),
                             y = 0
                         )
                     }
-                    .background(Color.White) // MUST BE AFTER .offset modifier (?!?!)
+                    .background(colorResource(id = R.color.content_background)) // MUST BE AFTER .offset modifier (?!?!)
                     .anchoredDraggable(dragState, Orientation.Horizontal, reverseDirection = false)
             ) {
                 content()
