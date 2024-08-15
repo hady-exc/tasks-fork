@@ -23,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.todoroo.astrid.activity.MainActivity
 import com.todoroo.astrid.activity.TaskListFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -100,69 +101,75 @@ class PlaceSettingsActivity : BaseListSettingsActivity(),
         updateTheme()
 
         setContent {
-            ListSettingsDrawer(
-                title = toolbarTitle,
-                isNew = isNew,
-                text = textState,
-                error = errorState,
-                color = colorState,
-                icon = iconState,
-                delete = { lifecycleScope.launch { promptDelete() } },
-                save = { lifecycleScope.launch { save() } },
-                selectColor = { showThemePicker() },
-                clearColor = { clearColor() },
-                selectIcon = { showIconPicker() }
-            ) {
-                Row(modifier = Modifier
-                    .requiredHeight(56.dp)
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween)
-                {
-                    Text(stringResource(id = R.string.geofence_radius))
-                    Row (horizontalArrangement = Arrangement.End ){
-                        Text(getString(
-                            R.string.location_radius_meters,
-                            locale.formatNumber(sliderPos.floatValue.toInt())
-                        ))
-                    }
-
-                }
-                Slider(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = sliderPos.floatValue,
-                    valueRange = (MIN_RADIUS.toFloat() .. MAX_RADIUS.toFloat()),
-                    steps = (MAX_RADIUS - MIN_RADIUS) / STEP,
-                    onValueChange = { sliderPos.floatValue = it },
-                    colors = SliderDefaults.colors(
-                        thumbColor = colorResource(id = R.color.red_a400),
-                        activeTrackColor = colorResource(id = R.color.red_a400),
-                        inactiveTrackColor = colorResource(id = R.color.text_tertiary),
-                        activeTickColor = colorResource(id = R.color.red_a400),
-                        inactiveTickColor = colorResource(id = R.color.text_tertiary)
+            MdcTheme {
+                ListSettingsDrawer(
+                    title = toolbarTitle,
+                    isNew = isNew,
+                    text = textState,
+                    error = errorState,
+                    color = colorState,
+                    icon = iconState,
+                    delete = { lifecycleScope.launch { promptDelete() } },
+                    save = { lifecycleScope.launch { save() } },
+                    selectColor = { showThemePicker() },
+                    clearColor = { clearColor() },
+                    selectIcon = { showIconPicker() }
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .requiredHeight(56.dp)
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     )
-                )
-
-                AndroidView(
-                    factory = { ctx ->
-                        viewHolder = LinearLayout(ctx).apply {
-                            layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                    {
+                        Text(stringResource(id = R.string.geofence_radius))
+                        Row(horizontalArrangement = Arrangement.End) {
+                            Text(
+                                getString(
+                                    R.string.location_radius_meters,
+                                    locale.formatNumber(sliderPos.floatValue.toInt())
+                                )
+                            )
                         }
-                        map.init(
-                            this@PlaceSettingsActivity,
-                            this@PlaceSettingsActivity,
-                            dark,
-                            viewHolder
+
+                    }
+                    Slider(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = sliderPos.floatValue,
+                        valueRange = (MIN_RADIUS.toFloat()..MAX_RADIUS.toFloat()),
+                        steps = (MAX_RADIUS - MIN_RADIUS) / STEP,
+                        onValueChange = { sliderPos.floatValue = it },
+                        colors = SliderDefaults.colors(
+                            thumbColor = colorResource(id = R.color.red_a400),
+                            activeTrackColor = colorResource(id = R.color.red_a400),
+                            inactiveTrackColor = colorResource(id = R.color.text_tertiary),
+                            activeTickColor = colorResource(id = R.color.red_a400),
+                            inactiveTickColor = colorResource(id = R.color.text_tertiary)
                         )
-                        viewHolder
-                    },
-                    update = { updateGeofenceCircle(sliderPos.floatValue) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .requiredHeight(300.dp)
-                        .padding(horizontal = 8.dp)
-                )
+                    )
+
+                    AndroidView(
+                        factory = { ctx ->
+                            viewHolder = LinearLayout(ctx).apply {
+                                layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                            }
+                            map.init(
+                                this@PlaceSettingsActivity,
+                                this@PlaceSettingsActivity,
+                                dark,
+                                viewHolder
+                            )
+                            viewHolder
+                        },
+                        update = { updateGeofenceCircle(sliderPos.floatValue) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .requiredHeight(300.dp)
+                            .padding(horizontal = 8.dp)
+                    )
+                }
             }
         }
     }

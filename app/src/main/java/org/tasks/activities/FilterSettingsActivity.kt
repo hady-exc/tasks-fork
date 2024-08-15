@@ -168,7 +168,8 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
     override suspend fun save() {
         val newName = newName
         if (Strings.isNullOrEmpty(newName)) {
-           errorState.value = getString(R.string.name_cannot_be_empty)
+            errorState.value = getString(R.string.name_cannot_be_empty)
+            return
         }
 
         if (hasChanges()) {

@@ -9,6 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.material.SnackbarHostState
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.android.material.textfield.TextInputEditText
 import com.google.api.services.tasks.model.TaskList
 import com.todoroo.astrid.activity.MainActivity
@@ -32,6 +33,7 @@ import org.tasks.filters.GtasksFilter
 import org.tasks.themes.TasksIcons
 import org.tasks.compose.drawer.ListSettingsDrawer
 import org.tasks.compose.drawer.DrawerSnackBar
+import org.tasks.compose.drawer.ListSettingsDrawer
 import org.tasks.data.CaldavAccount
 import org.tasks.data.CaldavCalendar
 import org.tasks.data.GoogleTaskListDao
@@ -95,23 +97,25 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
         deleteListViewModel.observe(this, this::onListDeleted, this::requestFailed)
 
         setContent {
-            ListSettingsDrawer(
-                title = toolbarTitle,
-                isNew = isNewList,
-                text = textState,
-                error = errorState,
-                color = colorState,
-                icon = iconState,
-                delete = { lifecycleScope.launch { promptDelete() } },
-                save = { lifecycleScope.launch { save() } },
-                selectColor = { showThemePicker() },
-                clearColor = { clearColor() },
-                selectIcon = { showIconPicker() },
-                showProgress = showProgress
-            )
+            MdcTheme {
+                ListSettingsDrawer(
+                    title = toolbarTitle,
+                    isNew = isNewList,
+                    text = textState,
+                    error = errorState,
+                    color = colorState,
+                    icon = iconState,
+                    delete = { lifecycleScope.launch { promptDelete() } },
+                    save = { lifecycleScope.launch { save() } },
+                    selectColor = { showThemePicker() },
+                    clearColor = { clearColor() },
+                    selectIcon = { showIconPicker() },
+                    showProgress = showProgress
+                )
 
-            DrawerSnackBar(state = snackbar)
+                DrawerSnackBar(state = snackbar)
 
+            }
         }
 
         updateTheme()

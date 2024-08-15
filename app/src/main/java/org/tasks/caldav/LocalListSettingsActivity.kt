@@ -2,8 +2,8 @@ package org.tasks.caldav
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.compose.material.SnackbarHostState
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.composethemeadapter.MdcTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -34,23 +34,25 @@ class LocalListSettingsActivity : BaseCaldavCalendarSettingsActivity() {
 
         if (compose) {
             setContent {
-                ListSettingsDrawer(
-                    title = toolbarTitle,
-                    isNew = isNew,
-                    text = textState,
-                    error = errorState,
-                    color = colorState,
-                    icon = iconState,
-                    delete = { lifecycleScope.launch { promptDelete() } },
-                    save = { lifecycleScope.launch { save() } },
-                    selectColor = { showThemePicker() },
-                    clearColor = { clearColor() },
-                    selectIcon = { showIconPicker() },
-                    showProgress = showProgress,
-                    suppressDeleteButton = !canDelete
-                )
+                MdcTheme {
+                    ListSettingsDrawer(
+                        title = toolbarTitle,
+                        isNew = isNew,
+                        text = textState,
+                        error = errorState,
+                        color = colorState,
+                        icon = iconState,
+                        delete = { lifecycleScope.launch { promptDelete() } },
+                        save = { lifecycleScope.launch { save() } },
+                        selectColor = { showThemePicker() },
+                        clearColor = { clearColor() },
+                        selectIcon = { showIconPicker() },
+                        showProgress = showProgress,
+                        suppressDeleteButton = !canDelete
+                    )
 
-                DrawerSnackBar(state = snackbar)
+                    DrawerSnackBar(state = snackbar)
+                }
             }
         }
     }

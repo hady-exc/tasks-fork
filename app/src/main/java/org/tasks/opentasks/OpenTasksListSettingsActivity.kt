@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.composethemeadapter.MdcTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.tasks.R
@@ -40,19 +41,23 @@ class OpenTasksListSettingsActivity : BaseCaldavCalendarSettingsActivity() {
 
         if (compose)
             setContent {
-                DrawerSurface {
-                    DrawerToolbar(
-                        isNew = isNew,
-                        title = toolbarTitle,
-                        delete = { lifecycleScope.launch { promptDelete() } },
-                        save = { lifecycleScope.launch { save() } },
-                        suppressDeleteButton = false
-                    )
-                    DrawerProgressBar(showProgress)
-                    TextInput(text = textState, error = errorState, requestKeyboard = isNew,
-                        modifier = Modifier.padding(Constants.KEYLINE_FIRST))
+                MdcTheme {
+                    DrawerSurface {
+                        DrawerToolbar(
+                            isNew = isNew,
+                            title = toolbarTitle,
+                            delete = { lifecycleScope.launch { promptDelete() } },
+                            save = { lifecycleScope.launch { save() } },
+                            suppressDeleteButton = false
+                        )
+                        DrawerProgressBar(showProgress)
+                        TextInput(
+                            text = textState, error = errorState, requestKeyboard = isNew,
+                            modifier = Modifier.padding(Constants.KEYLINE_FIRST)
+                        )
+                    }
+                    DrawerSnackBar(state = snackbar)
                 }
-                DrawerSnackBar(state = snackbar)
             } /* setContent */
     }
 
