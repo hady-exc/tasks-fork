@@ -188,50 +188,6 @@ private fun FilterConditionRow(
             )
         }
     )
-/*
-    val modifier =
-        if (dragging) Modifier.background(Color.LightGray)
-        else Modifier
-    Row(
-        modifier = modifier.clickable { onClick(criterion.id) },
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(
-            modifier = Modifier.size(56.dp),
-            contentAlignment = Alignment.Center
-        )
-        {
-            if (criterion.type != CriterionInstance.TYPE_UNIVERSE) {
-                Icon(
-                    modifier = Modifier.padding(Constants.KEYLINE_FIRST),
-                    painter = painterResource(id = getIcon(criterion)),
-                    contentDescription = null
-                )
-            }
-        }
-        Text(
-            text = criterion.titleFromCriterion,
-            fontSize = 18.sp,
-            modifier = Modifier
-                .weight(0.8f)
-                .padding(start = 16.dp, top = 16.dp, bottom = 16.dp)
-        )
-        val context = LocalContext.current
-        val locale = remember {
-            ConfigurationCompat
-                .getLocales(context.resources.configuration)
-                .get(0)
-                ?: Locale.getDefault()
-        }
-        Text(
-            text = locale.formatNumber(criterion.max),
-            modifier = Modifier.padding(end = Constants.KEYLINE_FIRST),
-            color = Color.Gray,
-            fontSize = 14.sp,
-            textAlign = TextAlign.End
-        )
-    }
-*/
 }
 
 @Composable
@@ -333,31 +289,15 @@ fun SelectCriterionType(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box( contentAlignment = Alignment.CenterStart ) {
-                        Text(
-                            text = stringResource(R.string.help).uppercase(),
-                            color = MaterialTheme.colors.secondary,
-                            modifier = Modifier.clickable { help() }
-                        )
+                        Constants.TextButton(text = R.string.help, onClick = help)
                     }
                     Box(
                         contentAlignment = Alignment.CenterEnd,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Row {
-                            Text(
-                                text = stringResource(R.string.cancel).uppercase(),
-                                color = MaterialTheme.colors.secondary,
-                                modifier = Modifier
-                                    .padding(start = 16.dp)
-                                    .clickable { onCancel() }
-                            )
-                            Text(
-                                text = stringResource(R.string.ok).uppercase(),
-                                color = MaterialTheme.colors.secondary,
-                                modifier = Modifier
-                                    .padding(start = 16.dp)
-                                    .clickable { onSelected(selected.intValue) }
-                            )
+                            Constants.TextButton(text = R.string.cancel, onClick = onCancel)
+                            Constants.TextButton(text = R.string.ok) { onSelected(selected.intValue) }
                         }
                     }
                 }
@@ -497,21 +437,9 @@ fun InputTextOption(
                         .fillMaxWidth()
                         .height(48.dp)
                 ) {
-                    Row (modifier = Modifier.padding(end = 16.dp)){
-                        Text(
-                            text = stringResource(R.string.cancel).uppercase(),
-                            color = MaterialTheme.colors.secondary,
-                            modifier = Modifier
-                                .padding(start = 16.dp)
-                                .clickable { onCancel() }
-                        )
-                        Text(
-                            text = stringResource(R.string.ok).uppercase(),
-                            color = MaterialTheme.colors.secondary,
-                            modifier = Modifier
-                                .padding(start = 16.dp)
-                                .clickable { onDone() }
-                        )
+                    Row {
+                        Constants.TextButton(text = R.string.cancel, onClick = onCancel)
+                        Constants.TextButton(text = R.string.ok, onClick = onDone)
                     }
                 }
             }

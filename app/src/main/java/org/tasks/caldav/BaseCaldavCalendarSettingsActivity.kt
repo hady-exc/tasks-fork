@@ -9,11 +9,11 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import androidx.activity.compose.setContent
-import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.SnackbarHostState
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import at.bitfire.dav4jvm.exception.HttpException
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -27,8 +27,8 @@ import kotlinx.coroutines.runBlocking
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
 import org.tasks.activities.BaseListSettingsActivity
-import org.tasks.compose.drawer.ListSettingsDrawer
 import org.tasks.compose.drawer.DrawerSnackBar
+import org.tasks.compose.drawer.ListSettingsDrawer
 import org.tasks.data.CaldavAccount
 import org.tasks.data.CaldavCalendar
 import org.tasks.data.CaldavDao
@@ -98,22 +98,24 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
 
         if (setContent)
             setContent {
-                ListSettingsDrawer(
-                    title = toolbarTitle,
-                    isNew = isNew,
-                    text = textState,
-                    error = errorState,
-                    color = colorState,
-                    icon = iconState,
-                    delete = { lifecycleScope.launch { promptDelete() } },
-                    save = { lifecycleScope.launch { save() } },
-                    selectColor = { showThemePicker() },
-                    clearColor = { clearColor() },
-                    selectIcon = { showIconPicker() },
-                    showProgress = showProgress
-                )
+                MdcTheme {
+                    ListSettingsDrawer(
+                        title = toolbarTitle,
+                        isNew = isNew,
+                        text = textState,
+                        error = errorState,
+                        color = colorState,
+                        icon = iconState,
+                        delete = { lifecycleScope.launch { promptDelete() } },
+                        save = { lifecycleScope.launch { save() } },
+                        selectColor = { showThemePicker() },
+                        clearColor = { clearColor() },
+                        selectIcon = { showIconPicker() },
+                        showProgress = showProgress
+                    )
 
-                DrawerSnackBar(state = snackbar)
+                    DrawerSnackBar(state = snackbar)
+                }
             }
 
         updateTheme()
