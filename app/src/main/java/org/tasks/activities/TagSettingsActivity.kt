@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.compose.setContent
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.todoroo.astrid.activity.MainActivity
@@ -60,19 +61,21 @@ class TagSettingsActivity : BaseListSettingsActivity() {
         }
 
         setContent {
-            ListSettingsDrawer(
-                title = toolbarTitle,
-                isNew = isNewTag,
-                text = textState,
-                error = errorState,
-                color = colorState,
-                icon = iconState,
-                delete = { lifecycleScope.launch { promptDelete() } },
-                save = { lifecycleScope.launch { save() } },
-                selectColor = { showThemePicker() },
-                clearColor = { clearColor() },
-                selectIcon = { showIconPicker() }
-            )
+            MdcTheme {
+                ListSettingsDrawer(
+                    title = toolbarTitle,
+                    isNew = isNewTag,
+                    text = textState,
+                    error = errorState,
+                    color = colorState,
+                    icon = iconState,
+                    delete = { lifecycleScope.launch { promptDelete() } },
+                    save = { lifecycleScope.launch { save() } },
+                    selectColor = { showThemePicker() },
+                    clearColor = { clearColor() },
+                    selectIcon = { showIconPicker() }
+                )
+            }
         }
 /*
         name.setText(tagData.name)
