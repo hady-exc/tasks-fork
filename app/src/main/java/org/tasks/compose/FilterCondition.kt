@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -59,6 +59,7 @@ import androidx.core.os.ConfigurationCompat
 import com.todoroo.astrid.core.CriterionInstance
 import org.tasks.R
 import org.tasks.compose.SwipeOut.SwipeOut
+import org.tasks.compose.drawer.ListSettingsRow
 import org.tasks.extensions.formatNumber
 import java.util.Locale
 
@@ -93,12 +94,14 @@ fun FilterCondition (
             color = MaterialTheme.colors.secondary,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(Constants.KEYLINE_FIRST)
         )
     }
     Row {
         LazyColumn(
-            modifier = Modifier.fillMaxSize().doDrag(dragDropState),
+            modifier = Modifier
+                .fillMaxSize()
+                .doDrag(dragDropState),
             userScrollEnabled = true,
             state = listState
         ) {
@@ -135,11 +138,57 @@ private fun FilterConditionRow(
 ) {
     Divider(
         color = when (criterion.type) {
-            CriterionInstance.TYPE_ADD -> Color.LightGray
+            CriterionInstance.TYPE_ADD -> Color.Gray
             else -> Color.Transparent
         }
     )
-
+    val modifier =
+        if (dragging) Modifier.background(Color.LightGray)
+        else Modifier
+    ListSettingsRow(
+        modifier = modifier.clickable { onClick(criterion.id) },
+        left = {
+            Box(
+                modifier = Modifier.size(56.dp),
+                contentAlignment = Alignment.Center
+            )
+            {
+                if (criterion.type != CriterionInstance.TYPE_UNIVERSE) {
+                    Icon(
+                        modifier = Modifier.padding(Constants.KEYLINE_FIRST),
+                        painter = painterResource(id = getIcon(criterion)),
+                        contentDescription = null
+                    )
+                }
+            }
+        },
+        center = {
+            Text(
+                text = criterion.titleFromCriterion,
+                fontSize = 18.sp,
+                modifier = Modifier
+                    .weight(0.8f)
+                    .padding(start = 16.dp, top = 16.dp, bottom = 16.dp)
+            )
+        },
+        right = {
+            val context = LocalContext.current
+            val locale = remember {
+                ConfigurationCompat
+                    .getLocales(context.resources.configuration)
+                    .get(0)
+                    ?: Locale.getDefault()
+            }
+            Text(
+                text = locale.formatNumber(criterion.max),
+                modifier = Modifier.padding(end = Constants.KEYLINE_FIRST),
+                color = Color.Gray,
+                fontSize = 14.sp,
+                textAlign = TextAlign.End
+            )
+        }
+    )
+/*
     val modifier =
         if (dragging) Modifier.background(Color.LightGray)
         else Modifier
@@ -148,13 +197,13 @@ private fun FilterConditionRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
-            modifier = Modifier.height(56.dp).requiredWidth(48.dp),
+            modifier = Modifier.size(56.dp),
             contentAlignment = Alignment.Center
         )
         {
             if (criterion.type != CriterionInstance.TYPE_UNIVERSE) {
                 Icon(
-                    modifier = Modifier.padding(horizontal = 12.dp),
+                    modifier = Modifier.padding(Constants.KEYLINE_FIRST),
                     painter = painterResource(id = getIcon(criterion)),
                     contentDescription = null
                 )
@@ -176,12 +225,13 @@ private fun FilterConditionRow(
         }
         Text(
             text = locale.formatNumber(criterion.max),
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(end = Constants.KEYLINE_FIRST),
             color = Color.Gray,
             fontSize = 14.sp,
             textAlign = TextAlign.End
         )
     }
+*/
 }
 
 @Composable
@@ -202,7 +252,9 @@ private fun SwipeOutDecoration(onClick: () -> Unit = {}) {
         }
 
         Row(
-            modifier = Modifier.fillMaxSize().height(56.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .height(56.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Bottom
         ) {
