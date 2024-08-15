@@ -3,11 +3,14 @@ package org.tasks.opentasks
 import android.os.Bundle
 import android.view.View
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.tasks.R
 import org.tasks.caldav.BaseCaldavCalendarSettingsActivity
+import org.tasks.compose.Constants
 import org.tasks.compose.drawer.DrawerProgressBar
 import org.tasks.compose.drawer.DrawerSnackBar
 import org.tasks.compose.drawer.DrawerSurface
@@ -44,7 +47,8 @@ class OpenTasksListSettingsActivity : BaseCaldavCalendarSettingsActivity() {
                         suppressDeleteButton = false
                     )
                     DrawerProgressBar(showProgress)
-                    TextInput(text = textState, error = errorState, requestKeyboard = isNew)
+                    TextInput(text = textState, error = errorState, requestKeyboard = isNew,
+                        modifier = Modifier.padding(Constants.KEYLINE_FIRST))
                 }
                 DrawerSnackBar(state = snackbar)
             } /* setContent */

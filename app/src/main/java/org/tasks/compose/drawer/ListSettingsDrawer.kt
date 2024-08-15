@@ -1,14 +1,15 @@
 package org.tasks.compose.drawer
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,6 +20,7 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.LocalTextStyle
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Snackbar
 import androidx.compose.material.SnackbarHost
@@ -52,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import org.tasks.R
+import org.tasks.compose.Constants
 import org.tasks.compose.DeleteButton
 
 @Composable
@@ -72,8 +75,6 @@ fun ListSettingsDrawer(
     extensionContent: @Composable ColumnScope.() -> Unit = {}
 ) {
 
-    val textsPaddingLeft = 20.dp
-
     DrawerSurface {
 
         DrawerToolbar(
@@ -86,13 +87,78 @@ fun ListSettingsDrawer(
 
         DrawerProgressBar(showProgress)
 
-        TextInput(text = text, error = error, requestKeyboard = isNew)
+        TextInput(text = text, error = error, requestKeyboard = isNew, modifier = Modifier.padding(horizontal = Constants.KEYLINE_FIRST))
 
         Selectors {
+            ListSettingsRow(
+                left = {
+                    IconButton(onClick = { selectColor() }) {
+                        if (color.value == Color.Unspecified) {
+                            Icon(
+                                modifier = Modifier.padding(Constants.KEYLINE_FIRST),
+                                imageVector = ImageVector.vectorResource(R.drawable.ic_outline_not_interested_24px),
+                                tint = colorResource(R.color.icon_tint_with_alpha),
+                                contentDescription = null
+                            )
+                        } else {
+                            val borderColor =
+                                colorResource(R.color.icon_tint_with_alpha)  // colorResource(R.color.text_tertiary)
+                            Box(
+                                modifier = Modifier.size(56.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Canvas(modifier = Modifier.size(24.dp)) {
+                                    drawCircle(color = color.value)
+                                    drawCircle(
+                                        color = borderColor, style = Stroke(width = 4.0f)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                },
+                center = {
+                    Text(
+                        text = LocalContext.current.getString(R.string.color),
+                        modifier = Modifier
+                            .weight(0.8f)
+                            .padding(start = Constants.KEYLINE_FIRST)
+                            .clickable (onClick = selectColor )
+                    )
+                },
+                right = {
+                    if (color.value != Color.Unspecified) {
+                        IconButton(onClick = clearColor) {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(id = R.drawable.ic_outline_clear_24px),
+                                contentDescription = null
+                            )
+                        }
+                    }
+                }
+            )
 
-            SelectColor(color = color, selectColor = selectColor, clearColor = clearColor)
-
-            SelectIcon(icon = icon, selectIcon = selectIcon)
+            ListSettingsRow(
+                left = {
+                    IconButton(onClick = selectIcon) {
+                        Icon(
+                            modifier = Modifier.padding(Constants.KEYLINE_FIRST),
+                            imageVector = ImageVector.vectorResource(icon.value),
+                            contentDescription = null,
+                            tint = colorResource(R.color.icon_tint_with_alpha)
+                        )
+                    }
+                },
+                center = {
+                    Text(
+                        text = LocalContext.current.getString(R.string.icon),
+                        modifier = Modifier
+                            .weight(0.8f)
+                            .padding(start = Constants.KEYLINE_FIRST)
+                            .clickable( onClick = selectIcon )
+                    )
+                }
+            )
 
             extensionContent()
         }
@@ -108,14 +174,27 @@ fun DrawerToolbar(
     delete: () -> Unit,
     suppressDeleteButton: Boolean
 ) {
-    Surface(elevation = 4.dp, modifier = Modifier.requiredHeight(56.dp))
+
+/*
+    val activity = LocalView.current.context as Activity
+    activity.window.statusBarColor = colorResource(id = R.color.drawer_color_selected).toArgb()
+*/
+
+    Surface(
+        elevation = 4.dp,
+        color = colorResource(id = R.color.content_background),
+        contentColor = colorResource(id = R.color.text_primary),
+        modifier = Modifier.requiredHeight(56.dp)
+    )
     {
-        Row(verticalAlignment = Alignment.Bottom,
-            modifier = Modifier.padding(start = 4.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             IconButton(onClick = save) {
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.ic_outline_save_24px),
                     contentDescription = stringResource(id = R.string.save),
+                    modifier = Modifier.padding(Constants.KEYLINE_FIRST)
                 )
             }
             Text(
@@ -123,9 +202,8 @@ fun DrawerToolbar(
                 fontWeight = FontWeight.Medium,
                 fontSize = 20.sp,
                 modifier = Modifier
-                    .weight(0.8f)
-                    .paddingFromBaseline(bottom = 16.dp)
-                    .padding(start = 20.dp)
+                    .weight(0.9f)
+                    .padding(start = Constants.KEYLINE_FIRST)
             )
             if (!isNew && !suppressDeleteButton) DeleteButton(onClick = delete)
         }
@@ -154,11 +232,11 @@ fun TextInput(
     text: MutableState<String>,
     error: MutableState<String>,
     requestKeyboard: Boolean,
+    modifier: Modifier = Modifier,
     label: String = stringResource(R.string.display_name),
-    errorState: Color = colorResource(R.color.red_a400),  /* TODO(find correct accent color *) */
+    errorState: Color = MaterialTheme.colors.secondary,
     activeState: Color = LocalContentColor.current.copy(alpha = 0.75f),
     inactiveState: Color = LocalContentColor.current.copy(alpha = 0.5f),
-    modifier: Modifier = Modifier.padding(horizontal = 18.dp),
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val requester = remember { FocusRequester() }
@@ -217,78 +295,29 @@ fun TextInput(
             30ms period is not the guarantee but makes it working almost always */
             delay(30)
 
-            keyboardController!!.show()
+            keyboardController?.show()
         }
     }
 } /* TextInput */
 
 @Composable
-private fun SelectColor(
-    color: State<Color>,
-    selectColor: () -> Unit,
-    clearColor: () -> Unit
+fun ListSettingsRow(
+    left: @Composable RowScope.() -> Unit,
+    center: @Composable RowScope.() -> Unit,
+    right: @Composable (RowScope.() -> Unit)? = null,
+    modifier: Modifier = Modifier
 ) {
-    Row(modifier = Modifier.requiredHeight(56.dp),
-        verticalAlignment = Alignment.CenterVertically )
+    Row(
+        modifier = modifier.requiredHeight(56.dp),
+        verticalAlignment = Alignment.CenterVertically
+    )
     {
-        IconButton(onClick = { selectColor() }) {
-            if (color.value == Color.Unspecified) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_outline_not_interested_24px),
-                    tint = colorResource(R.color.icon_tint_with_alpha),
-                    contentDescription = null
-                )
-            } else {
-                val borderColor =
-                    colorResource(R.color.icon_tint_with_alpha)  // colorResource(R.color.text_tertiary)
-                Canvas(modifier = Modifier.size(24.dp)) {
-                    drawCircle(color = color.value)
-                    drawCircle(color = borderColor, style = Stroke(width = 4.0f)
-                    )
-                }
-            }
-        }
-        Text(
-            text = LocalContext.current.getString(R.string.color),
-            modifier = Modifier
-                .weight(0.8f)
-                .padding(start = 20.dp)
-        )
-        if (color.value != Color.Unspecified) {
-            IconButton(onClick = clearColor) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_outline_clear_24px),
-                    contentDescription = null
-                )
-            }
-        }
-    }
-} /* SelectColor */
-
-@Composable
-private fun SelectIcon(
-    icon: State<Int>,
-    selectIcon: () -> Unit
-) {
-    /* icon selection */
-    Row(modifier = Modifier.requiredHeight(56.dp),
-        verticalAlignment = Alignment.CenterVertically )
-    {
-        IconButton(onClick = selectIcon) {
-            Icon(
-                imageVector = ImageVector.vectorResource(icon.value),
-                contentDescription = null,
-                tint = colorResource(R.color.icon_tint_with_alpha)
-            )
-        }
-        Text(
-            text = LocalContext.current.getString(R.string.icon),
-            modifier = Modifier
-                .weight(0.8f)
-                .padding(start = 20.dp)
-        )
+        left()
+        center()
+        right?.invoke(this)
     }
 }
+
 
 @Composable
 fun DrawerSurface(content: @Composable ColumnScope.() -> Unit) {
@@ -305,7 +334,7 @@ fun DrawerSurface(content: @Composable ColumnScope.() -> Unit) {
 
 @Composable
 fun Selectors(content: @Composable ColumnScope.() -> Unit )
-{ Column(modifier = Modifier.padding(start = 4.dp)) { content() } }
+{ Column(modifier = Modifier.fillMaxWidth()) { content() } }
 
 @Composable
 fun DrawerSnackBar(state: SnackbarHostState) {
