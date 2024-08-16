@@ -35,19 +35,17 @@ class LocalListSettingsActivity : BaseCaldavCalendarSettingsActivity() {
                 MdcTheme {
                     ListSettingsDrawer(
                         title = toolbarTitle,
-                        isNew = isNew,
+                        requestKeyboard  = isNew,
                         text = textState,
                         error = errorState,
                         color = colorState,
                         icon = iconState,
-                        delete = { lifecycleScope.launch { promptDelete() } },
                         save = { lifecycleScope.launch { save() } },
                         selectColor = { showThemePicker() },
                         clearColor = { clearColor() },
                         selectIcon = { showIconPicker() },
                         showProgress = showProgress,
                         optionButton = { if (!isNew && canDelete) DeleteButton { lifecycleScope.launch { promptDelete() } } },
-                        suppressDeleteButton = !canDelete
                     )
 
                     DrawerSnackBar(state = snackbar)
