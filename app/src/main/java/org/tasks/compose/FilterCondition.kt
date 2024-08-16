@@ -51,6 +51,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -116,7 +117,7 @@ fun FilterCondition (
                         dragDropState = dragDropState, index = index
                     ) { dragging ->
                         SwipeOut(
-                            decoration = { SwipeOutDecoration { onDelete(index) } },
+                            decoration = { SwipeOutDecoration() },
                             onSwipe = { index -> onDelete(index) },
                             index = index
                         ) {
@@ -166,6 +167,8 @@ private fun FilterConditionRow(
             Text(
                 text = criterion.titleFromCriterion,
                 fontSize = 18.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
                     .weight(0.8f)
                     .padding(start = 16.dp, top = 16.dp, bottom = 16.dp)
@@ -191,7 +194,7 @@ private fun FilterConditionRow(
 }
 
 @Composable
-private fun SwipeOutDecoration(onClick: () -> Unit = {}) {
+private fun SwipeOutDecoration() {
     Box( modifier = Modifier
         .fillMaxSize()
         .background(MaterialTheme.colors.secondary)
