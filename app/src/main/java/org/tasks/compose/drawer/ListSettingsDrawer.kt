@@ -70,6 +70,7 @@ fun ListSettingsDrawer(
     selectIcon: () -> Unit = {},
     clearColor: () -> Unit = {},
     selectColor: () -> Unit = {},
+    optionButton: @Composable () -> Unit, /** right button on toolbar, mostly, DeleteButton */
     showProgress: State<Boolean> = remember { mutableStateOf(false) },
     suppressDeleteButton: Boolean = false,
     extensionContent: @Composable ColumnScope.() -> Unit = {}
@@ -82,6 +83,7 @@ fun ListSettingsDrawer(
             title = title,
             save = save,
             delete = delete,
+            optionButton = optionButton,
             suppressDeleteButton = suppressDeleteButton
         )
 
@@ -123,7 +125,7 @@ fun ListSettingsDrawer(
                         modifier = Modifier
                             .weight(0.8f)
                             .padding(start = Constants.KEYLINE_FIRST)
-                            .clickable (onClick = selectColor )
+                            .clickable(onClick = selectColor)
                     )
                 },
                 right = {
@@ -155,14 +157,13 @@ fun ListSettingsDrawer(
                         modifier = Modifier
                             .weight(0.8f)
                             .padding(start = Constants.KEYLINE_FIRST)
-                            .clickable( onClick = selectIcon )
+                            .clickable(onClick = selectIcon)
                     )
                 }
             )
 
             extensionContent()
         }
-
     }
 }
 
@@ -172,6 +173,7 @@ fun DrawerToolbar(
     title: String,
     save: () -> Unit,
     delete: () -> Unit,
+    optionButton: @Composable () -> Unit,
     suppressDeleteButton: Boolean
 ) {
 
@@ -205,7 +207,8 @@ fun DrawerToolbar(
                     .weight(0.9f)
                     .padding(start = Constants.KEYLINE_FIRST)
             )
-            if (!isNew && !suppressDeleteButton) DeleteButton(onClick = delete)
+            optionButton()
+            //if (!isNew && !suppressDeleteButton) DeleteButton(onClick = delete)
         }
     }
 } /* DrawerToolBar */
@@ -371,6 +374,7 @@ fun BaseSettingsDrawerPreview () {
         save = {},
         selectColor = { Color.Red },
         clearColor = { },
+        optionButton = { DeleteButton {}},
         selectIcon = { }
     )
 }
