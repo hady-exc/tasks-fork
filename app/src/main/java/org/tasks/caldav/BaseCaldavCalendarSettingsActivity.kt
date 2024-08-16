@@ -26,6 +26,7 @@ import kotlinx.coroutines.runBlocking
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
 import org.tasks.activities.BaseListSettingsActivity
+import org.tasks.compose.DeleteButton
 import org.tasks.data.UUIDHelper
 import org.tasks.data.dao.CaldavDao
 import org.tasks.data.entity.CaldavAccount
@@ -116,6 +117,7 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
                         selectColor = { showThemePicker() },
                         clearColor = { clearColor() },
                         selectIcon = { showIconPicker() },
+                        optionButton = { if (!isNew) DeleteButton { lifecycleScope.launch { promptDelete() } } },
                         showProgress = showProgress
                     )
 

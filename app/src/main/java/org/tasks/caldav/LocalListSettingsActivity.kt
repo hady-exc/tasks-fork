@@ -8,6 +8,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.tasks.R
+import org.tasks.compose.DeleteButton
 import org.tasks.compose.drawer.DrawerSnackBar
 import org.tasks.compose.drawer.ListSettingsDrawer
 import org.tasks.data.CaldavAccount
@@ -48,6 +49,7 @@ class LocalListSettingsActivity : BaseCaldavCalendarSettingsActivity() {
                         clearColor = { clearColor() },
                         selectIcon = { showIconPicker() },
                         showProgress = showProgress,
+                        optionButton = { if (!isNew && canDelete) DeleteButton { lifecycleScope.launch { promptDelete() } } },
                         suppressDeleteButton = !canDelete
                     )
 

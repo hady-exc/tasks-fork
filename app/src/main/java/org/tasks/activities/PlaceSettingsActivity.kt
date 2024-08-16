@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.update
 import org.tasks.LocalBroadcastManager
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
+import org.tasks.compose.DeleteButton
 import org.tasks.compose.drawer.ListSettingsDrawer
 import org.tasks.data.dao.LocationDao
 import org.tasks.data.displayName
@@ -113,7 +114,8 @@ class PlaceSettingsActivity : BaseListSettingsActivity(),
                     save = { lifecycleScope.launch { save() } },
                     selectColor = { showThemePicker() },
                     clearColor = { clearColor() },
-                    selectIcon = { showIconPicker() }
+                    selectIcon = { showIconPicker() },
+                    optionButton = { if (!isNew) DeleteButton { lifecycleScope.launch { promptDelete() } } }
                 ) {
                     Row(
                         modifier = Modifier

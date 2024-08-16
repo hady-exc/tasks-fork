@@ -23,6 +23,7 @@ import kotlinx.coroutines.withContext
 import org.tasks.LocalBroadcastManager
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
+import org.tasks.compose.DeleteButton
 import org.tasks.data.dao.GoogleTaskListDao
 import org.tasks.data.entity.CaldavAccount
 import org.tasks.data.entity.CaldavCalendar
@@ -110,6 +111,7 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
                     selectColor = { showThemePicker() },
                     clearColor = { clearColor() },
                     selectIcon = { showIconPicker() },
+                    optionButton = { if (!isNewList) DeleteButton { lifecycleScope.launch { promptDelete() } } },
                     showProgress = showProgress
                 )
 

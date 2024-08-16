@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import org.tasks.R
 import org.tasks.caldav.BaseCaldavCalendarSettingsActivity
 import org.tasks.compose.Constants
+import org.tasks.compose.DeleteButton
 import org.tasks.compose.drawer.DrawerProgressBar
 import org.tasks.compose.drawer.DrawerSnackBar
 import org.tasks.compose.drawer.DrawerSurface
@@ -48,6 +49,7 @@ class OpenTasksListSettingsActivity : BaseCaldavCalendarSettingsActivity() {
                             title = toolbarTitle,
                             delete = { lifecycleScope.launch { promptDelete() } },
                             save = { lifecycleScope.launch { save() } },
+                            optionButton = { if (!isNew) DeleteButton { lifecycleScope.launch { promptDelete() } } },
                             suppressDeleteButton = false
                         )
                         DrawerProgressBar(showProgress)

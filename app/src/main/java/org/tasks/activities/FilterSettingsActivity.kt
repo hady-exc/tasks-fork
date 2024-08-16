@@ -8,6 +8,10 @@ import android.widget.RelativeLayout
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Help
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +43,7 @@ import kotlinx.coroutines.launch
 import org.tasks.LocalBroadcastManager
 import org.tasks.R
 import org.tasks.Strings
+import org.tasks.compose.DeleteButton
 import org.tasks.compose.FilterCondition
 import org.tasks.compose.InputTextOption
 import org.tasks.compose.NewCriterionFAB
@@ -298,6 +303,15 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                     selectColor = { showThemePicker() },
                     clearColor = { clearColor() },
                     selectIcon = { showIconPicker() },
+                    optionButton =
+                    {
+                        if (isNew) {
+                            IconButton(onClick = { help() }) {
+                                Icon(imageVector = Icons.Outlined.Help, contentDescription = "")
+                            }
+                        }
+                        else DeleteButton { lifecycleScope.launch { promptDelete() } }
+                    },
                     showProgress = showProgress
                 ) {
                     FilterCondition(

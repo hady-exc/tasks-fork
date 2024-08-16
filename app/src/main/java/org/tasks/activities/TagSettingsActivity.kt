@@ -23,6 +23,7 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
+import org.tasks.compose.DeleteButton
 import org.tasks.compose.drawer.ListSettingsDrawer
 import org.tasks.data.TagDao
 import org.tasks.data.TagData
@@ -76,6 +77,7 @@ class TagSettingsActivity : BaseListSettingsActivity() {
                     icon = iconState,
                     delete = { lifecycleScope.launch { promptDelete() } },
                     save = { lifecycleScope.launch { save() } },
+                    optionButton = { if (!isNewTag) DeleteButton(onClick = { lifecycleScope.launch { promptDelete() } })},
                     selectColor = { showThemePicker() },
                     clearColor = { clearColor() },
                     selectIcon = { showIconPicker() }
