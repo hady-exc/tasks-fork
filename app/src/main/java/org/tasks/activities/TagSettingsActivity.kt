@@ -70,12 +70,11 @@ class TagSettingsActivity : BaseListSettingsActivity() {
             MdcTheme {
                 ListSettingsDrawer(
                     title = toolbarTitle,
-                    isNew = isNewTag,
+                    requestKeyboard = isNewTag,
                     text = textState,
                     error = errorState,
                     color = colorState,
                     icon = iconState,
-                    delete = { lifecycleScope.launch { promptDelete() } },
                     save = { lifecycleScope.launch { save() } },
                     optionButton = { if (!isNewTag) DeleteButton(onClick = { lifecycleScope.launch { promptDelete() } })},
                     selectColor = { showThemePicker() },

@@ -60,36 +60,31 @@ import org.tasks.compose.DeleteButton
 @Composable
 fun ListSettingsDrawer(
     title: String,
-    isNew: Boolean,
+    requestKeyboard: Boolean,
     text: MutableState<String>,
     error: MutableState<String>,
     color: State<Color>,
     icon: State<Int>,
     save: () -> Unit = {},
-    delete: () -> Unit = {},
     selectIcon: () -> Unit = {},
     clearColor: () -> Unit = {},
     selectColor: () -> Unit = {},
     optionButton: @Composable () -> Unit, /** right button on toolbar, mostly, DeleteButton */
     showProgress: State<Boolean> = remember { mutableStateOf(false) },
-    suppressDeleteButton: Boolean = false,
     extensionContent: @Composable ColumnScope.() -> Unit = {}
 ) {
 
     DrawerSurface {
 
         DrawerToolbar(
-            isNew = isNew,
             title = title,
             save = save,
-            delete = delete,
-            optionButton = optionButton,
-            suppressDeleteButton = suppressDeleteButton
+            optionButton = optionButton
         )
 
         DrawerProgressBar(showProgress)
 
-        TextInput(text = text, error = error, requestKeyboard = isNew, modifier = Modifier.padding(horizontal = Constants.KEYLINE_FIRST))
+        TextInput(text = text, error = error, requestKeyboard = requestKeyboard, modifier = Modifier.padding(horizontal = Constants.KEYLINE_FIRST))
 
         Selectors {
             ListSettingsRow(
@@ -169,12 +164,9 @@ fun ListSettingsDrawer(
 
 @Composable
 fun DrawerToolbar(
-    isNew: Boolean,
     title: String,
     save: () -> Unit,
-    delete: () -> Unit,
     optionButton: @Composable () -> Unit,
-    suppressDeleteButton: Boolean
 ) {
 
 /*
@@ -365,12 +357,12 @@ fun DrawerSnackBar(state: SnackbarHostState) {
 fun BaseSettingsDrawerPreview () {
     ListSettingsDrawer(
         title ="Create New Tag",
-        isNew = false,
+        //isNew = false,
+        requestKeyboard = false,
         text = remember { mutableStateOf("Tag Name") },
         error = remember { mutableStateOf("") },
         color = remember { mutableStateOf(Color.Red) },
         icon = remember { mutableStateOf(R.drawable.ic_outline_label_24px) },
-        delete = {},
         save = {},
         selectColor = { Color.Red },
         clearColor = { },

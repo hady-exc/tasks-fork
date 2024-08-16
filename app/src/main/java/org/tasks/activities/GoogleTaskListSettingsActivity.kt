@@ -101,12 +101,11 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
             MdcTheme {
                 ListSettingsDrawer(
                     title = toolbarTitle,
-                    isNew = isNewList,
+                    requestKeyboard = isNewList,
                     text = textState,
                     error = errorState,
                     color = colorState,
                     icon = iconState,
-                    delete = { lifecycleScope.launch { promptDelete() } },
                     save = { lifecycleScope.launch { save() } },
                     selectColor = { showThemePicker() },
                     clearColor = { clearColor() },

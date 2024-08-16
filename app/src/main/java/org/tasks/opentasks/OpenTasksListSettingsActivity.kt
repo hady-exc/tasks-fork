@@ -45,12 +45,9 @@ class OpenTasksListSettingsActivity : BaseCaldavCalendarSettingsActivity() {
                 MdcTheme {
                     DrawerSurface {
                         DrawerToolbar(
-                            isNew = isNew,
                             title = toolbarTitle,
-                            delete = { lifecycleScope.launch { promptDelete() } },
                             save = { lifecycleScope.launch { save() } },
                             optionButton = { if (!isNew) DeleteButton { lifecycleScope.launch { promptDelete() } } },
-                            suppressDeleteButton = false
                         )
                         DrawerProgressBar(showProgress)
                         TextInput(
