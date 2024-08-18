@@ -84,9 +84,10 @@ fun ListSettingsDrawer(
 
         DrawerProgressBar(showProgress)
 
-        TextInput(text = text, error = error, requestKeyboard = requestKeyboard, modifier = Modifier.padding(horizontal = Constants.KEYLINE_FIRST))
+        TextInput(text = text, error = error, requestKeyboard = requestKeyboard,
+            modifier = Modifier.padding(horizontal = Constants.KEYLINE_FIRST))
 
-        Selectors {
+        Column(modifier = Modifier.fillMaxWidth()) {
             ListSettingsRow(
                 left = {
                     IconButton(onClick = { selectColor() }) {
@@ -326,10 +327,6 @@ fun DrawerSurface(content: @Composable ColumnScope.() -> Unit) {
         }
     }
 }
-
-@Composable
-fun Selectors(content: @Composable ColumnScope.() -> Unit )
-{ Column(modifier = Modifier.fillMaxWidth()) { content() } }
 
 @Composable
 fun DrawerSnackBar(state: SnackbarHostState) {
