@@ -15,7 +15,6 @@ import androidx.compose.material.icons.outlined.Help
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
@@ -400,15 +399,15 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
 
                         is TextInputCriterion -> {
                             val textInCriterion = instance.criterion as TextInputCriterion
-                            val editText = remember { mutableStateOf(instance.selectedText?: "") }
                             InputTextOption (
                                 title = textInCriterion.name,
-                                text = editText,
                                 onCancel = { newCriterionOptions.value = null },
-                                onDone = {
-                                    instance.selectedText = editText.value
-                                    criteria.add(instance)
-                                    updateList()
+                                onDone = { text ->
+                                    text.trim().takeIf{ it != "" }?. let {text ->
+                                        instance.selectedText = text
+                                        criteria.add(instance)
+                                        updateList()
+                                    }
                                     newCriterionOptions.value = null
                                 }
                             )
