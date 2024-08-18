@@ -18,12 +18,12 @@ import org.tasks.R
 import org.tasks.compose.ListSettingsComposables.PrincipalList
 import org.tasks.compose.ShareInvite.ShareInviteDialog
 import org.tasks.data.CaldavAccount
+import org.tasks.data.CaldavAccount.Companion.SERVER_MAILBOX_ORG
 import org.tasks.data.CaldavAccount.Companion.SERVER_NEXTCLOUD
 import org.tasks.data.CaldavAccount.Companion.SERVER_OWNCLOUD
 import org.tasks.data.CaldavAccount.Companion.SERVER_SABREDAV
 import org.tasks.data.CaldavAccount.Companion.SERVER_TASKS
 import org.tasks.data.CaldavCalendar
-import org.tasks.data.CaldavCalendar.Companion.ACCESS_OWNER
 import org.tasks.data.PrincipalDao
 import org.tasks.data.PrincipalWithAccess
 import javax.inject.Inject
@@ -34,6 +34,9 @@ class CaldavCalendarSettingsActivity : BaseCaldavCalendarSettingsActivity() {
     @Inject lateinit var principalDao: PrincipalDao
 
     private val viewModel: CaldavCalendarViewModel by viewModels()
+
+    override val setContent
+        get() = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,7 +64,7 @@ class CaldavCalendarSettingsActivity : BaseCaldavCalendarSettingsActivity() {
                     }
             }
         }
-        if (caldavAccount.canShare && (isNew || caldavCalendar?.access == ACCESS_OWNER)) {
+        if (caldavAccount.canShare /*&& (isNew || caldavCalendar?.access == ACCESS_OWNER)*/) {  // TODO(rollback commented condition!!!)
             findViewById<ComposeView>(R.id.fab)
                 .apply { isVisible = true }
                 .setContent {
@@ -89,7 +92,7 @@ class CaldavCalendarSettingsActivity : BaseCaldavCalendarSettingsActivity() {
     }
 
     private val canRemovePrincipals: Boolean
-        get() = caldavCalendar?.access == ACCESS_OWNER && caldavAccount.canRemovePrincipal
+        get() = true // TODO( revert back !) caldavCalendar?.access == ACCESS_OWNER && caldavAccount.canRemovePrincipal
 
     private fun onRemove(principal: PrincipalWithAccess) {
         if (requestInProgress()) {
@@ -146,14 +149,14 @@ class CaldavCalendarSettingsActivity : BaseCaldavCalendarSettingsActivity() {
     companion object {
         val CaldavAccount.canRemovePrincipal: Boolean
             get() = when (serverType) {
-                SERVER_TASKS, SERVER_OWNCLOUD, SERVER_SABREDAV, SERVER_NEXTCLOUD -> true
+                SERVER_TASKS, SERVER_OWNCLOUD, SERVER_SABREDAV, SERVER_NEXTCLOUD, SERVER_MAILBOX_ORG -> true // TODO(revert MAILBOX_ORG out!!!)
                 else -> false
             }
 
         val CaldavAccount.canShare: Boolean
             get() = when (serverType) {
-                SERVER_TASKS, SERVER_OWNCLOUD, SERVER_SABREDAV, SERVER_NEXTCLOUD -> true
-                else -> false
+                SERVER_TASKS, SERVER_OWNCLOUD, SERVER_SABREDAV, SERVER_NEXTCLOUD, SERVER_MAILBOX_ORG -> true // TODO(revert MAILBOX_ORG out!!!)
+                else -> true // false TODO(the same with the above!!!)
             }
     }
 }
