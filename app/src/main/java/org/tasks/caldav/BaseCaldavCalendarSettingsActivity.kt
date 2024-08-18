@@ -257,7 +257,8 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
     private fun iconChanged(): Boolean = selectedIcon.value != caldavCalendar!!.icon
 
     private val newName: String
-        get() = if (compose) textState.value.trim { it <= ' '}
+        get() =
+            if (compose) textState.value.trim { it <= ' '}
             else name.text.toString().trim { it <= ' ' }
 
     override fun finish() {
