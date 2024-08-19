@@ -266,7 +266,7 @@ class CaldavCalendarSettingsActivity : BaseCaldavCalendarSettingsActivity() {
         val CaldavAccount.canRemovePrincipal: Boolean
             get() = when (serverType) {
                 SERVER_TASKS, SERVER_OWNCLOUD, SERVER_SABREDAV, SERVER_NEXTCLOUD -> true
-                else -> false
+                else -> true // false TODO(rollback to false)
             }
 
         val CaldavAccount.canShare: Boolean
