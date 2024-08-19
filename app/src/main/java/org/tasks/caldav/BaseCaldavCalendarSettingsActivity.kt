@@ -27,6 +27,7 @@ import kotlinx.coroutines.runBlocking
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
 import org.tasks.activities.BaseListSettingsActivity
+import org.tasks.compose.DeleteButton
 import org.tasks.compose.drawer.DrawerSnackBar
 import org.tasks.compose.drawer.ListSettingsDrawer
 import org.tasks.data.CaldavAccount
@@ -101,16 +102,16 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
                 MdcTheme {
                     ListSettingsDrawer(
                         title = toolbarTitle,
-                        isNew = isNew,
+                        requestKeyboard = isNew,
                         text = textState,
                         error = errorState,
                         color = colorState,
                         icon = iconState,
-                        delete = { lifecycleScope.launch { promptDelete() } },
                         save = { lifecycleScope.launch { save() } },
                         selectColor = { showThemePicker() },
                         clearColor = { clearColor() },
                         selectIcon = { showIconPicker() },
+                        optionButton = { if (!isNew) DeleteButton { lifecycleScope.launch { promptDelete() } } },
                         showProgress = showProgress
                     )
 
@@ -248,7 +249,8 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
     private fun iconChanged(): Boolean = selectedIcon != caldavCalendar!!.getIcon()
 
     private val newName: String
-        get() = if (compose) textState.value.trim { it <= ' '}
+        get() =
+            if (compose) textState.value.trim { it <= ' '}
             else name.text.toString().trim { it <= ' ' }
 
     override fun finish() {

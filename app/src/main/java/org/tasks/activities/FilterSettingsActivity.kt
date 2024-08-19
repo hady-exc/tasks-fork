@@ -8,10 +8,13 @@ import android.widget.RelativeLayout
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Help
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
@@ -39,6 +42,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.tasks.R
 import org.tasks.Strings
+import org.tasks.compose.DeleteButton
 import org.tasks.compose.FilterCondition
 import org.tasks.compose.InputTextOption
 import org.tasks.compose.NewCriterionFAB
@@ -278,16 +282,24 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
             ) {
                 ListSettingsDrawer(
                     title = toolbarTitle,
-                    isNew = isNew,
+                    requestKeyboard = isNew,
                     text = textState,
                     error = errorState,
                     color = colorState,
                     icon = iconState,
-                    delete = { lifecycleScope.launch { promptDelete() } },
                     save = { lifecycleScope.launch { save() } },
                     selectColor = { showThemePicker() },
                     clearColor = { clearColor() },
                     selectIcon = { showIconPicker() },
+                    optionButton =
+                    {
+                        if (isNew) {
+                            IconButton(onClick = { help() }) {
+                                Icon(imageVector = Icons.Outlined.Help, contentDescription = "")
+                            }
+                        }
+                        else DeleteButton { lifecycleScope.launch { promptDelete() } }
+                    },
                     showProgress = showProgress
                 ) {
                     FilterCondition(
@@ -377,15 +389,15 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
 
                         is TextInputCriterion -> {
                             val textInCriterion = instance.criterion as TextInputCriterion
-                            val editText = remember { mutableStateOf(instance.selectedText?: "") }
                             InputTextOption (
                                 title = textInCriterion.name,
-                                text = editText,
                                 onCancel = { newCriterionOptions.value = null },
-                                onDone = {
-                                    instance.selectedText = editText.value
-                                    criteria.add(instance)
-                                    updateList()
+                                onDone = { text ->
+                                    text.trim().takeIf{ it != "" }?. let {text ->
+                                        instance.selectedText = text
+                                        criteria.add(instance)
+                                        updateList()
+                                    }
                                     newCriterionOptions.value = null
                                 }
                             )

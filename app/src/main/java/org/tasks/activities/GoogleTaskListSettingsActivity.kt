@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
+import org.tasks.compose.DeleteButton
 import org.tasks.compose.drawer.DrawerSnackBar
 import org.tasks.compose.drawer.ListSettingsDrawer
 import org.tasks.data.CaldavAccount
@@ -89,16 +90,16 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
             MdcTheme {
                 ListSettingsDrawer(
                     title = toolbarTitle,
-                    isNew = isNewList,
+                    requestKeyboard = isNewList,
                     text = textState,
                     error = errorState,
                     color = colorState,
                     icon = iconState,
-                    delete = { lifecycleScope.launch { promptDelete() } },
                     save = { lifecycleScope.launch { save() } },
                     selectColor = { showThemePicker() },
                     clearColor = { clearColor() },
                     selectIcon = { showIconPicker() },
+                    optionButton = { if (!isNewList) DeleteButton { lifecycleScope.launch { promptDelete() } } },
                     showProgress = showProgress
                 )
 

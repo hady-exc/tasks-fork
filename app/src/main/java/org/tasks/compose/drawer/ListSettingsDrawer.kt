@@ -60,36 +60,34 @@ import org.tasks.compose.DeleteButton
 @Composable
 fun ListSettingsDrawer(
     title: String,
-    isNew: Boolean,
+    requestKeyboard: Boolean,
     text: MutableState<String>,
     error: MutableState<String>,
     color: State<Color>,
     icon: State<Int>,
     save: () -> Unit = {},
-    delete: () -> Unit = {},
     selectIcon: () -> Unit = {},
     clearColor: () -> Unit = {},
     selectColor: () -> Unit = {},
+    optionButton: @Composable () -> Unit, /** right button on toolbar, mostly, DeleteButton */
     showProgress: State<Boolean> = remember { mutableStateOf(false) },
-    suppressDeleteButton: Boolean = false,
     extensionContent: @Composable ColumnScope.() -> Unit = {}
 ) {
 
     DrawerSurface {
 
         DrawerToolbar(
-            isNew = isNew,
             title = title,
             save = save,
-            delete = delete,
-            suppressDeleteButton = suppressDeleteButton
+            optionButton = optionButton
         )
 
         DrawerProgressBar(showProgress)
 
-        TextInput(text = text, error = error, requestKeyboard = isNew, modifier = Modifier.padding(horizontal = Constants.KEYLINE_FIRST))
+        TextInput(text = text, error = error, requestKeyboard = requestKeyboard,
+            modifier = Modifier.padding(horizontal = Constants.KEYLINE_FIRST))
 
-        Selectors {
+        Column(modifier = Modifier.fillMaxWidth()) {
             ListSettingsRow(
                 left = {
                     IconButton(onClick = { selectColor() }) {
@@ -123,7 +121,7 @@ fun ListSettingsDrawer(
                         modifier = Modifier
                             .weight(0.8f)
                             .padding(start = Constants.KEYLINE_FIRST)
-                            .clickable (onClick = selectColor )
+                            .clickable(onClick = selectColor)
                     )
                 },
                 right = {
@@ -155,24 +153,21 @@ fun ListSettingsDrawer(
                         modifier = Modifier
                             .weight(0.8f)
                             .padding(start = Constants.KEYLINE_FIRST)
-                            .clickable( onClick = selectIcon )
+                            .clickable(onClick = selectIcon)
                     )
                 }
             )
 
             extensionContent()
         }
-
     }
 }
 
 @Composable
 fun DrawerToolbar(
-    isNew: Boolean,
     title: String,
     save: () -> Unit,
-    delete: () -> Unit,
-    suppressDeleteButton: Boolean
+    optionButton: @Composable () -> Unit,
 ) {
 
 /*
@@ -205,7 +200,8 @@ fun DrawerToolbar(
                     .weight(0.9f)
                     .padding(start = Constants.KEYLINE_FIRST)
             )
-            if (!isNew && !suppressDeleteButton) DeleteButton(onClick = delete)
+            optionButton()
+            //if (!isNew && !suppressDeleteButton) DeleteButton(onClick = delete)
         }
     }
 } /* DrawerToolBar */
@@ -333,10 +329,6 @@ fun DrawerSurface(content: @Composable ColumnScope.() -> Unit) {
 }
 
 @Composable
-fun Selectors(content: @Composable ColumnScope.() -> Unit )
-{ Column(modifier = Modifier.fillMaxWidth()) { content() } }
-
-@Composable
 fun DrawerSnackBar(state: SnackbarHostState) {
     SnackbarHost(state) {
         Box(
@@ -362,15 +354,16 @@ fun DrawerSnackBar(state: SnackbarHostState) {
 fun BaseSettingsDrawerPreview () {
     ListSettingsDrawer(
         title ="Create New Tag",
-        isNew = false,
+        //isNew = false,
+        requestKeyboard = false,
         text = remember { mutableStateOf("Tag Name") },
         error = remember { mutableStateOf("") },
         color = remember { mutableStateOf(Color.Red) },
         icon = remember { mutableStateOf(R.drawable.ic_outline_label_24px) },
-        delete = {},
         save = {},
         selectColor = { Color.Red },
         clearColor = { },
+        optionButton = { DeleteButton {}},
         selectIcon = { }
     )
 }

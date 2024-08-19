@@ -8,6 +8,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.tasks.R
+import org.tasks.compose.DeleteButton
 import org.tasks.compose.drawer.DrawerSnackBar
 import org.tasks.compose.drawer.ListSettingsDrawer
 import org.tasks.data.CaldavAccount
@@ -34,18 +35,17 @@ class LocalListSettingsActivity : BaseCaldavCalendarSettingsActivity() {
                 MdcTheme {
                     ListSettingsDrawer(
                         title = toolbarTitle,
-                        isNew = isNew,
+                        requestKeyboard  = isNew,
                         text = textState,
                         error = errorState,
                         color = colorState,
                         icon = iconState,
-                        delete = { lifecycleScope.launch { promptDelete() } },
                         save = { lifecycleScope.launch { save() } },
                         selectColor = { showThemePicker() },
                         clearColor = { clearColor() },
                         selectIcon = { showIconPicker() },
                         showProgress = showProgress,
-                        suppressDeleteButton = !canDelete
+                        optionButton = { if (!isNew && canDelete) DeleteButton { lifecycleScope.launch { promptDelete() } } },
                     )
 
                     DrawerSnackBar(state = snackbar)
