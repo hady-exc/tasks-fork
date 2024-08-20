@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -354,6 +355,23 @@ fun DrawerSnackBar(state: SnackbarHostState) {
     }
 }
 
+
+@Composable
+fun PromptAction(
+    showDialog: MutableState<Boolean>,
+    title: String,
+    onAction: () -> Unit,
+    onCancel: () -> Unit = { showDialog.value = false }
+) {
+    if (showDialog.value) {
+        AlertDialog(
+            onDismissRequest = onCancel,
+            title = { Text(title, style = MaterialTheme.typography.h6) },
+            confirmButton = { Constants.TextButton(R.string.ok, onClick = onAction) },
+            dismissButton = { Constants.TextButton(text = R.string.cancel, onCancel) }
+        )
+    }
+}
 
 @Composable
 @Preview(apiLevel = 34)
