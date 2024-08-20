@@ -73,7 +73,6 @@ fun ListSettingsDrawer(
     showProgress: State<Boolean> = remember { mutableStateOf(false) },
     extensionContent: @Composable ColumnScope.() -> Unit = {}
 ) {
-
     DrawerSurface {
 
         DrawerToolbar(
@@ -88,76 +87,8 @@ fun ListSettingsDrawer(
             modifier = Modifier.padding(horizontal = Constants.KEYLINE_FIRST))
 
         Column(modifier = Modifier.fillMaxWidth()) {
-            ListSettingsRow(
-                left = {
-                    IconButton(onClick = { selectColor() }) {
-                        if (color.value == Color.Unspecified) {
-                            Icon(
-                                modifier = Modifier.padding(Constants.KEYLINE_FIRST),
-                                imageVector = ImageVector.vectorResource(R.drawable.ic_outline_not_interested_24px),
-                                tint = colorResource(R.color.icon_tint_with_alpha),
-                                contentDescription = null
-                            )
-                        } else {
-                            val borderColor =
-                                colorResource(R.color.icon_tint_with_alpha)  // colorResource(R.color.text_tertiary)
-                            Box(
-                                modifier = Modifier.size(56.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Canvas(modifier = Modifier.size(24.dp)) {
-                                    drawCircle(color = color.value)
-                                    drawCircle(
-                                        color = borderColor, style = Stroke(width = 4.0f)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                },
-                center = {
-                    Text(
-                        text = LocalContext.current.getString(R.string.color),
-                        modifier = Modifier
-                            .weight(0.8f)
-                            .padding(start = Constants.KEYLINE_FIRST)
-                            .clickable(onClick = selectColor)
-                    )
-                },
-                right = {
-                    if (color.value != Color.Unspecified) {
-                        IconButton(onClick = clearColor) {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(id = R.drawable.ic_outline_clear_24px),
-                                contentDescription = null
-                            )
-                        }
-                    }
-                }
-            )
-
-            ListSettingsRow(
-                left = {
-                    IconButton(onClick = selectIcon) {
-                        Icon(
-                            modifier = Modifier.padding(Constants.KEYLINE_FIRST),
-                            imageVector = ImageVector.vectorResource(icon.value),
-                            contentDescription = null,
-                            tint = colorResource(R.color.icon_tint_with_alpha)
-                        )
-                    }
-                },
-                center = {
-                    Text(
-                        text = LocalContext.current.getString(R.string.icon),
-                        modifier = Modifier
-                            .weight(0.8f)
-                            .padding(start = Constants.KEYLINE_FIRST)
-                            .clickable(onClick = selectIcon)
-                    )
-                }
-            )
-
+            SelectColorRow(color = color, selectColor = selectColor, clearColor = clearColor)
+            SelectIconRow(icon = icon, selectIcon = selectIcon)
             extensionContent()
         }
     }
@@ -295,6 +226,81 @@ fun TextInput(
         }
     }
 } /* TextInput */
+
+@Composable
+fun SelectColorRow (color: State<Color>, selectColor: () -> Unit, clearColor: () -> Unit) =
+    ListSettingsRow(
+        left = {
+            IconButton(onClick = { selectColor() }) {
+                if (color.value == Color.Unspecified) {
+                    Icon(
+                        modifier = Modifier.padding(Constants.KEYLINE_FIRST),
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_outline_not_interested_24px),
+                        tint = colorResource(R.color.icon_tint_with_alpha),
+                        contentDescription = null
+                    )
+                } else {
+                    val borderColor =
+                        colorResource(R.color.icon_tint_with_alpha)  // colorResource(R.color.text_tertiary)
+                    Box(
+                        modifier = Modifier.size(56.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Canvas(modifier = Modifier.size(24.dp)) {
+                            drawCircle(color = color.value)
+                            drawCircle(
+                                color = borderColor, style = Stroke(width = 4.0f)
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        center = {
+            Text(
+                text = LocalContext.current.getString(R.string.color),
+                modifier = Modifier
+                    .weight(0.8f)
+                    .padding(start = Constants.KEYLINE_FIRST)
+                    .clickable(onClick = selectColor)
+            )
+        },
+        right = {
+            if (color.value != Color.Unspecified) {
+                IconButton(onClick = clearColor) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_outline_clear_24px),
+                        contentDescription = null
+                    )
+                }
+            }
+        }
+    )
+
+@Composable
+fun SelectIconRow(icon: State<Int>, selectIcon: () -> Unit) =
+    ListSettingsRow(
+        left = {
+            IconButton(onClick = selectIcon) {
+                Icon(
+                    modifier = Modifier.padding(Constants.KEYLINE_FIRST),
+                    imageVector = ImageVector.vectorResource(icon.value),
+                    contentDescription = null,
+                    tint = colorResource(R.color.icon_tint_with_alpha)
+                )
+            }
+        },
+        center = {
+            Text(
+                text = LocalContext.current.getString(R.string.icon),
+                modifier = Modifier
+                    .weight(0.8f)
+                    .padding(start = Constants.KEYLINE_FIRST)
+                    .clickable(onClick = selectIcon)
+            )
+        }
+    )
+
 
 @Composable
 fun ListSettingsRow(

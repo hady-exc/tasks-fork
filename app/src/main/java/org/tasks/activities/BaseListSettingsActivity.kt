@@ -7,6 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,13 +22,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
+import com.google.android.material.composethemeadapter.MdcTheme
 import kotlinx.coroutines.launch
 import org.tasks.R
+import org.tasks.compose.Constants
+import org.tasks.compose.drawer.DrawerProgressBar
+import org.tasks.compose.drawer.DrawerSurface
+import org.tasks.compose.drawer.DrawerToolbar
+import org.tasks.compose.drawer.SelectColorRow
+import org.tasks.compose.drawer.SelectIconRow
+import org.tasks.compose.drawer.TextInput
 import org.tasks.compose.IconPickerActivity.Companion.launchIconPicker
 import org.tasks.compose.IconPickerActivity.Companion.registerForIconPickerResult
 import org.tasks.compose.components.TasksIcon
@@ -184,6 +198,45 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), To
                 val leftDrawable = DrawableUtil.getLeftDrawable(color)
                 (if (leftDrawable is LayerDrawable) leftDrawable.getDrawable(0) else leftDrawable)
                     .setTint(themeColor.primaryColor)
+                clear.visibility = View.VISIBLE
+            }
+            themeColor.applyToNavigationBar(this)
+            val icon = getIconResId(selectedIcon) ?: getIconResId(defaultIcon)
+            DrawableUtil.setLeftDrawable(this, this.icon, icon!!)
+            DrawableUtil.getLeftDrawable(this.icon).setTint(getColor(R.color.icon_tint_with_alpha))
+        }
+
+    }
+
+    @Composable
+    protected fun DefaultContent(
+        title: String,
+        requestKeyboard: Boolean,
+        optionButton: @Composable () -> Unit,
+        extensionContent: @Composable ColumnScope.() -> Unit = {}
+    ) {
+        MdcTheme {
+            DrawerSurface {
+                DrawerToolbar(
+                    title = title,
+                    save = { lifecycleScope.launch { save() } },
+                    optionButton = optionButton
+                )
+                DrawerProgressBar(showProgress)
+                TextInput(
+                    text = textState, error = errorState, requestKeyboard = requestKeyboard,
+                    modifier = Modifier.padding(horizontal = Constants.KEYLINE_FIRST)
+                )
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    SelectColorRow(
+                        color = colorState,
+                        selectColor = { showThemePicker() },
+                        clearColor = { clearColor() })
+                    SelectIconRow(icon = iconState, selectIcon = { showIconPicker() })
+                    extensionContent()
+                }
+            }
+        }
             clear.visibility = View.VISIBLE
         }
         themeColor.applyToNavigationBar(this)
