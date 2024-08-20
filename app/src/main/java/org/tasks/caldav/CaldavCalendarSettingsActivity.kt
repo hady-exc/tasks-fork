@@ -28,10 +28,10 @@ import kotlinx.coroutines.launch
 import org.tasks.R
 import org.tasks.compose.Constants
 import org.tasks.compose.DeleteButton
+import org.tasks.compose.ListSettings.ListSettings
+import org.tasks.compose.ListSettings.ListSettingsSnackBar
 import org.tasks.compose.ListSettingsComposables.PrincipalList
 import org.tasks.compose.ShareInvite.ShareInviteDialog
-import org.tasks.compose.drawer.DrawerSnackBar
-import org.tasks.compose.drawer.ListSettingsDrawer
 import org.tasks.data.CaldavAccount
 import org.tasks.data.CaldavAccount.Companion.SERVER_MAILBOX_ORG
 import org.tasks.data.CaldavAccount.Companion.SERVER_NEXTCLOUD
@@ -133,7 +133,7 @@ class CaldavCalendarSettingsActivity : BaseCaldavCalendarSettingsActivity() {
         if (compose) setContent {
             MdcTheme {
                 Box (contentAlignment = Alignment.TopStart) {
-                    ListSettingsDrawer(
+                    ListSettings(
                         title = toolbarTitle,
                         requestKeyboard = isNew,
                         text = textState,
@@ -161,7 +161,7 @@ class CaldavCalendarSettingsActivity : BaseCaldavCalendarSettingsActivity() {
 
                     }
 
-                    DrawerSnackBar(state = snackbar)
+                    ListSettingsSnackBar(state = snackbar)
 
                     removeDialog.value?.let { principal ->
                         AlertDialog(

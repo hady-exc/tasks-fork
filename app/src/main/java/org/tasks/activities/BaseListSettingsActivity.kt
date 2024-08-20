@@ -34,16 +34,13 @@ import com.google.android.material.composethemeadapter.MdcTheme
 import kotlinx.coroutines.launch
 import org.tasks.R
 import org.tasks.compose.Constants
-import org.tasks.compose.drawer.DrawerProgressBar
-import org.tasks.compose.drawer.DrawerSurface
-import org.tasks.compose.drawer.DrawerToolbar
-import org.tasks.compose.drawer.PromptAction
-import org.tasks.compose.drawer.SelectColorRow
-import org.tasks.compose.drawer.SelectIconRow
-import org.tasks.compose.drawer.TextInput
-import org.tasks.compose.IconPickerActivity.Companion.launchIconPicker
-import org.tasks.compose.IconPickerActivity.Companion.registerForIconPickerResult
-import org.tasks.compose.components.TasksIcon
+import org.tasks.compose.ListSettings.ListSettingsProgressBar
+import org.tasks.compose.ListSettings.ListSettingsSurface
+import org.tasks.compose.ListSettings.ListSettingsTitleInput
+import org.tasks.compose.ListSettings.ListSettingsToolbar
+import org.tasks.compose.ListSettings.PromptAction
+import org.tasks.compose.ListSettings.SelectColorRow
+import org.tasks.compose.ListSettings.SelectIconRow
 import org.tasks.dialogs.ColorPalettePicker
 import org.tasks.dialogs.ColorPalettePicker.Companion.newColorPalette
 import org.tasks.dialogs.ColorPickerAdapter.Palette
@@ -208,14 +205,14 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), To
         extensionContent: @Composable ColumnScope.() -> Unit = {}
     ) {
         MdcTheme {
-            DrawerSurface {
-                DrawerToolbar(
+            ListSettingsSurface {
+                ListSettingsToolbar(
                     title = title,
                     save = { lifecycleScope.launch { save() } },
                     optionButton = optionButton
                 )
-                DrawerProgressBar(showProgress)
-                TextInput(
+                ListSettingsProgressBar(showProgress)
+                ListSettingsTitleInput(
                     text = textState, error = errorState, requestKeyboard = requestKeyboard,
                     modifier = Modifier.padding(horizontal = Constants.KEYLINE_FIRST)
                 )
