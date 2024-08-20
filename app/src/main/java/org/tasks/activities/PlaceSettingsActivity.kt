@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Slider
 import androidx.compose.material.SliderDefaults
 import androidx.compose.material.Text
@@ -22,7 +23,6 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.lifecycleScope
 import com.google.android.material.composethemeadapter.MdcTheme
 import com.todoroo.astrid.activity.MainActivity
 import com.todoroo.astrid.activity.TaskListFragment
@@ -33,7 +33,6 @@ import org.tasks.LocalBroadcastManager
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
 import org.tasks.compose.DeleteButton
-import org.tasks.compose.drawer.ListSettingsDrawer
 import org.tasks.data.dao.LocationDao
 import org.tasks.data.displayName
 import org.tasks.data.entity.Place
@@ -49,7 +48,7 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class PlaceSettingsActivity : BaseListSettingsActivity(),
-    MapFragment.MapFragmentCallback/*, Slider.OnChangeListener*/ {
+    MapFragment.MapFragmentCallback {
 
     companion object {
         const val EXTRA_PLACE = "extra_place"
@@ -89,7 +88,6 @@ class PlaceSettingsActivity : BaseListSettingsActivity(),
 
         if (savedInstanceState == null) {
             textState.value = place.displayName
-            //name.setText(place.displayName)
             selectedColor = place.color
             selectedIcon.update { place.icon }
         }
@@ -103,19 +101,12 @@ class PlaceSettingsActivity : BaseListSettingsActivity(),
 
         setContent {
             MdcTheme {
-                ListSettingsDrawer(
+                DefaultContent(
                     title = toolbarTitle,
                     requestKeyboard = isNew,
-                    text = textState,
-                    error = errorState,
-                    color = colorState,
-                    icon = iconState,
-                    save = { lifecycleScope.launch { save() } },
-                    selectColor = { showThemePicker() },
-                    clearColor = { clearColor() },
-                    selectIcon = { showIconPicker() },
-                    optionButton = { if (!isNew) DeleteButton { lifecycleScope.launch { promptDelete() } } }
-                ) {
+                    optionButton = { if (!isNew) DeleteButton { promptDelete() } }
+                )
+                {
                     Row(
                         modifier = Modifier
                             .requiredHeight(56.dp)
@@ -143,10 +134,10 @@ class PlaceSettingsActivity : BaseListSettingsActivity(),
                         steps = (MAX_RADIUS - MIN_RADIUS) / STEP,
                         onValueChange = { sliderPos.floatValue = it },
                         colors = SliderDefaults.colors(
-                            thumbColor = colorResource(id = R.color.red_a400),
-                            activeTrackColor = colorResource(id = R.color.red_a400),
+                            thumbColor = MaterialTheme.colors.secondary,
+                            activeTrackColor = MaterialTheme.colors.secondary,
                             inactiveTrackColor = colorResource(id = R.color.text_tertiary),
-                            activeTickColor = colorResource(id = R.color.red_a400),
+                            activeTickColor = MaterialTheme.colors.secondary,
                             inactiveTickColor = colorResource(id = R.color.text_tertiary)
                         )
                     )

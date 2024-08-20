@@ -10,13 +10,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.activity.compose.setContent
-import androidx.lifecycle.lifecycleScope
 import com.todoroo.astrid.activity.MainActivity
 import com.todoroo.astrid.activity.TaskListFragment
 import dagger.hilt.android.AndroidEntryPoint
-import android.view.View
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
@@ -64,7 +60,7 @@ class TagSettingsActivity : BaseListSettingsActivity() {
             DefaultContent(
                 title = toolbarTitle,
                 requestKeyboard = isNewTag,
-                optionButton = { if (!isNewTag) DeleteButton(onClick = { lifecycleScope.launch { promptDelete() } }) }
+                optionButton = { if (!isNewTag) DeleteButton{ promptDelete() } }
             )
         }
         updateTheme()
