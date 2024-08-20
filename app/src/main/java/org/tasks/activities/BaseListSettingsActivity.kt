@@ -17,6 +17,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.composethemeadapter.MdcTheme
 import kotlinx.coroutines.launch
@@ -25,6 +26,7 @@ import org.tasks.compose.Constants
 import org.tasks.compose.drawer.DrawerProgressBar
 import org.tasks.compose.drawer.DrawerSurface
 import org.tasks.compose.drawer.DrawerToolbar
+import org.tasks.compose.drawer.PromptAction
 import org.tasks.compose.drawer.SelectColorRow
 import org.tasks.compose.drawer.SelectIconRow
 import org.tasks.compose.drawer.TextInput
@@ -64,6 +66,8 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Ic
     protected val colorState = mutableStateOf(Color.Unspecified)
     protected val iconState = mutableIntStateOf(R.drawable.ic_outline_not_interested_24px)
     protected val showProgress = mutableStateOf(false)
+    protected val promptDelete = mutableStateOf(false)
+    protected val promptDiscard = mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -118,15 +122,8 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Ic
     protected abstract suspend fun delete()
     protected abstract fun bind(): View
     protected open fun discard() {
-        if (!hasChanges()) {
-            finish()
-        } else {
-            dialogBuilder
-                    .newDialog(R.string.discard_changes)
-                    .setPositiveButton(R.string.discard) { _, _ -> finish() }
-                    .setNegativeButton(R.string.cancel, null)
-                    .show()
-        }
+        if (hasChanges())  promptDiscard.value = true
+        else finish()
     }
 
     protected fun clearColor() {
@@ -161,13 +158,7 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Ic
         return onOptionsItemSelected(item)
     }
 
-    protected open fun promptDelete() {
-        dialogBuilder
-                .newDialog(R.string.delete_tag_confirmation, toolbarTitle)
-                .setPositiveButton(R.string.delete) { _, _ -> lifecycleScope.launch { delete() } }
-                .setNegativeButton(R.string.cancel, null)
-                .show()
-    }
+    protected open fun promptDelete() { promptDelete.value = true }
 
     protected fun updateTheme() {
         val themeColor: ThemeColor
@@ -225,8 +216,21 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Ic
                         color = colorState,
                         selectColor = { showThemePicker() },
                         clearColor = { clearColor() })
-                    SelectIconRow(icon = iconState, selectIcon = { showIconPicker() })
+                    SelectIconRow(
+                        icon = iconState,
+                        selectIcon = { showIconPicker() })
                     extensionContent()
+
+                    PromptAction(
+                        showDialog = promptDelete,
+                        title = stringResource(id = R.string.delete_tag_confirmation, title),
+                        onAction = { lifecycleScope.launch { delete() } }
+                    )
+                    PromptAction(
+                        showDialog = promptDiscard,
+                        title = stringResource(id = R.string.discard_changes),
+                        onAction = { lifecycleScope.launch { finish() } }
+                    )
                 }
             }
         }
