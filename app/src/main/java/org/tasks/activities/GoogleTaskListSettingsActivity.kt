@@ -4,13 +4,11 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.ProgressBar
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.material.SnackbarHostState
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.composethemeadapter.MdcTheme
-import com.google.android.material.textfield.TextInputEditText
 import com.google.api.services.tasks.model.TaskList
 import com.todoroo.astrid.activity.MainActivity
 import com.todoroo.astrid.activity.TaskListFragment
@@ -34,7 +32,6 @@ import org.tasks.filters.GtasksFilter
 import org.tasks.themes.TasksIcons
 import org.tasks.compose.drawer.ListSettingsDrawer
 import org.tasks.compose.drawer.DrawerSnackBar
-import org.tasks.compose.drawer.ListSettingsDrawer
 import org.tasks.data.CaldavAccount
 import org.tasks.data.CaldavCalendar
 import org.tasks.data.GoogleTaskListDao
@@ -47,9 +44,6 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
     @Inject lateinit var googleTaskListDao: GoogleTaskListDao
     @Inject lateinit var taskDeleter: TaskDeleter
     @Inject lateinit var localBroadcastManager: LocalBroadcastManager
-
-    private lateinit var name: TextInputEditText
-    private lateinit var progressView: ProgressBar
 
     private var isNewList = false
     private lateinit var gtasksList: CaldavCalendar
@@ -77,16 +71,6 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
 
         if (!isNewList) textState.value = gtasksList.name!!
 
-        /*
-                if (isNewList) {
-                    name.requestFocus()
-                    val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                    imm.showSoftInput(name, InputMethodManager.SHOW_IMPLICIT)
-                } else {
-                    name.setText(gtasksList.name)
-                }
-        */
-
         if (createListViewModel.inProgress
                 || renameListViewModel.inProgress
                 || deleteListViewModel.inProgress) {
@@ -99,19 +83,10 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
 
         setContent {
             MdcTheme {
-                ListSettingsDrawer(
+                DefaultContent(
                     title = toolbarTitle,
                     requestKeyboard = isNewList,
-                    text = textState,
-                    error = errorState,
-                    color = colorState,
-                    icon = iconState,
-                    save = { lifecycleScope.launch { save() } },
-                    selectColor = { showThemePicker() },
-                    clearColor = { clearColor() },
-                    selectIcon = { showIconPicker() },
-                    optionButton = { if (!isNewList) DeleteButton { lifecycleScope.launch { promptDelete() } } },
-                    showProgress = showProgress
+                    optionButton = { if (!isNewList) DeleteButton{ promptDelete() } }
                 )
 
                 DrawerSnackBar(state = snackbar)
@@ -126,7 +101,7 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
         get() = isNewList
 
     override val toolbarTitle: String
-        get() = if (isNew) "NEW " + getString(R.string.new_list) else gtasksList.name!!
+        get() = if (isNew) getString(R.string.new_list) else gtasksList.name!!
 
     private fun showProgressIndicator() {
         showProgress.value = true
@@ -180,14 +155,6 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
     }
 
     override fun bind(): View { TODO() }
-
-/*
-    override fun bind() = ActivityGoogleTaskListSettingsBinding.inflate(layoutInflater).let {
-        name = it.name
-        progressView = it.progressBar.progressBar
-        it.root
-    }
-*/
 
     override fun promptDelete() {
         if (!requestInProgress()) {
