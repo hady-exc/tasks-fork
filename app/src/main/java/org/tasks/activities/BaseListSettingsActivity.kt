@@ -8,12 +8,26 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.composethemeadapter.MdcTheme
 import kotlinx.coroutines.launch
 import org.tasks.R
+import org.tasks.compose.Constants
+import org.tasks.compose.drawer.DrawerProgressBar
+import org.tasks.compose.drawer.DrawerSurface
+import org.tasks.compose.drawer.DrawerToolbar
+import org.tasks.compose.drawer.SelectColorRow
+import org.tasks.compose.drawer.SelectIconRow
+import org.tasks.compose.drawer.TextInput
 import org.tasks.dialogs.ColorPalettePicker
 import org.tasks.dialogs.ColorPalettePicker.Companion.newColorPalette
 import org.tasks.dialogs.ColorPickerAdapter.Palette
@@ -183,6 +197,38 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Ic
             val icon = getIconResId(selectedIcon) ?: getIconResId(defaultIcon)
             DrawableUtil.setLeftDrawable(this, this.icon, icon!!)
             DrawableUtil.getLeftDrawable(this.icon).setTint(getColor(R.color.icon_tint_with_alpha))
+        }
+
+    }
+
+    @Composable
+    protected fun DefaultContent(
+        title: String,
+        requestKeyboard: Boolean,
+        optionButton: @Composable () -> Unit,
+        extensionContent: @Composable ColumnScope.() -> Unit = {}
+    ) {
+        MdcTheme {
+            DrawerSurface {
+                DrawerToolbar(
+                    title = title,
+                    save = { lifecycleScope.launch { save() } },
+                    optionButton = optionButton
+                )
+                DrawerProgressBar(showProgress)
+                TextInput(
+                    text = textState, error = errorState, requestKeyboard = requestKeyboard,
+                    modifier = Modifier.padding(horizontal = Constants.KEYLINE_FIRST)
+                )
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    SelectColorRow(
+                        color = colorState,
+                        selectColor = { showThemePicker() },
+                        clearColor = { clearColor() })
+                    SelectIconRow(icon = iconState, selectIcon = { showIconPicker() })
+                    extensionContent()
+                }
+            }
         }
     }
 
