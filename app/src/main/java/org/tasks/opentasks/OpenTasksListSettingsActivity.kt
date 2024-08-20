@@ -13,11 +13,11 @@ import org.tasks.R
 import org.tasks.caldav.BaseCaldavCalendarSettingsActivity
 import org.tasks.compose.Constants
 import org.tasks.compose.DeleteButton
-import org.tasks.compose.drawer.DrawerProgressBar
-import org.tasks.compose.drawer.DrawerSnackBar
-import org.tasks.compose.drawer.DrawerSurface
-import org.tasks.compose.drawer.DrawerToolbar
-import org.tasks.compose.drawer.TextInput
+import org.tasks.compose.ListSettings.ListSettingsProgressBar
+import org.tasks.compose.ListSettings.ListSettingsSnackBar
+import org.tasks.compose.ListSettings.ListSettingsSurface
+import org.tasks.compose.ListSettings.ListSettingsTitleInput
+import org.tasks.compose.ListSettings.ListSettingsToolbar
 import org.tasks.data.CaldavAccount
 import org.tasks.data.CaldavCalendar
 
@@ -41,19 +41,19 @@ class OpenTasksListSettingsActivity : BaseCaldavCalendarSettingsActivity() {
         if (compose)
             setContent {
                 MdcTheme {
-                    DrawerSurface {
-                        DrawerToolbar(
+                    ListSettingsSurface {
+                        ListSettingsToolbar(
                             title = toolbarTitle,
                             save = { lifecycleScope.launch { save() } },
                             optionButton = { if (!isNew) DeleteButton { lifecycleScope.launch { promptDelete() } } },
                         )
-                        DrawerProgressBar(showProgress)
-                        TextInput(
+                        ListSettingsProgressBar(showProgress)
+                        ListSettingsTitleInput(
                             text = textState, error = errorState, requestKeyboard = isNew,
                             modifier = Modifier.padding(Constants.KEYLINE_FIRST)
                         )
                     }
-                    DrawerSnackBar(state = snackbar)
+                    ListSettingsSnackBar(state = snackbar)
                 }
             } /* setContent */
     }

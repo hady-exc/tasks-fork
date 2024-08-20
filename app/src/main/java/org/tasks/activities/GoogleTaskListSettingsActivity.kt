@@ -21,7 +21,7 @@ import kotlinx.coroutines.withContext
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
 import org.tasks.compose.DeleteButton
-import org.tasks.compose.drawer.DrawerSnackBar
+import org.tasks.compose.ListSettings.ListSettingsSnackBar
 import org.tasks.data.CaldavAccount
 import org.tasks.data.CaldavCalendar
 import org.tasks.data.GoogleTaskListDao
@@ -78,7 +78,7 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
                     optionButton = { if (!isNewList) DeleteButton{ promptDelete() } }
                 )
 
-                DrawerSnackBar(state = snackbar)
+                ListSettingsSnackBar(state = snackbar)
 
             }
         }

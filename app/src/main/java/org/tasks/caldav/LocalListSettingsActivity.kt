@@ -9,8 +9,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.tasks.R
 import org.tasks.compose.DeleteButton
-import org.tasks.compose.drawer.DrawerSnackBar
-import org.tasks.compose.drawer.ListSettingsDrawer
+import org.tasks.compose.ListSettings.ListSettings
+import org.tasks.compose.ListSettings.ListSettingsSnackBar
 import org.tasks.data.CaldavAccount
 import org.tasks.data.CaldavCalendar
 import org.tasks.data.CaldavDao
@@ -33,7 +33,7 @@ class LocalListSettingsActivity : BaseCaldavCalendarSettingsActivity() {
         if (compose) {
             setContent {
                 MdcTheme {
-                    ListSettingsDrawer(
+                    ListSettings(
                         title = toolbarTitle,
                         requestKeyboard  = isNew,
                         text = textState,
@@ -48,7 +48,7 @@ class LocalListSettingsActivity : BaseCaldavCalendarSettingsActivity() {
                         optionButton = { if (!isNew && canDelete) DeleteButton { lifecycleScope.launch { promptDelete() } } },
                     )
 
-                    DrawerSnackBar(state = snackbar)
+                    ListSettingsSnackBar(state = snackbar)
                 }
             }
         }
