@@ -60,8 +60,6 @@ class PlaceSettingsActivity : BaseListSettingsActivity(),
     private lateinit var place: Place
     override val defaultIcon: Int = CustomIcons.PLACE
 
-    override val compose: Boolean
-        get() = true
     private val sliderPos = mutableFloatStateOf(100f)
     private lateinit var viewHolder: ViewGroup
 
@@ -155,8 +153,6 @@ class PlaceSettingsActivity : BaseListSettingsActivity(),
             }
         }
     }
-
-    override fun bind() = TODO("Bind must NOT be called for @Compose'ed activity")
 
     override fun hasChanges() = textState.value != place.displayName
                     || selectedColor != place.color

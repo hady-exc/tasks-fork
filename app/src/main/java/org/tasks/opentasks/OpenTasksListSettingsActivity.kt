@@ -18,39 +18,25 @@ import org.tasks.data.CaldavCalendar
 @AndroidEntryPoint
 class OpenTasksListSettingsActivity : BaseCaldavCalendarSettingsActivity() {
 
-    override val compose: Boolean
-        get() = true
-    override val setContent: Boolean
-        get() = false
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-/*
-        if (!compose) {
-            toolbar.menu.findItem(R.id.delete).isVisible = false
-            nameLayout.visibility = View.GONE
-            colorRow.visibility = View.GONE
-        }
-
-*/
-        if (compose)
-            setContent {
-                MdcTheme {
-                    ListSettingsSurface {
-                        ListSettingsToolbar(
-                            title = toolbarTitle,
-                            save = { lifecycleScope.launch { save() } },
-                            optionButton = { },
-                        )
-                        ListSettingsProgressBar(showProgress)
-                        SelectIconRow(icon = iconState) {
-                            showIconPicker()
-                        }
+        setContent {
+            MdcTheme {
+                ListSettingsSurface {
+                    ListSettingsToolbar(
+                        title = toolbarTitle,
+                        save = { lifecycleScope.launch { save() } },
+                        optionButton = { },
+                    )
+                    ListSettingsProgressBar(showProgress)
+                    SelectIconRow(icon = iconState) {
+                        showIconPicker()
                     }
-                    ListSettingsSnackBar(state = snackbar)
                 }
-            } /* setContent */
+                ListSettingsSnackBar(state = snackbar)
+            }
+        } /* setContent */
     }
 
     override suspend fun createCalendar(caldavAccount: CaldavAccount, name: String, color: Int) {}

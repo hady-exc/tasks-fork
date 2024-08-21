@@ -1,12 +1,8 @@
 package org.tasks.activities
 
 import android.content.DialogInterface
-import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
 import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
-import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -42,7 +38,6 @@ import org.tasks.extensions.addBackPressedCallback
 import org.tasks.injection.ThemedInjectingAppCompatActivity
 import org.tasks.themes.ColorProvider
 import org.tasks.themes.CustomIcons.getIconResId
-import org.tasks.themes.DrawableUtil
 import org.tasks.themes.ThemeColor
 import javax.inject.Inject
 
@@ -52,16 +47,8 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Ic
     protected var selectedColor = 0
     protected var selectedIcon = -1
 
-    private lateinit var clear: View
-    private lateinit var color: TextView
-    private lateinit var icon: TextView
-    protected lateinit var toolbar: Toolbar
-    protected lateinit var colorRow: ViewGroup
     protected abstract val defaultIcon: Int
 
-    /* descendants which are @Compose'ed shall override it and return true */
-    protected open val compose: Boolean
-        get() = false
     protected val textState = mutableStateOf("")
     protected val errorState = mutableStateOf("")
     protected val colorState = mutableStateOf(Color.Unspecified)
@@ -77,34 +64,10 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Ic
            in constructor of the base class. So valid initial value for iconState is set here  */
         iconState.intValue = getIconResId(defaultIcon)!!
 
-        if (!compose) {
-            val view = bind()
-            setContentView(view)
-            clear = findViewById<View>(R.id.clear).apply {
-                setOnClickListener { clearColor() }
-            }
-            color = findViewById(R.id.color)
-            colorRow = findViewById<ViewGroup>(R.id.color_row).apply {
-                setOnClickListener { showThemePicker() }
-            }
-            icon = findViewById(R.id.icon)
-            findViewById<View>(R.id.icon_row).setOnClickListener { showIconPicker() }
-            toolbar = view.findViewById(R.id.toolbar)
-        }
         if (savedInstanceState != null) {
             selectedColor = savedInstanceState.getInt(EXTRA_SELECTED_THEME)
             selectedIcon = savedInstanceState.getInt(EXTRA_SELECTED_ICON)
         }
-        if (!compose) {
-            toolbar.title = toolbarTitle
-            toolbar.navigationIcon = getDrawable(R.drawable.ic_outline_save_24px)
-            toolbar.setNavigationOnClickListener { lifecycleScope.launch { save() } }
-            if (!isNew) {
-                toolbar.inflateMenu(R.menu.menu_tag_settings)
-            }
-            toolbar.setOnMenuItemClickListener(this)
-        }
-
         addBackPressedCallback {
             discard()
         }
@@ -121,7 +84,7 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Ic
     protected abstract val isNew: Boolean
     protected abstract val toolbarTitle: String?
     protected abstract suspend fun delete()
-    protected abstract fun bind(): View
+    //protected abstract fun bind(): View
     protected open fun discard() {
         if (hasChanges())  promptDiscard.value = true
         else finish()
@@ -162,35 +125,18 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Ic
     protected open fun promptDelete() { promptDelete.value = true }
 
     protected fun updateTheme() {
-        val themeColor: ThemeColor
-        if (compose) {
-            themeColor = if (selectedColor == 0) this.themeColor
-                else colorProvider.getThemeColor(selectedColor, true)
-            colorState.value =
-                if (selectedColor == 0) Color.Unspecified
-                else Color((colorProvider.getThemeColor(selectedColor, true)).primaryColor)
-            iconState.intValue = (getIconResId(selectedIcon) ?: getIconResId(defaultIcon))!!
-            themeColor.applyToNavigationBar(this)
-        } else {
-            if (selectedColor == 0) {
-                themeColor = this.themeColor
-                DrawableUtil.setLeftDrawable(this, color, R.drawable.ic_outline_not_interested_24px)
-                DrawableUtil.getLeftDrawable(color).setTint(getColor(R.color.icon_tint_with_alpha))
-                clear.visibility = View.GONE
-            } else {
-                themeColor = colorProvider.getThemeColor(selectedColor, true)
-                DrawableUtil.setLeftDrawable(this, color, R.drawable.color_picker)
-                val leftDrawable = DrawableUtil.getLeftDrawable(color)
-                (if (leftDrawable is LayerDrawable) leftDrawable.getDrawable(0) else leftDrawable)
-                    .setTint(themeColor.primaryColor)
-                clear.visibility = View.VISIBLE
-            }
-            themeColor.applyToNavigationBar(this)
-            val icon = getIconResId(selectedIcon) ?: getIconResId(defaultIcon)
-            DrawableUtil.setLeftDrawable(this, this.icon, icon!!)
-            DrawableUtil.getLeftDrawable(this.icon).setTint(getColor(R.color.icon_tint_with_alpha))
-        }
 
+        val themeColor: ThemeColor =
+            if (selectedColor == 0) this.themeColor
+            else colorProvider.getThemeColor(selectedColor, true)
+
+        colorState.value =
+            if (selectedColor == 0) Color.Unspecified
+            else Color((colorProvider.getThemeColor(selectedColor, true)).primaryColor)
+
+        iconState.intValue = (getIconResId(selectedIcon) ?: getIconResId(defaultIcon))!!
+
+        themeColor.applyToNavigationBar(this)
     }
 
     @Composable

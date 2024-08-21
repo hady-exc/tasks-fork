@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
-import android.widget.RelativeLayout
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -69,9 +68,6 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
 
     private var filter: CustomFilter? = null
     override val defaultIcon: Int = CustomIcons.FILTER
-
-    override val compose: Boolean
-        get() = true
 
     private var criteria: SnapshotStateList<CriterionInstance> = emptyList<CriterionInstance>().toMutableStateList()
     private val fabExtended = mutableStateOf(false)
@@ -208,8 +204,6 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
     override fun finish() {
         super.finish()
     }
-
-    override fun bind(): RelativeLayout { TODO("must be deleted") }
 
     override suspend fun delete() {
         filterDao.delete(filter!!.id)
