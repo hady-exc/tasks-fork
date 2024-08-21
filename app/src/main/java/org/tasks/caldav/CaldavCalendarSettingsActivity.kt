@@ -28,7 +28,6 @@ import org.tasks.compose.Constants
 import org.tasks.compose.ListSettingsComposables.PrincipalList
 import org.tasks.compose.ShareInvite.ShareInviteDialog
 import org.tasks.data.CaldavAccount
-import org.tasks.data.CaldavAccount.Companion.SERVER_MAILBOX_ORG
 import org.tasks.data.CaldavAccount.Companion.SERVER_NEXTCLOUD
 import org.tasks.data.CaldavAccount.Companion.SERVER_OWNCLOUD
 import org.tasks.data.CaldavAccount.Companion.SERVER_SABREDAV
@@ -119,7 +118,7 @@ class CaldavCalendarSettingsActivity : BaseCaldavCalendarSettingsActivity() {
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.BottomEnd
                 ) {
-                    if (caldavAccount.canShare /*&& (isNew || caldavCalendar?.access == ACCESS_OWNER)*/) {  // TODO(rollback commented condition!!!)
+                    if (caldavAccount.canShare && (isNew || caldavCalendar?.access == ACCESS_OWNER)) {
                         val openDialog = rememberSaveable { mutableStateOf(false) }
                         ShareInviteDialog(
                             openDialog,
@@ -198,13 +197,13 @@ class CaldavCalendarSettingsActivity : BaseCaldavCalendarSettingsActivity() {
         val CaldavAccount.canRemovePrincipal: Boolean
             get() = when (serverType) {
                 SERVER_TASKS, SERVER_OWNCLOUD, SERVER_SABREDAV, SERVER_NEXTCLOUD -> true
-                else -> true // false TODO(rollback to false)
+                else -> false
             }
 
         val CaldavAccount.canShare: Boolean
             get() = when (serverType) {
-                SERVER_TASKS, SERVER_OWNCLOUD, SERVER_SABREDAV, SERVER_NEXTCLOUD, SERVER_MAILBOX_ORG -> true // TODO(revert MAILBOX_ORG out!!!)
-                else -> true // false TODO(the same with the above!!!)
+                SERVER_TASKS, SERVER_OWNCLOUD, SERVER_SABREDAV, SERVER_NEXTCLOUD -> true
+                else -> false
             }
     }
 }
