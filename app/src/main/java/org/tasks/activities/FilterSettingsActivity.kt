@@ -3,7 +3,6 @@ package org.tasks.activities
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.view.MenuItem
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -211,15 +210,6 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                 Activity.RESULT_OK, Intent(TaskListFragment.ACTION_DELETED).putExtra(TOKEN_FILTER, filter))
         finish()
     }
-
-    override fun onMenuItemClick(item: MenuItem): Boolean =
-        /* TODO(delete after help button introduced) */
-        if (item.itemId == R.id.menu_help) {
-            help()
-            true
-        } else {
-            super.onMenuItemClick(item)
-        }
 
     private fun help() = openUri(R.string.url_filters)
 
