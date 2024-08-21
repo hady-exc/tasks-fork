@@ -20,7 +20,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
-import org.tasks.compose.DeleteButton
 import org.tasks.compose.ListSettings.ListSettingsSnackBar
 import org.tasks.data.CaldavAccount
 import org.tasks.data.CaldavCalendar
@@ -72,11 +71,7 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
 
         setContent {
             MdcTheme {
-                DefaultContent(
-                    title = toolbarTitle,
-                    requestKeyboard = isNewList,
-                    optionButton = { if (!isNewList) DeleteButton{ promptDelete() } }
-                )
+                baseSettingsContent()
 
                 ListSettingsSnackBar(state = snackbar)
 

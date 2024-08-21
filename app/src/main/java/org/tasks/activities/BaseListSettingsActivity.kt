@@ -23,6 +23,7 @@ import com.google.android.material.composethemeadapter.MdcTheme
 import kotlinx.coroutines.launch
 import org.tasks.R
 import org.tasks.compose.Constants
+import org.tasks.compose.DeleteButton
 import org.tasks.compose.ListSettings.ListSettingsProgressBar
 import org.tasks.compose.ListSettings.ListSettingsSurface
 import org.tasks.compose.ListSettings.ListSettingsTitleInput
@@ -193,10 +194,10 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Ic
     }
 
     @Composable
-    protected fun DefaultContent(
-        title: String,
-        requestKeyboard: Boolean,
-        optionButton: @Composable () -> Unit,
+    protected fun baseSettingsContent(
+        title: String = toolbarTitle ?: "",
+        requestKeyboard: Boolean = isNew,
+        optionButton: @Composable () -> Unit = { if (!isNew) DeleteButton { promptDelete() } },
         extensionContent: @Composable ColumnScope.() -> Unit = {}
     ) {
         MdcTheme {

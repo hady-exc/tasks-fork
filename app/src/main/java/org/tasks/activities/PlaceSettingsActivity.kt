@@ -30,7 +30,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.tasks.LocalBroadcastManager
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
-import org.tasks.compose.DeleteButton
 import org.tasks.data.LocationDao
 import org.tasks.data.Place
 import org.tasks.extensions.formatNumber
@@ -96,11 +95,7 @@ class PlaceSettingsActivity : BaseListSettingsActivity(),
 
         setContent {
             MdcTheme {
-                DefaultContent(
-                    title = toolbarTitle,
-                    requestKeyboard = isNew,
-                    optionButton = { if (!isNew) DeleteButton { promptDelete() } }
-                )
+                baseSettingsContent()
                 {
                     Row(
                         modifier = Modifier
