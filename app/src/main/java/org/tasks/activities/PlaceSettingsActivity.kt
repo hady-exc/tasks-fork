@@ -32,7 +32,6 @@ import kotlinx.coroutines.flow.update
 import org.tasks.LocalBroadcastManager
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
-import org.tasks.compose.DeleteButton
 import org.tasks.data.dao.LocationDao
 import org.tasks.data.displayName
 import org.tasks.data.entity.Place
@@ -101,11 +100,7 @@ class PlaceSettingsActivity : BaseListSettingsActivity(),
 
         setContent {
             MdcTheme {
-                DefaultContent(
-                    title = toolbarTitle,
-                    requestKeyboard = isNew,
-                    optionButton = { if (!isNew) DeleteButton { promptDelete() } }
-                )
+                baseSettingsContent()
                 {
                     Row(
                         modifier = Modifier

@@ -284,9 +284,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.TopStart
             ) {
-                DefaultContent(
-                    title = toolbarTitle,
-                    requestKeyboard = isNew,
+                baseSettingsContent(
                     optionButton = {
                         if (isNew) {
                             IconButton(onClick = { help() }) {

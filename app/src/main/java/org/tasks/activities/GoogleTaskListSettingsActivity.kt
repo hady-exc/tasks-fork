@@ -83,11 +83,7 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
 
         setContent {
             MdcTheme {
-                DefaultContent(
-                    title = toolbarTitle,
-                    requestKeyboard = isNewList,
-                    optionButton = { if (!isNewList) DeleteButton{ promptDelete() } }
-                )
+                baseSettingsContent()
 
                 ListSettingsSnackBar(state = snackbar)
 

@@ -16,7 +16,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
-import org.tasks.compose.DeleteButton
 import org.tasks.data.TagDao
 import org.tasks.data.TagData
 import org.tasks.data.TagDataDao
@@ -57,11 +56,7 @@ class TagSettingsActivity : BaseListSettingsActivity() {
         }
 
         setContent {
-            DefaultContent(
-                title = toolbarTitle,
-                requestKeyboard = isNewTag,
-                optionButton = { if (!isNewTag) DeleteButton{ promptDelete() } }
-            )
+            baseSettingsContent()
         }
         updateTheme()
     }

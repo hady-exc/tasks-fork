@@ -231,6 +231,7 @@ object ListSettings {
     @Composable
     fun SelectColorRow(color: State<Color>, selectColor: () -> Unit, clearColor: () -> Unit) =
         ListSettingRow(
+            modifier = Modifier.clickable(onClick =  selectColor),
             left = {
                 IconButton(onClick = { selectColor() }) {
                     if (color.value == Color.Unspecified) {
@@ -263,7 +264,6 @@ object ListSettings {
                     modifier = Modifier
                         .weight(0.8f)
                         .padding(start = Constants.KEYLINE_FIRST)
-                        .clickable(onClick = selectColor)
                 )
             },
             right = {
@@ -281,6 +281,7 @@ object ListSettings {
     @Composable
     fun SelectIconRow(icon: State<Int>, selectIcon: () -> Unit) =
         ListSettingRow(
+            modifier = Modifier.clickable(onClick =  selectIcon),
             left = {
                 IconButton(onClick = selectIcon) {
                     Icon(
@@ -297,7 +298,6 @@ object ListSettings {
                     modifier = Modifier
                         .weight(0.8f)
                         .padding(start = Constants.KEYLINE_FIRST)
-                        .clickable(onClick = selectIcon)
                 )
             }
         )
