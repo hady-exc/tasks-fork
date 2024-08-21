@@ -3,6 +3,7 @@ package org.tasks.sync.microsoft
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.todoroo.astrid.activity.MainActivity
@@ -46,6 +47,10 @@ class MicrosoftListSettingsActivity : BaseCaldavCalendarSettingsActivity() {
                         finish()
                     }
                 }
+        }
+
+        setContent {
+            baseCaldavSettingsContent()
         }
     }
 
