@@ -2,15 +2,10 @@ package org.tasks.caldav
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.lifecycle.lifecycleScope
-import com.google.android.material.composethemeadapter.MdcTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.tasks.R
 import org.tasks.compose.DeleteButton
-import org.tasks.compose.ListSettings.ListSettings
-import org.tasks.compose.ListSettings.ListSettingsSnackBar
 import org.tasks.data.CaldavAccount
 import org.tasks.data.CaldavCalendar
 import org.tasks.data.CaldavDao
@@ -32,24 +27,9 @@ class LocalListSettingsActivity : BaseCaldavCalendarSettingsActivity() {
 
         if (compose) {
             setContent {
-                MdcTheme {
-                    ListSettings(
-                        title = toolbarTitle,
-                        requestKeyboard  = isNew,
-                        text = textState,
-                        error = errorState,
-                        color = colorState,
-                        icon = iconState,
-                        save = { lifecycleScope.launch { save() } },
-                        selectColor = { showThemePicker() },
-                        clearColor = { clearColor() },
-                        selectIcon = { showIconPicker() },
-                        showProgress = showProgress,
-                        optionButton = { if (!isNew && canDelete) DeleteButton { lifecycleScope.launch { promptDelete() } } },
-                    )
-
-                    ListSettingsSnackBar(state = snackbar)
-                }
+                baseCaldavSettingsContent (
+                    optionButton = { if (!isNew && canDelete) DeleteButton { promptDelete() } }
+                )
             }
         }
     }

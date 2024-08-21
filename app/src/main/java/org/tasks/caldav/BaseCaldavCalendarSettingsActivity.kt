@@ -8,12 +8,12 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.ProgressBar
-import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material.SnackbarHostState
+import androidx.compose.runtime.Composable
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import at.bitfire.dav4jvm.exception.HttpException
-import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -28,7 +28,6 @@ import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
 import org.tasks.activities.BaseListSettingsActivity
 import org.tasks.compose.DeleteButton
-import org.tasks.compose.ListSettings.ListSettings
 import org.tasks.compose.ListSettings.ListSettingsSnackBar
 import org.tasks.data.CaldavAccount
 import org.tasks.data.CaldavCalendar
@@ -97,7 +96,8 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
             imm.showSoftInput(name, InputMethodManager.SHOW_IMPLICIT)
         }
 
-        if (setContent)
+        if (setContent) TODO()
+/*
             setContent {
                 MdcTheme {
                     ListSettings(
@@ -118,6 +118,7 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
                     ListSettingsSnackBar(state = snackbar)
                 }
             }
+*/
 
         updateTheme()
     }
@@ -281,6 +282,18 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
             setResult(Activity.RESULT_OK, Intent(TaskListFragment.ACTION_DELETED))
             finish()
         }
+    }
+
+    @Composable
+    fun baseCaldavSettingsContent (
+        optionButton: @Composable () -> Unit = { if (!isNew) DeleteButton { promptDelete() } },
+        extensionContent: @Composable ColumnScope.() -> Unit = {}
+    ) {
+        baseSettingsContent (
+            optionButton = optionButton,
+            extensionContent = extensionContent
+        )
+        ListSettingsSnackBar(state = snackbar)
     }
 
     companion object {

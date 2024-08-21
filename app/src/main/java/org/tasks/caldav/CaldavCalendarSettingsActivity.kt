@@ -27,9 +27,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.tasks.R
 import org.tasks.compose.Constants
-import org.tasks.compose.DeleteButton
-import org.tasks.compose.ListSettings.ListSettings
-import org.tasks.compose.ListSettings.ListSettingsSnackBar
 import org.tasks.compose.ListSettingsComposables.PrincipalList
 import org.tasks.compose.ShareInvite.ShareInviteDialog
 import org.tasks.data.CaldavAccount
@@ -121,7 +118,20 @@ class CaldavCalendarSettingsActivity : BaseCaldavCalendarSettingsActivity() {
 
         if (compose) setContent {
             MdcTheme {
-                Box (contentAlignment = Alignment.TopStart) {
+                Box (contentAlignment = Alignment.TopStart) {// Box to layout FAB over main content
+                    baseCaldavSettingsContent {
+                        caldavCalendar?.takeIf { it.id > 0 }?.let {
+                            principalDao.getPrincipals(it.id).observeAsState().value?.let {
+                                principalsList.value = it
+                            }
+                        }
+                        if (principalsList.value.isNotEmpty())
+                            PrincipalList(
+                                principalsList.value,
+                                onRemove = if (canRemovePrincipals) ::onRemove else null
+                            )
+                    }
+/*
                     ListSettings(
                         title = toolbarTitle,
                         requestKeyboard = isNew,
@@ -133,7 +143,7 @@ class CaldavCalendarSettingsActivity : BaseCaldavCalendarSettingsActivity() {
                         selectColor = { showThemePicker() },
                         clearColor = { clearColor() },
                         selectIcon = { showIconPicker() },
-                        optionButton = { if (!isNew) DeleteButton { lifecycleScope.launch { promptDelete() } } },
+                        optionButton = { if (!isNew) DeleteButton { promptDelete() } } ,
                         showProgress = showProgress
                     ) {
 
@@ -151,6 +161,7 @@ class CaldavCalendarSettingsActivity : BaseCaldavCalendarSettingsActivity() {
                     }
 
                     ListSettingsSnackBar(state = snackbar)
+*/
 
                     removeDialog.value?.let { principal ->
                         AlertDialog(
