@@ -3,7 +3,6 @@ package org.tasks.activities
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.material.SnackbarHostState
@@ -52,8 +51,6 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
     private val deleteListViewModel: DeleteListViewModel by viewModels()
     override val defaultIcon = TasksIcons.LIST
 
-    override val compose: Boolean
-        get() = true
     val snackbar = SnackbarHostState()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -149,8 +146,6 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
     override fun finish() {
         super.finish()
     }
-
-    override fun bind(): View { TODO() }
 
     override fun promptDelete() {
         if (!requestInProgress()) {

@@ -8,7 +8,6 @@ package org.tasks.activities
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import androidx.activity.compose.setContent
 import com.todoroo.astrid.activity.MainActivity
 import com.todoroo.astrid.activity.TaskListFragment
@@ -41,10 +40,6 @@ class TagSettingsActivity : BaseListSettingsActivity() {
         get() = tagData.id == null
 
     override val defaultIcon = TasksIcons.LABEL
-
-    override val compose: Boolean
-        get() = true
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         tagData = intent.getParcelableExtra(EXTRA_TAG_DATA) ?: TagData()
@@ -135,8 +130,6 @@ class TagSettingsActivity : BaseListSettingsActivity() {
         //hideKeyboard(name)
         super.finish()
     }
-
-    override fun bind(): View { TODO() }
 
     override suspend fun delete() {
         val uuid = tagData.remoteId
