@@ -3,8 +3,6 @@ package org.tasks.activities
 import android.content.DialogInterface
 import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
-import android.view.MenuItem
-import androidx.appcompat.widget.Toolbar
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -54,7 +52,7 @@ import org.tasks.themes.CustomIcons.getIconResId
 import org.tasks.themes.ThemeColor
 import javax.inject.Inject
 
-abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Toolbar.OnMenuItemClickListener, ColorPalettePicker.ColorPickedCallback, ColorWheelPicker.ColorPickedCallback {
+abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), IconPickerCallback, ColorPalettePicker.ColorPickedCallback, ColorWheelPicker.ColorPickedCallback {
     @Inject lateinit var dialogBuilder: DialogBuilder
     @Inject lateinit var colorProvider: ColorProvider
     protected abstract val defaultIcon: String
@@ -124,14 +122,6 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), To
     override fun onColorPicked(color: Int) {
         selectedColor = color
         updateTheme()
-    }
-
-    override fun onMenuItemClick(item: MenuItem): Boolean {
-        if (item.itemId == R.id.delete) {
-            promptDelete()
-            return true
-        }
-        return onOptionsItemSelected(item)
     }
 
     protected open fun promptDelete() { promptDelete.value = true }
