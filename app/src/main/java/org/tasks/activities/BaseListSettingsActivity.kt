@@ -8,12 +8,29 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.composethemeadapter.MdcTheme
 import kotlinx.coroutines.launch
 import org.tasks.R
+import org.tasks.compose.Constants
+import org.tasks.compose.DeleteButton
+import org.tasks.compose.ListSettings.ListSettingsProgressBar
+import org.tasks.compose.ListSettings.ListSettingsSurface
+import org.tasks.compose.ListSettings.ListSettingsTitleInput
+import org.tasks.compose.ListSettings.ListSettingsToolbar
+import org.tasks.compose.ListSettings.PromptAction
+import org.tasks.compose.ListSettings.SelectColorRow
+import org.tasks.compose.ListSettings.SelectIconRow
 import org.tasks.dialogs.ColorPalettePicker
 import org.tasks.dialogs.ColorPalettePicker.Companion.newColorPalette
 import org.tasks.dialogs.ColorPickerAdapter.Palette
@@ -50,6 +67,8 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Ic
     protected val colorState = mutableStateOf(Color.Unspecified)
     protected val iconState = mutableIntStateOf(R.drawable.ic_outline_not_interested_24px)
     protected val showProgress = mutableStateOf(false)
+    protected val promptDelete = mutableStateOf(false)
+    protected val promptDiscard = mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -104,15 +123,8 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Ic
     protected abstract suspend fun delete()
     protected abstract fun bind(): View
     protected open fun discard() {
-        if (!hasChanges()) {
-            finish()
-        } else {
-            dialogBuilder
-                    .newDialog(R.string.discard_changes)
-                    .setPositiveButton(R.string.discard) { _, _ -> finish() }
-                    .setNegativeButton(R.string.cancel, null)
-                    .show()
-        }
+        if (hasChanges())  promptDiscard.value = true
+        else finish()
     }
 
     protected fun clearColor() {
@@ -147,13 +159,7 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Ic
         return onOptionsItemSelected(item)
     }
 
-    protected open fun promptDelete() {
-        dialogBuilder
-                .newDialog(R.string.delete_tag_confirmation, toolbarTitle)
-                .setPositiveButton(R.string.delete) { _, _ -> lifecycleScope.launch { delete() } }
-                .setNegativeButton(R.string.cancel, null)
-                .show()
-    }
+    protected open fun promptDelete() { promptDelete.value = true }
 
     protected fun updateTheme() {
         val themeColor: ThemeColor
@@ -183,6 +189,51 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Ic
             val icon = getIconResId(selectedIcon) ?: getIconResId(defaultIcon)
             DrawableUtil.setLeftDrawable(this, this.icon, icon!!)
             DrawableUtil.getLeftDrawable(this.icon).setTint(getColor(R.color.icon_tint_with_alpha))
+        }
+
+    }
+
+    @Composable
+    protected fun baseSettingsContent(
+        title: String = toolbarTitle ?: "",
+        requestKeyboard: Boolean = isNew,
+        optionButton: @Composable () -> Unit = { if (!isNew) DeleteButton { promptDelete() } },
+        extensionContent: @Composable ColumnScope.() -> Unit = {}
+    ) {
+        MdcTheme {
+            ListSettingsSurface {
+                ListSettingsToolbar(
+                    title = title,
+                    save = { lifecycleScope.launch { save() } },
+                    optionButton = optionButton
+                )
+                ListSettingsProgressBar(showProgress)
+                ListSettingsTitleInput(
+                    text = textState, error = errorState, requestKeyboard = requestKeyboard,
+                    modifier = Modifier.padding(horizontal = Constants.KEYLINE_FIRST)
+                )
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    SelectColorRow(
+                        color = colorState,
+                        selectColor = { showThemePicker() },
+                        clearColor = { clearColor() })
+                    SelectIconRow(
+                        icon = iconState,
+                        selectIcon = { showIconPicker() })
+                    extensionContent()
+
+                    PromptAction(
+                        showDialog = promptDelete,
+                        title = stringResource(id = R.string.delete_tag_confirmation, title),
+                        onAction = { lifecycleScope.launch { delete() } }
+                    )
+                    PromptAction(
+                        showDialog = promptDiscard,
+                        title = stringResource(id = R.string.discard_changes),
+                        onAction = { lifecycleScope.launch { finish() } }
+                    )
+                }
+            }
         }
     }
 

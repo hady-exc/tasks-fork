@@ -43,12 +43,11 @@ import kotlinx.coroutines.launch
 import org.tasks.R
 import org.tasks.Strings
 import org.tasks.compose.DeleteButton
-import org.tasks.compose.FilterCondition
-import org.tasks.compose.InputTextOption
-import org.tasks.compose.NewCriterionFAB
-import org.tasks.compose.SelectCriterionType
-import org.tasks.compose.SelectFromList
-import org.tasks.compose.drawer.ListSettingsDrawer
+import org.tasks.compose.FilterCondition.FilterCondition
+import org.tasks.compose.FilterCondition.InputTextOption
+import org.tasks.compose.FilterCondition.NewCriterionFAB
+import org.tasks.compose.FilterCondition.SelectCriterionType
+import org.tasks.compose.FilterCondition.SelectFromList
 import org.tasks.data.Filter
 import org.tasks.data.FilterDao
 import org.tasks.data.TaskDao.TaskCriteria.activeAndVisible
@@ -107,11 +106,6 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
             }
             else -> setCriteria(universe())
         }
-        if (isNew) {
-            // toolbar.inflateMenu(R.menu.menu_help) TODO(introduce @composable for help in BaseListSettingActivity)
-        }
-
-        // setContent { activityContent() }
 
         updateTheme()
 
@@ -280,27 +274,14 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.TopStart
             ) {
-                ListSettingsDrawer(
-                    title = toolbarTitle,
-                    requestKeyboard = isNew,
-                    text = textState,
-                    error = errorState,
-                    color = colorState,
-                    icon = iconState,
-                    save = { lifecycleScope.launch { save() } },
-                    selectColor = { showThemePicker() },
-                    clearColor = { clearColor() },
-                    selectIcon = { showIconPicker() },
-                    optionButton =
-                    {
+                baseSettingsContent(
+                    optionButton = {
                         if (isNew) {
                             IconButton(onClick = { help() }) {
                                 Icon(imageVector = Icons.Outlined.Help, contentDescription = "")
                             }
-                        }
-                        else DeleteButton { lifecycleScope.launch { promptDelete() } }
-                    },
-                    showProgress = showProgress
+                        } else DeleteButton{ promptDelete() }
+                    }
                 ) {
                     FilterCondition(
                         items = criteria,
