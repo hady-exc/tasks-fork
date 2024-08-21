@@ -20,6 +20,8 @@ class MicrosoftListSettingsActivity : BaseCaldavCalendarSettingsActivity() {
 
     override val compose: Boolean
         get() = true
+    override val setContent: Boolean
+        get() = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
