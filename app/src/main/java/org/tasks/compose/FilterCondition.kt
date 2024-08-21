@@ -4,9 +4,9 @@ package org.tasks.compose
  *  Composables for FilterSettingActivity
  **/
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,17 +18,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -45,16 +46,17 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.zIndex
 import androidx.core.os.ConfigurationCompat
 import com.todoroo.astrid.core.CriterionInstance
 import org.tasks.R
@@ -62,6 +64,15 @@ import org.tasks.compose.ListSettings.ListSettingRow
 import org.tasks.compose.SwipeOut.SwipeOut
 import org.tasks.extensions.formatNumber
 import java.util.Locale
+
+@Composable
+@Preview (showBackground = true)
+fun ToggleGroupPreview ()
+{
+    FilterCondition.ToggleGroup (
+        items = listOf("AND","OR","NOT")
+    )
+}
 
 object FilterCondition {
     @OptIn(ExperimentalFoundationApi::class)
@@ -279,11 +290,11 @@ object FilterCondition {
             Card(
                 backgroundColor = MaterialTheme.colors.background
             ) {
-                Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+                Column(modifier = Modifier.padding(horizontal = Constants.KEYLINE_FIRST)) {
                     Text(
                         text = title,
                         color = MaterialTheme.colors.onSurface,
-                        style = MaterialTheme.typography.body1,
+                        style = MaterialTheme.typography.h6,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp)
@@ -322,34 +333,26 @@ object FilterCondition {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp),
+                .height(56.dp),
             contentAlignment = Alignment.Center
         ) {
             Row {
                 for (index in items.indices) {
                     val highlight = (index == selected.intValue)
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .width(88.dp)
-                            .background(
-                                color =
-                                if (highlight) MaterialTheme.colors.secondary.copy(alpha = 0.3f)
-                                else Color.Transparent
-                            )
-                            .clickable { selected.intValue = index }
-                            .border(
-                                width = (1.5).dp,
-                                color = if (highlight) MaterialTheme.colors.secondary else Color.LightGray
-                            )
-                            .zIndex(zIndex = if (highlight) 1f else 0f)
+                    val color =
+                        if (highlight) MaterialTheme.colors.secondary.copy(alpha = 0.5f)
+                        else MaterialTheme.colors.onBackground.copy(alpha = 0.5f)
+                    OutlinedButton(
+                        onClick = { selected.intValue = index },
+                        border = BorderStroke(1.dp, SolidColor(color.copy(alpha = 0.5f))),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            backgroundColor = color.copy(alpha = 0.2f),
+                            contentColor = MaterialTheme.colors.onBackground),
+                        shape = RoundedCornerShape(Constants.HALF_KEYLINE)
                     ) {
-                        Text(
-                            text = items[index],
-                            modifier = Modifier
-                                .padding(horizontal = 16.dp, vertical = 4.dp)
-                        )
+                        Text(items[index])
                     }
+                    if (index<items.size-1) Spacer(modifier = Modifier.size(2.dp))
                 }
             }
         }
@@ -366,7 +369,8 @@ object FilterCondition {
         Dialog(onDismissRequest = onCancel) {
             Card(backgroundColor = MaterialTheme.colors.background) {
                 Column(
-                    modifier = Modifier.padding(horizontal = 20.dp)
+                    modifier = Modifier
+                        .padding(horizontal = Constants.KEYLINE_FIRST)
                         .padding(bottom = Constants.KEYLINE_FIRST)
                 ) {
                     title?.let { title ->
