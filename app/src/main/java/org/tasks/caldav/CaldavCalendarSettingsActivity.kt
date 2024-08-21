@@ -69,8 +69,8 @@ class CaldavCalendarSettingsActivity : BaseCaldavCalendarSettingsActivity() {
                 Box(contentAlignment = Alignment.TopStart) {// Box to layout FAB over main content
                     baseCaldavSettingsContent {
                         caldavCalendar?.takeIf { it.id > 0 }?.let {
-                            principalDao.getPrincipals(it.id).observeAsState().value?.let {
-                                principalsList.value = it
+                            principalDao.getPrincipals(it.id).observeAsState().value?.let { list->
+                                principalsList.value = list
                             }
                         }
                         if (principalsList.value.isNotEmpty())

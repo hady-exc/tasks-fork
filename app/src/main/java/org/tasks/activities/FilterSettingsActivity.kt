@@ -358,7 +358,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                                 title = textInCriterion.name,
                                 onCancel = { newCriterionOptions.value = null },
                                 onDone = { text ->
-                                    text.trim().takeIf{ it != "" }?. let {text ->
+                                    text.trim().takeIf{ it != "" }?. let { text ->
                                         instance.selectedText = text
                                         criteria.add(instance)
                                         updateList()
