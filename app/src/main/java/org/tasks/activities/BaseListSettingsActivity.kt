@@ -100,7 +100,7 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Co
         selectedIcon.value = selected
     }
 
-    private fun showIconPicker() {
+    protected fun showIconPicker() {
         launcher.launchIconPicker(this, selectedIcon.value)
     }
 

@@ -30,12 +30,12 @@ import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedButton
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.Abc
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
@@ -424,20 +424,18 @@ object FilterCondition {
                         title,
                         style = MaterialTheme.typography.h6,
                     )
+
                     Spacer(Modifier.height(Constants.KEYLINE_FIRST))
+
                     OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
                         value = text.value,
-                        label = { Text(title) },
                         onValueChange = { text.value = it },
+                        label = { Text(title) },
                         leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Outlined.Abc,
-                                contentDescription = null
-                            )
+                            Icon(imageVector = Icons.Outlined.Abc, contentDescription = "")
                         },
                         textStyle = MaterialTheme.typography.body1,
-                        colors = Constants.textFieldColors(),
+                        colors = Constants.textFieldColors()
                     )
                 }
 

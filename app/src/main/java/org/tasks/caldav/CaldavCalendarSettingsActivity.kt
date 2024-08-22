@@ -7,18 +7,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.AlertDialog
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -68,16 +68,16 @@ class CaldavCalendarSettingsActivity : BaseCaldavCalendarSettingsActivity() {
             TasksTheme {
                 Box(contentAlignment = Alignment.TopStart) {// Box to layout FAB over main content
                     baseCaldavSettingsContent {
-                        caldavCalendar?.takeIf { it.id > 0 }?.let {
-                            principalDao.getPrincipals(it.id).observeAsState().value?.let { list->
-                                principalsList.value = list
-                            }
-                        }
-                        if (principalsList.value.isNotEmpty())
+                        caldavCalendar?.takeIf { it.id > 0 }?.let { calendar ->
+                            val principals = principalDao.getPrincipals(calendar.id)
+                                .collectAsStateWithLifecycle(initialValue = emptyList()).value
                             PrincipalList(
-                                principalsList.value,
-                                onRemove = if (canRemovePrincipals) ::onRemove else null
+                                principals = principals,
+                                onRemove = if (canRemovePrincipals) {
+                                    { onRemove(it) }
+                                } else null,
                             )
+                        }
                     }
 
                     removeDialog.value?.let { principal ->

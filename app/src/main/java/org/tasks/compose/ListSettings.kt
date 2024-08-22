@@ -21,13 +21,13 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.LocalTextStyle
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Snackbar
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -150,7 +150,7 @@ object ListSettings {
                 LinearProgressIndicator(
                     modifier = Modifier.fillMaxSize(),
                     backgroundColor = LocalContentColor.current.copy(alpha = 0.3f),  //Color.LightGray,
-                    color = MaterialTheme.colors.secondary
+                    color = MaterialTheme.colorScheme.secondary
                 )
             }
         }
@@ -163,7 +163,7 @@ object ListSettings {
         requestKeyboard: Boolean,
         modifier: Modifier = Modifier,
         label: String = stringResource(R.string.display_name),
-        errorState: Color = MaterialTheme.colors.secondary,
+        errorState: Color = MaterialTheme.colorScheme.secondary,
         activeState: Color = LocalContentColor.current.copy(alpha = 0.75f),
         inactiveState: Color = LocalContentColor.current.copy(alpha = 0.5f),
     ) {
@@ -365,7 +365,7 @@ object ListSettings {
         if (showDialog.value) {
             AlertDialog(
                 onDismissRequest = onCancel,
-                title = { Text(title, style = MaterialTheme.typography.h6) },
+                title = { Text(title, style = MaterialTheme.typography.titleLarge) },
                 confirmButton = { Constants.TextButton(R.string.ok, onClick = onAction) },
                 dismissButton = { Constants.TextButton(text = R.string.cancel, onCancel) }
             )
