@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import org.tasks.R
+import org.tasks.compose.components.TasksIcon
 
 object ListSettings {
     @Composable
@@ -63,7 +64,7 @@ object ListSettings {
         text: MutableState<String>,
         error: MutableState<String>,
         color: State<Color>,
-        icon: State<Int>,
+        icon: State<String>,
         save: () -> Unit = {},
         selectIcon: () -> Unit = {},
         clearColor: () -> Unit = {},
@@ -279,15 +280,14 @@ object ListSettings {
         )
 
     @Composable
-    fun SelectIconRow(icon: State<Int>, selectIcon: () -> Unit) =
+    fun SelectIconRow(icon: State<String>, selectIcon: () -> Unit) =
         ListSettingRow(
             modifier = Modifier.clickable(onClick =  selectIcon),
             left = {
                 IconButton(onClick = selectIcon) {
-                    Icon(
+                    TasksIcon(
                         modifier = Modifier.padding(Constants.KEYLINE_FIRST),
-                        imageVector = ImageVector.vectorResource(icon.value),
-                        contentDescription = null,
+                        label = icon.value,
                         tint = colorResource(R.color.icon_tint_with_alpha)
                     )
                 }
