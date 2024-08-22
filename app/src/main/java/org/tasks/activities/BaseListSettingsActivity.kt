@@ -14,8 +14,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
@@ -26,11 +26,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
-import com.google.android.material.composethemeadapter.MdcTheme
 import kotlinx.coroutines.launch
 import org.tasks.R
 import org.tasks.compose.Constants
 import org.tasks.compose.DeleteButton
+import org.tasks.compose.IconPickerActivity.Companion.launchIconPicker
+import org.tasks.compose.IconPickerActivity.Companion.registerForIconPickerResult
 import org.tasks.compose.ListSettings.ListSettingsProgressBar
 import org.tasks.compose.ListSettings.ListSettingsSurface
 import org.tasks.compose.ListSettings.ListSettingsTitleInput
@@ -48,18 +49,18 @@ import org.tasks.injection.ThemedInjectingAppCompatActivity
 import org.tasks.themes.ColorProvider
 import org.tasks.themes.DrawableUtil
 import org.tasks.themes.TasksTheme
-import org.tasks.themes.CustomIcons.getIconResId
+//import org.tasks.themes.CustomIcons.getIconResId
 import org.tasks.themes.ThemeColor
 import javax.inject.Inject
 
-abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), IconPickerCallback, ColorPalettePicker.ColorPickedCallback, ColorWheelPicker.ColorPickedCallback {
+abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), ColorPalettePicker.ColorPickedCallback, ColorWheelPicker.ColorPickedCallback {
     @Inject lateinit var dialogBuilder: DialogBuilder
     @Inject lateinit var colorProvider: ColorProvider
     protected abstract val defaultIcon: String
     protected var selectedColor = 0
     protected var selectedIcon = MutableStateFlow<String?>(null)
 
-    protected abstract val defaultIcon: Int
+    //protected abstract val defaultIcon: Int
 
     protected val textState = mutableStateOf("")
     protected val errorState = mutableStateOf("")
@@ -148,7 +149,7 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Ic
         optionButton: @Composable () -> Unit = { if (!isNew) DeleteButton { promptDelete() } },
         extensionContent: @Composable ColumnScope.() -> Unit = {}
     ) {
-        MdcTheme {
+        TasksTheme {
             ListSettingsSurface {
                 ListSettingsToolbar(
                     title = title,
@@ -183,9 +184,6 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Ic
                 }
             }
         }
-            clear.visibility = View.VISIBLE
-        }
-        themeColor.applyToNavigationBar(this)
     }
 
     companion object {

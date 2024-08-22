@@ -149,7 +149,7 @@ object ListSettings {
                 LinearProgressIndicator(
                     modifier = Modifier.fillMaxSize(),
                     backgroundColor = LocalContentColor.current.copy(alpha = 0.3f),  //Color.LightGray,
-                    color = colorResource(R.color.red_a400)
+                    color = MaterialTheme.colors.secondary
                 )
             }
         }

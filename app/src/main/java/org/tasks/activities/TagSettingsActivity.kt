@@ -12,7 +12,9 @@ import androidx.activity.compose.setContent
 import com.todoroo.astrid.activity.MainActivity
 import com.todoroo.astrid.activity.TaskListFragment
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.tasks.LocalBroadcastManager
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
 import org.tasks.data.TagDao
