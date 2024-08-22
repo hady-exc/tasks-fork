@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.AlertDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.livedata.observeAsState
@@ -19,8 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.core.view.isVisible
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -28,14 +26,6 @@ import org.tasks.R
 import org.tasks.compose.Constants
 import org.tasks.compose.ListSettingsComposables.PrincipalList
 import org.tasks.compose.ShareInvite.ShareInviteDialog
-import org.tasks.data.CaldavAccount
-import org.tasks.data.CaldavAccount.Companion.SERVER_NEXTCLOUD
-import org.tasks.data.CaldavAccount.Companion.SERVER_OWNCLOUD
-import org.tasks.data.CaldavAccount.Companion.SERVER_SABREDAV
-import org.tasks.data.CaldavAccount.Companion.SERVER_TASKS
-import org.tasks.data.CaldavCalendar
-import org.tasks.data.CaldavCalendar.Companion.ACCESS_OWNER
-import org.tasks.data.PrincipalDao
 import org.tasks.data.PrincipalWithAccess
 import org.tasks.data.dao.PrincipalDao
 import org.tasks.data.entity.CaldavAccount
@@ -75,7 +65,7 @@ class CaldavCalendarSettingsActivity : BaseCaldavCalendarSettingsActivity() {
         }
 
         setContent {
-            MdcTheme {
+            TasksTheme {
                 Box(contentAlignment = Alignment.TopStart) {// Box to layout FAB over main content
                     baseCaldavSettingsContent {
                         caldavCalendar?.takeIf { it.id > 0 }?.let {

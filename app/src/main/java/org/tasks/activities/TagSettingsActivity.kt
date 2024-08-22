@@ -12,20 +12,12 @@ import androidx.activity.compose.setContent
 import com.todoroo.astrid.activity.MainActivity
 import com.todoroo.astrid.activity.TaskListFragment
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import org.tasks.LocalBroadcastManager
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
-import org.tasks.data.TagDao
-import org.tasks.data.TagData
-import org.tasks.data.TagDataDao
-import org.tasks.themes.CustomIcons
 import org.tasks.data.dao.TagDao
 import org.tasks.data.dao.TagDataDao
 import org.tasks.data.entity.TagData
-import org.tasks.databinding.ActivityTagSettingsBinding
-import org.tasks.extensions.Context.hideKeyboard
 import org.tasks.filters.TagFilter
 import org.tasks.themes.TasksIcons
 import javax.inject.Inject
@@ -36,7 +28,6 @@ class TagSettingsActivity : BaseListSettingsActivity() {
     @Inject lateinit var tagDao: TagDao
     @Inject lateinit var localBroadcastManager: LocalBroadcastManager
 
-    private var isNewTag = false
     private lateinit var tagData: TagData
     private val isNewTag: Boolean
         get() = tagData.id == null
@@ -49,7 +40,7 @@ class TagSettingsActivity : BaseListSettingsActivity() {
 
         if (savedInstanceState == null) {
             selectedColor = tagData.color ?: 0
-            selectedIcon.update { tagData.icon }
+            selectedIcon.value = tagData.icon ?: defaultIcon
         }
 
         setContent {

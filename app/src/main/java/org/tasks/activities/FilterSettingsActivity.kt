@@ -19,7 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.composethemeadapter.MdcTheme
 import org.tasks.data.sql.Field
 import org.tasks.data.sql.Query
 import org.tasks.data.sql.UnaryCriterion
@@ -35,7 +34,6 @@ import com.todoroo.astrid.core.CriterionInstance
 import org.tasks.data.db.Database
 import org.tasks.data.entity.Task
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.tasks.LocalBroadcastManager
 import org.tasks.R
@@ -51,12 +49,12 @@ import org.tasks.data.dao.FilterDao
 import org.tasks.data.NO_ORDER
 import org.tasks.data.dao.TaskDao.TaskCriteria.activeAndVisible
 import org.tasks.data.rawQuery
-import org.tasks.databinding.FilterSettingsActivityBinding
 import org.tasks.db.QueryUtils
 import org.tasks.extensions.Context.openUri
 import org.tasks.filters.FilterCriteriaProvider
 import org.tasks.filters.mapToSerializedString
 import org.tasks.themes.TasksIcons
+import org.tasks.themes.TasksTheme
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.max
@@ -69,12 +67,9 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
     @Inject lateinit var filterCriteriaProvider: FilterCriteriaProvider
     @Inject lateinit var localBroadcastManager: LocalBroadcastManager
 
-
     private var filter: CustomFilter? = null
-    //private lateinit var adapter: CustomFilterAdapter /* TODO(eliminate) */
 
-    private var criteria: MutableList<CriterionInstance> = ArrayList()
-    override val defaultIcon: Int = CustomIcons.FILTER
+    override val defaultIcon: String = TasksIcons.FILTER_LIST
 
     private var criteria: SnapshotStateList<CriterionInstance> = emptyList<CriterionInstance>().toMutableStateList()
     private val fabExtended = mutableStateOf(false)
@@ -87,8 +82,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null && filter != null) {
             selectedColor = filter!!.tint
-            selectedIcon.update { filter!!.icon }
-            //name.setText(filter!!.title)
+            selectedIcon.value = filter!!.icon
             textState.value = filter!!.title ?: ""
         }
         when {
@@ -263,7 +257,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
     @Composable
     private fun activityContent ()
     {
-        MdcTheme {
+        TasksTheme {
             Box(  // to layout FAB over the main content
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.TopStart
@@ -286,6 +280,8 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                 }
 
                 NewCriterionFAB(fabExtended) { newCriterion() }
+
+                /** edit given criterion type (AND|OR|NOT) **/
 
                 /** edit given criterion type (AND|OR|NOT) **/
                 editCriterionType.value?.let { itemId ->
@@ -325,6 +321,8 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                 } /* end (AND|OR|NOT) dialog */
 
                 /** dialog to select new criterion category **/
+
+                /** dialog to select new criterion category **/
                 newCriterionTypes.value?.let  { list ->
                     SelectFromList(
                         names = list.map(CustomFilterCriterion::getName),
@@ -341,6 +339,8 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                         }
                     )
                 } /* end dialog  */
+
+                /** Show options menu for the given CriterionInstance  */
 
                 /** Show options menu for the given CriterionInstance  */
                 newCriterionOptions.value?.let { instance ->
