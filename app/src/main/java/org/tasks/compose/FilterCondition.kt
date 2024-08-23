@@ -23,13 +23,13 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
-import androidx.compose.material.ButtonDefaults
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
-import androidx.compose.material.FloatingActionButton
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -63,15 +63,20 @@ import org.tasks.R
 import org.tasks.compose.ListSettings.ListSettingRow
 import org.tasks.compose.SwipeOut.SwipeOut
 import org.tasks.extensions.formatNumber
+import org.tasks.themes.TasksTheme
 import java.util.Locale
 
 @Composable
 @Preview (showBackground = true)
-fun ToggleGroupPreview ()
-{
-    FilterCondition.ToggleGroup (
-        items = listOf("AND","OR","NOT")
-    )
+fun SelectCriterionTypePreview() {
+    TasksTheme {
+        FilterCondition.SelectCriterionType(
+            title = "Criterion title",
+            selected = 1,
+            types = listOf("AND", "OR", "NOT"),
+            onCancel = { /*TODO*/ }
+        ) {}
+    }
 }
 
 object FilterCondition {
@@ -105,7 +110,7 @@ object FilterCondition {
         Row {
             Text(
                 text = stringResource(id = R.string.custom_filter_criteria),
-                color = MaterialTheme.colors.secondary,
+                color = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(Constants.KEYLINE_FIRST)
@@ -211,7 +216,7 @@ object FilterCondition {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colors.secondary)
+                .background(MaterialTheme.colorScheme.secondary)
         ) {
 
             @Composable
@@ -251,7 +256,7 @@ object FilterCondition {
                 onClick = onClick,
                 modifier = Modifier.padding(16.dp),
                 shape = RoundedCornerShape(50),
-                backgroundColor = MaterialTheme.colors.secondary,
+                containerColor = MaterialTheme.colorScheme.secondary,
                 contentColor = Color.White,
             ) {
                 val extended = isExtended.value
@@ -288,18 +293,19 @@ object FilterCondition {
         Dialog(onDismissRequest = onCancel)
         {
             Card(
-                backgroundColor = MaterialTheme.colors.background
+                backgroundColor = MaterialTheme.colorScheme.background
             ) {
                 Column(modifier = Modifier.padding(horizontal = Constants.KEYLINE_FIRST)) {
                     Text(
                         text = title,
-                        color = MaterialTheme.colors.onSurface,
-                        style = MaterialTheme.typography.h6,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.headlineSmall,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp)
                             .padding(top = 16.dp)
                     )
+                    Spacer(modifier = Modifier.size(Constants.KEYLINE_FIRST))
                     ToggleGroup(items = types, selected = selected)
                     Row(
                         modifier = Modifier.height(48.dp),
@@ -340,14 +346,14 @@ object FilterCondition {
                 for (index in items.indices) {
                     val highlight = (index == selected.intValue)
                     val color =
-                        if (highlight) MaterialTheme.colors.secondary.copy(alpha = 0.5f)
-                        else MaterialTheme.colors.onBackground.copy(alpha = 0.5f)
+                        if (highlight) MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f)
+                        else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
                     OutlinedButton(
                         onClick = { selected.intValue = index },
                         border = BorderStroke(1.dp, SolidColor(color.copy(alpha = 0.5f))),
                         colors = ButtonDefaults.outlinedButtonColors(
-                            backgroundColor = color.copy(alpha = 0.2f),
-                            contentColor = MaterialTheme.colors.onBackground),
+                            containerColor = color.copy(alpha = 0.2f),
+                            contentColor = MaterialTheme.colorScheme.onBackground),
                         shape = RoundedCornerShape(Constants.HALF_KEYLINE)
                     ) {
                         Text(items[index])
@@ -358,7 +364,6 @@ object FilterCondition {
         }
     } /* end ToggleGroup */
 
-
     @Composable
     fun SelectFromList(
         names: List<String>,
@@ -367,7 +372,7 @@ object FilterCondition {
         onSelected: (Int) -> Unit
     ) {
         Dialog(onDismissRequest = onCancel) {
-            Card(backgroundColor = MaterialTheme.colors.background) {
+            Card(backgroundColor = MaterialTheme.colorScheme.background) {
                 Column(
                     modifier = Modifier
                         .padding(horizontal = Constants.KEYLINE_FIRST)
@@ -376,8 +381,8 @@ object FilterCondition {
                     title?.let { title ->
                         Text(
                             text = title,
-                            color = MaterialTheme.colors.onSurface,
-                            style = MaterialTheme.typography.h6,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.Medium,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -388,8 +393,8 @@ object FilterCondition {
                     names.forEachIndexed { index, name ->
                         Text(
                             text = name,
-                            color = MaterialTheme.colors.onSurface,
-                            style = MaterialTheme.typography.body1,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(48.dp)
@@ -422,7 +427,7 @@ object FilterCondition {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
                         title,
-                        style = MaterialTheme.typography.h6,
+                        style = MaterialTheme.typography.headlineMedium,
                     )
 
                     Spacer(Modifier.height(Constants.KEYLINE_FIRST))
@@ -434,7 +439,7 @@ object FilterCondition {
                         leadingIcon = {
                             Icon(imageVector = Icons.Outlined.Abc, contentDescription = "")
                         },
-                        textStyle = MaterialTheme.typography.body1,
+                        textStyle = MaterialTheme.typography.bodyMedium,
                         colors = Constants.textFieldColors()
                     )
                 }

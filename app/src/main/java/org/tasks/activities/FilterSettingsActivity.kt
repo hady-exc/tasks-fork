@@ -321,8 +321,6 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                 } /* end (AND|OR|NOT) dialog */
 
                 /** dialog to select new criterion category **/
-
-                /** dialog to select new criterion category **/
                 newCriterionTypes.value?.let  { list ->
                     SelectFromList(
                         names = list.map(CustomFilterCriterion::getName),
@@ -339,8 +337,6 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                         }
                     )
                 } /* end dialog  */
-
-                /** Show options menu for the given CriterionInstance  */
 
                 /** Show options menu for the given CriterionInstance  */
                 newCriterionOptions.value?.let { instance ->
