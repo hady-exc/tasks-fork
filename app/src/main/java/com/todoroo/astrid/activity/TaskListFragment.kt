@@ -97,6 +97,7 @@ import org.tasks.compose.rememberReminderPermissionState
 import org.tasks.compose.edit.InputPanel
 import org.tasks.data.TaskContainer
 import org.tasks.data.dao.CaldavDao
+import org.tasks.data.dao.TagDao
 import org.tasks.data.dao.TagDataDao
 import org.tasks.data.db.Database
 import org.tasks.data.db.SuspendDbUtils.chunkedMap
@@ -133,6 +134,7 @@ import org.tasks.filters.TagFilter
 import org.tasks.kmp.org.tasks.time.DateStyle
 import org.tasks.kmp.org.tasks.time.getRelativeDateTime
 import org.tasks.markdown.MarkdownProvider
+import org.tasks.preferences.DefaultFilterProvider
 import org.tasks.preferences.Device
 import org.tasks.preferences.Preferences
 import org.tasks.scheduling.NotificationSchedulerIntentService
@@ -175,6 +177,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     @Inject lateinit var taskAdapterProvider: TaskAdapterProvider
     @Inject lateinit var taskDao: TaskDao
     @Inject lateinit var taskDuplicator: TaskDuplicator
+    @Inject lateinit var tagDao: TagDao
     @Inject lateinit var tagDataDao: TagDataDao
     @Inject lateinit var caldavDao: CaldavDao
     @Inject lateinit var defaultThemeColor: ThemeColor

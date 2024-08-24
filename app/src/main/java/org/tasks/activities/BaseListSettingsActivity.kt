@@ -12,20 +12,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.composethemeadapter.MdcTheme
 import kotlinx.coroutines.launch
 import org.tasks.R
 import org.tasks.compose.Constants
 import org.tasks.compose.DeleteButton
 import org.tasks.compose.IconPickerActivity.Companion.launchIconPicker
 import org.tasks.compose.IconPickerActivity.Companion.registerForIconPickerResult
-import org.tasks.compose.ListSettings.ProgressBar
 import org.tasks.compose.ListSettings.ListSettingsSurface
-import org.tasks.compose.ListSettings.TitleInput
-import org.tasks.compose.ListSettings.Toolbar
+import org.tasks.compose.ListSettings.ProgressBar
 import org.tasks.compose.ListSettings.PromptAction
 import org.tasks.compose.ListSettings.SelectColorRow
 import org.tasks.compose.ListSettings.SelectIconRow
+import org.tasks.compose.ListSettings.TitleInput
+import org.tasks.compose.ListSettings.Toolbar
 import org.tasks.dialogs.ColorPalettePicker
 import org.tasks.dialogs.ColorPalettePicker.Companion.newColorPalette
 import org.tasks.dialogs.ColorPickerAdapter.Palette
@@ -33,8 +32,6 @@ import org.tasks.dialogs.ColorWheelPicker
 import org.tasks.extensions.addBackPressedCallback
 import org.tasks.injection.ThemedInjectingAppCompatActivity
 import org.tasks.themes.ColorProvider
-import org.tasks.themes.TasksTheme
-import org.tasks.themes.ThemeColor
 import javax.inject.Inject
 
 
@@ -44,17 +41,6 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Co
     protected var selectedColor = 0
     protected var selectedIcon = mutableStateOf("") //MutableStateFlow<String?>(null)
 
-    protected val textState = mutableStateOf("")
-    protected val errorState = mutableStateOf("")
-    protected val colorState = mutableStateOf(Color.Unspecified)
-    protected val iconState = mutableIntStateOf(R.drawable.ic_outline_not_interested_24px)
-    protected val showProgress = mutableStateOf(false)
-    protected val promptDelete = mutableStateOf(false)
-    protected val promptDiscard = mutableStateOf(false)
-
-    /* descendants which are @Compose'ed shall override it and return true */
-    protected open val compose: Boolean
-        get() = false
     protected val textState = mutableStateOf("")
     protected val errorState = mutableStateOf("")
     protected val colorState = mutableStateOf(Color.Unspecified)
@@ -120,28 +106,14 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Co
     protected open fun promptDelete() { promptDelete.value = true }
 
     protected fun updateTheme() {
-
-        val themeColor: ThemeColor =
-            if (compose) {
-            themeColor = if (selectedColor == 0) this.themeColor
-                else colorProvider.getThemeColor(selectedColor, true)
-            colorState.value =
-                if (selectedColor == 0) Color.Unspecified
-                else Color((colorProvider.getThemeColor(selectedColor, true)).primaryColor)
-            iconState.intValue = (getIconResId(selectedIcon) ?: getIconResId(defaultIcon))!!
-            themeColor.applyToNavigationBar(this)
-        } else {
-            if (selectedColor == 0)  this.themeColor
-
-             else  colorProvider.getThemeColor(selectedColor, true)
-
-                colorState.value =
-                if (selectedColor == 0) Color.Unspecified
+        themeColor = if (selectedColor == 0) this.themeColor
+            else colorProvider.getThemeColor(selectedColor, true)
+        colorState.value =
+            if (selectedColor == 0) Color.Unspecified
             else Color((colorProvider.getThemeColor(selectedColor, true)).primaryColor)
-                //iconState.intValue = (getIconResId(selectedIcon) ?: getIconResId(defaultIcon))!!
-
-            themeColor.applyToNavigationBar(this)
-            }
+        //selectedIcon.value = (getIconResId(selectedIcon) ?: getIconResId(defaultIcon))!!
+        themeColor.applyToNavigationBar(this)
+    }
 
     /** Standard @Compose view content for descendants. TaskTheme must be set up by client */
     @Composable
@@ -182,52 +154,6 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Co
             title = stringResource(id = R.string.discard_changes),
                     onAction = { lifecycleScope.launch { finish() } }
                 )
-            }
-        }
-        }
-
-    }
-
-    @Composable
-    protected fun baseSettingsContent(
-        title: String = toolbarTitle ?: "",
-        requestKeyboard: Boolean = isNew,
-        optionButton: @Composable () -> Unit = { if (!isNew) DeleteButton { promptDelete() } },
-        extensionContent: @Composable ColumnScope.() -> Unit = {}
-    ) {
-        MdcTheme {
-            ListSettingsSurface {
-                ListSettingsToolbar(
-                    title = title,
-                    save = { lifecycleScope.launch { save() } },
-                    optionButton = optionButton
-                )
-                ListSettingsProgressBar(showProgress)
-                ListSettingsTitleInput(
-                    text = textState, error = errorState, requestKeyboard = requestKeyboard,
-                    modifier = Modifier.padding(horizontal = Constants.KEYLINE_FIRST)
-                )
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    SelectColorRow(
-                        color = colorState,
-                        selectColor = { showThemePicker() },
-                        clearColor = { clearColor() })
-                    SelectIconRow(
-                        icon = iconState,
-                        selectIcon = { showIconPicker() })
-                    extensionContent()
-
-                    PromptAction(
-                        showDialog = promptDelete,
-                        title = stringResource(id = R.string.delete_tag_confirmation, title),
-                        onAction = { lifecycleScope.launch { delete() } }
-                    )
-                    PromptAction(
-                        showDialog = promptDiscard,
-                        title = stringResource(id = R.string.discard_changes),
-                        onAction = { lifecycleScope.launch { finish() } }
-                    )
-                }
             }
         }
     }

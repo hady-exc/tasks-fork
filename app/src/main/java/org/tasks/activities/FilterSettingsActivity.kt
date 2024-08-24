@@ -77,15 +77,6 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
     private val newCriterionTypes: MutableState<List<CustomFilterCriterion>?> = mutableStateOf(null)
     private val newCriterionOptions: MutableState<CriterionInstance?> = mutableStateOf(null)
 
-    override val compose: Boolean
-        get() = true
-
-    private var criteria: SnapshotStateList<CriterionInstance> = emptyList<CriterionInstance>().toMutableStateList()
-    private val fabExtended = mutableStateOf(false)
-    private val editCriterionType: MutableState<String?> = mutableStateOf(null)
-    private val newCriterionTypes: MutableState<List<CustomFilterCriterion>?> = mutableStateOf(null)
-    private val newCriterionOptions: MutableState<CriterionInstance?> = mutableStateOf(null)
-
     override fun onCreate(savedInstanceState: Bundle?) {
         filter = intent.getParcelableExtra(TOKEN_FILTER)
         super.onCreate(savedInstanceState)

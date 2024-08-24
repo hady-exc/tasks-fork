@@ -56,30 +56,6 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
             }
         }
 
-        if (setContent) TODO()
-/*
-            setContent {
-                MdcTheme {
-                    ListSettings(
-                        title = toolbarTitle,
-                        requestKeyboard = isNew,
-                        text = textState,
-                        error = errorState,
-                        color = colorState,
-                        icon = iconState,
-                        save = { lifecycleScope.launch { save() } },
-                        selectColor = { showThemePicker() },
-                        clearColor = { clearColor() },
-                        selectIcon = { showIconPicker() },
-                        optionButton = { if (!isNew) DeleteButton { lifecycleScope.launch { promptDelete() } } },
-                        showProgress = showProgress
-                    )
-
-                    ListSettingsSnackBar(state = snackbar)
-                }
-            }
-*/
-
         updateTheme()
     }
 

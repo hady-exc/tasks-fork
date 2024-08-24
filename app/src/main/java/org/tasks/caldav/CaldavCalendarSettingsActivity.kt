@@ -16,10 +16,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -32,6 +29,7 @@ import org.tasks.compose.ShareInvite.ShareInviteDialog
 import org.tasks.data.PrincipalWithAccess
 import org.tasks.data.dao.PrincipalDao
 import org.tasks.data.entity.CaldavAccount
+import org.tasks.data.entity.CaldavAccount.Companion.SERVER_MAILBOX_ORG
 import org.tasks.data.entity.CaldavAccount.Companion.SERVER_NEXTCLOUD
 import org.tasks.data.entity.CaldavAccount.Companion.SERVER_OWNCLOUD
 import org.tasks.data.entity.CaldavAccount.Companion.SERVER_SABREDAV

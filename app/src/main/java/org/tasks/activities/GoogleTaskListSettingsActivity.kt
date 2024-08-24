@@ -43,10 +43,6 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
 
     val snackbar = SnackbarHostState()
 
-    override val compose: Boolean
-        get() = true
-    val snackbar = SnackbarHostState()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         gtasksList = intent.getParcelableExtra(EXTRA_STORE_DATA)
                 ?: CaldavCalendar(
