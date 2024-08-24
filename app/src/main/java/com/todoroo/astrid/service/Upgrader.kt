@@ -6,8 +6,6 @@ import androidx.annotation.ColorRes
 import com.google.common.collect.ImmutableListMultimap
 import com.google.common.collect.ListMultimap
 import com.google.common.collect.Multimaps
-import com.todoroo.andlib.utility.DateUtilities.now
-import com.todoroo.astrid.api.GtasksFilter
 import com.todoroo.astrid.dao.TaskDao
 import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -19,50 +17,54 @@ import org.tasks.caldav.iCalendar
 import org.tasks.caldav.iCalendar.Companion.fromVtodo
 import org.tasks.caldav.iCalendar.Companion.order
 import org.tasks.caldav.iCalendar.Companion.parent
-import org.tasks.data.CaldavDao
-import org.tasks.data.CaldavTask
 import org.tasks.data.CaldavTaskContainer
-import org.tasks.data.Filter
-import org.tasks.data.FilterDao
-import org.tasks.data.GoogleTaskListDao
 import org.tasks.data.Location
-import org.tasks.data.LocationDao
-import org.tasks.data.Tag
-import org.tasks.data.TagDao
-import org.tasks.data.TagData
-import org.tasks.data.TagDataDao
-import org.tasks.data.TaskAttachmentDao
-import org.tasks.data.UpgraderDao
-import org.tasks.data.UserActivityDao
+import org.tasks.data.convertPictureUri
+import org.tasks.data.dao.CaldavDao
+import org.tasks.data.dao.FilterDao
+import org.tasks.data.dao.GoogleTaskListDao
+import org.tasks.data.dao.LocationDao
+import org.tasks.data.dao.TagDao
+import org.tasks.data.dao.TagDataDao
+import org.tasks.data.dao.TaskAttachmentDao
+import org.tasks.data.dao.UpgraderDao
+import org.tasks.data.dao.UserActivityDao
+import org.tasks.data.entity.CaldavTask
+import org.tasks.data.entity.Filter
+import org.tasks.data.entity.Tag
+import org.tasks.data.entity.TagData
+import org.tasks.filters.GtasksFilter
 import org.tasks.preferences.DefaultFilterProvider
 import org.tasks.preferences.Preferences
+import org.tasks.time.DateTimeUtils2.currentTimeMillis
 import org.tasks.widget.AppWidgetManager
 import org.tasks.widget.WidgetPreferences
 import java.io.File
 import javax.inject.Inject
 
 class Upgrader @Inject constructor(
-        @param:ApplicationContext private val context: Context,
-        private val preferences: Preferences,
-        private val tagDataDao: TagDataDao,
-        private val tagDao: TagDao,
-        private val filterDao: FilterDao,
-        private val defaultFilterProvider: DefaultFilterProvider,
-        private val googleTaskListDao: GoogleTaskListDao,
-        private val userActivityDao: UserActivityDao,
-        private val taskAttachmentDao: TaskAttachmentDao,
-        private val caldavDao: CaldavDao,
-        private val taskDao: TaskDao,
-        private val locationDao: LocationDao,
-        private val iCal: iCalendar,
-        private val widgetManager: AppWidgetManager,
-        private val taskMover: TaskMover,
-        private val upgraderDao: UpgraderDao,
-        private val vtodoCache: VtodoCache,
-        private val upgrade_11_3: Lazy<Upgrade_11_3>,
-        private val upgrade_11_12_3: Lazy<Upgrade_11_12_3>,
-        private val upgrade_12_4: Lazy<Upgrade_12_4>,
-        private val upgrade_13_2: Lazy<Upgrade_13_2>,
+    @param:ApplicationContext private val context: Context,
+    private val preferences: Preferences,
+    private val tagDataDao: TagDataDao,
+    private val tagDao: TagDao,
+    private val filterDao: FilterDao,
+    private val defaultFilterProvider: DefaultFilterProvider,
+    private val googleTaskListDao: GoogleTaskListDao,
+    private val userActivityDao: UserActivityDao,
+    private val taskAttachmentDao: TaskAttachmentDao,
+    private val caldavDao: CaldavDao,
+    private val taskDao: TaskDao,
+    private val locationDao: LocationDao,
+    private val iCal: iCalendar,
+    private val widgetManager: AppWidgetManager,
+    private val taskMover: TaskMover,
+    private val upgraderDao: UpgraderDao,
+    private val vtodoCache: VtodoCache,
+    private val upgrade_11_3: Lazy<Upgrade_11_3>,
+    private val upgrade_11_12_3: Lazy<Upgrade_11_12_3>,
+    private val upgrade_12_4: Lazy<Upgrade_12_4>,
+    private val upgrade_13_2: Lazy<Upgrade_13_2>,
+    private val upgrade_13_11: Lazy<Upgrade_13_11>,
 ) {
 
     fun upgrade(from: Int, to: Int) {
@@ -113,6 +115,9 @@ class Upgrader @Inject constructor(
                 caldavDao.updateParents()
                 upgrade_13_2.get().rebuildFilters()
             }
+            run(from, Upgrade_13_11.VERSION) {
+                upgrade_13_11.get().migrateIcons()
+            }
             preferences.setBoolean(R.string.p_just_updated, true)
         } else {
             setInstallDetails(to)
@@ -123,7 +128,7 @@ class Upgrader @Inject constructor(
 
     private fun setInstallDetails(version: Int) {
         preferences.installVersion = version
-        preferences.installDate = now()
+        preferences.installDate = currentTimeMillis()
     }
 
     private fun run(from: Int, version: Int, runnable: suspend () -> Unit) {
@@ -151,8 +156,9 @@ class Upgrader @Inject constructor(
             )
         }
         for (tagData in tagDataDao.getAll()) {
-            tagData.setColor(getAndroidColor(tagData.getColor()!!))
-            tagDataDao.update(tagData)
+            tagDataDao.update(
+                tagData.copy(color = getAndroidColor(tagData.color ?: 0))
+            )
         }
         for (filter in filterDao.getFilters()) {
             filterDao.update(
@@ -379,26 +385,26 @@ class Upgrader @Inject constructor(
         @ColorRes
         fun getLegacyColor(index: Int, def: Int): Int {
             return when (index) {
-                0 -> R.color.blue_grey_500
-                1 -> R.color.grey_900
-                2 -> R.color.red_500
-                3 -> R.color.pink_500
-                4 -> R.color.purple_500
-                5 -> R.color.deep_purple_500
-                6 -> R.color.indigo_500
-                7 -> R.color.blue_500
-                8 -> R.color.light_blue_500
-                9 -> R.color.cyan_500
-                10 -> R.color.teal_500
-                11 -> R.color.green_500
-                12 -> R.color.light_green_500
-                13 -> R.color.lime_500
-                14 -> R.color.yellow_500
-                15 -> R.color.amber_500
-                16 -> R.color.orange_500
-                17 -> R.color.deep_orange_500
-                18 -> R.color.brown_500
-                19 -> R.color.grey_500
+                0 -> org.tasks.kmp.R.color.blue_grey_500
+                1 -> org.tasks.kmp.R.color.grey_900
+                2 -> org.tasks.kmp.R.color.red_500
+                3 -> org.tasks.kmp.R.color.pink_500
+                4 -> org.tasks.kmp.R.color.purple_500
+                5 -> org.tasks.kmp.R.color.deep_purple_500
+                6 -> org.tasks.kmp.R.color.indigo_500
+                7 -> org.tasks.kmp.R.color.blue_500
+                8 -> org.tasks.kmp.R.color.light_blue_500
+                9 -> org.tasks.kmp.R.color.cyan_500
+                10 -> org.tasks.kmp.R.color.teal_500
+                11 -> org.tasks.kmp.R.color.green_500
+                12 -> org.tasks.kmp.R.color.light_green_500
+                13 -> org.tasks.kmp.R.color.lime_500
+                14 -> org.tasks.kmp.R.color.yellow_500
+                15 -> org.tasks.kmp.R.color.amber_500
+                16 -> org.tasks.kmp.R.color.orange_500
+                17 -> org.tasks.kmp.R.color.deep_orange_500
+                18 -> org.tasks.kmp.R.color.brown_500
+                19 -> org.tasks.kmp.R.color.grey_500
                 20 -> R.color.white_100
                 else -> def
             }

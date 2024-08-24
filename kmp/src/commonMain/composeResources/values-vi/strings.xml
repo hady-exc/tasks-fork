@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search">Tìm kiếm</string>
+    <string name="subscribe">Đăng ký</string>
+    <string name="filter_my_tasks">Công việc của tôi</string>
+    <string name="filter_notifications">Thông báo</string>
+    <string name="filter_snoozed">Đã đặt báo lại</string>
+    <string name="filter_timer">Công việc đang được tính thời gian</string>
+    <string name="filter_today">Hôm nay</string>
+    <string name="filter_recently_modified">Sửa đổi gần đây</string>
+    <string name="default_list">Danh sách mặc định</string>
+    <string name="help_and_feedback">Trợ giúp &amp; phản hồi</string>
+    <string name="settings">Cài đặt</string>
+    <string name="drawer_filters">Bộ lọc</string>
+    <string name="drawer_tags">Thẻ</string>
+    <string name="drawer_places">Địa điểm</string>
+    <string name="drawer_local_lists">Danh sách cục bộ</string>
+    <string name="tmrw">N.mai</string>
+    <string name="tomorrow_abbrev_lowercase">n.mai</string>
+    <string name="tomorrow">Ngày mai</string>
+    <string name="tomorrow_lowercase">ngày mai</string>
+    <string name="yest">H.qua</string>
+    <string name="yesterday_abbrev_lowercase">h.qua</string>
+    <string name="yesterday">Hôm qua</string>
+    <string name="yesterday_lowercase">hôm qua</string>
+    <string name="today">Hôm nay</string>
+    <string name="today_lowercase">hôm nay</string>
+</resources>

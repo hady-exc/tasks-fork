@@ -2,15 +2,18 @@ package org.tasks.location
 
 import android.content.Context
 import android.os.Bundle
-import com.google.gson.JsonParser
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.tasks.DebugNetworkInterceptor
 import org.tasks.R
-import org.tasks.data.Place
+import org.tasks.data.entity.Place
 import org.tasks.location.GeocoderMapbox.Companion.toPlace
 import org.tasks.preferences.Preferences
 import java.io.IOException
@@ -53,17 +56,18 @@ class PlaceSearchMapbox @Inject constructor(
 
     companion object {
         internal fun jsonToSearchResults(json: String): List<PlaceSearchResult> =
-                JsonParser
-                        .parseString(json).asJsonObject.getAsJsonArray("features")
-                        .map { it.asJsonObject }
-                        .map {
-                            val place = toPlace(it)
-                            PlaceSearchResult(
-                                    it.get("id").asString,
-                                    place.name,
-                                    place.displayAddress,
-                                    place
-                            )
-                        }
+            Json.parseToJsonElement(json)
+                .jsonObject["features"]!!
+                .jsonArray
+                .map { it.jsonObject }
+                .map {
+                    val place = it.toPlace()
+                    PlaceSearchResult(
+                        it["id"]!!.jsonPrimitive.content,
+                        place.name,
+                        place.displayAddress,
+                        place
+                    )
+                }
     }
 }

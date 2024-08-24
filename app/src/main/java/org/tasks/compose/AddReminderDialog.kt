@@ -3,14 +3,31 @@ package org.tasks.compose
 import android.content.res.Configuration
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Autorenew
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -28,17 +45,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat
-import com.google.android.material.composethemeadapter.MdcTheme
 import com.todoroo.astrid.ui.ReminderControlSetViewModel.ViewState
 import kotlinx.coroutines.android.awaitFrame
 import org.tasks.R
-import org.tasks.data.Alarm
-import org.tasks.data.Alarm.Companion.TYPE_DATE_TIME
-import org.tasks.data.Alarm.Companion.TYPE_RANDOM
-import org.tasks.data.Alarm.Companion.TYPE_REL_END
-import org.tasks.data.Alarm.Companion.TYPE_REL_START
-import org.tasks.data.Alarm.Companion.whenStarted
+import org.tasks.data.entity.Alarm
+import org.tasks.data.entity.Alarm.Companion.TYPE_DATE_TIME
+import org.tasks.data.entity.Alarm.Companion.TYPE_RANDOM
+import org.tasks.data.entity.Alarm.Companion.TYPE_REL_END
+import org.tasks.data.entity.Alarm.Companion.TYPE_REL_START
+import org.tasks.data.entity.Alarm.Companion.whenStarted
 import org.tasks.reminders.AlarmToString.Companion.getRepeatString
+import org.tasks.themes.TasksTheme
 import java.util.concurrent.TimeUnit
 
 @ExperimentalComposeUiApi
@@ -58,7 +75,7 @@ object AddReminderDialog {
                 confirmButton = {
                     Constants.TextButton(text = R.string.ok, onClick = {
                         time.value.takeIf { it > 0 }?.let { i ->
-                            addAlarm(Alarm(0, i * units.millis, TYPE_RANDOM))
+                            addAlarm(Alarm(time = i * units.millis, type = TYPE_RANDOM))
                             closeDialog()
                         }
                     })
@@ -110,7 +127,6 @@ object AddReminderDialog {
                             time.value.takeIf { it >= 0 }?.let { i ->
                                 addAlarm(
                                     Alarm(
-                                        task = 0,
                                         time = -1 * i * units.millis,
                                         type = TYPE_REL_END,
                                         repeat = repeat.value,
@@ -395,9 +411,11 @@ fun OutlinedIntInput(
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         modifier = modifier.padding(horizontal = 16.dp),
-        colors = TextFieldDefaults.outlinedTextFieldColors(
-            textColor = MaterialTheme.colors.onSurface,
-            focusedBorderColor = MaterialTheme.colors.onSurface
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+            focusedBorderColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedBorderColor = MaterialTheme.colorScheme.onSurface,
         ),
         isError = value.value.text.toIntOrNull()?.let { it < minValue } ?: true,
     )
@@ -416,8 +434,8 @@ fun CenteredH6(text: String) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 16.dp),
-        color = MaterialTheme.colors.onSurface,
-        style = MaterialTheme.typography.h6
+        color = MaterialTheme.colorScheme.onSurface,
+        style = MaterialTheme.typography.titleLarge
     )
 }
 
@@ -459,8 +477,8 @@ fun BodyText(modifier: Modifier = Modifier, text: String) {
     Text(
         text = text,
         modifier = modifier,
-        color = MaterialTheme.colors.onSurface,
-        style = MaterialTheme.typography.body1,
+        color = MaterialTheme.colorScheme.onSurface,
+        style = MaterialTheme.typography.bodyLarge,
     )
 }
 
@@ -533,7 +551,7 @@ fun AddAlarmDialog(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun AddCustomReminderOne() =
-    MdcTheme {
+    TasksTheme {
         AddReminderDialog.AddCustomReminder(
             time = remember { mutableStateOf(1) },
             units = remember { mutableStateOf(0) },
@@ -549,7 +567,7 @@ fun AddCustomReminderOne() =
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun AddCustomReminder() =
-    MdcTheme {
+    TasksTheme {
         AddReminderDialog.AddCustomReminder(
             time = remember { mutableStateOf(15) },
             units = remember { mutableStateOf(1) },
@@ -565,7 +583,7 @@ fun AddCustomReminder() =
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun AddRepeatingReminderOne() =
-    MdcTheme {
+    TasksTheme {
         AddReminderDialog.AddRecurringReminder(
             openDialog = true,
             interval = remember { mutableStateOf(1) },
@@ -579,7 +597,7 @@ fun AddRepeatingReminderOne() =
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun AddRepeatingReminder() =
-    MdcTheme {
+    TasksTheme {
         AddReminderDialog.AddRecurringReminder(
             openDialog = true,
             interval = remember { mutableStateOf(15) },
@@ -593,7 +611,7 @@ fun AddRepeatingReminder() =
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun AddRandomReminderOne() =
-    MdcTheme {
+    TasksTheme {
         AddReminderDialog.AddRandomReminder(
             time = remember { mutableStateOf(1) },
             units = remember { mutableStateOf(0) }
@@ -605,7 +623,7 @@ fun AddRandomReminderOne() =
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun AddRandomReminder() =
-    MdcTheme {
+    TasksTheme {
         AddReminderDialog.AddRandomReminder(
             time = remember { mutableStateOf(15) },
             units = remember { mutableStateOf(1) }
@@ -616,7 +634,7 @@ fun AddRandomReminder() =
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun AddReminderDialog() =
-    MdcTheme {
+    TasksTheme {
         AddAlarmDialog(
             viewState = ViewState(showAddAlarm = true),
             existingAlarms = emptyList(),

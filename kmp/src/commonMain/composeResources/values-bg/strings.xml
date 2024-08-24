@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search">Търсене</string>
+    <string name="subscribe">Абониране</string>
+    <string name="search_no_results">Липсват резултати</string>
+    <string name="subscription_required_description">Отключете всички възможности за по-малко от 1 долар/година</string>
+    <string name="requires_pro_subscription">Изисква версия Про</string>
+    <string name="filter_my_tasks">Мои задачи</string>
+    <string name="filter_notifications">Известия</string>
+    <string name="filter_snoozed">Отложени</string>
+    <string name="filter_timer">Задачи, за които се отчита време</string>
+    <string name="filter_today">Днес</string>
+    <string name="filter_recently_modified">Последно променени</string>
+    <string name="default_list">Списък по подразбиране</string>
+    <string name="help_and_feedback">Помощ и обратна връзка</string>
+    <string name="settings">Настройки</string>
+    <string name="drawer_filters">Филтри</string>
+    <string name="drawer_tags">Етикети</string>
+    <string name="drawer_places">Места</string>
+    <string name="drawer_local_lists">Местни списъци</string>
+    <string name="tmrw">Утре</string>
+    <string name="tomorrow_abbrev_lowercase">утре</string>
+    <string name="tomorrow">Утре</string>
+    <string name="tomorrow_lowercase">утре</string>
+    <string name="yest">Вчера</string>
+    <string name="yesterday_abbrev_lowercase">вчера</string>
+    <string name="yesterday">Вчера</string>
+    <string name="yesterday_lowercase">вчера</string>
+    <string name="today">Днес</string>
+    <string name="today_lowercase">днес</string>
+</resources>

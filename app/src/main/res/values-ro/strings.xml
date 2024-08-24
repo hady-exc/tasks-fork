@@ -294,7 +294,6 @@
     <string name="TEA_timer_comment_stopped">a încetat să mai facă această sarcină:</string>
     <string name="TEA_timer_comment_started">a început această activitate:</string>
     <string name="TEA_timer_controls">Cronometru</string>
-    <string name="TFE_workingOn">Sarcini care sunt cronometrate</string>
     <plurals name="repeat_months">
         <item quantity="one">lună</item>
         <item quantity="few">luni</item>
@@ -472,7 +471,6 @@
     <string name="SSD_sort_my_order">Sortarea mea</string>
     <string name="action_open">Deschide</string>
     <string name="action_call">Sună</string>
-    <string name="manage_drawer">Gestionează bara laterală</string>
     <string name="TAd_actionEditTask">Editare</string>
     <string name="TLA_menu_settings">Setări</string>
     <string name="TLA_menu_search">Căutare</string>
@@ -516,7 +514,6 @@
     <string name="sort_start_group">Start %s</string>
     <string name="got_it">Am înțeles!</string>
     <string name="support_development_subscribe">Deblochează funcții suplimentare și sprijină software-ul cu sursă deschisă</string>
-    <string name="tasks_needs_your_support">Tasks are nevoie de sprijinul tău!</string>
     <string name="enjoying_tasks">Îți place Tasks\?</string>
     <string name="filter_eisenhower_box_4">Nu este important și nu este urgent</string>
     <string name="filter_eisenhower_box_3">Nu este important și urgent</string>
@@ -705,7 +702,6 @@
     </plurals>
     <string name="caldav_server_unknown">Necunoscut</string>
     <string name="caldav_server_type">Tip de server</string>
-    <string name="filter_snoozed">Amânate</string>
     <string name="caldav_server_other">Altele</string>
     <string name="customize_edit_screen_summary">Rearanjarea sau eliminarea câmpurilor</string>
     <string name="sort_completion_group">Finalizare %s</string>

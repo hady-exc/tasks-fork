@@ -187,7 +187,6 @@
     <string name="new_list">新建列表</string>
     <string name="delete_tag_confirmation">是否删除 %s？</string>
     <string name="TPl_notification">%s 的定时器已启动！</string>
-    <string name="TFE_workingOn">任务已开始计时</string>
     <string name="TEA_timer_controls">计时器</string>
     <string name="TEA_timer_comment_started">这项任务已启动了：</string>
     <string name="TEA_timer_comment_stopped">停止这项任务的时间是：</string>
@@ -604,7 +603,6 @@
     <string name="remove_user_confirmation">%1$s 将无法再访问 %2$s</string>
     <string name="remove_user">是否移除用户？</string>
     <string name="list_members">列表成员</string>
-    <string name="manage_drawer">管理抽屉</string>
     <string name="invite_invalid">邀请无效</string>
     <string name="invite_awaiting_response">邀请等待回应</string>
     <string name="invite_declined">邀请被拒绝</string>
@@ -627,7 +625,6 @@
     <string name="upgrade_more_customization_description">解锁所有主题、颜色和图标</string>
     <string name="upgrade_more_customization">更多自定义</string>
     <string name="pro_free_trial">新订户将获得 7 天的免费试用期。可随时取消订阅</string>
-    <string name="tasks_needs_your_support">Tasks 需要你的支持！</string>
     <string name="next_saturday">下周六</string>
     <string name="next_friday">下周五</string>
     <string name="next_thursday">下周四</string>
@@ -670,7 +667,6 @@
     </plurals>
     <string name="randomly_every">每 %s 随机执行</string>
     <string name="caldav_server_type">服务器类型</string>
-    <string name="filter_snoozed">已推迟</string>
     <string name="caldav_server_other">其他</string>
     <string name="caldav_server_unknown">未知</string>
     <string name="dismiss">关闭</string>
@@ -720,4 +716,9 @@
     <string name="swipe_to_snooze_time_15_minutes">15 分钟后</string>
     <string name="show_edit_screen_without_unlock_summary">允许不解锁设备的情况下使用“快速设置”磁贴</string>
     <string name="show_edit_screen_without_unlock">不解锁显示编辑屏</string>
+    <string name="customize_drawer">自定义抽屉</string>
+    <string name="customize_drawer_summary">通过拖放重新安排菜单项</string>
+    <string name="donate_maybe_later">也许以后</string>
+    <string name="donate_nag">考虑用捐赠显示您的支持！</string>
+    <string name="donate_today">现在捐赠</string>
 </resources>

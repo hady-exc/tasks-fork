@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search">تلاش</string>
+    <string name="subscribe">سبسکرائب</string>
+    <string name="filter_my_tasks">میرے ٹاسکس</string>
+    <string name="filter_notifications">نوٹیفیکیشنز</string>
+    <string name="filter_timer">ٹاسک کا وقت متعین کیا جا رہا ہے</string>
+    <string name="filter_today">آج</string>
+    <string name="filter_recently_modified">حالیہ ترمییم شدہ</string>
+    <string name="default_list">ڈیفالٹ فہرست</string>
+    <string name="help_and_feedback">مدداور تجاویز</string>
+    <string name="settings">سیٹنگز</string>
+    <string name="drawer_filters">فلٹرز</string>
+    <string name="drawer_tags">ٹیگز</string>
+    <string name="tmrw">کل</string>
+    <string name="tomorrow_abbrev_lowercase">کل</string>
+    <string name="tomorrow">آنے والا کل</string>
+    <string name="tomorrow_lowercase">آنے والا کل</string>
+    <string name="yest">گزشتہ کل</string>
+    <string name="yesterday_abbrev_lowercase">گزشتہ کل</string>
+    <string name="yesterday">گزشتہ کل</string>
+    <string name="yesterday_lowercase">گزشتہ کل</string>
+    <string name="today">آج</string>
+    <string name="today_lowercase">آج</string>
+</resources>

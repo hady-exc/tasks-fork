@@ -1,17 +1,17 @@
 package com.todoroo.astrid.adapter
 
-import com.todoroo.andlib.utility.DateUtilities
-import com.todoroo.astrid.api.AstridOrderingFilter
 import com.todoroo.astrid.dao.TaskDao
-import com.todoroo.astrid.data.Task
 import com.todoroo.astrid.service.TaskMover
 import com.todoroo.astrid.subtasks.SubtasksFilterUpdater
 import org.tasks.LocalBroadcastManager
 import org.tasks.Strings.isNullOrEmpty
-import org.tasks.data.CaldavDao
-import org.tasks.data.GoogleTaskDao
 import org.tasks.data.TaskContainer
-import org.tasks.data.TaskListMetadata
+import org.tasks.data.dao.CaldavDao
+import org.tasks.data.dao.GoogleTaskDao
+import org.tasks.data.entity.Task
+import org.tasks.data.entity.TaskListMetadata
+import org.tasks.filters.AstridOrderingFilter
+import org.tasks.time.DateTimeUtils2.currentTimeMillis
 import timber.log.Timber
 import java.util.Collections
 import kotlin.math.abs
@@ -66,11 +66,10 @@ class AstridTaskAdapter internal constructor(
 
     override suspend fun onTaskDeleted(task: Task) = updater.onDeleteTask(list, filter, task.uuid)
 
-    override suspend fun onCompletedTask(task: TaskContainer, newState: Boolean) {
-        val itemId = task.uuid
-        val completionDate = if (newState) DateUtilities.now() else 0
+    override suspend fun onCompletedTask(uuid: String, newState: Boolean) {
+        val completionDate = if (newState) currentTimeMillis() else 0
         if (!newState) {
-            val chained = chainedCompletions[itemId]
+            val chained = chainedCompletions[uuid]
             if (chained != null) {
                 for (taskId in chained) {
                     taskDao.setCompletionDate(taskId, completionDate)
@@ -79,7 +78,7 @@ class AstridTaskAdapter internal constructor(
             return
         }
         val chained = ArrayList<String>()
-        updater.applyToDescendants(itemId) { node: SubtasksFilterUpdater.Node ->
+        updater.applyToDescendants(uuid) { node: SubtasksFilterUpdater.Node ->
             val uuid = node.uuid
             taskDao.setCompletionDate(uuid, completionDate)
             chained.add(node.uuid)
@@ -90,14 +89,14 @@ class AstridTaskAdapter internal constructor(
             var madeChanges = false
             for (t in tasks) {
                 if (!isNullOrEmpty(t.recurrence)) {
-                    updater.moveToParentOf(t.uuid, itemId)
+                    updater.moveToParentOf(t.uuid, uuid)
                     madeChanges = true
                 }
             }
             if (madeChanges) {
                 updater.writeSerialization(list, updater.serializeTree())
             }
-            chainedCompletions[itemId] = chained
+            chainedCompletions[uuid] = chained
         }
     }
 

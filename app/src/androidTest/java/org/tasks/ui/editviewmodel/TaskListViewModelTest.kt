@@ -1,8 +1,5 @@
 package org.tasks.ui.editviewmodel
 
-import com.todoroo.andlib.utility.DateUtilities.now
-import com.todoroo.astrid.core.BuiltInFilterExposer
-import com.todoroo.astrid.data.Task
 import com.todoroo.astrid.service.TaskDeleter
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
@@ -14,11 +11,14 @@ import org.junit.Test
 import org.tasks.LocalBroadcastManager
 import org.tasks.analytics.Firebase
 import org.tasks.billing.Inventory
-import org.tasks.data.DeletionDao
-import org.tasks.data.TaskDao
+import org.tasks.data.dao.DeletionDao
+import org.tasks.data.dao.TaskDao
+import org.tasks.data.entity.Task
+import org.tasks.filters.MyTasksFilter
 import org.tasks.injection.InjectingTestCase
 import org.tasks.injection.ProductionModule
 import org.tasks.preferences.Preferences
+import org.tasks.time.DateTimeUtils2.currentTimeMillis
 import org.tasks.ui.TaskListViewModel
 import javax.inject.Inject
 
@@ -47,13 +47,13 @@ class TaskListViewModelTest : InjectingTestCase() {
             inventory = inventory,
             firebase = firebase,
         )
-        viewModel.setFilter(BuiltInFilterExposer.getMyTasksFilter(context.resources))
+        viewModel.setFilter(runBlocking { MyTasksFilter.create() })
     }
 
     @Test
     fun clearCompletedTask() = runBlocking {
         val task = taskDao.createNew(
-            Task(completionDate = now())
+            Task(completionDate = currentTimeMillis())
         )
 
         clearCompleted()
@@ -71,7 +71,7 @@ class TaskListViewModelTest : InjectingTestCase() {
         val child = taskDao.createNew(
             Task(
                 parent = parent,
-                completionDate = now(),
+                completionDate = currentTimeMillis(),
             )
         )
 
@@ -91,7 +91,7 @@ class TaskListViewModelTest : InjectingTestCase() {
         val child = taskDao.createNew(
             Task(
                 parent = parent,
-                completionDate = now(),
+                completionDate = currentTimeMillis(),
             )
         )
 
@@ -109,7 +109,7 @@ class TaskListViewModelTest : InjectingTestCase() {
         val child = taskDao.createNew(
             Task(
                 parent = parent,
-                completionDate = now(),
+                completionDate = currentTimeMillis(),
             )
         )
 
@@ -123,7 +123,7 @@ class TaskListViewModelTest : InjectingTestCase() {
         val grandparent = taskDao.createNew(
             Task(
                 recurrence = "RRULE:FREQ=DAILY;INTERVAL=1",
-                completionDate = now(),
+                completionDate = currentTimeMillis(),
             )
         )
         val parent = taskDao.createNew(
@@ -132,7 +132,7 @@ class TaskListViewModelTest : InjectingTestCase() {
         val child = taskDao.createNew(
             Task(
                 parent = parent,
-                completionDate = now(),
+                completionDate = currentTimeMillis(),
             )
         )
 
@@ -148,7 +148,7 @@ class TaskListViewModelTest : InjectingTestCase() {
         val child = taskDao.createNew(
             Task(
                 parent = parent,
-                completionDate = now(),
+                completionDate = currentTimeMillis(),
             )
         )
 

@@ -14,22 +14,22 @@ import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import androidx.preference.PreferenceManager
 import com.todoroo.andlib.utility.AndroidUtilities
-import com.todoroo.andlib.utility.DateUtilities
-import com.todoroo.andlib.utility.DateUtilities.now
 import com.todoroo.astrid.activity.BeastModePreferences
 import com.todoroo.astrid.core.SortHelper
-import com.todoroo.astrid.data.Task
-import com.todoroo.astrid.data.Task.Companion.NOTIFY_AFTER_DEADLINE
-import com.todoroo.astrid.data.Task.Companion.NOTIFY_AT_DEADLINE
 import org.tasks.BuildConfig
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
 import org.tasks.billing.Purchase
-import org.tasks.data.TaskAttachment
+import org.tasks.data.entity.Task
+import org.tasks.data.entity.Task.Companion.NOTIFY_AFTER_DEADLINE
+import org.tasks.data.entity.Task.Companion.NOTIFY_AT_DEADLINE
+import org.tasks.data.entity.TaskAttachment
 import org.tasks.extensions.Context.getResourceUri
-import org.tasks.themes.ColorProvider
+import org.tasks.kmp.org.tasks.themes.ColorProvider.BLUE_500
 import org.tasks.themes.ThemeBase
 import org.tasks.time.DateTime
+import org.tasks.time.DateTimeUtils2.currentTimeMillis
+import org.tasks.time.ONE_WEEK
 import timber.log.Timber
 import java.io.File
 import java.net.URI
@@ -497,8 +497,8 @@ class Preferences @JvmOverloads constructor(
         get() = BuildConfig.DEBUG && getBoolean(R.string.p_flipper, false)
 
     var isPositionHackEnabled: Boolean
-        get() = getLong(R.string.p_google_tasks_position_hack, 0) > now() - DateUtilities.ONE_WEEK
-        set(value) { setLong(R.string.p_google_tasks_position_hack, if (value) now() else 0) }
+        get() = getLong(R.string.p_google_tasks_position_hack, 0) > currentTimeMillis() - ONE_WEEK
+        set(value) { setLong(R.string.p_google_tasks_position_hack, if (value) currentTimeMillis() else 0) }
 
     override var isManualSort: Boolean
         get() = getBoolean(R.string.p_manual_sort, false)
@@ -558,7 +558,7 @@ class Preferences @JvmOverloads constructor(
     }
 
     val defaultThemeColor: Int
-        get() = getInt(R.string.p_theme_color, ColorProvider.BLUE_500)
+        get() = getInt(R.string.p_theme_color, BLUE_500)
 
     val markdown: Boolean
         get() = getBoolean(R.string.p_markdown, false)
@@ -569,6 +569,10 @@ class Preferences @JvmOverloads constructor(
     var lastReviewRequest: Long
         get() = getLong(R.string.p_last_review_request, 0L)
         set(value) = setLong(R.string.p_last_review_request, value)
+
+    var warnNotificationsDisabled: Boolean
+        get() = getBoolean(R.string.p_warn_notifications_disabled, true)
+        set(value) = setBoolean(R.string.p_warn_notifications_disabled, value)
 
     var lastSubscribeRequest: Long
         get() = getLong(R.string.p_last_subscribe_request, 0L)

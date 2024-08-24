@@ -192,7 +192,6 @@
     <string name="new_list">Luo uusi lista</string>
     <string name="delete_tag_confirmation">Poista %s?</string>
     <string name="TPl_notification">Ajastus aktiivinen %s!</string>
-    <string name="TFE_workingOn">Tehtävät ajoitettu</string>
     <string name="TEA_timer_controls">Ajastin</string>
     <string name="TEA_timer_comment_started">tehtävä aloitettu:</string>
     <string name="TEA_timer_comment_stopped">tehtävä lopetettu:</string>
@@ -347,7 +346,7 @@
     <string name="chip_appearance_text_only">Vain teksti</string>
     <string name="chip_appearance_text_and_icon">Teksti ja pikkukuvake</string>
     <string name="desaturate_colors_summary_off">Värejä ei muuteta tummiin teemoihin</string>
-    <string name="desaturate_colors_summary_on">Värit näytetään harmaampina tummissa teemoissa</string>
+    <string name="desaturate_colors_summary_on">Värien kirkkautta vähennetään tummissa teemoissa</string>
     <string name="chip_appearance">Lappujen sisältö</string>
     <string name="chips">Lisätietolaput</string>
     <string name="back">Takaisin</string>
@@ -516,7 +515,7 @@
         <item quantity="other">%d lista</item>
     </plurals>
     <string name="astrid_sort_order_summary">Ota käyttöön Astridin manuaalinen lajittelutila \'Omat tehtävät\', \'Tänään\' ja tunnisteet. Tämä lajittelutila korvataan \'Oma järjestys\'-tilalla tulevassa päivityksessä</string>
-    <string name="url_host_name_required">Palvelimen nimi vaaditaan</string>
+    <string name="url_host_name_required">Isäntänimi vaaditaan</string>
     <string name="date_shortcut_tomorrow_evening">Huomenna illalla</string>
     <string name="markdown_description">Ota Markdown käyttöön otsikossa ja kuvauksessa</string>
     <string name="markdown">Markdown</string>
@@ -596,7 +595,6 @@
     <string name="local_lists">Paikalliset luettelot</string>
     <string name="sort_due_group">Erääntyy %s</string>
     <string name="sort_start_group">Aloita %s</string>
-    <string name="tasks_needs_your_support">Tasks tarvitsee tukeasi!</string>
     <string name="davx5_selection_description">Tehtävien synkronointi DAVx⁵sovelluksen kanssa</string>
     <string name="decsync_selection_description">Tiedostopohjainen synkronointi</string>
     <string name="tasks_org_description">Synkronoi tehtävät Tasks.orgin kanssa</string>
@@ -621,7 +619,6 @@
     <string name="start_date">Aloituspäivä</string>
     <string name="SSD_sort_start">Aloituspäivän mukaan</string>
     <string name="astrid_sort_order">Astrid manuaalinen lajittelu</string>
-    <string name="manage_drawer">Laatikon hallinta</string>
     <string name="github_sponsors">GitHubin sponsorit</string>
     <string name="google_play_subscribers">Google Play -tilaajat</string>
     <string name="not_signed_in">Ei kirjautunut sisään</string>
@@ -690,7 +687,6 @@
     <string name="hint_customize_edit_title">Liian paljon tietoa\?</string>
     <string name="hint_customize_edit_body">Voit muokata tätä näkymää uudelleenjärjestelemällä tai poistamalla kenttiä</string>
     <string name="enable_reminders">Salli muistutukset</string>
-    <string name="filter_snoozed">Torkutetut</string>
     <string name="dismiss">Hylkää</string>
     <string name="customize_edit_screen_summary">Uudelleenjärjestä tai poista kenttiä</string>
     <string name="enable_reminders_description">Muistutukset on poistettu käytöstä Androidin asetuksista</string>

@@ -12,20 +12,20 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.composethemeadapter.MdcTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.tasks.R
 import org.tasks.Strings
-import org.tasks.compose.collectAsStateLifecycleAware
 import org.tasks.compose.edit.AttachmentRow
-import org.tasks.data.TaskAttachment
-import org.tasks.data.TaskAttachmentDao
+import org.tasks.data.dao.TaskAttachmentDao
+import org.tasks.data.entity.TaskAttachment
 import org.tasks.dialogs.AddAttachmentDialog
 import org.tasks.files.FileHelper
 import org.tasks.preferences.Preferences
+import org.tasks.themes.TasksTheme
 import org.tasks.ui.TaskEditControlFragment
 import javax.inject.Inject
 
@@ -48,9 +48,9 @@ class FilesControlSet : TaskEditControlFragment() {
     override fun bind(parent: ViewGroup?): View =
         (parent as ComposeView).apply {
             setContent {
-                MdcTheme {
+                TasksTheme {
                     AttachmentRow(
-                        attachments = viewModel.selectedAttachments.collectAsStateLifecycleAware().value,
+                        attachments = viewModel.selectedAttachments.collectAsStateWithLifecycle().value,
                         openAttachment = {
                             FileHelper.startActionView(
                                 requireActivity(),

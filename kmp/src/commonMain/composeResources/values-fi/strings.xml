@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search">Etsi</string>
+    <string name="subscribe">Tilaa</string>
+    <string name="filter_my_tasks">Omat tehtävät</string>
+    <string name="filter_notifications">Ilmoitukset</string>
+    <string name="filter_snoozed">Torkutetut</string>
+    <string name="filter_timer">Tehtävät ajoitettu</string>
+    <string name="filter_today">Tänään</string>
+    <string name="filter_recently_modified">Äskettäin muokattu</string>
+    <string name="default_list">Oletuslista</string>
+    <string name="help_and_feedback">Apu &amp; palaute</string>
+    <string name="settings">Asetukset</string>
+    <string name="drawer_filters">Suodattimet</string>
+    <string name="drawer_tags">Tunnisteet</string>
+    <string name="drawer_places">Paikat</string>
+    <string name="drawer_local_lists">Paikalliset luettelot</string>
+    <string name="tmrw">Huomenna</string>
+    <string name="tomorrow_abbrev_lowercase">huomenna</string>
+    <string name="tomorrow">Huomenna</string>
+    <string name="tomorrow_lowercase">huomenna</string>
+    <string name="yesterday">Eilen</string>
+    <string name="yesterday_lowercase">eilen</string>
+    <string name="today">Tänään</string>
+    <string name="today_lowercase">tänään</string>
+    <string name="yest">Eilen</string>
+    <string name="yesterday_abbrev_lowercase">eilen</string>
+</resources>

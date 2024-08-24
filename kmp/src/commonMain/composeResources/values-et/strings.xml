@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search">Otsi</string>
+    <string name="subscribe">Telli</string>
+    <string name="filter_my_tasks">Minu ülesanded</string>
+    <string name="filter_notifications">Meeldetuletused</string>
+    <string name="filter_today">Täna</string>
+    <string name="filter_recently_modified">Hiljuti muudetud</string>
+    <string name="default_list">Vaikimisi nimekiri</string>
+    <string name="settings">Seaded</string>
+    <string name="drawer_filters">Filtrid</string>
+    <string name="drawer_tags">Sildid</string>
+    <string name="yest">Eile</string>
+    <string name="tmrw">Homme</string>
+    <string name="tomorrow">Homme</string>
+    <string name="yesterday">Eile</string>
+    <string name="today">Täna</string>
+</resources>

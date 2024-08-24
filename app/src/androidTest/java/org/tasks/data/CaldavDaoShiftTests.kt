@@ -2,7 +2,6 @@ package org.tasks.data
 
 import com.natpryce.makeiteasy.MakeItEasy.with
 import com.natpryce.makeiteasy.PropertyValue
-import com.todoroo.andlib.utility.DateUtilities.now
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import kotlinx.coroutines.runBlocking
@@ -10,11 +9,15 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 import org.tasks.SuspendFreeze.Companion.freezeAt
+import org.tasks.data.dao.CaldavDao
+import org.tasks.data.dao.TaskDao
+import org.tasks.data.entity.CaldavTask
 import org.tasks.injection.InjectingTestCase
 import org.tasks.injection.ProductionModule
 import org.tasks.makers.TaskContainerMaker
 import org.tasks.makers.TaskContainerMaker.CREATED
 import org.tasks.time.DateTime
+import org.tasks.time.DateTimeUtils2.currentTimeMillis
 import javax.inject.Inject
 
 @UninstallModules(ProductionModule::class)
@@ -101,7 +104,9 @@ class CaldavDaoShiftTests : InjectingTestCase() {
     fun ignoreMovedTasksWhenShiftingDown() = runBlocking {
         val created = DateTime(2020, 5, 17, 9, 53, 17)
         addTask(with(CREATED, created))
-        caldavDao.update(caldavDao.getTask(tasks[0].id).apply { this?.deleted = now() }!!)
+        caldavDao.update(caldavDao.getTask(tasks[0].id).apply { this?.deleted =
+            currentTimeMillis()
+        }!!)
 
         caldavDao.shiftDown("calendar", 0, created.toAppleEpoch())
 
@@ -112,7 +117,7 @@ class CaldavDaoShiftTests : InjectingTestCase() {
     fun ignoreDeletedTasksWhenShiftingDown() = runBlocking {
         val created = DateTime(2020, 5, 17, 9, 53, 17)
         addTask(with(CREATED, created))
-        taskDao.update(taskDao.fetch(tasks[0].id).apply { this?.deletionDate = now() }!!)
+        taskDao.update(taskDao.fetch(tasks[0].id).apply { this?.deletionDate = currentTimeMillis() }!!)
 
         caldavDao.shiftDown("calendar", 0, created.toAppleEpoch())
 

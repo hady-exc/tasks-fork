@@ -9,18 +9,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil.ItemCallback;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.mikepenz.iconics.IconicsDrawable;
+import com.mikepenz.iconics.typeface.IIcon;
+
 import org.tasks.R;
 import org.tasks.billing.Inventory;
-import org.tasks.data.Place;
 import org.tasks.data.PlaceUsage;
+import org.tasks.data.entity.Place;
+import org.tasks.filters.FilterExtensionsKt;
+import org.tasks.filters.PlaceFilter;
+import org.tasks.icons.OutlinedGoogleMaterial;
 import org.tasks.location.LocationPickerAdapter.PlaceViewHolder;
 import org.tasks.themes.ColorProvider;
-import org.tasks.themes.CustomIcons;
-import org.tasks.themes.DrawableUtil;
+import org.tasks.themes.TasksIcons;
 import org.tasks.themes.ThemeColor;
 
 public class LocationPickerAdapter extends ListAdapter<PlaceUsage, PlaceViewHolder> {
@@ -52,6 +59,7 @@ public class LocationPickerAdapter extends ListAdapter<PlaceUsage, PlaceViewHold
   @Override
   public PlaceViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
     return new PlaceViewHolder(
+            context,
         LayoutInflater.from(parent.getContext()).inflate(R.layout.row_place, parent, false),
         callback);
   }
@@ -59,7 +67,9 @@ public class LocationPickerAdapter extends ListAdapter<PlaceUsage, PlaceViewHold
   @Override
   public void onBindViewHolder(@NonNull PlaceViewHolder holder, int position) {
     PlaceUsage place = getItem(position);
-    holder.bind(place, getColor(place.getColor()), getIcon(place.getIcon()));
+    PlaceFilter filter = new PlaceFilter(place.getPlace(), 0);
+    String icon = FilterExtensionsKt.getIcon(filter, inventory);
+    holder.bind(place, getColor(place.getColor()), icon);
   }
 
   private int getColor(int tint) {
@@ -72,16 +82,6 @@ public class LocationPickerAdapter extends ListAdapter<PlaceUsage, PlaceViewHold
     return context.getColor(R.color.text_primary);
   }
 
-  private int getIcon(int index) {
-    if (index < 1000 || inventory.getHasPro()) {
-      Integer icon = CustomIcons.getIconResId(index);
-      if (icon != null) {
-        return icon;
-      }
-    }
-    return R.drawable.ic_outline_place_24px;
-  }
-
   public interface OnLocationPicked {
     void picked(Place place);
 
@@ -89,13 +89,15 @@ public class LocationPickerAdapter extends ListAdapter<PlaceUsage, PlaceViewHold
   }
 
   public static class PlaceViewHolder extends RecyclerView.ViewHolder {
+    private final Context context;
     private final TextView name;
     private final TextView address;
     private final ImageView icon;
     private Place place;
 
-    PlaceViewHolder(@NonNull View itemView, OnLocationPicked onLocationPicked) {
+    PlaceViewHolder(Context context, @NonNull View itemView, OnLocationPicked onLocationPicked) {
       super(itemView);
+      this.context = context;
       itemView.setOnClickListener(v -> onLocationPicked.picked(place));
       name = itemView.findViewById(R.id.name);
       address = itemView.findViewById(R.id.address);
@@ -105,12 +107,18 @@ public class LocationPickerAdapter extends ListAdapter<PlaceUsage, PlaceViewHold
           .setOnClickListener(v -> onLocationPicked.settings(place));
     }
 
-    void bind(PlaceUsage placeUsage, int color, int icon) {
+    void bind(PlaceUsage placeUsage, int color, String icon) {
       place = placeUsage.place;
       String name = place.getDisplayName();
       String address = place.getDisplayAddress();
-      Drawable wrapped = DrawableUtil.getWrapped(itemView.getContext(), icon);
-      this.icon.setImageDrawable(wrapped);
+      IIcon iconicsIcon;
+      try {
+        iconicsIcon = OutlinedGoogleMaterial.INSTANCE.getIcon("gmo_" + icon);
+      } catch (Exception e) {
+        iconicsIcon = OutlinedGoogleMaterial.INSTANCE.getIcon("gmo_" + TasksIcons.PLACE);
+      }
+      Drawable drawable = new IconicsDrawable(context, iconicsIcon).mutate();
+      this.icon.setImageDrawable(drawable);
       this.icon.getDrawable().setTint(color);
       this.name.setText(name);
       if (isNullOrEmpty(address) || address.equals(name)) {
@@ -119,7 +127,6 @@ public class LocationPickerAdapter extends ListAdapter<PlaceUsage, PlaceViewHold
         this.address.setText(address);
         this.address.setVisibility(View.VISIBLE);
       }
-
     }
   }
 

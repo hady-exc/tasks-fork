@@ -5,8 +5,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.tasks.caldav.BaseCaldavCalendarSettingsActivity
-import org.tasks.data.CaldavAccount
-import org.tasks.data.CaldavCalendar
+import org.tasks.data.entity.CaldavAccount
+import org.tasks.data.entity.CaldavCalendar
+import org.tasks.themes.TasksTheme
 
 @AndroidEntryPoint
 class EtebaseCalendarSettingsActivity : BaseCaldavCalendarSettingsActivity() {
@@ -25,16 +26,17 @@ class EtebaseCalendarSettingsActivity : BaseCaldavCalendarSettingsActivity() {
         updateCalendarViewModel.observe(this, { updateCalendar() }, this::requestFailed)
 
         setContent {
-            baseCaldavSettingsContent()
+            TasksTheme {
+                baseCaldavSettingsContent()
+            }
         }
-
     }
 
     override suspend fun createCalendar(caldavAccount: CaldavAccount, name: String, color: Int) =
             createCalendarViewModel.createCalendar(caldavAccount, name, color)
 
     override suspend fun updateNameAndColor(
-            account: CaldavAccount, calendar: CaldavCalendar, name: String, color: Int) =
+        account: CaldavAccount, calendar: CaldavCalendar, name: String, color: Int) =
             updateCalendarViewModel.updateCalendar(account, calendar, name, color)
 
     override suspend fun deleteCalendar(caldavAccount: CaldavAccount, caldavCalendar: CaldavCalendar) =

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search">Søg</string>
+    <string name="subscribe">Abonnér</string>
+    <string name="filter_my_tasks">Mine opgaver</string>
+    <string name="filter_notifications">Notifikationer</string>
+    <string name="filter_snoozed">Udsat</string>
+    <string name="filter_timer">Opgaver, som bliver timet</string>
+    <string name="filter_today">I dag</string>
+    <string name="filter_recently_modified">Senest ændrede</string>
+    <string name="default_list">Standardliste</string>
+    <string name="drawer_tags">Tags</string>
+    <string name="help_and_feedback">Hjælp &amp; feedback</string>
+    <string name="settings">Indstillinger</string>
+    <string name="drawer_filters">Filtre</string>
+    <string name="drawer_places">Steder</string>
+    <string name="drawer_local_lists">Lokale lister</string>
+    <string name="search_no_results">Ingen resultater</string>
+    <string name="requires_pro_subscription">Pro funktion</string>
+    <string name="subscription_required_description">Lås op for alle funktioner for så lidt som $1 USD/år</string>
+    <string name="tmrw">I morgen</string>
+    <string name="tomorrow_abbrev_lowercase">tmrw</string>
+    <string name="tomorrow">I morgen</string>
+    <string name="tomorrow_lowercase">i morgen</string>
+    <string name="yest">I går</string>
+    <string name="yesterday_abbrev_lowercase">yest</string>
+    <string name="yesterday">I går</string>
+    <string name="yesterday_lowercase">i går</string>
+    <string name="today">I dag</string>
+    <string name="today_lowercase">i dag</string>
+</resources>

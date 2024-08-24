@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search">Cerca</string>
+    <string name="subscribe">Abbonati</string>
+    <string name="filter_my_tasks">Le mie attività</string>
+    <string name="filter_notifications">Notifiche</string>
+    <string name="filter_snoozed">Posticipato</string>
+    <string name="filter_timer">Attività cronometrate</string>
+    <string name="filter_today">Oggi</string>
+    <string name="filter_recently_modified">Modificate di recente</string>
+    <string name="default_list">Lista predefinita</string>
+    <string name="help_and_feedback">Aiuto e suggerimenti</string>
+    <string name="settings">Impostazioni</string>
+    <string name="drawer_filters">Filtri</string>
+    <string name="drawer_tags">Etichette</string>
+    <string name="drawer_places">Luoghi</string>
+    <string name="drawer_local_lists">Liste locali</string>
+    <string name="tmrw">Domani</string>
+    <string name="tomorrow_abbrev_lowercase">domani</string>
+    <string name="tomorrow">Domani</string>
+    <string name="tomorrow_lowercase">domani</string>
+    <string name="yest">Ieri</string>
+    <string name="yesterday_abbrev_lowercase">ieri</string>
+    <string name="yesterday">Ieri</string>
+    <string name="yesterday_lowercase">ieri</string>
+    <string name="today">Oggi</string>
+    <string name="today_lowercase">oggi</string>
+</resources>

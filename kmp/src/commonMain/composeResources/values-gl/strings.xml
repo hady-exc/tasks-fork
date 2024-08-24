@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search">Buscar</string>
+    <string name="subscribe">Suscribirse</string>
+    <string name="filter_my_tasks">As miñas tarefas</string>
+    <string name="filter_notifications">Notificacións</string>
+    <string name="filter_snoozed">Posposta</string>
+    <string name="filter_timer">Tarefas a cronometrar</string>
+    <string name="filter_today">Hoxe</string>
+    <string name="filter_recently_modified">Modificadas recentemente</string>
+    <string name="default_list">Lista por defecto</string>
+    <string name="help_and_feedback">Axuda e soporte</string>
+    <string name="settings">Configuracións</string>
+    <string name="drawer_filters">Filtros</string>
+    <string name="drawer_tags">Etiquetas</string>
+    <string name="drawer_places">Lugares</string>
+    <string name="drawer_local_lists">Listas locais</string>
+    <string name="tmrw">Mañá</string>
+    <string name="tomorrow_abbrev_lowercase">mañá</string>
+    <string name="tomorrow">Mañá</string>
+    <string name="tomorrow_lowercase">mañá</string>
+    <string name="yest">Onte</string>
+    <string name="yesterday_abbrev_lowercase">onte</string>
+    <string name="yesterday">Onte</string>
+    <string name="yesterday_lowercase">onte</string>
+    <string name="today">Hoxe</string>
+    <string name="today_lowercase">hoxe</string>
+</resources>

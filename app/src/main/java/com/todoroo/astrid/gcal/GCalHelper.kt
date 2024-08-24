@@ -11,25 +11,26 @@ import android.content.Context
 import android.net.Uri
 import android.provider.CalendarContract
 import android.text.format.Time
-import com.todoroo.andlib.utility.DateUtilities
-import com.todoroo.astrid.data.Task
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
 import org.tasks.calendars.CalendarEventProvider
-import org.tasks.data.TaskDao
+import org.tasks.data.dao.TaskDao
+import org.tasks.data.entity.Task
 import org.tasks.preferences.PermissionChecker
 import org.tasks.preferences.Preferences
+import org.tasks.time.DateTimeUtils2.currentTimeMillis
+import org.tasks.time.ONE_HOUR
 import timber.log.Timber
 import java.util.TimeZone
 import javax.inject.Inject
 
 class GCalHelper @Inject constructor(
-        @ApplicationContext private val context: Context,
-        private val taskDao: TaskDao,
-        private val preferences: Preferences,
-        private val permissionChecker: PermissionChecker,
-        private val calendarEventProvider: CalendarEventProvider) {
+    @ApplicationContext private val context: Context,
+    private val taskDao: TaskDao,
+    private val preferences: Preferences,
+    private val permissionChecker: PermissionChecker,
+    private val calendarEventProvider: CalendarEventProvider) {
 
     private val cr: ContentResolver = context.contentResolver
 
@@ -134,7 +135,9 @@ class GCalHelper @Inject constructor(
     private fun createStartAndEndDate(task: Task, values: ContentValues) {
         val dueDate = task.dueDate
         val tzCorrectedDueDate = dueDate + TimeZone.getDefault().getOffset(dueDate)
-        val tzCorrectedDueDateNow = DateUtilities.now() + TimeZone.getDefault().getOffset(DateUtilities.now())
+        val tzCorrectedDueDateNow = currentTimeMillis() + TimeZone.getDefault().getOffset(
+            currentTimeMillis()
+        )
         // FIXME: doesn't respect timezones, see story 17443653
         if (task.hasDueDate()) {
             if (task.hasDueTime()) {
@@ -171,6 +174,6 @@ class GCalHelper @Inject constructor(
 
     companion object {
         /** If task has no estimated time, how early to set a task in calendar (seconds)  */
-        private const val DEFAULT_CAL_TIME = DateUtilities.ONE_HOUR
+        private const val DEFAULT_CAL_TIME = ONE_HOUR
     }
 }

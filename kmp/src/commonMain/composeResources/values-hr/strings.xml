@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search">Traži</string>
+    <string name="subscribe">Pretplati se</string>
+    <string name="filter_my_tasks">Moji zadaci</string>
+    <string name="filter_notifications">Obavijesti</string>
+    <string name="filter_snoozed">Odgođeno</string>
+    <string name="filter_timer">Zadaci kojima se mjeri vrijeme</string>
+    <string name="filter_today">Danas</string>
+    <string name="filter_recently_modified">Nedavno promijenjeni</string>
+    <string name="default_list">Standardni popis</string>
+    <string name="help_and_feedback">Pomoć i povratne informacije</string>
+    <string name="settings">Postavke</string>
+    <string name="drawer_filters">Filtri</string>
+    <string name="drawer_tags">Oznake</string>
+    <string name="drawer_places">Mjesta</string>
+    <string name="drawer_local_lists">Popisi na uređaju</string>
+    <string name="search_no_results">Nema rezultata</string>
+    <string name="requires_pro_subscription">Funkcija Pro verzije</string>
+    <string name="subscription_required_description">Otključaj sve funkcije za samo 1 $ godišnje</string>
+    <string name="tmrw">Sutra</string>
+    <string name="tomorrow_abbrev_lowercase">sutra</string>
+    <string name="tomorrow">Sutra</string>
+    <string name="tomorrow_lowercase">sutra</string>
+    <string name="yest">Jučer</string>
+    <string name="yesterday_abbrev_lowercase">jučer</string>
+    <string name="yesterday">Jučer</string>
+    <string name="yesterday_lowercase">jučer</string>
+    <string name="today">Danas</string>
+    <string name="today_lowercase">danas</string>
+</resources>

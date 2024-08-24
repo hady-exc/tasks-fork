@@ -8,52 +8,82 @@ package com.todoroo.astrid.activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.mandatorySystemGestures
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.IntentCompat.getParcelableExtra
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.google.android.material.composethemeadapter.MdcTheme
 import com.todoroo.andlib.utility.AndroidUtilities
+import com.todoroo.andlib.utility.AndroidUtilities.atLeastR
+import com.todoroo.astrid.activity.TaskEditFragment.Companion.newTaskEditFragment
 import com.todoroo.astrid.adapter.SubheaderClickHandler
-import com.todoroo.astrid.api.Filter
 import com.todoroo.astrid.dao.TaskDao
-import com.todoroo.astrid.data.Task
 import com.todoroo.astrid.service.TaskCreator
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.tasks.BuildConfig
 import org.tasks.R
+import org.tasks.Tasks
+import org.tasks.activities.GoogleTaskListSettingsActivity
+import org.tasks.activities.TagSettingsActivity
 import org.tasks.analytics.Firebase
 import org.tasks.billing.Inventory
-import org.tasks.compose.collectAsStateLifecycleAware
-import org.tasks.compose.drawer.TasksMenu
-import org.tasks.data.AlarmDao
-import org.tasks.data.LocationDao
-import org.tasks.data.Place
-import org.tasks.data.TagDataDao
+import org.tasks.billing.PurchaseActivity
+import org.tasks.caldav.BaseCaldavCalendarSettingsActivity
+import org.tasks.compose.drawer.DrawerAction
+import org.tasks.compose.drawer.DrawerItem
+import org.tasks.compose.drawer.MenuSearchBar
+import org.tasks.compose.drawer.TaskListDrawer
+import org.tasks.data.dao.AlarmDao
+import org.tasks.data.dao.CaldavDao
+import org.tasks.data.dao.LocationDao
+import org.tasks.data.dao.TagDataDao
+import org.tasks.data.entity.Place
+import org.tasks.data.entity.Task
+import org.tasks.data.getLocation
+import org.tasks.data.listSettingsClass
 import org.tasks.databinding.TaskListActivityBinding
 import org.tasks.dialogs.NewFilterDialog
 import org.tasks.dialogs.WhatsNewDialog
+import org.tasks.extensions.Context.findActivity
 import org.tasks.extensions.Context.nightMode
+import org.tasks.extensions.Context.openUri
 import org.tasks.extensions.hideKeyboard
+import org.tasks.filters.Filter
 import org.tasks.filters.FilterProvider
+import org.tasks.filters.FilterProvider.Companion.REQUEST_NEW_LIST
+import org.tasks.filters.FilterProvider.Companion.REQUEST_NEW_PLACE
+import org.tasks.filters.FilterProvider.Companion.REQUEST_NEW_TAGS
+import org.tasks.filters.NavigationDrawerSubheader
 import org.tasks.filters.PlaceFilter
+import org.tasks.location.LocationPickerActivity
 import org.tasks.location.LocationPickerActivity.Companion.EXTRA_PLACE
 import org.tasks.preferences.DefaultFilterProvider
+import org.tasks.preferences.HelpAndFeedback
+import org.tasks.preferences.MainPreferences
 import org.tasks.preferences.Preferences
 import org.tasks.themes.ColorProvider
+import org.tasks.themes.TasksTheme
 import org.tasks.themes.Theme
 import org.tasks.ui.EmptyTaskEditFragment.Companion.newEmptyTaskEditFragment
 import org.tasks.ui.MainActivityEvent
@@ -75,6 +105,7 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var alarmDao: AlarmDao
     @Inject lateinit var eventBus: MainActivityEventBus
     @Inject lateinit var firebase: Firebase
+    @Inject lateinit var caldavDao: CaldavDao
 
     private val viewModel: MainActivityViewModel by viewModels()
     private var currentNightMode = 0
@@ -82,13 +113,9 @@ class MainActivity : AppCompatActivity() {
     private var actionMode: ActionMode? = null
     private lateinit var binding: TaskListActivityBinding
 
-    private val settingsRequest =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            recreate()
-        }
-
     /** @see android.app.Activity.onCreate
      */
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         theme.applyTheme(this)
@@ -100,32 +127,154 @@ class MainActivity : AppCompatActivity() {
         handleIntent()
 
         binding.composeView.setContent {
-            val state = viewModel.state.collectAsStateLifecycleAware().value
-            if (state.drawerOpen) {
-                MdcTheme {
-                    TasksMenu(
-                        bottomPadding = WindowInsets.mandatorySystemGestures
-                            .asPaddingValues()
-                            .calculateBottomPadding(),
-                        items = state.drawerItems,
-                        begForMoney = state.begForMoney,
-                        isTopAppBar = preferences.isTopAppBar,
-                        setFilter = { viewModel.setFilter(it) },
-                        toggleCollapsed = { viewModel.toggleCollapsed(it) },
-                        addFilter = {
-                            val rc = it.addIntentRc
-                            if (rc == FilterProvider.REQUEST_NEW_FILTER) {
-                                NewFilterDialog.newFilterDialog().show(
-                                    supportFragmentManager,
-                                    SubheaderClickHandler.FRAG_TAG_NEW_FILTER
-                                )
-                            } else {
-                                val intent = it.addIntent ?: return@TasksMenu
-                                startActivityForResult(intent, rc)
-                            }
-                        },
-                        dismiss = { viewModel.setDrawerOpen(false) },
+            if (viewModel.drawerOpen.collectAsStateWithLifecycle().value) {
+                TasksTheme {
+                    val sheetState = rememberModalBottomSheetState(
+                        skipPartiallyExpanded = true,
+                        confirmValueChange = { true },
                     )
+                    ModalBottomSheet(
+                        sheetState = sheetState,
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        onDismissRequest = { viewModel.closeDrawer() },
+                    ) {
+                        val state = viewModel.state.collectAsStateWithLifecycle().value
+                        val context = LocalContext.current
+                        val settingsRequest = rememberLauncherForActivityResult(
+                            ActivityResultContracts.StartActivityForResult()
+                        ) {
+                            context.findActivity()?.recreate()
+                        }
+                        val scope = rememberCoroutineScope()
+                        TaskListDrawer(
+                            bottomSearchBar = atLeastR(),
+                            filters = if (state.menuQuery.isNotEmpty()) state.searchItems else state.drawerItems,
+                            onClick = {
+                                when (it) {
+                                    is DrawerItem.Filter -> {
+                                        viewModel.setFilter(it.filter)
+                                        scope.launch(Dispatchers.Default) {
+                                            sheetState.hide()
+                                            viewModel.closeDrawer()
+                                        }
+                                    }
+
+                                    is DrawerItem.Header -> {
+                                        viewModel.toggleCollapsed(it.header)
+                                    }
+                                }
+                            },
+                            onAddClick = {
+                                scope.launch(Dispatchers.Default) {
+                                    sheetState.hide()
+                                    viewModel.closeDrawer()
+                                    when (it.header.addIntentRc) {
+                                        FilterProvider.REQUEST_NEW_FILTER ->
+                                            NewFilterDialog.newFilterDialog().show(
+                                                supportFragmentManager,
+                                                SubheaderClickHandler.FRAG_TAG_NEW_FILTER
+                                            )
+
+                                        REQUEST_NEW_PLACE ->
+                                            startActivityForResult(
+                                                Intent(
+                                                    this@MainActivity,
+                                                    LocationPickerActivity::class.java
+                                                ),
+                                                REQUEST_NEW_PLACE
+                                            )
+
+                                        REQUEST_NEW_TAGS ->
+                                            startActivityForResult(
+                                                Intent(
+                                                    this@MainActivity,
+                                                    TagSettingsActivity::class.java
+                                                ),
+                                                REQUEST_NEW_LIST
+                                            )
+
+                                        REQUEST_NEW_LIST -> lifecycleScope.launch {
+                                            val account =
+                                                caldavDao.getAccount(it.header.id) ?: return@launch
+                                            when (it.header.subheaderType) {
+                                                NavigationDrawerSubheader.SubheaderType.GOOGLE_TASKS ->
+                                                    startActivityForResult(
+                                                        Intent(
+                                                            this@MainActivity,
+                                                            GoogleTaskListSettingsActivity::class.java
+                                                        )
+                                                            .putExtra(
+                                                                GoogleTaskListSettingsActivity.EXTRA_ACCOUNT,
+                                                                account
+                                                            ),
+                                                        REQUEST_NEW_LIST
+                                                    )
+
+                                                NavigationDrawerSubheader.SubheaderType.CALDAV,
+                                                NavigationDrawerSubheader.SubheaderType.TASKS ->
+                                                    startActivityForResult(
+                                                        Intent(
+                                                            this@MainActivity,
+                                                            account.listSettingsClass()
+                                                        )
+                                                            .putExtra(
+                                                                BaseCaldavCalendarSettingsActivity.EXTRA_CALDAV_ACCOUNT,
+                                                                account
+                                                            ),
+                                                        REQUEST_NEW_LIST
+                                                    )
+
+                                                else -> {}
+                                            }
+                                        }
+
+                                        else -> Timber.e("Unhandled request code: $it")
+                                    }
+                                }
+                            },
+                            onErrorClick = {
+                                context.startActivity(Intent(context, MainPreferences::class.java))
+                            },
+                            searchBar = {
+                                MenuSearchBar(
+                                    begForMoney = state.begForMoney,
+                                    onDrawerAction = {
+                                        viewModel.closeDrawer()
+                                        when (it) {
+                                            DrawerAction.PURCHASE ->
+                                                if (Tasks.IS_GENERIC)
+                                                    context.openUri(R.string.url_donate)
+                                                else
+                                                    context.startActivity(
+                                                        Intent(
+                                                            context,
+                                                            PurchaseActivity::class.java
+                                                        )
+                                                    )
+
+                                            DrawerAction.SETTINGS ->
+                                                settingsRequest.launch(
+                                                    Intent(
+                                                        context,
+                                                        MainPreferences::class.java
+                                                    )
+                                                )
+
+                                            DrawerAction.HELP_AND_FEEDBACK ->
+                                                context.startActivity(
+                                                    Intent(
+                                                        context,
+                                                        HelpAndFeedback::class.java
+                                                    )
+                                                )
+                                        }
+                                    },
+                                    query = state.menuQuery,
+                                    onQueryChange = { viewModel.queryMenu(it) },
+                                )
+                            },
+                        )
+                    }
                 }
             }
         }
@@ -240,7 +389,7 @@ class MainActivity : AppCompatActivity() {
     private fun clearUi() {
         actionMode?.finish()
         actionMode = null
-        viewModel.setDrawerOpen(false)
+        viewModel.closeDrawer()
     }
 
     private suspend fun getTaskToLoad(filter: Filter?): Task? = when {
@@ -283,7 +432,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val filter = intent.getFilter
                 ?: intent.getFilterString?.let { defaultFilterProvider.getFilterFromPreference(it) }
-                ?: defaultFilterProvider.getStartupFilter()
+                ?: viewModel.state.value.filter
             val task = getTaskToLoad(filter)
             viewModel.setFilter(filter = filter, task = task)
         }
@@ -319,10 +468,25 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun newTaskEditFragment(task: Task): TaskEditFragment {
+    private suspend fun newTaskEditFragment(task: Task): TaskEditFragment {
         AndroidUtilities.assertMainThread()
         clearUi()
-        return TaskEditFragment.newTaskEditFragment(task)
+        return coroutineScope {
+            withContext(Dispatchers.Default) {
+                val freshTask = async { if (task.isNew) task else taskDao.fetch(task.id) ?: task }
+                val list = async { defaultFilterProvider.getList(task) }
+                val location = async { locationDao.getLocation(task, preferences) }
+                val tags = async { tagDataDao.getTags(task) }
+                val alarms = async { alarmDao.getAlarms(task) }
+                newTaskEditFragment(
+                    freshTask.await(),
+                    list.await(),
+                    location.await(),
+                    tags.await(),
+                    alarms.await(),
+                )
+            }
+        }
     }
 
     private val isSinglePaneLayout: Boolean
@@ -347,8 +511,6 @@ class MainActivity : AppCompatActivity() {
         private const val FRAG_TAG_TASK_EDIT = "frag_tag_task_edit"
         private const val FLAG_FROM_HISTORY
                 = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY
-        const val REQUEST_NEW_LIST = 10100
-        const val REQUEST_NEW_PLACE = 10104
 
         val Intent.getFilter: Filter?
             get() = if (isFromHistory) {

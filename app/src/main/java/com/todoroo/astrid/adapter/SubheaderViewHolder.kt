@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView
 import org.tasks.R
 import org.tasks.databinding.FilterAdapterSubheaderBinding
 import org.tasks.filters.NavigationDrawerSubheader
-import org.tasks.filters.NavigationDrawerSubheader.SubheaderType.ETESYNC
 
 internal class SubheaderViewHolder(
     itemView: View,
@@ -31,11 +30,11 @@ internal class SubheaderViewHolder(
     private lateinit var subheader: NavigationDrawerSubheader
 
     fun bind(subheader: NavigationDrawerSubheader) {
-        add.isVisible = subheader.addIntent != null
+        add.isVisible = subheader.addIntentRc > 0
         this.subheader = subheader
         text.text = subheader.title
         when {
-            subheader.error || subheader.subheaderType == ETESYNC ->
+            subheader.error ->
                 with(errorIcon) {
                 setColorFilter(ContextCompat.getColor(itemView.context, R.color.overdue))
                 visibility = View.VISIBLE
@@ -61,8 +60,10 @@ internal class SubheaderViewHolder(
                 rotate()
                 clickHandler.onClick(subheader)
             }
+            it.addItem.setOnClickListener {
+                clickHandler.onAdd(subheader)
+            }
         }
         errorIcon.setOnClickListener { clickHandler.showError() }
-        add.setOnClickListener { clickHandler.onAdd(subheader) }
     }
 }

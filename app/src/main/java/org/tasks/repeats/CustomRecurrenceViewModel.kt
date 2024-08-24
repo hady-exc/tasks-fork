@@ -17,13 +17,14 @@ import net.fortuna.ical4j.model.Recur.Frequency.YEARLY
 import net.fortuna.ical4j.model.WeekDay
 import net.fortuna.ical4j.model.WeekDayList
 import net.fortuna.ical4j.model.property.RRule
-import org.tasks.data.CaldavAccount.Companion.TYPE_MICROSOFT
+import org.tasks.data.entity.CaldavAccount.Companion.TYPE_MICROSOFT
 import org.tasks.date.DateTimeUtils.toDateTime
 import org.tasks.repeats.CustomRecurrenceActivity.Companion.EXTRA_ACCOUNT_TYPE
 import org.tasks.repeats.CustomRecurrenceActivity.Companion.EXTRA_DATE
 import org.tasks.repeats.CustomRecurrenceActivity.Companion.EXTRA_RRULE
 import org.tasks.time.DateTime
-import org.tasks.time.DateTimeUtils.startOfDay
+import org.tasks.time.DateTimeUtils2.currentTimeMillis
+import org.tasks.time.startOfDay
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.ZoneId
@@ -41,7 +42,7 @@ class CustomRecurrenceViewModel @Inject constructor(
     data class ViewState(
         val interval: Int = 1,
         val frequency: Recur.Frequency = WEEKLY,
-        val dueDate: Long = DateTime().startOfDay().millis,
+        val dueDate: Long = currentTimeMillis().startOfDay(),
         val endSelection: Int = 0,
         val endDate: Long = dueDate.toDateTime().plusMonths(1).startOfDay().millis,
         val endCount: Int = 1,
@@ -83,7 +84,7 @@ class CustomRecurrenceViewModel @Inject constructor(
         val dueDate = savedStateHandle
             .get<Long>(EXTRA_DATE)
             ?.takeIf { it > 0 }
-            ?: System.currentTimeMillis().startOfDay()
+            ?: currentTimeMillis().startOfDay()
         val isMicrosoftTask = savedStateHandle.get<Int>(EXTRA_ACCOUNT_TYPE) == TYPE_MICROSOFT
         val frequencies = if (isMicrosoftTask) FREQ_MICROSOFT else FREQ_ALL
         _state.update { state ->

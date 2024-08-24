@@ -1,14 +1,16 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
-    id("com.google.devtools.ksp") version "1.9.23-1.0.20" apply false
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.kotlin.multiplatform) apply false
+    alias(libs.plugins.kotlin.parcelize) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
+    alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.jetbrains.kotlin.android) apply false
 }
 
 buildscript {
-
-    repositories {
-        mavenCentral()
-        google()
-    }
-
     dependencies {
         classpath(libs.gradle)
         classpath(libs.google.services)
@@ -20,6 +22,20 @@ buildscript {
 }
 
 tasks.getByName<Wrapper>("wrapper") {
-    gradleVersion = "8.6"
+    gradleVersion = "8.9"
     distributionType = Wrapper.DistributionType.ALL
+}
+
+allprojects {
+    tasks.withType<KotlinCompile>().configureEach {
+        compilerOptions {
+            val composeReports = project.properties["composeMetrics"] ?: project.buildDir.absolutePath
+            freeCompilerArgs.addAll(
+                "-P",
+                "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=" + composeReports + "/compose-metrics",
+                "-P",
+                "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=" + composeReports + "/compose-metrics",
+            )
+        }
+    }
 }

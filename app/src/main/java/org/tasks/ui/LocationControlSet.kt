@@ -8,17 +8,19 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.util.Pair
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import com.google.android.material.composethemeadapter.MdcTheme
 import dagger.hilt.android.AndroidEntryPoint
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
-import org.tasks.compose.collectAsStateLifecycleAware
 import org.tasks.compose.edit.LocationRow
-import org.tasks.data.Geofence
 import org.tasks.data.Location
-import org.tasks.data.Place
+import org.tasks.data.createGeofence
+import org.tasks.data.displayName
+import org.tasks.data.entity.Geofence
+import org.tasks.data.entity.Place
+import org.tasks.data.open
 import org.tasks.dialogs.DialogBuilder
 import org.tasks.dialogs.GeofenceDialog
 import org.tasks.extensions.Context.openUri
@@ -27,6 +29,7 @@ import org.tasks.location.LocationPickerActivity
 import org.tasks.preferences.PermissionChecker
 import org.tasks.preferences.PermissionChecker.backgroundPermissions
 import org.tasks.preferences.Preferences
+import org.tasks.themes.TasksTheme
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -82,12 +85,12 @@ class LocationControlSet : TaskEditControlFragment() {
     override fun bind(parent: ViewGroup?): View =
         (parent as ComposeView).apply {
             setContent {
-                MdcTheme {
+                TasksTheme {
                     val hasPermissions =
                         rememberMultiplePermissionsState(permissions = backgroundPermissions())
                             .allPermissionsGranted
                     LocationRow(
-                        location = viewModel.selectedLocation.collectAsStateLifecycleAware().value,
+                        location = viewModel.selectedLocation.collectAsStateWithLifecycle().value,
                         hasPermissions = hasPermissions,
                         onClick = this@LocationControlSet::onRowClick,
                         openGeofenceOptions = {
@@ -128,13 +131,13 @@ class LocationControlSet : TaskEditControlFragment() {
                 val place: Place = data!!.getParcelableExtra(LocationPickerActivity.EXTRA_PLACE)!!
                 val location = viewModel.selectedLocation.value
                 val geofence = if (location == null) {
-                    Geofence(place.uid, preferences)
+                    createGeofence(place.uid, preferences)
                 } else {
                     val existing = location.geofence
                     Geofence(
-                            place.uid,
-                            existing.isArrival,
-                            existing.isDeparture
+                            place = place.uid,
+                            isArrival = existing.isArrival,
+                            isDeparture = existing.isDeparture,
                     )
                 }
                 setLocation(Location(geofence, place))

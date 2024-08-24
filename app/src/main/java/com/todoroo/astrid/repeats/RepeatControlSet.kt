@@ -11,24 +11,25 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.composethemeadapter.MdcTheme
-import com.todoroo.astrid.api.CaldavFilter
-import com.todoroo.astrid.api.GtasksFilter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import net.fortuna.ical4j.model.Recur
 import net.fortuna.ical4j.model.WeekDay
 import org.tasks.R
-import org.tasks.compose.collectAsStateLifecycleAware
 import org.tasks.compose.edit.RepeatRow
-import org.tasks.data.CaldavAccount
-import org.tasks.data.CaldavDao
+import org.tasks.data.dao.CaldavDao
+import org.tasks.data.entity.CaldavAccount
+import org.tasks.filters.CaldavFilter
+import org.tasks.filters.GtasksFilter
 import org.tasks.repeats.BasicRecurrenceDialog
 import org.tasks.repeats.RecurrenceUtils.newRecur
 import org.tasks.repeats.RepeatRuleToString
+import org.tasks.themes.TasksTheme
 import org.tasks.time.DateTime
-import org.tasks.time.DateTimeUtils.currentTimeMillis
+import org.tasks.time.DateTimeUtils2.currentTimeMillis
+import org.tasks.time.startOfDay
 import org.tasks.ui.TaskEditControlFragment
 import javax.inject.Inject
 
@@ -43,7 +44,7 @@ class RepeatControlSet : TaskEditControlFragment() {
                 val result = data?.getStringExtra(BasicRecurrenceDialog.EXTRA_RRULE)
                 viewModel.recurrence.value = result
                 if (result?.isNotBlank() == true && viewModel.dueDate.value == 0L) {
-                    viewModel.setDueDate(DateTime().startOfDay().millis)
+                    viewModel.setDueDate(currentTimeMillis().startOfDay())
                 }
             }
         } else {
@@ -85,12 +86,12 @@ class RepeatControlSet : TaskEditControlFragment() {
     override fun bind(parent: ViewGroup?): View =
         (parent as ComposeView).apply {
             setContent {
-                MdcTheme {
+                TasksTheme {
                     RepeatRow(
-                        recurrence = viewModel.recurrence.collectAsStateLifecycleAware().value?.let {
+                        recurrence = viewModel.recurrence.collectAsStateWithLifecycle().value?.let {
                             repeatRuleToString.toString(it)
                         },
-                        repeatAfterCompletion = viewModel.repeatAfterCompletion.collectAsStateLifecycleAware().value,
+                        repeatAfterCompletion = viewModel.repeatAfterCompletion.collectAsStateWithLifecycle().value,
                         onClick = {
                             lifecycleScope.launch {
                                 val accountType = viewModel.selectedList.value

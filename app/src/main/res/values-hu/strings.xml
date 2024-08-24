@@ -199,7 +199,6 @@
     <string name="new_list">Új lista létrehozása</string>
     <string name="delete_tag_confirmation">%s törlése?</string>
     <string name="TPl_notification">Időzítők aktiválva eddig: %s!</string>
-    <string name="TFE_workingOn">Időzített Feladatok</string>
     <string name="TEA_timer_controls">Időzítő</string>
     <string name="TEA_timer_comment_started">feladat megkezdve:</string>
     <string name="TEA_timer_comment_stopped">feladat leállítva:</string>
@@ -613,7 +612,6 @@
     <string name="remove_user_confirmation">%1$s nem fog hozzáférni ehhez: %2$s</string>
     <string name="remove_user">Felhasználó eltávolítása\?</string>
     <string name="list_members">Listatagok</string>
-    <string name="manage_drawer">Fiók kezelése</string>
     <string name="invite_invalid">Érvénytelen meghívás</string>
     <string name="invite_awaiting_response">Válaszra váró meghívás</string>
     <string name="invite_declined">Meghívás visszautasítva</string>
@@ -625,7 +623,6 @@
     <string name="picker_mode_calendar">Naptár</string>
     <string name="picker_mode_time">Időválasztó mód</string>
     <string name="picker_mode_date">Dátumválasztó mód</string>
-    <string name="tasks_needs_your_support">A Tasks-nak szüksége van a támogatásodra!</string>
     <string name="more_options">Több opció</string>
     <string name="upgrade_automation_description">Tasker, Automate és Locate beépülő modulok</string>
     <string name="upgrade_automation">Automatizálás</string>
@@ -684,7 +681,6 @@
     <string name="randomly_every">Véletlenszerűen minden %s</string>
     <string name="caldav_server_unknown">Ismeretlen</string>
     <string name="caldav_server_other">Egyéb</string>
-    <string name="filter_snoozed">Elhalasztva</string>
     <string name="dismiss">Nyugtáz</string>
     <string name="caldav_server_type">Szerver típusa</string>
     <string name="customize_edit_screen_summary">Mezők átrendezése vagy törlése</string>

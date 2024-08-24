@@ -1,14 +1,17 @@
 package org.tasks.etebase
 
 import android.content.Context
-import com.etebase.client.*
+import com.etebase.client.Account
 import com.etebase.client.Collection
+import com.etebase.client.FetchOptions
+import com.etebase.client.Item
+import com.etebase.client.ItemMetadata
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.tasks.data.CaldavCalendar
-import org.tasks.data.CaldavDao
-import org.tasks.data.CaldavTask
-import org.tasks.time.DateTimeUtils.currentTimeMillis
+import org.tasks.data.entity.CaldavCalendar
+import org.tasks.data.dao.CaldavDao
+import org.tasks.data.entity.CaldavTask
+import org.tasks.time.DateTimeUtils2.currentTimeMillis
 import timber.log.Timber
 
 class EtebaseClient(
@@ -44,9 +47,9 @@ class EtebaseClient(
     }
 
     suspend fun fetchItems(
-            collection: Collection,
-            calendar: CaldavCalendar,
-            callback: suspend (Pair<String?, List<Item>>) -> Unit
+        collection: Collection,
+        calendar: CaldavCalendar,
+        callback: suspend (Pair<String?, List<Item>>) -> Unit
     ) {
         val itemManager = etebase.collectionManager.getItemManager(collection)
         var stoken = calendar.ctag
@@ -61,11 +64,11 @@ class EtebaseClient(
 
     suspend fun updateItem(collection: Collection, task: CaldavTask, content: ByteArray): Item {
         val itemManager = etebase.collectionManager.getItemManager(collection)
-        val item = cache.itemGet(itemManager, collection.uid, task.`object`!!)
+        val item = cache.itemGet(itemManager, collection.uid, task.obj!!)
                 ?: itemManager
                         .create(ItemMetadata().apply { name = task.remoteId!! }, "")
                         .apply {
-                            task.`object` = uid
+                            task.obj = uid
                             caldavDao.update(task)
                         }
         item.meta = updateMtime(item.meta, task.lastSync)
@@ -75,7 +78,7 @@ class EtebaseClient(
 
     suspend fun deleteItem(collection: Collection, task: CaldavTask): Item? {
         val itemManager = etebase.collectionManager.getItemManager(collection)
-        return cache.itemGet(itemManager, collection.uid, task.`object`!!)
+        return cache.itemGet(itemManager, collection.uid, task.obj!!)
                 ?.takeIf { !it.isDeleted }
                 ?.apply {
                     meta = updateMtime(meta)

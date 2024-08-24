@@ -3,28 +3,28 @@ package org.tasks.activities
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.material.SnackbarHostState
+import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.api.services.tasks.model.TaskList
 import com.todoroo.astrid.activity.MainActivity
 import com.todoroo.astrid.activity.TaskListFragment
-import com.todoroo.astrid.api.GtasksFilter
 import com.todoroo.astrid.service.TaskDeleter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.tasks.LocalBroadcastManager
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
-import org.tasks.compose.ListSettings.ListSettingsSnackBar
-import org.tasks.data.CaldavAccount
-import org.tasks.data.CaldavCalendar
-import org.tasks.data.GoogleTaskListDao
-import org.tasks.themes.CustomIcons
+import org.tasks.compose.ListSettings.SettingsSnackBar
+import org.tasks.data.dao.GoogleTaskListDao
+import org.tasks.data.entity.CaldavAccount
+import org.tasks.data.entity.CaldavCalendar
+import org.tasks.filters.GtasksFilter
+import org.tasks.themes.TasksIcons
+import org.tasks.themes.TasksTheme
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -32,13 +32,16 @@ import javax.inject.Inject
 class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
     @Inject lateinit var googleTaskListDao: GoogleTaskListDao
     @Inject lateinit var taskDeleter: TaskDeleter
+    @Inject lateinit var localBroadcastManager: LocalBroadcastManager
 
     private var isNewList = false
     private lateinit var gtasksList: CaldavCalendar
     private val createListViewModel: CreateListViewModel by viewModels()
     private val renameListViewModel: RenameListViewModel by viewModels()
     private val deleteListViewModel: DeleteListViewModel by viewModels()
-    override val defaultIcon: Int = CustomIcons.LIST
+    override val defaultIcon = TasksIcons.LIST
+
+    val snackbar = SnackbarHostState()
 
     override val compose: Boolean
         get() = true
@@ -54,7 +57,7 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {
             selectedColor = gtasksList.color
-            selectedIcon = gtasksList.getIcon()!!
+            selectedIcon.value = gtasksList.icon ?: defaultIcon
         }
 
         if (!isNewList) textState.value = gtasksList.name!!
@@ -70,11 +73,9 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
         deleteListViewModel.observe(this, this::onListDeleted, this::requestFailed)
 
         setContent {
-            MdcTheme {
+            TasksTheme {
                 baseSettingsContent()
-
-                ListSettingsSnackBar(state = snackbar)
-
+                SettingsSnackBar(state = snackbar)
             }
         }
 
@@ -118,8 +119,12 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
             else -> {
                 if (colorChanged() || iconChanged()) {
                     gtasksList.color = selectedColor
-                    gtasksList.setIcon(selectedIcon)
-                    googleTaskListDao.insertOrReplace(gtasksList)
+                    googleTaskListDao.insertOrReplace(
+                        gtasksList.copy(
+                            icon = selectedIcon.value
+                        )
+                    )
+                    localBroadcastManager.broadcastRefresh()
                     setResult(
                             Activity.RESULT_OK,
                             Intent(TaskListFragment.ACTION_RELOAD)
@@ -133,8 +138,6 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
     override fun finish() {
         super.finish()
     }
-
-    override fun bind(): View { TODO() }
 
     override fun promptDelete() {
         if (!requestInProgress()) {
@@ -163,21 +166,22 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
 
     private fun colorChanged() = selectedColor != gtasksList.color
 
-    private fun iconChanged() = selectedIcon != gtasksList.getIcon()
+    private fun iconChanged() = selectedIcon.value != gtasksList.icon
 
     private fun nameChanged() = newName != gtasksList.name
 
     private suspend fun onListCreated(taskList: TaskList) {
-        with(gtasksList) {
-            uuid = taskList.id
-            name = taskList.title
-            color = selectedColor
-            setIcon(selectedIcon)
-            id = googleTaskListDao.insertOrReplace(this)
-        }
+        val result = gtasksList.copy(
+            uuid = taskList.id,
+            name = taskList.title,
+            color = selectedColor,
+            icon = selectedIcon.value,
+        )
+        val id = googleTaskListDao.insertOrReplace(result)
 
         setResult(
-                Activity.RESULT_OK, Intent().putExtra(MainActivity.OPEN_FILTER, GtasksFilter(gtasksList)))
+            Activity.RESULT_OK,
+            Intent().putExtra(MainActivity.OPEN_FILTER, GtasksFilter(result.copy(id = id))))
         finish()
     }
 
@@ -194,17 +198,17 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
     }
 
     private suspend fun onListRenamed(taskList: TaskList) {
-        with(gtasksList) {
-            name = taskList.title
-            color = selectedColor
-            setIcon(selectedIcon)
-            googleTaskListDao.insertOrReplace(this)
-        }
+        val result = gtasksList.copy(
+            name = taskList.title,
+            color = selectedColor,
+            icon = selectedIcon.value,
+        )
+        googleTaskListDao.insertOrReplace(result)
 
         setResult(
                 Activity.RESULT_OK,
                 Intent(TaskListFragment.ACTION_RELOAD)
-                        .putExtra(MainActivity.OPEN_FILTER, GtasksFilter(gtasksList)))
+                    .putExtra(MainActivity.OPEN_FILTER, GtasksFilter(result)))
         finish()
     }
 

@@ -9,7 +9,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.lifecycleScope
-import com.todoroo.astrid.helper.UUIDHelper
+import org.tasks.data.UUIDHelper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -35,9 +35,9 @@ import org.json.JSONObject
 import org.tasks.R
 import org.tasks.analytics.Constants
 import org.tasks.analytics.Firebase
-import org.tasks.data.CaldavAccount
-import org.tasks.data.CaldavAccount.Companion.TYPE_MICROSOFT
-import org.tasks.data.CaldavDao
+import org.tasks.data.entity.CaldavAccount
+import org.tasks.data.entity.CaldavAccount.Companion.TYPE_MICROSOFT
+import org.tasks.data.dao.CaldavDao
 import org.tasks.http.HttpClientFactory
 import org.tasks.security.KeyStoreEncryption
 import org.tasks.sync.microsoft.requestTokenExchange
@@ -72,18 +72,19 @@ class MicrosoftAuthenticationActivity : ComponentActivity() {
                 caldavDao
                     .getAccount(TYPE_MICROSOFT, email)
                     ?.let {
-                        it.password = encryption.encrypt(authState.jsonSerializeString())
-                        caldavDao.update(it)
+                        caldavDao.update(
+                            it.copy(password = encryption.encrypt(authState.jsonSerializeString()))
+                        )
                     }
                     ?: caldavDao
                         .insert(
-                            CaldavAccount().apply {
-                                uuid = UUIDHelper.newUUID()
-                                name = email
-                                username = email
-                                password = encryption.encrypt(authState.jsonSerializeString())
-                                accountType = TYPE_MICROSOFT
-                            }
+                            CaldavAccount(
+                                uuid = UUIDHelper.newUUID(),
+                                name = email,
+                                username = email,
+                                password = encryption.encrypt(authState.jsonSerializeString()),
+                                accountType = TYPE_MICROSOFT,
+                            )
                         )
                         .also {
                             firebase.logEvent(

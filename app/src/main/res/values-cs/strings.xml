@@ -110,7 +110,6 @@
     <string name="new_tag">Vytvořit nový štítek</string>
     <string name="delete_tag_confirmation">Smazat %s?</string>
     <string name="TPl_notification">Časovače aktivní pro %s!</string>
-    <string name="TFE_workingOn">Termínované úkoly</string>
     <string name="TEA_timer_controls">Časovač</string>
     <string name="TEA_timer_comment_started">začal tento úkol:</string>
     <string name="TEA_timer_comment_stopped">skončil tento úkol:</string>
@@ -569,11 +568,9 @@
     <string name="sort_created_group">Vytvořeno %s</string>
     <string name="sort_start_group">Začátek %s</string>
     <string name="sort_due_group">Termín %s</string>
-    <string name="tasks_needs_your_support">Tato aplikace potřebuje Vaši podporu!</string>
     <string name="tasks_org_description">Synchronizujte své úkoly pomocí Tasks.org</string>
     <string name="background_location_permission_required">Tato aplikace sbírá údaje o Vaší poloze, aby fungovala upozornění podle polohy i když aplikaci zrovna nepoužíváte.</string>
     <string name="reinitialize_account">Znovu inicializovat</string>
-    <string name="manage_drawer">Upravit postranní nabídku</string>
     <string name="custom_filter_is_subtask">Je podúkol</string>
     <string name="custom_filter_has_subtask">Má podúkoly</string>
     <string name="date_picker_multiple">Vícenásobné</string>
@@ -704,7 +701,6 @@
     <string name="completed_tasks_at_bottom">Přesunout splněné úkoly naspod</string>
     <string name="snackbar_tasks_completed">%d úkolů splněno</string>
     <string name="caldav_server_type">Typ serveru</string>
-    <string name="filter_snoozed">Odloženo</string>
     <string name="dismiss">Odmítnout</string>
     <string name="hint_customize_edit_title">Příliš mnoho informací\?</string>
     <string name="hint_customize_edit_body">Tuto obrazovku si můžete přizpůsobit přeskupením nebo odebráním polí</string>

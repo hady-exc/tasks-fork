@@ -1,26 +1,15 @@
 package org.tasks.caldav
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
-import android.view.inputmethod.InputMethodManager
-import android.widget.LinearLayout
-import android.widget.ProgressBar
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.material.SnackbarHostState
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import at.bitfire.dav4jvm.exception.HttpException
-import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import com.todoroo.astrid.activity.MainActivity
 import com.todoroo.astrid.activity.TaskListFragment
-import com.todoroo.astrid.api.CaldavFilter
-import com.todoroo.astrid.helper.UUIDHelper
 import com.todoroo.astrid.service.TaskDeleter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -28,13 +17,13 @@ import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
 import org.tasks.activities.BaseListSettingsActivity
 import org.tasks.compose.DeleteButton
-import org.tasks.compose.ListSettings.ListSettingsSnackBar
-import org.tasks.data.CaldavAccount
-import org.tasks.data.CaldavCalendar
-import org.tasks.data.CaldavDao
-import org.tasks.databinding.ActivityCaldavCalendarSettingsBinding
-import org.tasks.extensions.Context.hideKeyboard
-import org.tasks.themes.CustomIcons
+import org.tasks.compose.ListSettings.SettingsSnackBar
+import org.tasks.data.UUIDHelper
+import org.tasks.data.dao.CaldavDao
+import org.tasks.data.entity.CaldavAccount
+import org.tasks.data.entity.CaldavCalendar
+import org.tasks.filters.CaldavFilter
+import org.tasks.themes.TasksIcons
 import org.tasks.ui.DisplayableException
 import java.net.ConnectException
 import javax.inject.Inject
@@ -43,35 +32,12 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
     @Inject lateinit var caldavDao: CaldavDao
     @Inject lateinit var taskDeleter: TaskDeleter
 
-    private lateinit var root: LinearLayout
-    private lateinit var name: TextInputEditText
-    protected lateinit var nameLayout: TextInputLayout
-    protected lateinit var progressView: ProgressBar
-
     protected var caldavCalendar: CaldavCalendar? = null
 
     protected lateinit var caldavAccount: CaldavAccount
-    override val defaultIcon: Int = CustomIcons.LIST
+    override val defaultIcon = TasksIcons.LIST
 
-    protected open val setContent
-        get() = true
     protected val snackbar = SnackbarHostState() // to be used by descendants
-
-    override fun bind() =
-        if ( compose ) { TODO() }
-        else {
-            ActivityCaldavCalendarSettingsBinding.inflate(layoutInflater).let {
-                root = it.rootLayout
-                name = it.name.apply {
-                    addTextChangedListener(
-                        onTextChanged = { _, _, _, _ -> nameLayout.error = null }
-                    )
-                }
-                nameLayout = it.nameLayout
-                progressView = it.progressBar.progressBar
-                it.root
-            }
-        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val intent = intent
@@ -84,16 +50,10 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
         }
         if (savedInstanceState == null) {
             if (caldavCalendar != null) {
-                if (compose) textState.value = caldavCalendar!!.name ?: ""
-                else name.setText(caldavCalendar!!.name)
+                textState.value = caldavCalendar!!.name ?: ""
                 selectedColor = caldavCalendar!!.color
-                selectedIcon = caldavCalendar!!.getIcon()!!
+                selectedIcon.value = caldavCalendar?.icon ?: defaultIcon
             }
-        }
-        if (!compose && caldavCalendar == null) {
-            name.requestFocus()
-            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.showSoftInput(name, InputMethodManager.SHOW_IMPLICIT)
         }
 
         if (setContent) TODO()
@@ -135,10 +95,7 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
         }
         val name = newName
         if (isNullOrEmpty(name)) {
-            if (compose)
-                errorState.value = getString(R.string.name_cannot_be_empty)
-            else
-                nameLayout.error = getString(R.string.name_cannot_be_empty)
+            errorState.value = getString(R.string.name_cannot_be_empty)
             return
         }
         when {
@@ -158,28 +115,17 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
     protected abstract suspend fun createCalendar(caldavAccount: CaldavAccount, name: String, color: Int)
 
     protected abstract suspend fun updateNameAndColor(
-            account: CaldavAccount, calendar: CaldavCalendar, name: String, color: Int)
+        account: CaldavAccount, calendar: CaldavCalendar, name: String, color: Int)
 
     protected abstract suspend fun deleteCalendar(
-            caldavAccount: CaldavAccount, caldavCalendar: CaldavCalendar)
+        caldavAccount: CaldavAccount, caldavCalendar: CaldavCalendar
+    )
 
-    private fun showProgressIndicator() {
-        if (compose)
-            showProgress.value = true
-        else
-            progressView.visibility = View.VISIBLE
-    }
+    private fun showProgressIndicator() { showProgress.value = true }
 
-    private fun hideProgressIndicator() {
-        if (compose)
-            showProgress.value = false
-        else
-            progressView.visibility = View.GONE
-    }
+    private fun hideProgressIndicator() { showProgress.value = false }
 
-    protected fun requestInProgress(): Boolean {
-        return if (compose) showProgress.value else progressView.visibility == View.VISIBLE
-    }
+    protected fun requestInProgress(): Boolean = showProgress.value
 
     protected fun requestFailed(t: Throwable) {
         hideProgressIndicator()
@@ -194,19 +140,11 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
     }
 
     private fun showSnackbar(resId: Int, vararg formatArgs: Any) {
-        if (compose)
-            lifecycleScope.launch { snackbar.showSnackbar( getString(resId, *formatArgs) ) }
-        else showSnackbar(getString(resId, *formatArgs))
+        lifecycleScope.launch { snackbar.showSnackbar( getString(resId, *formatArgs) ) }
     }
 
     private fun showSnackbar(message: String?) {
-        val snackbar = Snackbar.make(root, message!!, 8000)
-                .setTextColor(getColor(R.color.snackbar_text_color))
-                .setActionTextColor(getColor(R.color.snackbar_action_color))
-        snackbar
-                .view
-                .setBackgroundColor(getColor(R.color.snackbar_background))
-        snackbar.show()
+        lifecycleScope.launch { snackbar.showSnackbar( message!! ) }
     }
 
     protected suspend fun createSuccessful(url: String?) {
@@ -216,7 +154,7 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
             url = url,
             name = newName,
             color = selectedColor,
-            icon = selectedIcon,
+            icon = selectedIcon.value,
         )
         caldavDao.insert(caldavCalendar)
         setResult(
@@ -226,20 +164,22 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
     }
 
     protected suspend fun updateCalendar() {
-        caldavCalendar!!.name = newName
-        caldavCalendar!!.color = selectedColor
-        caldavCalendar!!.setIcon(selectedIcon)
-        caldavDao.update(caldavCalendar!!)
+        val result = caldavCalendar!!.copy(
+            name = newName,
+            color = selectedColor,
+            icon = selectedIcon.value,
+        )
+        caldavDao.update(result)
         setResult(
                 Activity.RESULT_OK,
                 Intent(TaskListFragment.ACTION_RELOAD)
-                        .putExtra(MainActivity.OPEN_FILTER, CaldavFilter(caldavCalendar!!)))
+                        .putExtra(MainActivity.OPEN_FILTER, CaldavFilter(result)))
         finish()
     }
 
     override fun hasChanges(): Boolean =
             if (caldavCalendar == null)
-                !isNullOrEmpty(newName) || selectedColor != 0 || selectedIcon != -1
+                !isNullOrEmpty(newName) || selectedColor != 0 || selectedIcon.value?.isBlank() == false
             else
                 nameChanged() || iconChanged() || colorChanged()
 
@@ -247,15 +187,13 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
 
     private fun colorChanged(): Boolean = selectedColor != caldavCalendar!!.color
 
-    private fun iconChanged(): Boolean = selectedIcon != caldavCalendar!!.getIcon()
+    private fun iconChanged(): Boolean = selectedIcon.value != caldavCalendar!!.icon
 
     private val newName: String
-        get() =
-            if (compose) textState.value.trim { it <= ' '}
-            else name.text.toString().trim { it <= ' ' }
+        get() = textState.value.trim { it <= ' '}
 
     override fun finish() {
-        if (!compose) hideKeyboard(name)
+        // hideKeyboard(name)
         super.finish()
     }
 
@@ -293,7 +231,7 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
             optionButton = optionButton,
             extensionContent = extensionContent
         )
-        ListSettingsSnackBar(state = snackbar)
+        SettingsSnackBar(state = snackbar)
     }
 
     companion object {

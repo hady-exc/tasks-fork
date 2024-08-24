@@ -9,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.composethemeadapter.MdcTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.tasks.LocalBroadcastManager
@@ -18,6 +17,7 @@ import org.tasks.analytics.Firebase
 import org.tasks.compose.PurchaseText.PurchaseText
 import org.tasks.extensions.Context.toast
 import org.tasks.preferences.Preferences
+import org.tasks.themes.TasksTheme
 import org.tasks.themes.Theme
 import java.util.Locale
 import javax.inject.Inject
@@ -47,13 +47,15 @@ class PurchaseActivity : AppCompatActivity(), OnPurchasesUpdated {
 
         theme.applyToContext(this)
 
-        savedInstanceState?.let {
-            nameYourPrice.value = it.getBoolean(EXTRA_NAME_YOUR_PRICE)
-            sliderPosition.value = it.getFloat(EXTRA_PRICE)
+        if (savedInstanceState == null) {
+            nameYourPrice.value = intent?.extras?.getBoolean(EXTRA_NAME_YOUR_PRICE) ?: false
+        } else {
+            nameYourPrice.value = savedInstanceState.getBoolean(EXTRA_NAME_YOUR_PRICE)
+            sliderPosition.value = savedInstanceState.getFloat(EXTRA_PRICE)
         }
 
         setContent {
-            MdcTheme {
+            TasksTheme {
                 Dialog(onDismissRequest = { finish() }) {
                     PurchaseText(
                         nameYourPrice = nameYourPrice,
@@ -128,6 +130,6 @@ class PurchaseActivity : AppCompatActivity(), OnPurchasesUpdated {
     companion object {
         const val EXTRA_GITHUB = "extra_github"
         private const val EXTRA_PRICE = "extra_price"
-        private const val EXTRA_NAME_YOUR_PRICE = "extra_name_your_price"
+        const val EXTRA_NAME_YOUR_PRICE = "extra_name_your_price"
     }
 }

@@ -32,8 +32,7 @@
   <!-- ************* -->
   <uses-permission android:name="android.permission.VIBRATE"/>
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-  <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" android:maxSdkVersion="32" />
-  <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+  <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
   <!-- *************************** -->
   <!-- google calendar integration -->
@@ -222,9 +221,16 @@
     <activity
       android:exported="true"
       android:excludeFromRecents="true"
-      android:name=".widget.WidgetFilterSelectionActivity"
+      android:name=".compose.FilterSelectionActivity"
       android:taskAffinity=""
       android:theme="@style/TranslucentDialog"/>
+
+    <activity
+        android:name=".compose.IconPickerActivity"
+        android:excludeFromRecents="true"
+        android:exported="true"
+        android:taskAffinity=""
+        android:theme="@style/TranslucentDialog" />
 
     <activity
       android:name=".activities.CameraActivity"
@@ -421,11 +427,6 @@
       android:name=".caldav.CaldavAccountSettingsActivity"
       android:theme="@style/Tasks"/>
 
-    <!--suppress DeprecatedClassUsageInspection -->
-    <activity
-      android:name=".etesync.EteSyncAccountSettingsActivity"
-      android:theme="@style/Tasks" />
-
     <activity
       android:name=".etebase.EtebaseAccountSettingsActivity"
       android:theme="@style/Tasks" />
@@ -480,7 +481,14 @@
         android:exported="true">
       <intent-filter>
         <action android:name="android.intent.action.BOOT_COMPLETED"/>
-        <category android:name="android.intent.category.DEFAULT"/>
+      </intent-filter>
+    </receiver>
+
+    <receiver
+        android:name=".receivers.ScheduleExactAlarmsPermissionReceiver"
+        android:exported="true">
+      <intent-filter>
+        <action android:name="android.intent.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
       </intent-filter>
     </receiver>
 
@@ -542,10 +550,6 @@
         android:name="settingsActivity"
         android:value="org.tasks.dashclock.DashClockSettings"/>
     </service>
-
-    <service
-      android:exported="false"
-      android:name=".jobs.NotificationService"/>
 
     <activity
       android:exported="true"
@@ -611,6 +615,8 @@
         <action android:name="com.twofortyfouram.locale.intent.action.FIRE_SETTING"/>
       </intent-filter>
     </receiver>
+
+    <receiver android:name="org.tasks.jobs.NotificationReceiver" />
 
     <activity
         android:name=".auth.MicrosoftAuthenticationActivity"

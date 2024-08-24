@@ -15,12 +15,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults
-import androidx.compose.material.TriStateCheckbox
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.livedata.observeAsState
@@ -35,17 +35,20 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
-import com.google.android.material.composethemeadapter.MdcTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.tasks.R
 import org.tasks.Strings
 import org.tasks.billing.Inventory
-import org.tasks.data.TagData
+import org.tasks.compose.components.TasksIcon
+import org.tasks.data.entity.TagData
 import org.tasks.extensions.addBackPressedCallback
+import org.tasks.filters.TagFilter
+import org.tasks.filters.getIcon
 import org.tasks.injection.ThemedInjectingAppCompatActivity
 import org.tasks.themes.ColorProvider
-import org.tasks.themes.CustomIcons
+import org.tasks.themes.TasksIcons
+import org.tasks.themes.TasksTheme
 import org.tasks.themes.Theme
 import javax.inject.Inject
 
@@ -78,12 +81,12 @@ class TagPickerActivity : ThemedInjectingAppCompatActivity() {
         viewModel.search("")
 
         setContent {
-            MdcTheme {
+            TasksTheme {
                 TagPicker(
                     viewModel,
                     onBackClicked = { handleBackPressed() },
-                    getTagIcon = { tagData ->  getIcon(tagData) },
-                    getTagColor = { tagData ->  getColor(tagData) }
+                    getTagIcon = { tagData -> getIcon(tagData) },
+                    getTagColor = { tagData -> getColor(tagData) }
                 )
             } /* setContent */
         }
@@ -103,8 +106,8 @@ class TagPickerActivity : ThemedInjectingAppCompatActivity() {
     } /* handleBackPressed */
 
     private fun getColor(tagData: TagData): Color {
-        if (tagData.getColor() != 0) {
-            val themeColor = colorProvider.getThemeColor(tagData.getColor()!!, true)
+        if ((tagData.color ?: 0) != 0) {
+            val themeColor = colorProvider.getThemeColor(tagData.color ?: 0, true)
             if (inventory.purchasedThemes() || themeColor.isFree) {
                 return Color(themeColor.primaryColor)
             }
@@ -112,15 +115,8 @@ class TagPickerActivity : ThemedInjectingAppCompatActivity() {
         return Color(getColor(R.color.icon_tint_with_alpha))
     }
 
-    private fun getIcon(tagData: TagData): Int
-    {
-        val iconIndex = tagData.getIcon()
-        var iconResource = R.drawable.ic_outline_label_24px
-        if ( (iconIndex != null) && (iconIndex < 1000 || inventory.hasPro) ) {
-            iconResource = CustomIcons.getIconResId(iconIndex) ?: R.drawable.ic_outline_label_24px
-        }
-        return iconResource
-    }
+    private fun getIcon(tagData: TagData): String =
+        TagFilter(tagData).getIcon(inventory) ?: TasksIcons.LABEL
 
     /* Copy of the TagPickerActivity's companion object */
     companion object {
@@ -134,7 +130,7 @@ class TagPickerActivity : ThemedInjectingAppCompatActivity() {
 internal fun TagPicker(
     viewModel: TagPickerViewModel,
     onBackClicked: () -> Unit,
-    getTagIcon: (TagData) -> Int,
+    getTagIcon: (TagData) -> String,
     getTagColor: (TagData) -> Color
 ) {
     Box ( modifier = Modifier.fillMaxSize() )
@@ -146,7 +142,12 @@ internal fun TagPicker(
             Box (
                 modifier = Modifier.weight(1f)
             ) {
-                PickerBox(viewModel, viewModel.tagsList.observeAsState(initial = emptyList()), getTagIcon, getTagColor)
+                PickerBox(
+                    viewModel = viewModel,
+                    tags = viewModel.tagsList.observeAsState(initial = emptyList()),
+                    getTagIcon = getTagIcon,
+                    getTagColor = getTagColor
+                )
             }
         }
     }
@@ -165,16 +166,23 @@ internal fun SearchBar(
             "Done",
             modifier = Modifier
                 .padding(6.dp)
-                .clickable { onBack() }
+                .clickable { onBack() },
+            tint = MaterialTheme.colorScheme.onSurface,
         )
 
         TextField(
             value = searchPattern.value,
             onValueChange = { viewModel.search(it) },
-            placeholder = { Text(invitation) },
-            colors = TextFieldDefaults.textFieldColors(
-                textColor = MaterialTheme.colors.onBackground,
-                backgroundColor = Color.Transparent,
+            placeholder = {
+                Text(
+                    text = invitation,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            },
+            colors = TextFieldDefaults.colors(
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedContainerColor = Color.Transparent,
+                focusedContainerColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent
             ),
@@ -187,7 +195,7 @@ internal fun SearchBar(
 internal fun PickerBox (
     viewModel: TagPickerViewModel,
     tags: State<List<TagData>>,
-    getTagIcon: (TagData) -> Int = { R.drawable.ic_outline_label_24px },
+    getTagIcon: (TagData) -> String = { TasksIcons.LABEL },
     getTagColor: (TagData) -> Color = { Color.Gray }
 ) {
     val onClick: (TagData) -> Unit = {
@@ -204,7 +212,7 @@ internal fun PickerBox (
             item(key = -1) {
                 val text = LocalContext.current.getString(R.string.new_tag) + " \"${viewModel.tagToCreate.value}\""
                 TagRow(
-                    icon = ImageVector.vectorResource(R.drawable.ic_outline_add_24px),
+                    icon = TasksIcons.ADD,
                     iconColor = Color(LocalContext.current.getColor(R.color.icon_tint_with_alpha)),
                     text = text,
                     onClick = { newItem(viewModel.searchText.value) }
@@ -217,7 +225,7 @@ internal fun PickerBox (
             val checked = remember { mutableStateOf ( viewModel.getState(it) ) }
             val clickChecked: () -> Unit = { onClick(it); checked.value = viewModel.getState(it) }
             TagRow(
-                icon = ImageVector.vectorResource(getTagIcon(it)),
+                icon = getTagIcon(it),
                 iconColor = getTagColor(it),
                 text = it.name!!,
                 onClick = clickChecked
@@ -234,24 +242,28 @@ internal fun PickerBox (
 
 @Composable
 internal fun TagRow (
-    icon: ImageVector,
+    icon: String,
     iconColor: Color,
     text: String,
     onClick: () -> Unit,
     checkBox: @Composable RowScope.() -> Unit = {}
 ) {
-    Row(modifier = Modifier.fillMaxWidth().clickable{ onClick() },
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .clickable { onClick() },
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = "",
+        TasksIcon(
             modifier = Modifier.padding(6.dp),
+            label = icon,
             tint = iconColor
         )
         Text(
             text,
-            modifier = Modifier.weight(1f).padding(horizontal = 24.dp)
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 24.dp),
+            color = MaterialTheme.colorScheme.onSurface,
         )
         checkBox()
     }

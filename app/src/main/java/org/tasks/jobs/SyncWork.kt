@@ -22,11 +22,11 @@ import org.tasks.R
 import org.tasks.analytics.Firebase
 import org.tasks.billing.Inventory
 import org.tasks.caldav.CaldavSynchronizer
-import org.tasks.data.CaldavAccount.Companion.TYPE_CALDAV
-import org.tasks.data.CaldavAccount.Companion.TYPE_ETEBASE
-import org.tasks.data.CaldavAccount.Companion.TYPE_TASKS
-import org.tasks.data.CaldavDao
-import org.tasks.data.GoogleTaskListDao
+import org.tasks.data.entity.CaldavAccount.Companion.TYPE_CALDAV
+import org.tasks.data.entity.CaldavAccount.Companion.TYPE_ETEBASE
+import org.tasks.data.entity.CaldavAccount.Companion.TYPE_TASKS
+import org.tasks.data.dao.CaldavDao
+import org.tasks.data.dao.GoogleTaskListDao
 import org.tasks.data.OpenTaskDao
 import org.tasks.etebase.EtebaseSynchronizer
 import org.tasks.extensions.Context.hasNetworkConnectivity
@@ -34,6 +34,7 @@ import org.tasks.gtasks.GoogleTaskSynchronizer
 import org.tasks.injection.BaseWorker
 import org.tasks.opentasks.OpenTasksSynchronizer
 import org.tasks.preferences.Preferences
+import org.tasks.time.DateTimeUtils2.currentTimeMillis
 
 @HiltWorker
 class SyncWork @AssistedInject constructor(
@@ -70,7 +71,7 @@ class SyncWork @AssistedInject constructor(
         localBroadcastManager.broadcastRefresh()
         try {
             doSync()
-            preferences.lastSync = System.currentTimeMillis()
+            preferences.lastSync = currentTimeMillis()
         } catch (e: Exception) {
             firebase.reportException(e)
         } finally {

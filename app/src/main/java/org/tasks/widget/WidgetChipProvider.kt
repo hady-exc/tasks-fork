@@ -3,30 +3,34 @@ package org.tasks.widget
 import android.content.Context
 import android.widget.RemoteViews
 import androidx.annotation.ColorInt
-import com.todoroo.andlib.utility.DateUtilities
-import com.todoroo.astrid.api.CaldavFilter
-import com.todoroo.astrid.api.Filter
-import com.todoroo.astrid.api.GtasksFilter
-import com.todoroo.astrid.api.TagFilter
-import com.todoroo.astrid.data.Task
+import com.mikepenz.iconics.IconicsDrawable
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.runBlocking
 import org.tasks.BuildConfig
 import org.tasks.R
+import org.tasks.billing.Inventory
 import org.tasks.data.TaskContainer
-import org.tasks.date.DateTimeUtils.toDateTime
+import org.tasks.data.entity.Task
+import org.tasks.data.isHidden
+import org.tasks.extensions.Context.is24HourFormat
 import org.tasks.extensions.setColorFilter
+import org.tasks.filters.CaldavFilter
+import org.tasks.filters.Filter
+import org.tasks.filters.GtasksFilter
 import org.tasks.filters.PlaceFilter
-import org.tasks.themes.CustomIcons
-import org.tasks.time.DateTimeUtils.startOfDay
+import org.tasks.filters.TagFilter
+import org.tasks.filters.getIcon
+import org.tasks.icons.OutlinedGoogleMaterial
+import org.tasks.kmp.org.tasks.time.getRelativeDateTime
+import org.tasks.kmp.org.tasks.time.getTimeString
+import org.tasks.time.startOfDay
 import org.tasks.ui.ChipListCache
-import java.time.format.FormatStyle
-import java.util.Locale
 import javax.inject.Inject
 
 class WidgetChipProvider @Inject constructor(
     @ApplicationContext private val context: Context,
     private val chipListCache: ChipListCache,
-    private val locale: Locale,
+    private val inventory: Inventory,
 ) {
     var isDark = false
 
@@ -50,21 +54,20 @@ class WidgetChipProvider @Inject constructor(
     }
 
     fun getStartDateChip(task: TaskContainer, showFullDate: Boolean, sortByStartDate: Boolean): RemoteViews? {
-        return if (task.isHidden) {
+        return if (task.task.isHidden) {
             val time = if (sortByStartDate && task.sortGroup?.startOfDay() == task.task.hideUntil.startOfDay()) {
                 task.task.hideUntil
                     .takeIf { Task.hasDueTime(it) }
-                    ?.let { DateUtilities.getTimeString(context, it.toDateTime()) }
+                    ?.let { getTimeString(it, context.is24HourFormat) }
                     ?: return null
             } else {
-                DateUtilities.getRelativeDateTime(
-                    context,
-                    task.task.hideUntil,
-                    locale,
-                    FormatStyle.MEDIUM,
-                    showFullDate,
-                    false
-                )
+                runBlocking {
+                    getRelativeDateTime(
+                        task.task.hideUntil,
+                        context.is24HourFormat,
+                        alwaysDisplayFullDate = showFullDate
+                    )
+                }
             }
             newChip().apply {
                 setTextViewText(R.id.chip_text, time)
@@ -108,11 +111,17 @@ class WidgetChipProvider @Inject constructor(
     private fun newChip(filter: Filter, defaultIcon: Int) =
         newChip(filter.tint).apply {
             setTextViewText(R.id.chip_text, filter.title)
-            val icon = filter.icon
-                .takeIf { it >= 0 }
-                ?.let { CustomIcons.getIconResId(it) }
-                ?: defaultIcon
-            setImageViewResource(R.id.chip_icon, icon)
+            filter
+                .getIcon(inventory)
+                ?.let {
+                    try {
+                        OutlinedGoogleMaterial.getIcon("gmo_$it")
+                    } catch (_: IllegalArgumentException) {
+                        null
+                    }
+                }
+                ?.let { setImageViewBitmap(R.id.chip_icon, IconicsDrawable(context, it).toBitmap()) }
+                ?: setImageViewResource(R.id.chip_icon, defaultIcon)
         }
 
     private fun newChip(@ColorInt color: Int = 0) = RemoteViews(BuildConfig.APPLICATION_ID, R.layout.widget_chip).apply {

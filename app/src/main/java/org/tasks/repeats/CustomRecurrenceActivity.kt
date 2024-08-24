@@ -6,10 +6,10 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.fragment.app.FragmentActivity
-import com.google.android.material.composethemeadapter.MdcTheme
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
-import org.tasks.compose.collectAsStateLifecycleAware
 import org.tasks.compose.pickers.CustomRecurrence
+import org.tasks.themes.TasksTheme
 
 @AndroidEntryPoint
 class CustomRecurrenceActivity : FragmentActivity() {
@@ -18,9 +18,9 @@ class CustomRecurrenceActivity : FragmentActivity() {
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         setContent {
-            MdcTheme {
+            TasksTheme {
                 CustomRecurrence(
-                    state = viewModel.state.collectAsStateLifecycleAware().value,
+                    state = viewModel.state.collectAsStateWithLifecycle().value,
                     save = {
                         setResult(RESULT_OK, Intent().putExtra(EXTRA_RRULE, viewModel.getRecur()))
                         finish()

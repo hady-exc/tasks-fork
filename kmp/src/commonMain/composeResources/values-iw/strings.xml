@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search">חיפוש</string>
+    <string name="subscribe">רישום כמנוי</string>
+    <string name="filter_my_tasks">המשימות שלי</string>
+    <string name="filter_notifications">התראות</string>
+    <string name="filter_timer">משימות עם הערכת זמן</string>
+    <string name="filter_today">היום</string>
+    <string name="filter_recently_modified">עודכנו לאחרונה</string>
+    <string name="default_list">רשימת ברירת מחדל</string>
+    <string name="help_and_feedback">עזרה ומשוב</string>
+    <string name="settings">הגדרות</string>
+    <string name="drawer_filters">פילטרים</string>
+    <string name="drawer_tags">תגיות</string>
+    <string name="drawer_places">מיקומים</string>
+    <string name="drawer_local_lists">רשימות מקומיות</string>
+    <string name="tmrw">מחר</string>
+    <string name="tomorrow_abbrev_lowercase">מחר</string>
+    <string name="tomorrow">מחר</string>
+    <string name="tomorrow_lowercase">מחר</string>
+    <string name="yest">אתמול</string>
+    <string name="yesterday_abbrev_lowercase">כן</string>
+    <string name="yesterday">אתמול</string>
+    <string name="yesterday_lowercase">אתמול</string>
+    <string name="today">היום</string>
+    <string name="today_lowercase">היום</string>
+</resources>

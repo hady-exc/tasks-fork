@@ -133,7 +133,6 @@
     <string name="lists">ලැයිස්තු</string>
     <string name="got_it">තේරුම් ගත්තා!</string>
     <string name="support_development_subscribe">අමතර විශේෂාංග අගුළු ඇරීම සහ විවෘත මෘදුකාංග සඳහා සහාය වීම</string>
-    <string name="tasks_needs_your_support">Tasks සඳහා ඔබේ සහාය අවශ්‍යයි!</string>
     <string name="enjoying_tasks">Tasks සතුටුදායකද\?</string>
     <string name="filter_eisenhower_box_4">වැදගත් නොවන සහ හදිසි නොවන</string>
     <string name="filter_eisenhower_box_3">හදිසි හා වැදගත් නොවන</string>
@@ -465,7 +464,6 @@
     <string name="SSD_sort_auto">ස්මාර්ට් වර්ග කිරීම</string>
     <string name="SSD_sort_my_order">මාගේ පිලිවෙල</string>
     <string name="action_open">විවෘත කරන්න</string>
-    <string name="manage_drawer">පිලිවෙල කළමනාකරණය කරන්න</string>
     <string name="TAd_actionEditTask">සංස්කරණය කරන්න</string>
     <string name="TLA_menu_settings">සැකසුම්</string>
     <string name="TLA_menu_search">සොයන්න</string>
@@ -645,7 +643,6 @@
     <string name="navigation_drawer">මෙනුව</string>
     <string name="place_settings">ස්ථාන සැකසුම්</string>
     <string name="desaturate_colors_summary_on">අඳුරු තේමාවන් වලදී වර්ණ අසංතෘප්ත වේ</string>
-    <string name="TFE_workingOn">ක්‍රියාත්මකව පවතින කාර්යයන්</string>
     <string name="repeat_snackbar">%1$s, %2$s සඳහා නැවත සකස් කරන ලදි</string>
     <string name="CFC_importance_text">අවම වශයෙන් ප්‍රමුඛතාවය \?</string>
     <string name="chat_libera">ලිබරා චැට් හි #කාර්යයන් හා සම්බන්ධ වන්න</string>

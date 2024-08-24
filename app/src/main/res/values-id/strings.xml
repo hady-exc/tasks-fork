@@ -559,7 +559,6 @@
     <string name="tomorrow_abbrev_lowercase">bsk</string>
     <string name="TEA_timer_comment_spent">Waktu terpakai:</string>
     <string name="TEA_timer_controls">Pencatat Waktu</string>
-    <string name="TFE_workingOn">Tugas yang Dicatat Waktu</string>
     <string name="TPl_notification">Pencatat Waktu Aktif untuk %s!</string>
     <string name="repeat_snackbar">%1$s dijadwalkan ulang untuk %2$s</string>
     <string name="repeat_type_completion_capitalized">tanggal selesai</string>
@@ -596,7 +595,6 @@
     <string name="remove_user_confirmation">%1$s tidak akan mempunyai akses lagi pada %2$s</string>
     <string name="remove_user">Hapus pengguna\?</string>
     <string name="list_members">Daftar anggota</string>
-    <string name="manage_drawer">Laci Kelola</string>
     <string name="invite_invalid">Undangan tidak valid</string>
     <string name="invite_awaiting_response">Undangan menunggu respon</string>
     <string name="invite_declined">Undangan ditolak</string>
@@ -619,7 +617,6 @@
     <string name="picker_mode_calendar">Kalender</string>
     <string name="picker_mode_time">Mode pengambil waktu</string>
     <string name="picker_mode_date">Mode pengambil tanggal</string>
-    <string name="tasks_needs_your_support">Tasks memerlukan dukungan Anda!</string>
     <string name="upgrade_blurb_2">Saya telah menghabiskan ribuan jam bekerja pada Tasks, dan saya mempublikasikan semua kode sumber online secara gratis. Untuk mendukung pekerjaan saya, beberapa fitur memerlukan berlangganan</string>
     <string name="upgrade_blurb_1">Hi. Nama saya Alex. Saya adalah pengembang independen dibelakang aplikasi Tasks</string>
     <string name="next_saturday">Sabtu Depan</string>
@@ -643,7 +640,6 @@
     <string name="caldav_server_unknown">Tidak diketahui</string>
     <string name="caldav_server_other">Lainnya</string>
     <string name="caldav_server_type">Tipe server</string>
-    <string name="filter_snoozed">Tunda</string>
     <string name="snoozed_until">Tunda sampai %s</string>
     <plurals name="reminder_week">
         <item quantity="other">Minggu</item>

@@ -6,23 +6,23 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import com.google.android.material.composethemeadapter.MdcTheme
 import org.tasks.R
 import org.tasks.calendars.AndroidCalendar
 import org.tasks.calendars.CalendarPickerViewModel
-import org.tasks.compose.collectAsStateLifecycleAware
+import org.tasks.themes.TasksIcons
+import org.tasks.themes.TasksTheme
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -41,7 +41,7 @@ fun CalendarPicker(
     )
     if (hasPermissions.allPermissionsGranted) {
         CalendarPickerList(
-            calendars = viewModel.viewState.collectAsStateLifecycleAware().value.calendars,
+            calendars = viewModel.viewState.collectAsStateWithLifecycle().value.calendars,
             selected = selected,
             onSelected = onSelected,
         )
@@ -66,15 +66,15 @@ fun CalendarPickerList(
             .padding(vertical = 12.dp)
     ) {
         CheckableIconRow(
-            icon = painterResource(id = R.drawable.ic_outline_block_24),
-            tint = MaterialTheme.colors.onSurface,
+            icon = TasksIcons.BLOCK,
+            tint = MaterialTheme.colorScheme.onSurface,
             text = stringResource(id = R.string.dont_add_to_calendar),
             selected = selectedCalendar == null,
             onClick = { onSelected(null) },
         )
         calendars.forEach {
             CheckableIconRow(
-                icon = painterResource(id = R.drawable.ic_outline_event_24px),
+                icon = TasksIcons.EVENT,
                 tint = Color(it.color),
                 text = it.name,
                 selected = selectedCalendar == it,
@@ -88,7 +88,7 @@ fun CalendarPickerList(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, widthDp = 320)
 @Composable
 fun CalendarPickerPreview() {
-    MdcTheme {
+    TasksTheme {
         CalendarPickerList(
             calendars = listOf(
                 AndroidCalendar("1", "Home", -765666),
@@ -105,7 +105,7 @@ fun CalendarPickerPreview() {
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, widthDp = 320)
 @Composable
 fun CalendarPickerNoneSelected() {
-    MdcTheme {
+    TasksTheme {
         CalendarPickerList(
             calendars = listOf(
                 AndroidCalendar("1", "Home", -765666),

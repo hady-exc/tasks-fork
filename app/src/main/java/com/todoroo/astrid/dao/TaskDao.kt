@@ -5,36 +5,32 @@
  */
 package com.todoroo.astrid.dao
 
-import com.todoroo.astrid.alarms.AlarmService
-import com.todoroo.astrid.api.Filter
-import com.todoroo.astrid.data.Task
 import com.todoroo.astrid.timers.TimerPlugin
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 import org.tasks.LocalBroadcastManager
 import org.tasks.data.TaskContainer
-import org.tasks.data.TaskDao
+import org.tasks.data.dao.TaskDao
+import org.tasks.data.db.SuspendDbUtils.eachChunk
+import org.tasks.data.entity.Task
+import org.tasks.data.fetchFiltered
+import org.tasks.data.fetchTasks
+import org.tasks.data.setCollapsed
 import org.tasks.date.DateTimeUtils.isAfterNow
-import org.tasks.db.SuspendDbUtils.eachChunk
+import org.tasks.filters.Filter
 import org.tasks.jobs.WorkManager
 import org.tasks.location.GeofenceApi
 import org.tasks.notifications.NotificationManager
 import org.tasks.preferences.Preferences
-import org.tasks.scheduling.RefreshScheduler
 import org.tasks.sync.SyncAdapters
 import javax.inject.Inject
 
 class TaskDao @Inject constructor(
-        private val taskDao: TaskDao,
-        private val refreshScheduler: RefreshScheduler,
-        private val localBroadcastManager: LocalBroadcastManager,
-        private val notificationManager: NotificationManager,
-        private val geofenceApi: GeofenceApi,
-        private val timerPlugin: TimerPlugin,
-        private val syncAdapters: SyncAdapters,
-        private val alarmService: AlarmService,
-        private val workManager: WorkManager,
+    private val taskDao: TaskDao,
+    private val localBroadcastManager: LocalBroadcastManager,
+    private val notificationManager: NotificationManager,
+    private val geofenceApi: GeofenceApi,
+    private val timerPlugin: TimerPlugin,
+    private val syncAdapters: SyncAdapters,
+    private val workManager: WorkManager,
 ) {
 
     suspend fun fetch(id: Long): Task? = taskDao.fetch(id)
@@ -97,17 +93,16 @@ class TaskDao @Inject constructor(
      */
     suspend fun save(task: Task) = save(task, fetch(task.id))
 
-    suspend fun saved(original: Task) =
-        fetch(original.id)?.let {
-            afterUpdate(
-                it.apply { if (original.isSuppressRefresh()) suppressRefresh() },
-                original
-            )
-        }
+    suspend fun save(tasks: List<Task>, originals: List<Task>) {
+        taskDao.updateInternal(tasks)
+        tasks.forEach { task -> afterUpdate(task, originals.find { it.id == task.id }) }
+    }
 
     suspend fun save(task: Task, original: Task?) {
         if (taskDao.update(task, original)) {
             afterUpdate(task, original)
+            workManager.triggerNotifications()
+            workManager.scheduleRefresh()
         }
     }
 
@@ -115,32 +110,24 @@ class TaskDao @Inject constructor(
         val completionDateModified = task.completionDate != (original?.completionDate ?: 0)
         val deletionDateModified = task.deletionDate != (original?.deletionDate ?: 0)
         val justCompleted = completionDateModified && task.isCompleted
-        val justDeleted = deletionDateModified && task.isDeleted
         if (task.calendarURI?.isNotBlank() == true) {
             workManager.updateCalendar(task)
         }
-        coroutineScope {
-            launch(Dispatchers.Default) {
-                if (justCompleted || justDeleted) {
-                    notificationManager.cancel(task.id)
-                    if (task.timerStart > 0) {
-                        timerPlugin.stopTimer(task)
-                    }
-                }
-                if (task.dueDate != original?.dueDate && task.dueDate.isAfterNow()) {
-                    notificationManager.cancel(task.id)
-                }
-                if (completionDateModified || deletionDateModified) {
-                    geofenceApi.update(task.id)
-                }
-                alarmService.scheduleAlarms(task)
-                refreshScheduler.scheduleRefresh(task)
-                if (!task.isSuppressRefresh()) {
-                    localBroadcastManager.broadcastRefresh()
-                }
-                syncAdapters.sync(task, original)
+        if (justCompleted) {
+            if (task.timerStart > 0) {
+                timerPlugin.stopTimer(task)
             }
         }
+        if (task.dueDate != original?.dueDate && task.dueDate.isAfterNow()) {
+            notificationManager.cancel(task.id)
+        }
+        if (completionDateModified || deletionDateModified) {
+            geofenceApi.update(task.id)
+        }
+        if (!task.isSuppressRefresh()) {
+            localBroadcastManager.broadcastRefresh()
+        }
+        syncAdapters.sync(task, original)
     }
 
     suspend fun createNew(task: Task) = taskDao.createNew(task)

@@ -215,7 +215,6 @@
     <string name="new_list">Создать новый список</string>
     <string name="delete_tag_confirmation">Удалить %s?</string>
     <string name="TPl_notification">Для %s действуют таймеры!</string>
-    <string name="TFE_workingOn">Задачи с таймером</string>
     <string name="TEA_timer_controls">Таймер</string>
     <string name="TEA_timer_comment_started">задача началась:</string>
     <string name="TEA_timer_comment_stopped">задача завершилась:</string>
@@ -654,14 +653,12 @@
     <string name="share_list">Поделиться списком</string>
     <string name="remove_user">Удалить пользователя\?</string>
     <string name="list_members">Список участников</string>
-    <string name="tasks_needs_your_support">Tasks нуждается в вашей поддержке!</string>
     <string name="next_saturday">Следующая Сб</string>
     <string name="next_friday">Следующая Пт</string>
     <string name="next_thursday">Следующий Чт</string>
     <string name="next_monday">Следующий Пн</string>
     <string name="next_sunday">Следующее Вс</string>
     <string name="next_tuesday">Следующий Вт</string>
-    <string name="manage_drawer">Изменить панель</string>
     <string name="social">Социальные сети</string>
     <string name="upgrade_desktop_access">Доступ к рабочему столу</string>
     <string name="next_wednesday">Следующая Ср</string>
@@ -710,7 +707,6 @@
     <string name="alarm_before_due">%s до</string>
     <string name="alarm_after_due">%s после</string>
     <string name="alarm_after_start">%s после начала</string>
-    <string name="filter_snoozed">Отложенные</string>
     <string name="caldav_server_unknown">Неизвестный</string>
     <string name="caldav_server_other">Другой</string>
     <string name="randomly_every">Случайно каждые %s</string>

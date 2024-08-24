@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search">Buscar</string>
+    <string name="subscribe">Suscribirte</string>
+    <string name="search_no_results">Sin resultados</string>
+    <string name="requires_pro_subscription">Versión Pro</string>
+    <string name="subscription_required_description">Desbloquea todas las funciones por tan solo $1 USD al año</string>
+    <string name="filter_my_tasks">Mis Tareas</string>
+    <string name="filter_notifications">Notificaciones</string>
+    <string name="filter_snoozed">Aplazado</string>
+    <string name="filter_timer">Tareas que se están cronometrando</string>
+    <string name="filter_today">Hoy</string>
+    <string name="filter_recently_modified">Recién modificadas</string>
+    <string name="default_list">Lista predeterminada</string>
+    <string name="help_and_feedback">Ayuda y retroalimentación</string>
+    <string name="settings">Configuraciones</string>
+    <string name="drawer_filters">Filtros</string>
+    <string name="drawer_tags">Etiquetas</string>
+    <string name="drawer_places">Lugares</string>
+    <string name="drawer_local_lists">Listas locales</string>
+    <string name="tmrw">Mñna</string>
+    <string name="tomorrow_abbrev_lowercase">mañana</string>
+    <string name="tomorrow">Mañana</string>
+    <string name="tomorrow_lowercase">mañana</string>
+    <string name="yest">Ayer</string>
+    <string name="yesterday_abbrev_lowercase">ayer</string>
+    <string name="yesterday">Ayer</string>
+    <string name="yesterday_lowercase">ayer</string>
+    <string name="today">Hoy</string>
+    <string name="today_lowercase">hoy</string>
+</resources>

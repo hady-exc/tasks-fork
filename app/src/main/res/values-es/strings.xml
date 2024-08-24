@@ -214,7 +214,6 @@
     <string name="new_list">Crea una nueva lista</string>
     <string name="delete_tag_confirmation">¿Eliminar %s?</string>
     <string name="TPl_notification">Temporizadores activos para %s!</string>
-    <string name="TFE_workingOn">Tareas que se están cronometrando</string>
     <string name="TEA_timer_controls">Temporizador</string>
     <string name="TEA_timer_comment_started">comenzó esta tarea:</string>
     <string name="TEA_timer_comment_stopped">dejó de hacer esta tarea:</string>
@@ -632,7 +631,6 @@
     <string name="remove_user_confirmation">%1$s ya no tendrá acceso a %2$s</string>
     <string name="remove_user">¿Quiere quitar al usuario\?</string>
     <string name="list_members">Lista de miembros</string>
-    <string name="manage_drawer">Gestionar el cajón</string>
     <string name="invite_invalid">Invitación no válida</string>
     <string name="invite_awaiting_response">Invitación en espera de respuesta</string>
     <string name="invite_declined">Invitación declinada</string>
@@ -655,7 +653,6 @@
     <string name="upgrade_more_customization_description">Desbloquea todos los temas, colores e iconos</string>
     <string name="upgrade_more_customization">Más personalización</string>
     <string name="pro_free_trial">Los suscriptores nuevos reciben una prueba gratuita de 7 días, cancelable en cualquier momento</string>
-    <string name="tasks_needs_your_support">¡Tasks necesita su apoyo!</string>
     <string name="next_saturday">Próximo sábado</string>
     <string name="next_friday">Próximo viernes</string>
     <string name="next_thursday">Próximo jueves</string>
@@ -705,7 +702,6 @@
     </plurals>
     <string name="custom_notification">Notificación personalizada</string>
     <string name="caldav_server_type">Tipo de servidor</string>
-    <string name="filter_snoozed">Aplazado</string>
     <string name="randomly_every">Aleatoriamente cada %s</string>
     <string name="caldav_server_unknown">Desconocido</string>
     <string name="caldav_server_other">Otro</string>
@@ -758,4 +754,9 @@
     <string name="swipe_to_snooze_time_immediately">inmediatamente</string>
     <string name="swipe_to_snooze_time_15_minutes">después de 15 minutos</string>
     <string name="swipe_to_snooze_time_30_minutes">después de 30 minutos</string>
+    <string name="customize_drawer">Personalizar menú</string>
+    <string name="customize_drawer_summary">Arrastra y suelta para reorganizar los elementos del menú</string>
+    <string name="donate_nag">¡Considera mostrar tu apoyo con una donación!</string>
+    <string name="donate_today">Donar ahora</string>
+    <string name="donate_maybe_later">Quizas mas tarde</string>
 </resources>

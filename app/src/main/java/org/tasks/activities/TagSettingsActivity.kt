@@ -8,51 +8,49 @@ package org.tasks.activities
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import androidx.activity.compose.setContent
 import com.todoroo.astrid.activity.MainActivity
 import com.todoroo.astrid.activity.TaskListFragment
-import com.todoroo.astrid.api.TagFilter
-import com.todoroo.astrid.helper.UUIDHelper
 import dagger.hilt.android.AndroidEntryPoint
+import org.tasks.LocalBroadcastManager
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
-import org.tasks.data.TagDao
-import org.tasks.data.TagData
-import org.tasks.data.TagDataDao
-import org.tasks.themes.CustomIcons
+import org.tasks.data.dao.TagDao
+import org.tasks.data.dao.TagDataDao
+import org.tasks.data.entity.TagData
+import org.tasks.filters.TagFilter
+import org.tasks.themes.TasksIcons
+import org.tasks.themes.TasksTheme
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class TagSettingsActivity : BaseListSettingsActivity() {
     @Inject lateinit var tagDataDao: TagDataDao
     @Inject lateinit var tagDao: TagDao
+    @Inject lateinit var localBroadcastManager: LocalBroadcastManager
 
-    private var isNewTag = false
     private lateinit var tagData: TagData
-    override val defaultIcon: Int = CustomIcons.LABEL
+    private val isNewTag: Boolean
+        get() = tagData.id == null
 
-    override val compose: Boolean
-        get() = true
-
+    override val defaultIcon = TasksIcons.LABEL
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        tagData = intent.getParcelableExtra(EXTRA_TAG_DATA)
-                ?: TagData().apply {
-                    isNewTag = true
-                    remoteId = UUIDHelper.newUUID()
-                }
+        tagData = intent.getParcelableExtra(EXTRA_TAG_DATA) ?: TagData()
+
         if (!isNewTag) textState.value = tagData.name!!
 
         super.onCreate(savedInstanceState)
 
         if (savedInstanceState == null) {
-            selectedColor = tagData.getColor()!!
-            selectedIcon = tagData.getIcon()!!
+            selectedColor = tagData.color ?: 0
+            selectedIcon.value = tagData.icon ?: defaultIcon
         }
 
         setContent {
-            baseSettingsContent()
+            TasksTheme {
+                baseSettingsContent()
+            }
         }
         updateTheme()
     }
@@ -82,31 +80,47 @@ class TagSettingsActivity : BaseListSettingsActivity() {
             return
         }
         if (isNewTag) {
-            tagData.name = newName
-            tagData.setColor(selectedColor)
-            tagData.setIcon(selectedIcon)
-            tagDataDao.createNew(tagData)
-            setResult(Activity.RESULT_OK, Intent().putExtra(MainActivity.OPEN_FILTER, TagFilter(tagData)))
+            tagData
+                .copy(
+                    name = newName,
+                    color = selectedColor,
+                    icon = selectedIcon.value,
+                )
+                .let { it.copy(id = tagDataDao.insert(it)) }
+                .let {
+                    localBroadcastManager.broadcastRefresh()
+                    setResult(
+                        Activity.RESULT_OK,
+                        Intent().putExtra(MainActivity.OPEN_FILTER, TagFilter(it))
+                    )
+                }
         } else if (hasChanges()) {
-            tagData.name = newName
-            tagData.setColor(selectedColor)
-            tagData.setIcon(selectedIcon)
-            tagDataDao.update(tagData)
-            tagDao.rename(tagData.remoteId!!, newName)
-            setResult(
-                    Activity.RESULT_OK,
-                    Intent(TaskListFragment.ACTION_RELOAD)
-                            .putExtra(MainActivity.OPEN_FILTER, TagFilter(tagData)))
+            tagData
+                .copy(
+                    name = newName,
+                    color = selectedColor,
+                    icon = selectedIcon.value,
+                )
+                .let {
+                    tagDataDao.update(it)
+                    tagDao.rename(it.remoteId!!, newName)
+                    localBroadcastManager.broadcastRefresh()
+                    setResult(
+                        Activity.RESULT_OK,
+                        Intent(TaskListFragment.ACTION_RELOAD)
+                            .putExtra(MainActivity.OPEN_FILTER, TagFilter(it))
+                    )
+                }
         }
         finish()
     }
 
     override fun hasChanges(): Boolean {
         return if (isNewTag) {
-            selectedColor >= 0 || selectedIcon >= 0 || !isNullOrEmpty(newName)
+            selectedColor >= 0 || selectedIcon.value?.isBlank() == false || !isNullOrEmpty(newName)
         } else {
-            selectedColor != tagData.getColor()
-                    || selectedIcon != tagData.getIcon()
+            selectedColor != (tagData.color ?: 0)
+                    || selectedIcon.value != tagData.icon
                     || newName != tagData.name
         }
     }
@@ -115,8 +129,6 @@ class TagSettingsActivity : BaseListSettingsActivity() {
         //hideKeyboard(name)
         super.finish()
     }
-
-    override fun bind(): View { TODO() }
 
     override suspend fun delete() {
         val uuid = tagData.remoteId

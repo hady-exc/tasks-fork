@@ -202,7 +202,6 @@
     <string name="new_list">새 목록 만들기</string>
     <string name="delete_tag_confirmation">%s 삭제할까요?</string>
     <string name="TPl_notification">%s 동안 타이머 작동함!</string>
-    <string name="TFE_workingOn">기한이 정해진 할일</string>
     <string name="TEA_timer_controls">타이머</string>
     <string name="TEA_timer_comment_started">이 할일 시작:</string>
     <string name="TEA_timer_comment_stopped">이 할일 중지:</string>
@@ -627,7 +626,6 @@
     <string name="social">소셜 미디어</string>
     <string name="follow_twitter">\@tasks_org 팔로우</string>
     <string name="local_lists">로컬 목록</string>
-    <string name="tasks_needs_your_support">Tasks가 여러분의 지원을 필요로 합니다!</string>
     <string name="back">이전</string>
     <string name="decsync_selection_description">파일 기반 동기화</string>
     <string name="tasks_org_description">Tasks.org에 할일 동기화</string>
@@ -635,7 +633,6 @@
     <string name="map_theme">지도 테마</string>
     <string name="filter_criteria_unstarted">시작하지 않음</string>
     <string name="widget_show_title">제목 표시</string>
-    <string name="manage_drawer">서랍 관리</string>
     <string name="next_saturday">다음 토요일</string>
     <string name="next_friday">다음 금요일</string>
     <string name="next_thursday">다음 목요일</string>
@@ -650,7 +647,6 @@
     <string name="now">지금</string>
     <string name="alarm_after_start">시작 후 %s</string>
     <string name="caldav_server_type">서버 유형</string>
-    <string name="filter_snoozed">알람 미뤄짐</string>
     <string name="sign_in">로그인</string>
     <string name="rmd_time_description">상태바 알림에 마감 시한이 없는 할일 보이기</string>
     <string name="microsoft_selection_description">마이크로소프트 계정과 동기화</string>

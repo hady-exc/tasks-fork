@@ -12,10 +12,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Slider
-import androidx.compose.material.SliderDefaults
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,20 +23,21 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.google.android.material.composethemeadapter.MdcTheme
 import com.todoroo.astrid.activity.MainActivity
 import com.todoroo.astrid.activity.TaskListFragment
 import dagger.hilt.android.AndroidEntryPoint
 import org.tasks.LocalBroadcastManager
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
-import org.tasks.data.LocationDao
-import org.tasks.data.Place
+import org.tasks.data.dao.LocationDao
+import org.tasks.data.entity.Place
+import org.tasks.data.mapPosition
 import org.tasks.extensions.formatNumber
 import org.tasks.filters.PlaceFilter
 import org.tasks.location.MapFragment
 import org.tasks.preferences.Preferences
-import org.tasks.themes.CustomIcons
+import org.tasks.themes.TasksIcons
+import org.tasks.themes.TasksTheme
 import java.util.Locale
 import javax.inject.Inject
 
@@ -58,10 +59,8 @@ class PlaceSettingsActivity : BaseListSettingsActivity(),
     @Inject lateinit var localBroadcastManager: LocalBroadcastManager
 
     private lateinit var place: Place
-    override val defaultIcon: Int = CustomIcons.PLACE
+    override val defaultIcon = TasksIcons.PLACE
 
-    override val compose: Boolean
-        get() = true
     private val sliderPos = mutableFloatStateOf(100f)
     private lateinit var viewHolder: ViewGroup
 
@@ -83,7 +82,7 @@ class PlaceSettingsActivity : BaseListSettingsActivity(),
         if (savedInstanceState == null) {
             textState.value = place.displayName
             selectedColor = place.color
-            selectedIcon = place.icon
+            selectedIcon.value = place.icon ?: defaultIcon
         }
 
         sliderPos.floatValue = (place.radius / STEP * STEP).toFloat()
@@ -94,7 +93,7 @@ class PlaceSettingsActivity : BaseListSettingsActivity(),
         updateTheme()
 
         setContent {
-            MdcTheme {
+            TasksTheme {
                 baseSettingsContent()
                 {
                     Row(
@@ -124,10 +123,10 @@ class PlaceSettingsActivity : BaseListSettingsActivity(),
                         steps = (MAX_RADIUS - MIN_RADIUS) / STEP,
                         onValueChange = { sliderPos.floatValue = it },
                         colors = SliderDefaults.colors(
-                            thumbColor = MaterialTheme.colors.secondary,
-                            activeTrackColor = MaterialTheme.colors.secondary,
+                            thumbColor = MaterialTheme.colorScheme.secondary,
+                            activeTrackColor = MaterialTheme.colorScheme.secondary,
                             inactiveTrackColor = colorResource(id = R.color.text_tertiary),
-                            activeTickColor = MaterialTheme.colors.secondary,
+                            activeTickColor = MaterialTheme.colorScheme.secondary,
                             inactiveTickColor = colorResource(id = R.color.text_tertiary)
                         )
                     )
@@ -156,11 +155,9 @@ class PlaceSettingsActivity : BaseListSettingsActivity(),
         }
     }
 
-    override fun bind() = TODO("Bind must NOT be called for @Compose'ed activity")
-
     override fun hasChanges() = textState.value != place.displayName
                     || selectedColor != place.color
-                    || selectedIcon != place.icon
+                    || selectedIcon.value != place.icon
 
     override suspend fun save() {
         val newName: String = textState.value
@@ -173,10 +170,11 @@ class PlaceSettingsActivity : BaseListSettingsActivity(),
         place = place.copy(
             name = newName,
             color = selectedColor,
-            icon = selectedIcon,
+            icon = selectedIcon.value,
             radius = sliderPos.floatValue.toInt(),
         )
         locationDao.update(place)
+        localBroadcastManager.broadcastRefresh()
         setResult(
                 Activity.RESULT_OK,
                 Intent(TaskListFragment.ACTION_RELOAD)

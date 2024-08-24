@@ -14,31 +14,31 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
-import com.google.android.material.composethemeadapter.MdcTheme
 import com.todoroo.andlib.utility.AndroidUtilities
 import dagger.hilt.android.AndroidEntryPoint
 import org.tasks.R
 import org.tasks.activities.DateAndTimePickerActivity
-import org.tasks.compose.collectAsStateLifecycleAware
 import org.tasks.compose.edit.AlarmRow
-import org.tasks.data.Alarm
-import org.tasks.data.Alarm.Companion.TYPE_DATE_TIME
+import org.tasks.compose.rememberReminderPermissionState
+import org.tasks.data.entity.Alarm
+import org.tasks.data.entity.Alarm.Companion.TYPE_DATE_TIME
 import org.tasks.date.DateTimeUtils
 import org.tasks.dialogs.DialogBuilder
 import org.tasks.dialogs.MyTimePickerDialog
+import org.tasks.extensions.Context.openReminderSettings
 import org.tasks.scheduling.NotificationSchedulerIntentService
+import org.tasks.themes.TasksTheme
 import org.tasks.ui.TaskEditControlFragment
-import java.util.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class ReminderControlSet : TaskEditControlFragment() {
     @Inject lateinit var activity: Activity
     @Inject lateinit var dialogBuilder: DialogBuilder
-    @Inject lateinit var locale: Locale
 
     private val ringMode = mutableStateOf(0)
 
@@ -76,8 +76,9 @@ class ReminderControlSet : TaskEditControlFragment() {
     override fun bind(parent: ViewGroup?): View =
         (parent as ComposeView).apply {
             setContent {
-                MdcTheme {
+                TasksTheme {
                     val ringMode by remember { this@ReminderControlSet.ringMode }
+                    val hasReminderPermissions by rememberReminderPermissionState()
                     val notificationPermissions = if (AndroidUtilities.atLeastTiramisu()) {
                         rememberPermissionState(
                             Manifest.permission.POST_NOTIFICATIONS,
@@ -98,15 +99,18 @@ class ReminderControlSet : TaskEditControlFragment() {
                                 data.getLongExtra(MyTimePickerDialog.EXTRA_TIMESTAMP, 0L)
                             val replace: Alarm? = data.getParcelableExtra(EXTRA_REPLACE)
                             replace?.let { viewModel.removeAlarm(it) }
-                            viewModel.addAlarm(Alarm(0, timestamp, TYPE_DATE_TIME))
+                            viewModel.addAlarm(Alarm(time = timestamp, type = TYPE_DATE_TIME))
                         }
                     AlarmRow(
-                        locale = locale,
-                        alarms = viewModel.selectedAlarms.collectAsStateLifecycleAware().value,
-                        permissionStatus = notificationPermissions?.status
-                            ?: PermissionStatus.Granted,
-                        launchPermissionRequest = {
-                            notificationPermissions?.launchPermissionRequest()
+                        alarms = viewModel.selectedAlarms.collectAsStateWithLifecycle().value,
+                        hasNotificationPermissions = hasReminderPermissions &&
+                                (notificationPermissions == null || notificationPermissions.status == PermissionStatus.Granted),
+                        fixNotificationPermissions = {
+                            if (hasReminderPermissions) {
+                                notificationPermissions?.launchPermissionRequest()
+                            } else {
+                                context.openReminderSettings()
+                            }
                         },
                         ringMode = ringMode,
                         addAlarm = viewModel::addAlarm,

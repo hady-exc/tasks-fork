@@ -29,7 +29,8 @@ File %1$s contained %2$s.\n\n
   <string name="TLA_menu_search">Search</string>
   <string name="TLA_menu_settings">Settings</string>
   <string name="TAd_actionEditTask">Edit</string>
-  <string name="manage_drawer">Manage drawer</string>
+  <string name="customize_drawer">Customize drawer</string>
+  <string name="customize_drawer_summary">Drag and drop to rearrange menu items</string>
   <string name="action_call">Call</string>
   <string name="action_open">Open</string>
   <string name="SSD_sort_my_order">My order</string>
@@ -262,7 +263,6 @@ File %1$s contained %2$s.\n\n
   <string name="new_list">Create new list</string>
   <string name="delete_tag_confirmation">Delete %s?</string>
   <string name="TPl_notification">Timers Active for %s!</string>
-  <string name="TFE_workingOn">Tasks Being Timed</string>
   <string name="TEA_timer_controls">Timer</string>
   <string name="TEA_timer_comment_started">started this task:</string>
   <string name="TEA_timer_comment_stopped">stopped doing this task:</string>
@@ -602,7 +602,9 @@ File %1$s contained %2$s.\n\n
   <string name="filter_eisenhower_box_3">Not important and urgent</string>
   <string name="filter_eisenhower_box_4">Not important and not urgent</string>
   <string name="enjoying_tasks">Enjoying Tasks?</string>
-  <string name="tasks_needs_your_support">Tasks needs your support!</string>
+  <string name="donate_nag">Consider showing your support with a donation!</string>
+  <string name="donate_today">Donate today</string>
+  <string name="donate_maybe_later">Maybe later</string>
   <string name="support_development_subscribe">Unlock additional features and support open source software</string>
   <string name="got_it">Got it!</string>
   <string name="sort_start_group">Start %s</string>
@@ -722,7 +724,6 @@ File %1$s contained %2$s.\n\n
   <string name="caldav_server_unknown">Unknown</string>
   <string name="caldav_server_other">Other</string>
   <string name="caldav_server_type">Server type</string>
-  <string name="filter_snoozed">Snoozed</string>
   <string name="dismiss">Dismiss</string>
   <string name="hint_customize_edit_title">Too much information?</string>
   <string name="hint_customize_edit_body">You can customize this screen by rearranging or removing fields</string>

@@ -1,36 +1,34 @@
 package com.todoroo.astrid.service
 
-import android.content.Context
-import com.todoroo.andlib.utility.DateUtilities
-import com.todoroo.astrid.api.CaldavFilter
-import com.todoroo.astrid.api.Filter
-import com.todoroo.astrid.api.GtasksFilter
-import com.todoroo.astrid.data.Task
-import dagger.hilt.android.qualifiers.ApplicationContext
 import org.tasks.BuildConfig
 import org.tasks.LocalBroadcastManager
 import org.tasks.caldav.VtodoCache
-import org.tasks.data.CaldavAccount
-import org.tasks.data.CaldavDao
-import org.tasks.data.CaldavTask
-import org.tasks.data.GoogleTaskDao
-import org.tasks.data.GoogleTaskListDao
-import org.tasks.data.TaskDao
-import org.tasks.db.DbUtils.dbchunk
+import org.tasks.data.dao.CaldavDao
+import org.tasks.data.dao.GoogleTaskDao
+import org.tasks.data.dao.GoogleTaskListDao
+import org.tasks.data.dao.TaskDao
+import org.tasks.data.db.DbUtils.dbchunk
+import org.tasks.data.entity.CaldavAccount
+import org.tasks.data.entity.CaldavTask
+import org.tasks.data.entity.Task
+import org.tasks.data.getLocalList
+import org.tasks.filters.CaldavFilter
+import org.tasks.filters.Filter
+import org.tasks.filters.GtasksFilter
 import org.tasks.preferences.Preferences
 import org.tasks.sync.SyncAdapters
+import org.tasks.time.DateTimeUtils2.currentTimeMillis
 import javax.inject.Inject
 
 class TaskMover @Inject constructor(
-        @param:ApplicationContext private val context: Context,
-        private val taskDao: TaskDao,
-        private val caldavDao: CaldavDao,
-        private val googleTaskDao: GoogleTaskDao,
-        private val googleTaskListDao: GoogleTaskListDao,
-        private val preferences: Preferences,
-        private val localBroadcastManager: LocalBroadcastManager,
-        private val syncAdapters: SyncAdapters,
-        private val vtodoCache: VtodoCache,
+    private val taskDao: TaskDao,
+    private val caldavDao: CaldavDao,
+    private val googleTaskDao: GoogleTaskDao,
+    private val googleTaskListDao: GoogleTaskListDao,
+    private val preferences: Preferences,
+    private val localBroadcastManager: LocalBroadcastManager,
+    private val syncAdapters: SyncAdapters,
+    private val vtodoCache: VtodoCache,
 ) {
 
     suspend fun getSingleFilter(tasks: List<Long>): Filter? {
@@ -56,7 +54,8 @@ class TaskMover @Inject constructor(
             selectedList = if (account.accountType == CaldavAccount.TYPE_GOOGLE_TASKS)
                 GtasksFilter(calendar)
             else
-                CaldavFilter(calendar))
+                CaldavFilter(calendar)
+        )
     }
 
     suspend fun move(ids: List<Long>, selectedList: Filter) {
@@ -79,7 +78,7 @@ class TaskMover @Inject constructor(
     }
 
     suspend fun migrateLocalTasks() {
-        val list = caldavDao.getLocalList(context)
+        val list = caldavDao.getLocalList()
         move(taskDao.getLocalTasks(), CaldavFilter(list))
     }
 
@@ -101,7 +100,7 @@ class TaskMover @Inject constructor(
         }
         val id = task.id
         val children = taskDao.getChildren(id)
-        caldavDao.markDeleted(children + id, DateUtilities.now())
+        caldavDao.markDeleted(children + id, currentTimeMillis())
         when(selected) {
             is GtasksFilter -> {
                 val listId = selected.remoteId
@@ -157,7 +156,7 @@ class TaskMover @Inject constructor(
             children = caldavDao.getTasks(childIds)
             toDelete.addAll(childIds)
         }
-        caldavDao.markDeleted(toDelete, DateUtilities.now())
+        caldavDao.markDeleted(toDelete, currentTimeMillis())
         when (selected) {
             is CaldavFilter -> {
                 val from = caldavDao.getCalendar(caldavTask.calendar!!)
@@ -167,7 +166,7 @@ class TaskMover @Inject constructor(
                     task = id1,
                     calendar = listId,
                     remoteId = caldavTask.remoteId,
-                    `object` = caldavTask.`object`,
+                    obj = caldavTask.obj,
                 )
                 vtodoCache.move(from!!, selected.calendar, caldavTask)
                 caldavDao.insert(task, newParent, preferences.addTasksToTop())
@@ -177,7 +176,7 @@ class TaskMover @Inject constructor(
                                 task = it.task,
                                 calendar = listId,
                                 remoteId = it.remoteId,
-                                `object` = it.`object`,
+                                obj = it.obj,
                             )
                             vtodoCache.move(from, selected.calendar, it)
                             newChild.remoteParent = it.remoteParent

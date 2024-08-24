@@ -202,7 +202,6 @@
     <string name="new_list">Yeni liste oluştur</string>
     <string name="delete_tag_confirmation">%s silinsin mi?</string>
     <string name="TPl_notification">%s için kronometre etkin!</string>
-    <string name="TFE_workingOn">Zaman Ölçümü Olan Görevler</string>
     <string name="TEA_timer_controls">Kronometre</string>
     <string name="TEA_timer_comment_started">başlanan görev:</string>
     <string name="TEA_timer_comment_stopped">bu görevden vazgeç:</string>
@@ -615,7 +614,6 @@
     <string name="remove_user_confirmation">%1$s, artık %2$s erişimini yitirecek</string>
     <string name="remove_user">Kullanıcıyı kaldır\?</string>
     <string name="list_members">Üyeleri listele</string>
-    <string name="manage_drawer">Çekmeceyi yönet</string>
     <string name="invite_invalid">Davet geçersiz</string>
     <string name="invite_awaiting_response">Davet yanıt bekliyor</string>
     <string name="invite_declined">Davet reddedildi</string>
@@ -638,7 +636,6 @@
     <string name="picker_mode_calendar">Takvim</string>
     <string name="picker_mode_time">Zaman seçici kipi</string>
     <string name="picker_mode_date">Tarih seçici kipi</string>
-    <string name="tasks_needs_your_support">Tasks, desteğinize gereksiniyor!</string>
     <string name="next_friday">Sonraki Cma</string>
     <string name="next_saturday">Sonraki Cts</string>
     <string name="next_thursday">Sonraki Per</string>
@@ -687,7 +684,6 @@
     <string name="caldav_server_unknown">Bilinmeyen</string>
     <string name="caldav_server_other">Diğer</string>
     <string name="caldav_server_type">Sunucu türü</string>
-    <string name="filter_snoozed">Ertelendi</string>
     <string name="customize_edit_screen_summary">Alanları yeniden düzenle veya kaldır</string>
     <string name="dismiss">Kapat</string>
     <string name="hint_customize_edit_title">Çok bilgi mi var\?</string>
@@ -736,4 +732,9 @@
     <string name="swipe_to_snooze_time_24_hours">24 saat sonra</string>
     <string name="show_edit_screen_without_unlock">Kilidi açmadan düzenleme ekranını göster</string>
     <string name="show_edit_screen_without_unlock_summary">Aygıtın kilidini açmadan Hızlı Ayarlar kutucuğunun kullanılmasını sağlar</string>
+    <string name="customize_drawer">Çekmeceyi özelleştir</string>
+    <string name="customize_drawer_summary">Menü ögelerini yeniden düzenlemek için sürükleyip bırakın</string>
+    <string name="donate_today">Bugün bağış yapın</string>
+    <string name="donate_maybe_later">Belki daha sonra</string>
+    <string name="donate_nag">Desteğinizi bağış yaparak göstermeyi düşünün!</string>
 </resources>

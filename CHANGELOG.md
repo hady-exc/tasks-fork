@@ -1,3 +1,92 @@
+### 13.11.1 (2024-07-15)
+
+* Fix crash when collapsing list picker sections
+* Fix crash in database migration
+* Enabled Managed DAVx5
+* Update translations
+  * Bulgarian - @StoyanDimitrov
+
+### 13.11 (2024-07-14)
+
+* New icon picker with over 2,100 icons! (pro feature)
+* Fix Todo Agenda Widget integration [todoagenda/#145](https://github.com/andstatus/todoagenda/issues/145)
+* Fix menu search bar on Android 10 and below [#2966](https://github.com/tasks/tasks/issues/2966)
+* Update translations
+  * Brazilian Portuguese - Jose Delvani
+  * Bulgarian - @StoyanDimitrov
+  * Catalan - @Seveorr, @jtorrensamer
+  * Chinese (Simplified) - 大王叫我来巡山
+  * Chinese (Traditional) - hugoalh
+  * French - @FlorianLeChat
+  * Spanish - gallegonovato
+  * Turkish - @oersen
+  * Ukrainian - @IhorHordiichuk
+
+### 13.10 (2024-07-05)
+
+* Add search bar to drawer
+* Add search bar to list picker
+* Move 'Manage drawer' to ⚙️ > Navigation drawer
+* Android 13+ users must grant additional reminder permissions
+* Fix completing task multiple times from notification
+* Fix deleting new subtasks from edit screen
+* ~~Enable Managed DAVx5~~
+* Update translations
+  * Arabic - @islam2hamy
+  * Brazilian Portuguese - Jose Delvani
+  * Chinese (Simplified) - 大王叫我来巡山
+  * Chinese (Traditional) - hugoalh
+  * Croatian - @milotype
+  * Finnish - Rami Lehtinen, @CSharpest
+  * German - min7-i
+  * Spanish - gallegonovato
+  * Turkish - @oersen
+
+### 13.9.9 (2024-05-30)
+
+* Fix import backup crashes
+* Fix showing completed subtasks in edit screen
+
+### 13.9.7 (2024-05-23)
+
+* Add default reminders when adding start/due dates to existing tasks [#1846](https://github.com/tasks/tasks/issues/1846)
+* Fix import backup crash
+
+### 13.9.6 (2024-05-18)
+
+* Fix widget crash [#2873](https://github.com/tasks/tasks/issues/2873)
+* Fix recurrence unable to finish [#2874](https://github.com/tasks/tasks/issues/2874)
+* Fix edit screen being cleared when reopening app [#2857](https://github.com/tasks/tasks/issues/2857)
+* Fix performance regressions
+* Simplified internal alarm scheduling logic
+* Update translations
+  * Arabic - @islam2hamy
+  * Bulgarian - @StoyanDimitrov
+
+### 13.9 (2024-05-01)
+
+* @elmuffo: Add swipe-to-snooze [#2839](https://github.com/tasks/tasks/pull/2839)
+* @IlyaBizyaev: Add option to use quick tile without unlocking device [#2847](https://github.com/tasks/tasks/pull/2847)
+* @liz-desartiges: Add support for Z Flip 5 cover screen [#2843](https://github.com/tasks/tasks/pull/2843)
+* @purushyb: Fix drawer not updating after editing items [#2855](https://github.com/tasks/tasks/pull/2855)
+* @hady-exc: Migrate tag picker screen to Compose [#2849](https://github.com/tasks/tasks/pull/2849)
+* @yurtpage: Add Russian app store description [#2848](https://github.com/tasks/tasks/pull/2848)
+* Fix duplicate notifications [#2835](https://github.com/tasks/tasks/issues/2835)
+* Fix adding '(Completed)' to calendar entries [#2832](https://github.com/tasks/tasks/issues/2832)
+* Fix hiding empty items from drawer [#2831](https://github.com/tasks/tasks/issues/2831)
+* Exclude old snoozed tasks from snoozed task filter
+* Update translations
+  * Brazilian Portuguese - @mayhmemo, @gorgonun
+  * Chinese (Simplified) - 大王叫我来巡山
+  * Croatian - @milotype
+  * Esperanto - Don Zouras
+  * French - Lionel HANNEQUIN
+  * German - sorifukobexomajepasiricupuva33, min7-i
+  * Portuguese - @fparri, @laralem
+  * Spanish - gallegonovato
+  * Swedish - @JonatanWick
+  * Turkish - @emintufan, @oersen
+
 ### 13.8.1 (2024-03-24)
 
 * Fix copy causing duplicate Google Tasks

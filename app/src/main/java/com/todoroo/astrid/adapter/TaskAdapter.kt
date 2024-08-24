@@ -11,26 +11,28 @@ import com.todoroo.astrid.core.SortHelper.SORT_LIST
 import com.todoroo.astrid.core.SortHelper.SORT_MANUAL
 import com.todoroo.astrid.core.SortHelper.SORT_START
 import com.todoroo.astrid.dao.TaskDao
-import com.todoroo.astrid.data.Task
-import com.todoroo.astrid.data.Task.Companion.HIDE_UNTIL_SPECIFIC_DAY
 import com.todoroo.astrid.service.TaskMover
 import org.tasks.BuildConfig
 import org.tasks.LocalBroadcastManager
-import org.tasks.data.CaldavDao
-import org.tasks.data.CaldavTask
-import org.tasks.data.GoogleTaskDao
 import org.tasks.data.TaskContainer
-import org.tasks.date.DateTimeUtils.toAppleEpoch
+import org.tasks.data.createDueDate
+import org.tasks.data.createHideUntil
+import org.tasks.data.dao.CaldavDao
+import org.tasks.data.dao.CaldavDao.Companion.toAppleEpoch
+import org.tasks.data.dao.GoogleTaskDao
+import org.tasks.data.entity.CaldavTask
+import org.tasks.data.entity.Task
+import org.tasks.data.entity.Task.Companion.HIDE_UNTIL_SPECIFIC_DAY
 import org.tasks.date.DateTimeUtils.toDateTime
-import org.tasks.time.DateTimeUtils.millisOfDay
+import org.tasks.time.millisOfDay
 
 open class TaskAdapter(
-        private val newTasksOnTop: Boolean,
-        private val googleTaskDao: GoogleTaskDao,
-        private val caldavDao: CaldavDao,
-        private val taskDao: TaskDao,
-        private val localBroadcastManager: LocalBroadcastManager,
-        private val taskMover: TaskMover,
+    private val newTasksOnTop: Boolean,
+    private val googleTaskDao: GoogleTaskDao,
+    private val caldavDao: CaldavDao,
+    private val taskDao: TaskDao,
+    private val localBroadcastManager: LocalBroadcastManager,
+    private val taskMover: TaskMover,
 ) {
     private val selected = HashSet<Long>()
     private lateinit var dataSource: TaskAdapterDataSource
@@ -151,7 +153,7 @@ open class TaskAdapter(
 
     fun getItemUuid(position: Int): String = getTask(position).uuid
 
-    open suspend fun onCompletedTask(task: TaskContainer, newState: Boolean) {}
+    open suspend fun onCompletedTask(uuid: String, newState: Boolean) {}
 
     open suspend fun onTaskCreated(uuid: String) {}
 
@@ -204,8 +206,8 @@ open class TaskAdapter(
         val original = task.dueDate
         task.setDueDateAdjustingHideUntil(when {
             date == 0L -> 0L
-            task.hasDueTime() -> date.toDateTime().withMillisOfDay(original.millisOfDay()).millis
-            else -> Task.createDueDate(Task.URGENCY_SPECIFIC_DAY, date)
+            task.hasDueTime() -> date.toDateTime().withMillisOfDay(original.millisOfDay).millis
+            else -> createDueDate(Task.URGENCY_SPECIFIC_DAY, date)
         })
         if (original != task.dueDate) {
             taskDao.save(task)
@@ -216,7 +218,7 @@ open class TaskAdapter(
         val original = task.hideUntil
         task.hideUntil = when {
             date == 0L -> 0L
-            task.hasStartDate() -> date.toDateTime().withMillisOfDay(original.millisOfDay()).millis
+            task.hasStartDate() -> date.toDateTime().withMillisOfDay(original.millisOfDay).millis
             else -> task.createHideUntil(HIDE_UNTIL_SPECIFIC_DAY, date)
         }
         if (original != task.hideUntil) {

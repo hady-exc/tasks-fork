@@ -3,54 +3,40 @@ package org.tasks.opentasks
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.composethemeadapter.MdcTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.tasks.caldav.BaseCaldavCalendarSettingsActivity
-import org.tasks.compose.ListSettings.ListSettingsProgressBar
-import org.tasks.compose.ListSettings.ListSettingsSnackBar
+import org.tasks.compose.ListSettings.ProgressBar
+import org.tasks.compose.ListSettings.SettingsSnackBar
 import org.tasks.compose.ListSettings.ListSettingsSurface
-import org.tasks.compose.ListSettings.ListSettingsToolbar
+import org.tasks.compose.ListSettings.Toolbar
 import org.tasks.compose.ListSettings.SelectIconRow
-import org.tasks.data.CaldavAccount
-import org.tasks.data.CaldavCalendar
+import org.tasks.data.entity.CaldavAccount
+import org.tasks.data.entity.CaldavCalendar
+import org.tasks.themes.TasksTheme
 
 @AndroidEntryPoint
 class OpenTasksListSettingsActivity : BaseCaldavCalendarSettingsActivity() {
 
-    override val compose: Boolean
-        get() = true
-    override val setContent: Boolean
-        get() = false
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-/*
-        if (!compose) {
-            toolbar.menu.findItem(R.id.delete).isVisible = false
-            nameLayout.visibility = View.GONE
-            colorRow.visibility = View.GONE
-        }
-
-*/
-        if (compose)
-            setContent {
-                MdcTheme {
-                    ListSettingsSurface {
-                        ListSettingsToolbar(
-                            title = toolbarTitle,
-                            save = { lifecycleScope.launch { save() } },
-                            optionButton = { },
-                        )
-                        ListSettingsProgressBar(showProgress)
-                        SelectIconRow(icon = iconState) {
-                            showIconPicker()
-                        }
+        setContent {
+            TasksTheme {
+                ListSettingsSurface {
+                    Toolbar(
+                        title = toolbarTitle,
+                        save = { lifecycleScope.launch { save() } },
+                        optionButton = { },
+                    )
+                    ProgressBar(showProgress)
+                    SelectIconRow(icon = selectedIcon) {
+                        showIconPicker()
                     }
-                    ListSettingsSnackBar(state = snackbar)
                 }
-            } /* setContent */
+                SettingsSnackBar(state = snackbar)
+            }
+        } /* setContent */
     }
 
     override suspend fun createCalendar(caldavAccount: CaldavAccount, name: String, color: Int) {}

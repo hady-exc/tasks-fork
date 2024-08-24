@@ -230,7 +230,6 @@
     <string name="new_list">יצירת רשימה חדשה</string>
     <string name="delete_tag_confirmation">מחק %s?</string>
     <string name="TPl_notification">הופעל קוצב זמן עבור %s משימות!</string>
-    <string name="TFE_workingOn">משימות עם הערכת זמן</string>
     <string name="TEA_timer_controls">טיימר</string>
     <string name="TEA_timer_comment_started">התחיל משימה זו:</string>
     <string name="TEA_timer_comment_stopped">הפסק ביצוע של משימה זו:</string>
@@ -662,7 +661,6 @@
     <string name="follow_twitter">עקוב אחרי @tasks_org</string>
     <string name="sort_due_group">תאריך היעד הוא %s</string>
     <string name="sort_start_group">התחל %s</string>
-    <string name="tasks_needs_your_support">המשימות זקוקות לתמיכתך!</string>
     <string name="tasks_org_description">סנכרן את המשימות שלך עם Tasks.org</string>
     <string name="subscription">מנוי</string>
     <string name="map_theme">נושא המפה</string>
@@ -682,5 +680,4 @@
     <string name="CFC_startBefore_text">התחל על ידי: \?</string>
     <string name="default_start_date">תאריך התחלה המוגדר כברירת מחדל</string>
     <string name="SSD_sort_start">לפי תאריך התחלה</string>
-    <string name="manage_drawer">ניהול מגירה</string>
 </resources>

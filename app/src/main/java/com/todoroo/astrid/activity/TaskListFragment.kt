@@ -5,6 +5,7 @@
  */
 package com.todoroo.astrid.activity
 
+import android.Manifest
 import android.app.Activity
 import android.app.Activity.RESULT_OK
 import android.content.BroadcastReceiver
@@ -19,7 +20,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
@@ -27,6 +28,7 @@ import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -39,36 +41,27 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.withTransaction
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionStatus
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomappbar.BottomAppBar
-import com.google.android.material.composethemeadapter.MdcTheme
 import com.google.android.material.snackbar.Snackbar
-import com.todoroo.andlib.sql.Join
-import com.todoroo.andlib.sql.QueryTemplate
-import com.todoroo.andlib.utility.DateUtilities
+import com.todoroo.andlib.utility.AndroidUtilities
 import com.todoroo.astrid.adapter.TaskAdapter
 import com.todoroo.astrid.adapter.TaskAdapterProvider
 import com.todoroo.astrid.api.AstridApiConstants.EXTRAS_OLD_DUE_DATE
 import com.todoroo.astrid.api.AstridApiConstants.EXTRAS_TASK_ID
-import com.todoroo.astrid.api.AstridOrderingFilter
-import com.todoroo.astrid.api.CaldavFilter
-import com.todoroo.astrid.api.CustomFilter
-import com.todoroo.astrid.api.Filter
-import com.todoroo.astrid.api.FilterImpl
-import com.todoroo.astrid.api.GtasksFilter
-import com.todoroo.astrid.api.TagFilter
-import com.todoroo.astrid.core.BuiltInFilterExposer
-import com.todoroo.astrid.dao.Database
 import com.todoroo.astrid.dao.TaskDao
-import com.todoroo.astrid.data.Task
 import com.todoroo.astrid.repeats.RepeatTaskHelper
 import com.todoroo.astrid.service.TaskCompleter
 import com.todoroo.astrid.service.TaskCreator
@@ -83,6 +76,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.tasks.LocalBroadcastManager
 import org.tasks.R
@@ -95,47 +89,70 @@ import org.tasks.activities.TagSettingsActivity
 import org.tasks.analytics.Firebase
 import org.tasks.billing.PurchaseActivity
 import org.tasks.caldav.BaseCaldavCalendarSettingsActivity
+import org.tasks.compose.FilterSelectionActivity.Companion.launch
+import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPickerResult
+import org.tasks.compose.NotificationsDisabledBanner
 import org.tasks.compose.SubscriptionNagBanner
-import org.tasks.compose.collectAsStateLifecycleAware
+import org.tasks.compose.rememberReminderPermissionState
 import org.tasks.compose.edit.InputPanel
-import org.tasks.data.CaldavDao
-import org.tasks.data.Tag
-import org.tasks.data.TagDao
-import org.tasks.data.TagDataDao
 import org.tasks.data.TaskContainer
+import org.tasks.data.dao.CaldavDao
+import org.tasks.data.dao.TagDataDao
+import org.tasks.data.db.Database
+import org.tasks.data.db.SuspendDbUtils.chunkedMap
+import org.tasks.data.entity.Tag
+import org.tasks.data.entity.Task
+import org.tasks.data.listSettingsClass
+import org.tasks.data.open
+import org.tasks.data.sql.Join
+import org.tasks.data.sql.QueryTemplate
+import org.tasks.data.withTransaction
 import org.tasks.databinding.FragmentTaskListBinding
-import org.tasks.db.SuspendDbUtils.chunkedMap
 import org.tasks.dialogs.DateTimePicker.Companion.newDateTimePicker
 import org.tasks.dialogs.DialogBuilder
-import org.tasks.dialogs.FilterPicker.Companion.newFilterPicker
-import org.tasks.dialogs.FilterPicker.Companion.setFilterPickerResultListener
 import org.tasks.dialogs.PriorityPicker.Companion.newPriorityPicker
 import org.tasks.dialogs.SortSettingsActivity
+import org.tasks.extensions.Context.canScheduleExactAlarms
+import org.tasks.extensions.Context.is24HourFormat
+import org.tasks.extensions.Context.openAppNotificationSettings
+import org.tasks.extensions.Context.openReminderSettings
 import org.tasks.extensions.Context.openUri
 import org.tasks.extensions.Context.toast
 import org.tasks.extensions.Fragment.safeStartActivityForResult
 import org.tasks.extensions.hideKeyboard
 import org.tasks.extensions.setOnQueryTextListener
+import org.tasks.filters.AstridOrderingFilter
+import org.tasks.filters.CaldavFilter
+import org.tasks.filters.CustomFilter
+import org.tasks.filters.Filter
+import org.tasks.filters.FilterImpl
+import org.tasks.filters.GtasksFilter
+import org.tasks.filters.MyTasksFilter
 import org.tasks.filters.PlaceFilter
+import org.tasks.filters.TagFilter
+import org.tasks.kmp.org.tasks.time.DateStyle
+import org.tasks.kmp.org.tasks.time.getRelativeDateTime
 import org.tasks.markdown.MarkdownProvider
-import org.tasks.intents.TaskIntents
-import org.tasks.notifications.NotificationManager
-import org.tasks.preferences.DefaultFilterProvider
 import org.tasks.preferences.Device
 import org.tasks.preferences.Preferences
-import org.tasks.receivers.RefreshReceiver
+import org.tasks.scheduling.NotificationSchedulerIntentService
 import org.tasks.sync.SyncAdapters
 import org.tasks.tags.TagPickerActivity
-import org.tasks.tasklist.*
+import org.tasks.tasklist.DragAndDropRecyclerAdapter
+import org.tasks.tasklist.SectionedDataSource
+import org.tasks.tasklist.TaskViewHolder
+import org.tasks.tasklist.TasksResults
+import org.tasks.tasklist.ViewHolderFactory
 import org.tasks.themes.ColorProvider
+import org.tasks.themes.TasksTheme
 import org.tasks.themes.ThemeColor
+import org.tasks.time.DateTimeUtils2.currentTimeMillis
 import org.tasks.ui.TaskEditEvent
 import org.tasks.ui.TaskEditEventBus
 import org.tasks.ui.TaskListEvent
 import org.tasks.ui.TaskListEventBus
 import org.tasks.ui.TaskListViewModel
 import org.tasks.ui.TaskListViewModel.Companion.createSearchQuery
-import java.time.format.FormatStyle
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.max
@@ -158,15 +175,12 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     @Inject lateinit var taskAdapterProvider: TaskAdapterProvider
     @Inject lateinit var taskDao: TaskDao
     @Inject lateinit var taskDuplicator: TaskDuplicator
-    @Inject lateinit var tagDao: TagDao
     @Inject lateinit var tagDataDao: TagDataDao
     @Inject lateinit var caldavDao: CaldavDao
     @Inject lateinit var defaultThemeColor: ThemeColor
     @Inject lateinit var colorProvider: ColorProvider
-    @Inject lateinit var notificationManager: NotificationManager
     @Inject lateinit var shortcutManager: ShortcutManager
     @Inject lateinit var taskCompleter: TaskCompleter
-    @Inject lateinit var locale: Locale
     @Inject lateinit var firebase: Firebase
     @Inject lateinit var repeatTaskHelper: RepeatTaskHelper
     @Inject lateinit var taskListEventBus: TaskListEventBus
@@ -180,16 +194,16 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     private lateinit var taskAdapter: TaskAdapter
     private var recyclerAdapter: DragAndDropRecyclerAdapter? = null
     private lateinit var filter: Filter
-    private var searchJob: Job? = null
     private lateinit var search: MenuItem
-    private var searchQuery: String? = null
     private var mode: ActionMode? = null
     lateinit var themeColor: ThemeColor
     private lateinit var binding: FragmentTaskListBinding
-    private val onBackPressed = object : OnBackPressedCallback(false) {
-        override fun handleOnBackPressed() {
-            search.collapseActionView()
+    private val listPickerLauncher = registerForListPickerResult {
+        val selected = taskAdapter.getSelected()
+        lifecycleScope.launch {
+            taskMover.move(selected, it)
         }
+        finishActionMode()
     }
 
     private val sortRequest =
@@ -212,8 +226,9 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             if (result.resultCode != RESULT_OK) return@registerForActivityResult
             val data = result.data ?: return@registerForActivityResult
             when (data.action) {
-                ACTION_DELETED ->
-                    mainViewModel.setFilter(BuiltInFilterExposer.getMyTasksFilter(resources))
+                ACTION_DELETED -> lifecycleScope.launch {
+                    mainViewModel.setFilter(MyTasksFilter.create())
+                }
                 ACTION_RELOAD ->
                     IntentCompat.getParcelableExtra(data, MainActivity.OPEN_FILTER, Filter::class.java)?.let {
                         mainViewModel.setFilter(it)
@@ -261,15 +276,21 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
 
     private val inputPanelVisible = mutableStateOf( false )
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        requireActivity().onBackPressedDispatcher.addCallback(requireActivity(), onBackPressed)
-    }
-
-    @OptIn(ExperimentalAnimationApi::class)
+    @OptIn(ExperimentalAnimationApi::class, ExperimentalPermissionsApi::class)
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        requireActivity().onBackPressedDispatcher.addCallback(owner = viewLifecycleOwner) {
+            if (search.isActionViewExpanded) {
+                search.collapseActionView()
+            } else {
+                requireActivity().finish()
+                if (!preferences.getBoolean(R.string.p_open_last_viewed_list, true)) {
+                    runBlocking {
+                        mainViewModel.resetFilter()
+                    }
+                }
+            }
+        }
         binding = FragmentTaskListBinding.inflate(inflater, container, false)
         filter = getFilter()
         val swipeRefreshLayout: SwipeRefreshLayout
@@ -304,9 +325,10 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         (recyclerView.itemAnimator as DefaultItemAnimator).supportsChangeAnimations = false
         recyclerView.layoutManager = LinearLayoutManager(context)
         lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                listViewModel.updateBannerState()
                 listViewModel.state.collect {
-                    if (it.tasks is TaskListViewModel.TasksResults.Results) {
+                    if (it.tasks is TasksResults.Results) {
                         submitList(it.tasks.tasks)
                         if (it.tasks.tasks.isEmpty()) {
                             swipeRefreshLayout.visibility = View.GONE
@@ -353,33 +375,55 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         toolbar.setOnMenuItemClickListener(this)
         toolbar.setNavigationOnClickListener {
             activity?.hideKeyboard()
-            mainViewModel.setDrawerOpen(true)
+            mainViewModel.openDrawer()
         }
         setupMenu(toolbar)
-        childFragmentManager.setFilterPickerResultListener(this) {
-            val selected = taskAdapter.getSelected()
-            lifecycleScope.launch {
-                taskMover.move(selected, it)
-            }
-            finishActionMode()
-        }
         binding.banner.setContent {
             val context = LocalContext.current
-            val showBanner = listViewModel.state.collectAsStateLifecycleAware().value.begForSubscription
-            MdcTheme {
+            val state = listViewModel.state.collectAsStateWithLifecycle().value
+            TasksTheme {
+                val hasRemindersPermission by rememberReminderPermissionState()
+                val notificationPermissions = if (AndroidUtilities.atLeastTiramisu()) {
+                    rememberPermissionState(
+                        Manifest.permission.POST_NOTIFICATIONS,
+                        onPermissionResult = { success ->
+                            if (success) {
+                                NotificationSchedulerIntentService.enqueueWork(context)
+                                listViewModel.dismissNotificationBanner(fix = true)
+                            }
+                        }
+                    )
+                } else {
+                    null
+                }
+                val showNotificationBanner = state.warnNotificationsDisabled &&
+                        (!hasRemindersPermission || notificationPermissions?.status is PermissionStatus.Denied)
+                NotificationsDisabledBanner(
+                    visible = showNotificationBanner,
+                    settings = {
+                        if (!context.canScheduleExactAlarms()) {
+                            context.openReminderSettings()
+                        } else if (notificationPermissions?.status?.shouldShowRationale == true) {
+                            context.openAppNotificationSettings()
+                        } else {
+                            notificationPermissions?.launchPermissionRequest()
+                        }
+                    },
+                    dismiss = { listViewModel.dismissNotificationBanner() },
+                )
                 SubscriptionNagBanner(
-                    visible = showBanner,
+                    visible = state.begForSubscription && !showNotificationBanner,
                     subscribe = {
-                        listViewModel.dismissBanner(clickedPurchase = true)
+                        listViewModel.dismissPurchaseBanner(clickedPurchase = true)
                         if (Tasks.IS_GOOGLE_PLAY) {
                             context.startActivity(Intent(context, PurchaseActivity::class.java))
                         } else {
-                            preferences.lastSubscribeRequest = DateUtilities.now()
+                            preferences.lastSubscribeRequest = currentTimeMillis()
                             context.openUri(R.string.url_donate)
                         }
                     },
                     dismiss = {
-                        listViewModel.dismissBanner(clickedPurchase = false)
+                        listViewModel.dismissPurchaseBanner(clickedPurchase = false)
                     },
                 )
             }
@@ -489,14 +533,12 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 item.isChecked = !item.isChecked
                 preferences.showHidden = item.isChecked
                 loadTaskListContent()
-                localBroadcastManager.broadcastRefresh()
                 true
             }
             R.id.menu_show_completed -> {
                 item.isChecked = !item.isChecked
                 preferences.showCompleted = item.isChecked
                 loadTaskListContent()
-                localBroadcastManager.broadcastRefresh()
                 true
             }
             R.id.menu_clear_completed -> {
@@ -580,7 +622,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 true
             }
             R.id.menu_open_map -> {
-                (filter as PlaceFilter).openMap(context)
+                (filter as PlaceFilter).place.open(context)
                 true
             }
             R.id.menu_share -> {
@@ -725,7 +767,6 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     }
 
     override fun onMenuItemActionExpand(item: MenuItem): Boolean {
-        onBackPressed.isEnabled = true
         search.setOnQueryTextListener(this)
         listViewModel.setSearchQuery("")
         if (preferences.isTopAppBar) {
@@ -735,7 +776,6 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     }
 
     override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
-        onBackPressed.isEnabled = false
         search.setOnQueryTextListener(null)
         listViewModel.setFilter(filter)
         listViewModel.setSearchQuery(null)
@@ -803,8 +843,11 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             R.id.move_tasks -> {
                 lifecycleScope.launch {
                     val singleFilter = taskMover.getSingleFilter(selected)
-                    newFilterPicker(singleFilter, true)
-                        .show(childFragmentManager, FRAG_TAG_REMOTE_LIST_PICKER)
+                    listPickerLauncher.launch(
+                        context = requireActivity(),
+                        selectedFilter = singleFilter,
+                        listsOnly = true,
+                    )
                 }
                 true
             }
@@ -956,7 +999,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         }
         lifecycleScope.launch {
             taskCompleter.setComplete(task.task, newState)
-            taskAdapter.onCompletedTask(task, newState)
+            taskAdapter.onCompletedTask(task.uuid, newState)
             loadTaskListContent()
         }
     }
@@ -1043,8 +1086,11 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                     val text = getString(
                         R.string.repeat_snackbar,
                         title,
-                        DateUtilities.getRelativeDateTime(
-                            context, task.dueDate, locale, FormatStyle.LONG, true
+                        getRelativeDateTime(
+                            task.dueDate,
+                            context.is24HourFormat,
+                            DateStyle.LONG,
+                            lowercase = true
                         )
                     )
                     makeSnackbar(text)?.setAction(R.string.DLG_undo, undoCompletion)?.show()
@@ -1066,7 +1112,6 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         private const val EXTRA_SELECTED_TASK_IDS = "extra_selected_task_ids"
         private const val VOICE_RECOGNITION_REQUEST_CODE = 1234
         private const val EXTRA_FILTER = "extra_filter"
-        private const val FRAG_TAG_REMOTE_LIST_PICKER = "frag_tag_remote_list_picker"
         private const val FRAG_TAG_DATE_TIME_PICKER = "frag_tag_date_time_picker"
         private const val FRAG_TAG_PRIORITY_PICKER = "frag_tag_priority_picker"
         private const val REQUEST_TAG_TASKS = 10106

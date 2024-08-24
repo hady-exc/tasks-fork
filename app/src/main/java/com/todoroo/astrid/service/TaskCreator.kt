@@ -1,57 +1,59 @@
 package com.todoroo.astrid.service
 
-import com.todoroo.andlib.utility.AndroidUtilities
-import com.todoroo.andlib.utility.DateUtilities
-import com.todoroo.astrid.api.CaldavFilter
-import com.todoroo.astrid.api.Filter
-import com.todoroo.astrid.api.GtasksFilter
 import com.todoroo.astrid.api.PermaSql
 import com.todoroo.astrid.dao.TaskDao
-import com.todoroo.astrid.data.Task
-import com.todoroo.astrid.data.Task.Companion.DUE_DATE
-import com.todoroo.astrid.data.Task.Companion.HIDE_UNTIL
-import com.todoroo.astrid.data.Task.Companion.HIDE_UNTIL_NONE
-import com.todoroo.astrid.data.Task.Companion.IMPORTANCE
-import com.todoroo.astrid.data.Task.Companion.createDueDate
 import com.todoroo.astrid.gcal.GCalHelper
-import com.todoroo.astrid.helper.UUIDHelper
 import com.todoroo.astrid.utility.TitleParser.parse
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
-import org.tasks.data.Alarm
-import org.tasks.data.Alarm.Companion.TYPE_RANDOM
-import org.tasks.data.Alarm.Companion.whenDue
-import org.tasks.data.Alarm.Companion.whenOverdue
-import org.tasks.data.Alarm.Companion.whenStarted
-import org.tasks.data.AlarmDao
-import org.tasks.data.CaldavDao
-import org.tasks.data.CaldavTask
-import org.tasks.data.Geofence
 import org.tasks.data.GoogleTask
-import org.tasks.data.GoogleTaskDao
-import org.tasks.data.LocationDao
-import org.tasks.data.Place
-import org.tasks.data.Tag
-import org.tasks.data.TagDao
-import org.tasks.data.TagData
-import org.tasks.data.TagDataDao
+import org.tasks.data.UUIDHelper
+import org.tasks.data.createDueDate
+import org.tasks.data.createGeofence
+import org.tasks.data.createHideUntil
+import org.tasks.data.dao.AlarmDao
+import org.tasks.data.dao.CaldavDao
+import org.tasks.data.dao.GoogleTaskDao
+import org.tasks.data.dao.LocationDao
+import org.tasks.data.dao.TagDao
+import org.tasks.data.dao.TagDataDao
+import org.tasks.data.entity.Alarm
+import org.tasks.data.entity.Alarm.Companion.TYPE_RANDOM
+import org.tasks.data.entity.Alarm.Companion.whenDue
+import org.tasks.data.entity.Alarm.Companion.whenOverdue
+import org.tasks.data.entity.Alarm.Companion.whenStarted
+import org.tasks.data.entity.CaldavTask
+import org.tasks.data.entity.Place
+import org.tasks.data.entity.Tag
+import org.tasks.data.entity.TagData
+import org.tasks.data.entity.Task
+import org.tasks.data.entity.Task.Companion.DUE_DATE
+import org.tasks.data.entity.Task.Companion.HIDE_UNTIL
+import org.tasks.data.entity.Task.Companion.HIDE_UNTIL_NONE
+import org.tasks.data.entity.Task.Companion.IMPORTANCE
+import org.tasks.filters.CaldavFilter
+import org.tasks.filters.Filter
+import org.tasks.filters.GtasksFilter
+import org.tasks.filters.mapFromSerializedString
 import org.tasks.preferences.DefaultFilterProvider
 import org.tasks.preferences.Preferences
-import org.tasks.time.DateTimeUtils.startOfDay
+import org.tasks.time.DateTimeUtils2.currentTimeMillis
+import org.tasks.time.ONE_HOUR
+import org.tasks.time.startOfDay
 import timber.log.Timber
 import javax.inject.Inject
 
 class TaskCreator @Inject constructor(
-        private val gcalHelper: GCalHelper,
-        private val preferences: Preferences,
-        private val tagDataDao: TagDataDao,
-        private val taskDao: TaskDao,
-        private val tagDao: TagDao,
-        private val googleTaskDao: GoogleTaskDao,
-        private val defaultFilterProvider: DefaultFilterProvider,
-        private val caldavDao: CaldavDao,
-        private val locationDao: LocationDao,
-        private val alarmDao: AlarmDao,
+    private val gcalHelper: GCalHelper,
+    private val preferences: Preferences,
+    private val tagDataDao: TagDataDao,
+    private val taskDao: TaskDao,
+    private val tagDao: TagDao,
+    private val googleTaskDao: GoogleTaskDao,
+    private val defaultFilterProvider: DefaultFilterProvider,
+    private val caldavDao: CaldavDao,
+    private val locationDao: LocationDao,
+    private val alarmDao: AlarmDao,
 ) {
 
     suspend fun basicQuickAddTask(title: String): Task {
@@ -111,7 +113,7 @@ class TaskCreator @Inject constructor(
         if (task.hasTransitory(Place.KEY)) {
             val place = locationDao.getPlace(task.getTransitory<String>(Place.KEY)!!)
             if (place != null) {
-                locationDao.insert(Geofence(place.uid, preferences))
+                locationDao.insert(createGeofence(place.uid, preferences))
             }
         }
         taskDao.save(task, null)
@@ -123,12 +125,8 @@ class TaskCreator @Inject constructor(
         return create(null, title)
     }
 
-    suspend fun createWithValues(filter: Filter?, title: String?): Task {
-        return create(
-            AndroidUtilities.mapFromSerializedString(filter?.valuesForNewTasks),
-            title
-        )
-    }
+    suspend fun createWithValues(filter: Filter?, title: String?): Task =
+        create(mapFromSerializedString(filter?.valuesForNewTasks), title)
 
     /**
      * Create task from the given content values, saving it. This version doesn't need to start with a
@@ -137,8 +135,8 @@ class TaskCreator @Inject constructor(
     internal suspend fun create(values: Map<String, Any>?, title: String?): Task {
         val task = Task(
             title = title?.trim { it <= ' ' },
-            creationDate = DateUtilities.now(),
-            modificationDate = DateUtilities.now(),
+            creationDate = currentTimeMillis(),
+            modificationDate = currentTimeMillis(),
             remoteId = UUIDHelper.newUUID(),
             priority = preferences.defaultPriority,
         )
@@ -191,25 +189,28 @@ class TaskCreator @Inject constructor(
         } catch (e: Throwable) {
             Timber.e(e)
         }
-        task.setTags(tags)
+        task.putTransitory(Tag.KEY, tags)
         return task
     }
 
     suspend fun createTags(task: Task) {
         for (tag in task.tags) {
-            var tagData = tagDataDao.getTagByName(tag)
-            if (tagData == null) {
-                tagData = TagData()
-                tagData.name = tag
-                tagDataDao.createNew(tagData)
-            }
-            tagDao.insert(Tag(task, tagData))
+            val tagData = tagDataDao.getTagByName(tag)
+            ?: TagData(name = tag).also { tagDataDao.insert(it) }
+            tagDao.insert(
+                Tag(
+                    task = task.id,
+                    taskUid = task.uuid,
+                    name = tagData.name,
+                    tagUid = tagData.remoteId
+                )
+            )
         }
     }
 
     companion object {
         fun Task.setDefaultReminders(preferences: Preferences) {
-            randomReminder = DateUtilities.ONE_HOUR * preferences.getIntegerFromString(
+            randomReminder = ONE_HOUR * preferences.getIntegerFromString(
                 R.string.p_rmd_default_random_hours,
                 0
             )
@@ -233,7 +234,7 @@ class TaskCreator @Inject constructor(
                 }
             }
             if (randomReminder > 0) {
-                add(Alarm(id, randomReminder, TYPE_RANDOM))
+                add(Alarm(task = id, time = randomReminder, type = TYPE_RANDOM))
             }
         }
     }

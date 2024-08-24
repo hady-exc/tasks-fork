@@ -200,7 +200,6 @@
     <string name="new_list">Neue Liste erstellen</string>
     <string name="delete_tag_confirmation">%s löschen?</string>
     <string name="TPl_notification">Timer ist aktiv für %s!</string>
-    <string name="TFE_workingOn">Zeitlich festgelegte Aufgaben</string>
     <string name="TEA_timer_comment_started">Aufgabe begonnen:</string>
     <string name="TEA_timer_comment_stopped">Bearbeitung abgebrochen:</string>
     <string name="TEA_timer_comment_spent">Benötigte Zeit:</string>
@@ -323,9 +322,9 @@
     <string name="repeats_from">Wiederholt sich ab</string>
     <string name="repeats_single">Wiederholt sich %s</string>
     <string name="repeats_single_on">Wiederholt sich %1$s %2$s</string>
-    <string name="repeats_single_until">Wiederholt sich %1$s bis %2$s</string>
+    <string name="repeats_single_until">Wiederholt sich %1$s, endet bei %2$s</string>
     <string name="repeats_single_number_of_times">Wiederholt sich %1$s, genau %2$d %3$s</string>
-    <string name="repeats_single_on_until">Wiederholt sich %1$s %2$s, bis %3$s</string>
+    <string name="repeats_single_on_until">Wiederholt %1$s am %2$s, endet bei %3$s</string>
     <string name="repeats_single_on_number_of_times">Wiederholt sich %1$s %2$s, genau %3$d %4$s</string>
     <string name="repeats_minutely">minütlich</string>
     <string name="repeats_hourly">stündlich</string>
@@ -610,7 +609,6 @@
     <string name="social">Sozial</string>
     <string name="follow_twitter">Folgen Sie @tasks_org</string>
     <string name="map_theme">Kartendesign</string>
-    <string name="manage_drawer">Seitenleiste verwalten</string>
     <string name="map_theme_use_app_theme">Anwendungsthema nutzen</string>
     <string name="tasks_org_account_required">Tasks.org-Konto erforderlich</string>
     <string name="invite_awaiting_response">Einladung wartet auf Antwort</string>
@@ -639,7 +637,6 @@
     <string name="picker_mode_calendar">Kalender</string>
     <string name="picker_mode_time">Zeitauswahlmodus</string>
     <string name="picker_mode_date">Datumsauswahlmodus</string>
-    <string name="tasks_needs_your_support">Tasks braucht deine Unterstützung!</string>
     <string name="next_saturday">Nächsten Samstag</string>
     <string name="next_friday">Nächsten Freitag</string>
     <string name="next_thursday">Nächsten Donnerstag</string>
@@ -686,7 +683,6 @@
     </plurals>
     <string name="randomly_every">Zufällig alle %s</string>
     <string name="caldav_server_type">Servertyp</string>
-    <string name="filter_snoozed">Zurückgestellt</string>
     <string name="caldav_server_unknown">Unbekannt</string>
     <string name="caldav_server_other">Andere</string>
     <string name="customize_edit_screen_summary">Felder neu anordnen oder entfernen</string>
@@ -726,4 +722,19 @@
     <string name="repeat_monthly_on_the_nth_weekday">Monatlich an dem %1$s %2$s</string>
     <string name="clear_completed_tasks_count">%s werden gelöscht</string>
     <string name="theme_dynamic">Dynamisch</string>
+    <string name="swipe_to_snooze_time_immediately">sofort</string>
+    <string name="swipe_to_snooze_time_15_minutes">nach 15 Minuten</string>
+    <string name="swipe_to_snooze_time_30_minutes">nach 30 Minuten</string>
+    <string name="swipe_to_snooze_time_1_hour">nach 1 Stunde</string>
+    <string name="swipe_to_snooze_time_24_hours">nach 24 Stunden</string>
+    <string name="donate_nag">Denken Sie daran, Ihre Unterstützung mit einer Spende zu zeigen!</string>
+    <string name="donate_today">Heute Spenden</string>
+    <string name="donate_maybe_later">Später vieleicht</string>
+    <string name="show_edit_screen_without_unlock_summary">Ermöglicht die Verwendung der Kachel „Schnelleinstellungen“, ohne das Gerät zu entsperren</string>
+    <string name="customize_drawer">Drawer anpassen</string>
+    <string name="customize_drawer_summary">Per Drag &amp; Drop können Menüelemente neu angeordnet werden</string>
+    <string name="swipe_to_snooze_title">Zum Schlummern wischen</string>
+    <string name="swipe_to_snooze_description">Schlummerzeit</string>
+    <string name="show_edit_screen_without_unlock">Bearbeitungsbildschirm ohne Entsperren anzeigen</string>
+    <string name="swipe_to_snooze_time_description">Eine gelöschte Benachrichtigung wird pausiert und erstellt %s neu</string>
 </resources>

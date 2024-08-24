@@ -1,18 +1,17 @@
 package org.tasks.sync.microsoft
 
 import com.natpryce.makeiteasy.MakeItEasy.with
-import com.todoroo.astrid.data.Task
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.tasks.Freeze.Companion.freezeAt
 import org.tasks.TestUtilities.withTZ
-import org.tasks.data.CaldavTask
+import org.tasks.data.entity.CaldavTask
+import org.tasks.data.entity.TagData
+import org.tasks.data.entity.Task
 import org.tasks.makers.CaldavTaskMaker.REMOTE_ID
 import org.tasks.makers.CaldavTaskMaker.newCaldavTask
-import org.tasks.makers.TagDataMaker.NAME
-import org.tasks.makers.TagDataMaker.newTagData
 import org.tasks.makers.TaskMaker.COMPLETION_TIME
 import org.tasks.makers.TaskMaker.DESCRIPTION
 import org.tasks.makers.TaskMaker.DUE_TIME
@@ -100,8 +99,8 @@ class ConvertToMicrosoftTests {
         val remote = newTask().toRemote(
             newCaldavTask(),
             listOf(
-                newTagData(with(NAME, "tag1")),
-                newTagData(with(NAME, "tag2")),
+                TagData(name = "tag1"),
+                TagData(name = "tag2"),
             )
         )
         assertEquals(listOf("tag1", "tag2"), remote.categories)

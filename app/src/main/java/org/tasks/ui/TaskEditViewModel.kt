@@ -7,19 +7,9 @@ import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.todoroo.andlib.utility.DateUtilities.now
 import com.todoroo.astrid.activity.TaskEditFragment
 import com.todoroo.astrid.alarms.AlarmService
-import com.todoroo.astrid.api.CaldavFilter
-import com.todoroo.astrid.api.Filter
-import com.todoroo.astrid.api.GtasksFilter
 import com.todoroo.astrid.dao.TaskDao
-import com.todoroo.astrid.data.SyncFlags
-import com.todoroo.astrid.data.Task
-import com.todoroo.astrid.data.Task.Companion.NOTIFY_MODE_FIVE
-import com.todoroo.astrid.data.Task.Companion.NOTIFY_MODE_NONSTOP
-import com.todoroo.astrid.data.Task.Companion.createDueDate
-import com.todoroo.astrid.data.Task.Companion.hasDueTime
 import com.todoroo.astrid.gcal.GCalHelper
 import com.todoroo.astrid.service.TaskCompleter
 import com.todoroo.astrid.service.TaskCreator.Companion.getDefaultAlarms
@@ -38,37 +28,49 @@ import org.tasks.R
 import org.tasks.Strings
 import org.tasks.analytics.Firebase
 import org.tasks.calendars.CalendarEventProvider
-import org.tasks.data.Alarm
-import org.tasks.data.Alarm.Companion.TYPE_REL_END
-import org.tasks.data.Alarm.Companion.TYPE_REL_START
-import org.tasks.data.AlarmDao
-import org.tasks.data.Attachment
-import org.tasks.data.CaldavDao
-import org.tasks.data.CaldavTask
-import org.tasks.data.GoogleTaskDao
 import org.tasks.data.Location
-import org.tasks.data.LocationDao
-import org.tasks.data.TagDao
-import org.tasks.data.TagData
-import org.tasks.data.TagDataDao
-import org.tasks.data.TaskAttachment
-import org.tasks.data.TaskAttachmentDao
-import org.tasks.data.UserActivity
-import org.tasks.data.UserActivityDao
+import org.tasks.data.createDueDate
+import org.tasks.data.dao.AlarmDao
+import org.tasks.data.dao.CaldavDao
+import org.tasks.data.dao.GoogleTaskDao
+import org.tasks.data.dao.LocationDao
+import org.tasks.data.dao.TagDao
+import org.tasks.data.dao.TagDataDao
+import org.tasks.data.dao.TaskAttachmentDao
+import org.tasks.data.dao.UserActivityDao
+import org.tasks.data.entity.Alarm
+import org.tasks.data.entity.Alarm.Companion.TYPE_REL_END
+import org.tasks.data.entity.Alarm.Companion.TYPE_REL_START
+import org.tasks.data.entity.Alarm.Companion.whenDue
+import org.tasks.data.entity.Alarm.Companion.whenOverdue
+import org.tasks.data.entity.Alarm.Companion.whenStarted
+import org.tasks.data.entity.Attachment
+import org.tasks.data.entity.CaldavTask
+import org.tasks.data.entity.FORCE_CALDAV_SYNC
+import org.tasks.data.entity.TagData
+import org.tasks.data.entity.Task
+import org.tasks.data.entity.Task.Companion.NOTIFY_MODE_FIVE
+import org.tasks.data.entity.Task.Companion.NOTIFY_MODE_NONSTOP
+import org.tasks.data.entity.Task.Companion.hasDueTime
+import org.tasks.data.entity.TaskAttachment
+import org.tasks.data.entity.UserActivity
+import org.tasks.data.setPicture
 import org.tasks.date.DateTimeUtils.toDateTime
 import org.tasks.files.FileHelper
+import org.tasks.filters.CaldavFilter
+import org.tasks.filters.Filter
+import org.tasks.filters.GtasksFilter
 import org.tasks.location.GeofenceApi
-import org.tasks.preferences.DefaultFilterProvider
 import org.tasks.preferences.PermissionChecker
 import org.tasks.preferences.Preferences
-import org.tasks.time.DateTimeUtils.currentTimeMillis
-import org.tasks.time.DateTimeUtils.startOfDay
+import org.tasks.time.DateTimeUtils2.currentTimeMillis
+import org.tasks.time.startOfDay
 import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class TaskEditViewModel @Inject constructor(
-    @ApplicationContext private val applicationContext: Context,
+    @ApplicationContext private val context: Context,
     savedStateHandle: SavedStateHandle,
     private val taskDao: TaskDao,
     private val taskDeleter: TaskDeleter,
@@ -92,9 +94,8 @@ class TaskEditViewModel @Inject constructor(
     private val userActivityDao: UserActivityDao,
     private val alarmDao: AlarmDao,
     private val taskAttachmentDao: TaskAttachmentDao,
-    private val defaultFilterProvider: DefaultFilterProvider,
 ) : ViewModel() {
-    private val resources = applicationContext.resources
+    private val resources = context.resources
     private var cleared = false
 
     val task: Task = savedStateHandle[TaskEditFragment.EXTRA_TASK]!!
@@ -121,21 +122,35 @@ class TaskEditViewModel @Inject constructor(
     val dueDate = MutableStateFlow(task.dueDate)
 
     fun setDueDate(value: Long) {
+        val addedDueDate = value > 0 && dueDate.value == 0L
         dueDate.value = when {
             value == 0L -> 0
             hasDueTime(value) -> createDueDate(Task.URGENCY_SPECIFIC_DAY_TIME, value)
             else -> createDueDate(Task.URGENCY_SPECIFIC_DAY, value)
+        }
+        if (addedDueDate) {
+            val reminderFlags = preferences.defaultReminders
+            if (reminderFlags.isFlagSet(Task.NOTIFY_AT_DEADLINE)) {
+                selectedAlarms.value = selectedAlarms.value.plusAlarm(whenDue(task.id))
+            }
+            if (reminderFlags.isFlagSet(Task.NOTIFY_AFTER_DEADLINE)) {
+                selectedAlarms.value = selectedAlarms.value.plusAlarm(whenOverdue(task.id))
+            }
         }
     }
 
     val startDate = MutableStateFlow(task.hideUntil)
 
     fun setStartDate(value: Long) {
+        val addedStartDate = value > 0 && startDate.value == 0L
         startDate.value = when {
             value == 0L -> 0
             hasDueTime(value) ->
                 value.toDateTime().withSecondOfMinute(1).withMillisOfSecond(0).millis
             else -> value.startOfDay()
+        }
+        if (addedStartDate && preferences.defaultReminders.isFlagSet(Task.NOTIFY_AT_START)) {
+            selectedAlarms.value = selectedAlarms.value.plusAlarm(whenStarted(task.id))
         }
     }
 
@@ -146,38 +161,38 @@ class TaskEditViewModel @Inject constructor(
     }
     var selectedCalendar = MutableStateFlow(originalCalendar)
 
-    val originalList: Filter = runBlocking { defaultFilterProvider.getList(task) }
+    val originalList: Filter = savedStateHandle[TaskEditFragment.EXTRA_LIST]!!
     var selectedList = MutableStateFlow(originalList)
 
-    private val originalLocation: Location? =
-        runBlocking { locationDao.getLocation(task, preferences) }
+    private var originalLocation: Location? = savedStateHandle[TaskEditFragment.EXTRA_LOCATION]
     var selectedLocation = MutableStateFlow(originalLocation)
 
-    private val originalTags: List<TagData> = runBlocking { tagDataDao.getTags(task) }
+    private val originalTags: List<TagData> =
+        savedStateHandle.get<ArrayList<TagData>>(TaskEditFragment.EXTRA_TAGS) ?: emptyList()
     val selectedTags = MutableStateFlow(ArrayList(originalTags))
 
-    private val originalAttachments: List<TaskAttachment> =
-        runBlocking { taskAttachmentDao.getAttachments(task.id) }
-    val selectedAttachments = MutableStateFlow(originalAttachments)
+    private lateinit var originalAttachments: List<TaskAttachment>
+    val selectedAttachments = MutableStateFlow(emptyList<TaskAttachment>())
 
     private val originalAlarms: List<Alarm> = if (isNew) {
         ArrayList<Alarm>().apply {
             if (task.isNotifyAtStart) {
-                add(Alarm.whenStarted(0))
+                add(whenStarted(0))
             }
             if (task.isNotifyAtDeadline) {
-                add(Alarm.whenDue(0))
+                add(whenDue(0))
             }
             if (task.isNotifyAfterDeadline) {
-                add(Alarm.whenOverdue(0))
+                add(whenOverdue(0))
             }
             if (task.randomReminder > 0) {
-                add(Alarm(0, task.randomReminder, Alarm.TYPE_RANDOM))
+                add(Alarm(time = task.randomReminder, type = Alarm.TYPE_RANDOM))
             }
         }
     } else {
-        runBlocking { alarmDao.getAlarms(task) }
+        savedStateHandle[TaskEditFragment.EXTRA_ALARMS]!!
     }
+
     var selectedAlarms = MutableStateFlow(originalAlarms)
 
     var ringNonstop: Boolean = task.isNotifyModeNonstop
@@ -228,7 +243,8 @@ class TaskEditViewModel @Inject constructor(
                 originalList != selectedList.value ||
                 originalLocation != selectedLocation.value ||
                 originalTags.toHashSet() != selectedTags.value.toHashSet() ||
-                originalAttachments.toHashSet() != selectedAttachments.value.toHashSet() ||
+                (::originalAttachments.isInitialized &&
+                        originalAttachments.toHashSet() != selectedAttachments.value.toHashSet()) ||
                 newSubtasks.value.isNotEmpty() ||
                 getRingFlags() != when {
                     task.isNotifyModeFive -> NOTIFY_MODE_FIVE
@@ -285,7 +301,7 @@ class TaskEditViewModel @Inject constructor(
                 )
                 geofenceApi.update(place)
             }
-            task.putTransitory(SyncFlags.FORCE_CALDAV_SYNC, true)
+            task.putTransitory(FORCE_CALDAV_SYNC, true)
             task.modificationDate = currentTimeMillis()
         }
 
@@ -299,6 +315,15 @@ class TaskEditViewModel @Inject constructor(
         }
         if (!task.hasDueDate()) {
             selectedAlarms.value = selectedAlarms.value.filterNot { a -> a.type == TYPE_REL_END }
+        }
+
+        if (
+            selectedAlarms.value.toHashSet() != originalAlarms.toHashSet() ||
+            (isNew && selectedAlarms.value.isNotEmpty())
+        ) {
+            alarmService.synchronizeAlarms(task.id, selectedAlarms.value.toMutableSet())
+            task.putTransitory(FORCE_CALDAV_SYNC, true)
+            task.modificationDate = currentTimeMillis()
         }
 
         taskDao.save(task, null)
@@ -355,15 +380,9 @@ class TaskEditViewModel @Inject constructor(
         }
 
         if (
-            selectedAlarms.value.toHashSet() != originalAlarms.toHashSet() ||
-            (isNew && selectedAlarms.value.isNotEmpty())
+            this@TaskEditViewModel::originalAttachments.isInitialized &&
+            selectedAttachments.value.toHashSet() != originalAttachments.toHashSet()
         ) {
-            alarmService.synchronizeAlarms(task.id, selectedAlarms.value.toMutableSet())
-            task.putTransitory(SyncFlags.FORCE_CALDAV_SYNC, true)
-            task.modificationDate = now()
-        }
-
-        if (selectedAttachments.value.toHashSet() != originalAttachments.toHashSet()) {
             originalAttachments
                 .minus(selectedAttachments.value.toSet())
                 .map { it.remoteId }
@@ -428,7 +447,7 @@ class TaskEditViewModel @Inject constructor(
         if (isNew) {
             timerPlugin.stopTimer(task)
             originalAttachments.plus(selectedAttachments.value).toSet().takeIf { it.isNotEmpty() }
-                ?.onEach { FileHelper.delete(applicationContext, it.uri.toUri()) }
+                ?.onEach { FileHelper.delete(context, it.uri.toUri()) }
                 ?.let { taskAttachmentDao.delete(it.toList()) }
         }
         clear(remove)
@@ -468,12 +487,12 @@ class TaskEditViewModel @Inject constructor(
     fun addComment(message: String?, picture: Uri?) {
         val userActivity = UserActivity()
         if (picture != null) {
-            val output = FileHelper.copyToUri(applicationContext, preferences.attachmentsDirectory!!, picture)
+            val output = FileHelper.copyToUri(context, preferences.attachmentsDirectory!!, picture)
             userActivity.setPicture(output)
         }
         userActivity.message = message
         userActivity.targetId = task.uuid
-        userActivity.created = now()
+        userActivity.created = currentTimeMillis()
         viewModelScope.launch {
             withContext(NonCancellable) {
                 userActivityDao.createNew(userActivity)
@@ -481,7 +500,21 @@ class TaskEditViewModel @Inject constructor(
         }
     }
 
+    init {
+        viewModelScope.launch {
+            taskAttachmentDao.getAttachments(task.id).let { attachments ->
+                selectedAttachments.update { attachments }
+                originalAttachments = attachments
+            }
+        }
+    }
+
     companion object {
         fun String?.stripCarriageReturns(): String? = this?.replace("\\r\\n?".toRegex(), "\n")
+
+        private fun Int.isFlagSet(flag: Int): Boolean = this and flag > 0
+
+        private fun List<Alarm>.plusAlarm(alarm: Alarm): List<Alarm> =
+            if (any { it.same(alarm) }) this else this + alarm
     }
 }

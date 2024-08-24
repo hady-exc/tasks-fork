@@ -1,42 +1,42 @@
 package org.tasks.preferences
 
-import android.content.Context
-import com.todoroo.astrid.api.CaldavFilter
-import com.todoroo.astrid.api.CustomFilter
-import com.todoroo.astrid.api.Filter
-import com.todoroo.astrid.api.GtasksFilter
-import com.todoroo.astrid.api.TagFilter
-import com.todoroo.astrid.core.BuiltInFilterExposer
-import com.todoroo.astrid.core.BuiltInFilterExposer.Companion.getMyTasksFilter
-import com.todoroo.astrid.data.Task
-import dagger.hilt.android.qualifiers.ApplicationContext
+import org.tasks.filters.CustomFilter
 import kotlinx.coroutines.runBlocking
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
-import org.tasks.data.CaldavCalendar.Companion.ACCESS_READ_ONLY
-import org.tasks.data.CaldavDao
-import org.tasks.data.CaldavTask
-import org.tasks.data.FilterDao
 import org.tasks.data.GoogleTask
-import org.tasks.data.GoogleTaskDao
-import org.tasks.data.GoogleTaskListDao
-import org.tasks.data.LocationDao
-import org.tasks.data.TagDataDao
+import org.tasks.data.dao.CaldavDao
+import org.tasks.data.dao.FilterDao
+import org.tasks.data.dao.GoogleTaskDao
+import org.tasks.data.dao.GoogleTaskListDao
+import org.tasks.data.dao.LocationDao
+import org.tasks.data.dao.TagDataDao
+import org.tasks.data.entity.CaldavCalendar.Companion.ACCESS_READ_ONLY
+import org.tasks.data.entity.CaldavTask
+import org.tasks.data.entity.Task
+import org.tasks.data.getLocalList
+import org.tasks.filters.CaldavFilter
+import org.tasks.filters.Filter
+import org.tasks.filters.GtasksFilter
+import org.tasks.filters.MyTasksFilter
+import org.tasks.filters.NotificationsFilter
 import org.tasks.filters.PlaceFilter
+import org.tasks.filters.RecentlyModifiedFilter
+import org.tasks.filters.SnoozedFilter
+import org.tasks.filters.TagFilter
+import org.tasks.filters.TodayFilter
 import timber.log.Timber
 import javax.inject.Inject
 
 class DefaultFilterProvider @Inject constructor(
-        // TODO: don't inject context, it breaks built-in filters when overriding language
-        @param:ApplicationContext private val context: Context,
-        private val preferences: Preferences,
-        private val filterDao: FilterDao,
-        private val tagDataDao: TagDataDao,
-        private val googleTaskListDao: GoogleTaskListDao,
-        private val caldavDao: CaldavDao,
-        private val locationDao: LocationDao,
-        private val googleTaskDao: GoogleTaskDao) {
-
+    private val preferences: Preferences,
+    private val filterDao: FilterDao,
+    private val tagDataDao: TagDataDao,
+    private val googleTaskListDao: GoogleTaskListDao,
+    private val caldavDao: CaldavDao,
+    private val locationDao: LocationDao,
+    private val googleTaskDao: GoogleTaskDao
+) {
     var dashclockFilter: Filter
         @Deprecated("use coroutines") get() = runBlocking { getFilterFromPreference(R.string.p_dashclock_filter) }
         set(filter) = setFilterPreference(filter, R.string.p_dashclock_filter)
@@ -83,11 +83,11 @@ class DefaultFilterProvider @Inject constructor(
             getFilterFromPreference(preferences.getStringValue(resId))
 
     suspend fun getFilterFromPreference(prefString: String?): Filter =
-            getFilterFromPreference(prefString, getMyTasksFilter(context.resources))!!
+        getFilterFromPreference(prefString, MyTasksFilter.create())!!
 
     private suspend fun getAnyList(): Filter {
         val filter = caldavDao.getGoogleTaskLists().getOrNull(0)?.let(::GtasksFilter)
-                ?: caldavDao.getCalendars().filterNot { it.access == ACCESS_READ_ONLY }.getOrElse(0) { caldavDao.getLocalList(context) }.let(::CaldavFilter)
+                ?: caldavDao.getCalendars().filterNot { it.access == ACCESS_READ_ONLY }.getOrElse(0) { caldavDao.getLocalList() }.let(::CaldavFilter)
         defaultList = filter
         return filter
     }
@@ -140,12 +140,12 @@ class DefaultFilterProvider @Inject constructor(
         else -> TYPE_FILTER
     }
 
-    private fun getBuiltInFilter(id: Int): Filter = when (id) {
-        FILTER_TODAY -> BuiltInFilterExposer.getTodayFilter(context.resources)
-        FILTER_RECENTLY_MODIFIED -> BuiltInFilterExposer.getRecentlyModifiedFilter(context.resources)
-        FILTER_SNOOZED -> BuiltInFilterExposer.getSnoozedFilter(context.resources)
-        FILTER_NOTIFICATIONS -> BuiltInFilterExposer.getNotificationsFilter(context)
-        else -> getMyTasksFilter(context.resources)
+    private suspend fun getBuiltInFilter(id: Int): Filter = when (id) {
+        FILTER_TODAY -> TodayFilter.create()
+        FILTER_RECENTLY_MODIFIED -> RecentlyModifiedFilter.create()
+        FILTER_SNOOZED -> SnoozedFilter.create()
+        FILTER_NOTIFICATIONS -> NotificationsFilter.create()
+        else -> MyTasksFilter.create()
     }
 
     private fun getBuiltInFilterId(filter: Filter) = with(filter) {
@@ -192,17 +192,13 @@ class DefaultFilterProvider @Inject constructor(
         return originalList ?: getDefaultList()
     }
 
-    private fun Filter.isToday() =
-        BuiltInFilterExposer.isTodayFilter(context, this)
+    private fun Filter.isToday() = this is TodayFilter
 
-    private fun Filter.isRecentlyModified() =
-        BuiltInFilterExposer.isRecentlyModifiedFilter(context, this)
+    private fun Filter.isRecentlyModified() = this is RecentlyModifiedFilter
 
-    private fun Filter.isSnoozed() =
-        BuiltInFilterExposer.isSnoozedFilter(context, this)
+    private fun Filter.isSnoozed() = this is SnoozedFilter
 
-    private fun Filter.isNotifications() =
-        BuiltInFilterExposer.isNotificationsFilter(context, this)
+    private fun Filter.isNotifications() = this is NotificationsFilter
 
     companion object {
         private const val TYPE_FILTER = 0

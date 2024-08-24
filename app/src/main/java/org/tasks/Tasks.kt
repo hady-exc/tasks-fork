@@ -12,7 +12,9 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.coroutineScope
 import androidx.work.Configuration
-import com.todoroo.andlib.utility.DateUtilities.now
+import com.mikepenz.iconics.Iconics
+import org.tasks.icons.OutlinedGoogleMaterial
+import org.tasks.icons.OutlinedGoogleMaterial2
 import com.todoroo.astrid.service.Upgrader
 import dagger.Lazy
 import dagger.hilt.android.HiltAndroidApp
@@ -30,8 +32,8 @@ import org.tasks.opentasks.OpenTaskContentObserver
 import org.tasks.preferences.Preferences
 import org.tasks.receivers.RefreshReceiver
 import org.tasks.scheduling.NotificationSchedulerIntentService
-import org.tasks.scheduling.RefreshScheduler
 import org.tasks.themes.ThemeBase
+import org.tasks.time.DateTimeUtils2.currentTimeMillis
 import org.tasks.widget.AppWidgetManager
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -47,12 +49,11 @@ class Tasks : Application(), Configuration.Provider {
     @Inject lateinit var localBroadcastManager: LocalBroadcastManager
     @Inject lateinit var upgrader: Lazy<Upgrader>
     @Inject lateinit var workManager: Lazy<WorkManager>
-    @Inject lateinit var refreshScheduler: Lazy<RefreshScheduler>
     @Inject lateinit var geofenceApi: Lazy<GeofenceApi>
     @Inject lateinit var appWidgetManager: Lazy<AppWidgetManager>
     @Inject lateinit var workerFactory: HiltWorkerFactory
     @Inject lateinit var contentObserver: Lazy<OpenTaskContentObserver>
-    
+
     override fun onCreate() {
         super.onCreate()
         buildSetup.setup()
@@ -64,7 +65,8 @@ class Tasks : Application(), Configuration.Provider {
         ProcessLifecycleOwner.get().lifecycle.addObserver(
             object : DefaultLifecycleObserver {
                 override fun onResume(owner: LifecycleOwner) {
-                    if (now() - preferences.lastSync > TimeUnit.MINUTES.toMillis(5)) {
+                    localBroadcastManager.broadcastRefresh()
+                    if (currentTimeMillis() - preferences.lastSync > TimeUnit.MINUTES.toMillis(5)) {
                         owner.lifecycle.coroutineScope.launch {
                             workManager.get().sync(true)
                         }
@@ -93,17 +95,18 @@ class Tasks : Application(), Configuration.Provider {
     }
 
     private fun backgroundWork() = CoroutineScope(Dispatchers.Default).launch {
+        Iconics.registerFont(OutlinedGoogleMaterial)
+        Iconics.registerFont(OutlinedGoogleMaterial2)
         inventory.updateTasksAccount()
         NotificationSchedulerIntentService.enqueueWork(context)
-        refreshScheduler.get().scheduleAll()
         workManager.get().apply {
             updateBackgroundSync()
-            scheduleMidnightRefresh()
             scheduleBackup()
             scheduleConfigRefresh()
-            OpenTaskContentObserver.registerObserver(context, contentObserver.get())
             updatePurchases()
+            scheduleRefresh()
         }
+        OpenTaskContentObserver.registerObserver(context, contentObserver.get())
         geofenceApi.get().registerAll()
         FileHelper.delete(context, preferences.cacheDirectory)
         appWidgetManager.get().reconfigureWidgets()

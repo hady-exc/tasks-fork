@@ -1,19 +1,28 @@
 package org.tasks.caldav
 
 import android.content.Context
-import at.bitfire.dav4jvm.*
+import at.bitfire.dav4jvm.DavCalendar
 import at.bitfire.dav4jvm.DavCalendar.Companion.MIME_ICALENDAR
+import at.bitfire.dav4jvm.DavResource
+import at.bitfire.dav4jvm.Property
+import at.bitfire.dav4jvm.PropertyRegistry
+import at.bitfire.dav4jvm.Response
 import at.bitfire.dav4jvm.Response.HrefRelation
 import at.bitfire.dav4jvm.exception.DavException
 import at.bitfire.dav4jvm.exception.HttpException
 import at.bitfire.dav4jvm.exception.ServiceUnavailableException
 import at.bitfire.dav4jvm.exception.UnauthorizedException
-import at.bitfire.dav4jvm.property.*
+import at.bitfire.dav4jvm.property.CalendarColor
+import at.bitfire.dav4jvm.property.CalendarData
+import at.bitfire.dav4jvm.property.CurrentUserPrincipal
+import at.bitfire.dav4jvm.property.CurrentUserPrivilegeSet
+import at.bitfire.dav4jvm.property.DisplayName
+import at.bitfire.dav4jvm.property.GetCTag
+import at.bitfire.dav4jvm.property.GetETag
 import at.bitfire.dav4jvm.property.GetETag.Companion.fromResponse
+import at.bitfire.dav4jvm.property.SyncToken
 import at.bitfire.ical4android.ICalendar.Companion.prodId
 import com.todoroo.astrid.dao.TaskDao
-import com.todoroo.astrid.data.Task
-import com.todoroo.astrid.helper.UUIDHelper
 import com.todoroo.astrid.service.TaskDeleter
 import dagger.hilt.android.qualifiers.ApplicationContext
 import net.fortuna.ical4j.model.property.ProdId
@@ -28,29 +37,42 @@ import org.tasks.Strings.isNullOrEmpty
 import org.tasks.analytics.Firebase
 import org.tasks.billing.Inventory
 import org.tasks.caldav.iCalendar.Companion.fromVtodo
-import org.tasks.caldav.property.*
+import org.tasks.caldav.property.Invite
+import org.tasks.caldav.property.OCAccess
+import org.tasks.caldav.property.OCInvite
+import org.tasks.caldav.property.OCOwnerPrincipal
+import org.tasks.caldav.property.OCUser
 import org.tasks.caldav.property.PropertyUtils.register
+import org.tasks.caldav.property.ShareAccess
 import org.tasks.caldav.property.ShareAccess.Companion.NOT_SHARED
 import org.tasks.caldav.property.ShareAccess.Companion.NO_ACCESS
 import org.tasks.caldav.property.ShareAccess.Companion.READ
 import org.tasks.caldav.property.ShareAccess.Companion.READ_WRITE
 import org.tasks.caldav.property.ShareAccess.Companion.SHARED_OWNER
-import org.tasks.data.*
-import org.tasks.data.CaldavAccount.Companion.ERROR_UNAUTHORIZED
-import org.tasks.data.CaldavAccount.Companion.SERVER_OPEN_XCHANGE
-import org.tasks.data.CaldavAccount.Companion.SERVER_OWNCLOUD
-import org.tasks.data.CaldavAccount.Companion.SERVER_SABREDAV
-import org.tasks.data.CaldavAccount.Companion.SERVER_TASKS
-import org.tasks.data.CaldavAccount.Companion.SERVER_UNKNOWN
-import org.tasks.data.CaldavCalendar.Companion.ACCESS_OWNER
-import org.tasks.data.CaldavCalendar.Companion.ACCESS_READ_ONLY
-import org.tasks.data.CaldavCalendar.Companion.ACCESS_READ_WRITE
-import org.tasks.data.CaldavCalendar.Companion.ACCESS_UNKNOWN
-import org.tasks.data.CaldavCalendar.Companion.INVITE_ACCEPTED
-import org.tasks.data.CaldavCalendar.Companion.INVITE_DECLINED
-import org.tasks.data.CaldavCalendar.Companion.INVITE_INVALID
-import org.tasks.data.CaldavCalendar.Companion.INVITE_NO_RESPONSE
-import org.tasks.data.CaldavCalendar.Companion.INVITE_UNKNOWN
+import org.tasks.caldav.property.Sharee
+import org.tasks.data.UUIDHelper
+import org.tasks.data.dao.CaldavDao
+import org.tasks.data.dao.PrincipalDao
+import org.tasks.data.entity.CaldavAccount
+import org.tasks.data.entity.CaldavAccount.Companion.ERROR_UNAUTHORIZED
+import org.tasks.data.entity.CaldavAccount.Companion.SERVER_OPEN_XCHANGE
+import org.tasks.data.entity.CaldavAccount.Companion.SERVER_OWNCLOUD
+import org.tasks.data.entity.CaldavAccount.Companion.SERVER_SABREDAV
+import org.tasks.data.entity.CaldavAccount.Companion.SERVER_TASKS
+import org.tasks.data.entity.CaldavAccount.Companion.SERVER_UNKNOWN
+import org.tasks.data.entity.CaldavCalendar
+import org.tasks.data.entity.CaldavCalendar.Companion.ACCESS_OWNER
+import org.tasks.data.entity.CaldavCalendar.Companion.ACCESS_READ_ONLY
+import org.tasks.data.entity.CaldavCalendar.Companion.ACCESS_READ_WRITE
+import org.tasks.data.entity.CaldavCalendar.Companion.ACCESS_UNKNOWN
+import org.tasks.data.entity.CaldavCalendar.Companion.INVITE_ACCEPTED
+import org.tasks.data.entity.CaldavCalendar.Companion.INVITE_DECLINED
+import org.tasks.data.entity.CaldavCalendar.Companion.INVITE_INVALID
+import org.tasks.data.entity.CaldavCalendar.Companion.INVITE_NO_RESPONSE
+import org.tasks.data.entity.CaldavCalendar.Companion.INVITE_UNKNOWN
+import org.tasks.data.entity.CaldavTask
+import org.tasks.data.entity.PrincipalAccess
+import org.tasks.data.entity.Task
 import timber.log.Timber
 import java.io.IOException
 import java.net.ConnectException
@@ -62,17 +84,17 @@ import javax.inject.Inject
 import javax.net.ssl.SSLException
 
 class CaldavSynchronizer @Inject constructor(
-        @param:ApplicationContext private val context: Context,
-        private val caldavDao: CaldavDao,
-        private val taskDao: TaskDao,
-        private val localBroadcastManager: LocalBroadcastManager,
-        private val taskDeleter: TaskDeleter,
-        private val inventory: Inventory,
-        private val firebase: Firebase,
-        private val provider: CaldavClientProvider,
-        private val iCal: iCalendar,
-        private val principalDao: PrincipalDao,
-        private val vtodoCache: VtodoCache,
+    @param:ApplicationContext private val context: Context,
+    private val caldavDao: CaldavDao,
+    private val taskDao: TaskDao,
+    private val localBroadcastManager: LocalBroadcastManager,
+    private val taskDeleter: TaskDeleter,
+    private val inventory: Inventory,
+    private val firebase: Firebase,
+    private val provider: CaldavClientProvider,
+    private val iCal: iCalendar,
+    private val principalDao: PrincipalDao,
+    private val vtodoCache: VtodoCache,
 ) {
     suspend fun sync(account: CaldavAccount) {
         Thread.currentThread().contextClassLoader = context.classLoader
@@ -197,6 +219,9 @@ class CaldavSynchronizer @Inject constructor(
     }
 
     private suspend fun setError(account: CaldavAccount, message: String?) {
+        if (!message.isNullOrBlank()) {
+            Timber.e("${account.name}: $message")
+        }
         account.error = message
         caldavDao.update(account)
         localBroadcastManager.broadcastRefreshList()
@@ -277,10 +302,10 @@ class CaldavSynchronizer @Inject constructor(
     }
 
     private suspend fun pushLocalChanges(
-            account: CaldavAccount,
-            caldavCalendar: CaldavCalendar,
-            httpClient: OkHttpClient,
-            httpUrl: HttpUrl
+        account: CaldavAccount,
+        caldavCalendar: CaldavCalendar,
+        httpClient: OkHttpClient,
+        httpUrl: HttpUrl
     ) {
         for (task in caldavDao.getMoved(caldavCalendar.uuid!!)) {
             deleteRemoteResource(httpClient, httpUrl, caldavCalendar, task)
@@ -295,15 +320,15 @@ class CaldavSynchronizer @Inject constructor(
     }
 
     private suspend fun deleteRemoteResource(
-            httpClient: OkHttpClient,
-            httpUrl: HttpUrl,
-            calendar: CaldavCalendar,
-            caldavTask: CaldavTask
+        httpClient: OkHttpClient,
+        httpUrl: HttpUrl,
+        calendar: CaldavCalendar,
+        caldavTask: CaldavTask
     ): Boolean {
         try {
-            if (!isNullOrEmpty(caldavTask.`object`)) {
+            if (!isNullOrEmpty(caldavTask.obj)) {
                 val remote = DavResource(
-                        httpClient, httpUrl.newBuilder().addPathSegment(caldavTask.`object`!!).build())
+                        httpClient, httpUrl.newBuilder().addPathSegment(caldavTask.obj!!).build())
                 remote.delete(null) {}
             }
         } catch (e: HttpException) {
@@ -339,7 +364,7 @@ class CaldavSynchronizer @Inject constructor(
         val requestBody = data.toRequestBody(contentType = MIME_ICALENDAR)
         try {
             val remote = DavResource(
-                    httpClient, httpUrl.newBuilder().addPathSegment(caldavTask.`object`!!).build())
+                    httpClient, httpUrl.newBuilder().addPathSegment(caldavTask.obj!!).build())
             remote.put(requestBody) {
                 if (it.isSuccessful) {
                     fromResponse(it)?.eTag?.takeIf(String::isNotBlank)?.let { etag ->
@@ -357,7 +382,7 @@ class CaldavSynchronizer @Inject constructor(
         Timber.d("SENT %s", caldavTask)
     }
 
-    fun Response.principals(
+    suspend fun Response.principals(
         account: CaldavAccount,
         list: CaldavCalendar
     ): List<PrincipalAccess> {

@@ -32,7 +32,6 @@
     <string name="astrid_sort_order_summary">Bật chế độ sắp xếp thủ công của Astrid đối với \'Công việc của tôi\', \'Hôm nay\', và các thẻ. Chế độ sắp xếp này sẽ được \'Thứ tự của tôi\' thay thế ở một bản cập nhật trong tương lai</string>
     <string name="action_open">Mở</string>
     <string name="action_call">Gọi</string>
-    <string name="manage_drawer">Quản lý ngăn</string>
     <string name="TAd_actionEditTask">Chỉnh sửa</string>
     <string name="TLA_menu_settings">Cài đặt</string>
     <string name="TLA_menu_search">Tìm kiếm</string>
@@ -154,7 +153,6 @@
     <string name="sort_start_group">Bắt đầu %s</string>
     <string name="got_it">Hiểu rồi!</string>
     <string name="support_development_subscribe">Mở khoá các tính năng bổ sung và hỗ trợ phần mềm mã nguồn mở</string>
-    <string name="tasks_needs_your_support">Tasks cần sự hỗ trợ của bạn!</string>
     <string name="enjoying_tasks">Đang tận hưởng Tasks\?</string>
     <string name="filter_eisenhower_box_4">Không quan trọng và không gấp</string>
     <string name="filter_eisenhower_box_3">Không quan trọng và gấp</string>
@@ -470,7 +468,6 @@
     <string name="TEA_timer_comment_stopped">đã dừng làm công việc này:</string>
     <string name="TEA_timer_comment_started">đã bắt đầu công việc này:</string>
     <string name="TEA_timer_controls">Hẹn giờ</string>
-    <string name="TFE_workingOn">Công việc đang được tính thời gian</string>
     <string name="TPl_notification">Hẹn giờ đang hoạt động đối với %s!</string>
     <string name="delete_tag_confirmation">Xoá %s\?</string>
     <string name="new_list">Tạo danh sách mới</string>
@@ -666,7 +663,6 @@
     <string name="caldav_server_unknown">Không xác định</string>
     <string name="caldav_server_type">Loại máy chủ</string>
     <string name="caldav_server_other">Khác</string>
-    <string name="filter_snoozed">Đã đặt báo lại</string>
     <string name="customize_edit_screen_summary">Sắp xếp lại hoặc xóa các trường</string>
     <string name="dismiss">Bỏ qua</string>
     <string name="hint_customize_edit_title">Quá nhiều thông tin\?</string>

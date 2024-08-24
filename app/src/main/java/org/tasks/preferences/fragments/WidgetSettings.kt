@@ -10,8 +10,6 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.SeekBarPreference
 import androidx.preference.SwitchPreferenceCompat
-import com.todoroo.astrid.api.AstridOrderingFilter
-import com.todoroo.astrid.api.Filter
 import com.todoroo.astrid.core.SortHelper.SORT_ALPHA
 import com.todoroo.astrid.core.SortHelper.SORT_CREATED
 import com.todoroo.astrid.core.SortHelper.SORT_DUE
@@ -23,14 +21,16 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.tasks.LocalBroadcastManager
 import org.tasks.R
+import org.tasks.compose.FilterSelectionActivity.Companion.launch
+import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPickerResult
 import org.tasks.dialogs.ColorPalettePicker
 import org.tasks.dialogs.ColorPalettePicker.Companion.newColorPalette
 import org.tasks.dialogs.ColorPickerAdapter.Palette
 import org.tasks.dialogs.ColorWheelPicker
-import org.tasks.dialogs.FilterPicker.Companion.newFilterPicker
-import org.tasks.dialogs.FilterPicker.Companion.setFilterPickerResultListener
 import org.tasks.dialogs.SortSettingsActivity
 import org.tasks.dialogs.ThemePickerDialog.Companion.newThemePickerDialog
+import org.tasks.filters.AstridOrderingFilter
+import org.tasks.filters.Filter
 import org.tasks.injection.InjectingPreferenceFragment
 import org.tasks.preferences.DefaultFilterProvider
 import org.tasks.preferences.Preferences
@@ -48,7 +48,6 @@ class WidgetSettings : InjectingPreferenceFragment() {
 
         const val EXTRA_WIDGET_ID = "extra_widget_id"
         private const val FRAG_TAG_COLOR_PICKER = "frag_tag_color_picker"
-        private const val FRAG_TAG_FILTER_PICKER = "frag_tag_filter_picker"
 
         fun newWidgetSettings(appWidgetId: Int): WidgetSettings {
             val widget = WidgetSettings()
@@ -65,16 +64,12 @@ class WidgetSettings : InjectingPreferenceFragment() {
 
     private lateinit var widgetPreferences: WidgetPreferences
     private var appWidgetId = 0
+    private val listPickerLauncher = registerForListPickerResult {
+        widgetPreferences.setFilter(defaultFilterProvider.getFilterPreferenceValue(it))
+        updateFilter()
+    }
 
     override fun getPreferenceXml() = R.xml.preferences_widget
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        childFragmentManager.setFilterPickerResultListener(this) {
-            widgetPreferences.setFilter(defaultFilterProvider.getFilterPreferenceValue(it))
-            updateFilter()
-        }
-    }
 
     override fun onResume() {
         super.onResume()
@@ -145,8 +140,7 @@ class WidgetSettings : InjectingPreferenceFragment() {
         findPreference(R.string.p_widget_filter)
             .setOnPreferenceClickListener {
                 lifecycleScope.launch {
-                    newFilterPicker(getFilter())
-                        .show(childFragmentManager, FRAG_TAG_FILTER_PICKER)
+                    listPickerLauncher.launch(requireContext(), selectedFilter = getFilter())
                 }
                 false
             }

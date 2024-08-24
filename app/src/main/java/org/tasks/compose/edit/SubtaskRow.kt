@@ -13,8 +13,8 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ContentAlpha
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -33,10 +33,6 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.android.material.composethemeadapter.MdcTheme
-import com.todoroo.astrid.api.Filter
-import com.todoroo.astrid.api.GtasksFilter
-import com.todoroo.astrid.data.Task
 import org.tasks.compose.CheckBox
 import org.tasks.compose.ClearButton
 import org.tasks.compose.DisabledText
@@ -44,8 +40,14 @@ import org.tasks.compose.SubtaskChip
 import org.tasks.compose.TaskEditIcon
 import org.tasks.compose.TaskEditRow
 import org.tasks.data.TaskContainer
+import org.tasks.data.entity.Task
+import org.tasks.data.isHidden
+import org.tasks.filters.Filter
+import org.tasks.filters.GtasksFilter
 import org.tasks.tasklist.SectionedDataSource
-import org.tasks.ui.TaskListViewModel
+import org.tasks.tasklist.TasksResults
+import org.tasks.tasklist.UiItem
+import org.tasks.themes.TasksTheme
 
 @Composable
 fun SubtaskRow(
@@ -53,7 +55,7 @@ fun SubtaskRow(
     filter: Filter?,
     hasParent: Boolean,
     desaturate: Boolean,
-    existingSubtasks: TaskListViewModel.TasksResults,
+    existingSubtasks: TasksResults,
     newSubtasks: List<Task>,
     openSubtask: (Task) -> Unit,
     completeExistingSubtask: (Task, Boolean) -> Unit,
@@ -90,10 +92,10 @@ fun SubtaskRow(
                     )
                 } else {
                     Spacer(modifier = Modifier.height(height = 8.dp))
-                    if (existingSubtasks is TaskListViewModel.TasksResults.Results) {
+                    if (existingSubtasks is TasksResults.Results) {
                         existingSubtasks
                             .tasks
-                            .filterIsInstance<TaskListViewModel.UiItem.Task>()
+                            .filterIsInstance<UiItem.Task>()
                             .map { it.task }
                             .forEach { task ->
                             ExistingSubtaskRow(
@@ -148,7 +150,7 @@ fun NewSubtaskRow(
             modifier = Modifier.align(Alignment.Top),
             desaturate = desaturate,
         )
-        var text by remember { mutableStateOf(subtask.title ?: "") }
+        var text by remember(subtask.remoteId) { mutableStateOf(subtask.title ?: "") }
         val focusRequester = remember { FocusRequester() }
         BasicTextField(
             value = text,
@@ -156,7 +158,7 @@ fun NewSubtaskRow(
                 text = it
                 subtask.title = it
             },
-            cursorBrush = SolidColor(MaterialTheme.colors.onSurface),
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
             modifier = Modifier
                 .weight(1f)
                 .focusable(enabled = true)
@@ -164,9 +166,9 @@ fun NewSubtaskRow(
                 .alpha(if (subtask.isCompleted) ContentAlpha.disabled else ContentAlpha.high)
                 .align(Alignment.Top)
                 .padding(top = 12.dp),
-            textStyle = MaterialTheme.typography.body1.copy(
+            textStyle = MaterialTheme.typography.bodyLarge.copy(
                 textDecoration = if (subtask.isCompleted) TextDecoration.LineThrough else TextDecoration.None,
-                color = MaterialTheme.colors.onSurface,
+                color = MaterialTheme.colorScheme.onSurface,
             ),
             keyboardOptions = KeyboardOptions.Default.copy(
                 capitalization = KeyboardCapitalization.Sentences,
@@ -214,11 +216,12 @@ fun ExistingSubtaskRow(
             text = task.title!!,
             modifier = Modifier
                 .weight(1f)
-                .alpha(if (task.isCompleted || task.isHidden) ContentAlpha.disabled else ContentAlpha.high)
+                .alpha(if (task.isCompleted || task.task.isHidden) ContentAlpha.disabled else ContentAlpha.high)
                 .align(Alignment.Top)
                 .padding(top = 12.dp),
-            style = MaterialTheme.typography.body1.copy(
-                textDecoration = if (task.isCompleted) TextDecoration.LineThrough else TextDecoration.None
+            style = MaterialTheme.typography.bodyLarge.copy(
+                textDecoration = if (task.isCompleted) TextDecoration.LineThrough else TextDecoration.None,
+                color = MaterialTheme.colorScheme.onSurface,
             )
         )
         if (task.hasChildren()) {
@@ -236,13 +239,13 @@ fun ExistingSubtaskRow(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, widthDp = 320)
 @Composable
 fun NoSubtasks() {
-    MdcTheme {
+    TasksTheme {
         SubtaskRow(
             originalFilter = null,
             filter = null,
             hasParent = false,
             desaturate = true,
-            existingSubtasks = TaskListViewModel.TasksResults.Results(SectionedDataSource()),
+            existingSubtasks = TasksResults.Results(SectionedDataSource()),
             newSubtasks = emptyList(),
             openSubtask = {},
             completeExistingSubtask = { _, _ -> },
@@ -258,13 +261,13 @@ fun NoSubtasks() {
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, widthDp = 320)
 @Composable
 fun SubtasksPreview() {
-    MdcTheme {
+    TasksTheme {
         SubtaskRow(
             originalFilter = null,
             filter = null,
             hasParent = false,
             desaturate = true,
-            existingSubtasks = TaskListViewModel.TasksResults.Results(
+            existingSubtasks = TasksResults.Results(
                 SectionedDataSource(
                     tasks = listOf(
                         TaskContainer(

@@ -5,11 +5,11 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
-import com.todoroo.astrid.helper.UUIDHelper
+import org.tasks.data.UUIDHelper
 import dagger.hilt.android.AndroidEntryPoint
 import org.tasks.R
 import org.tasks.analytics.Constants
-import org.tasks.data.CaldavAccount
+import org.tasks.data.entity.CaldavAccount
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -38,14 +38,15 @@ class CaldavAccountSettingsActivity : BaseCaldavAccountSettingsActivity(), Toolb
     private suspend fun addAccount(principal: String) {
         hideProgressIndicator()
         Timber.d("Found principal: %s", principal)
-        CaldavAccount().apply {
-            name = newName
-            url = principal
-            username = newUsername
-            password = encryption.encrypt(newPassword!!)
-            uuid = UUIDHelper.newUUID()
-            id = caldavDao.insert(this)
-        }
+        caldavDao.insert(
+            CaldavAccount(
+                name = newName,
+                url = principal,
+                username = newUsername,
+                password = encryption.encrypt(newPassword!!),
+                uuid = UUIDHelper.newUUID(),
+            )
+        )
         firebase.logEvent(
                 R.string.event_sync_add_account,
                 R.string.param_type to Constants.SYNC_TYPE_CALDAV

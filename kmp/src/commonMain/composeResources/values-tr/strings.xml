@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search">Ara</string>
+    <string name="subscribe">Abone ol</string>
+    <string name="search_no_results">Sonuç yok</string>
+    <string name="requires_pro_subscription">Pro özellik</string>
+    <string name="subscription_required_description">Yılda 1$ gibi düşük bir ücretle tüm özelliklerin kilidini açın</string>
+    <string name="filter_my_tasks">Görevlerim</string>
+    <string name="filter_notifications">Bildirimler</string>
+    <string name="filter_snoozed">Ertelendi</string>
+    <string name="filter_timer">Zaman Ölçümü Olan Görevler</string>
+    <string name="filter_today">Bugün</string>
+    <string name="filter_recently_modified">Yakında değiştirilenler</string>
+    <string name="default_list">Öntanımlı liste</string>
+    <string name="help_and_feedback">Yardım ve geri bildirim</string>
+    <string name="drawer_filters">Süzgeçler</string>
+    <string name="drawer_tags">Etiketler</string>
+    <string name="settings">Ayarlar</string>
+    <string name="drawer_places">Yerler</string>
+    <string name="drawer_local_lists">Yerel listeler</string>
+    <string name="tmrw">Yarın</string>
+    <string name="tomorrow_abbrev_lowercase">yarın</string>
+    <string name="tomorrow">Yarın</string>
+    <string name="tomorrow_lowercase">yarın</string>
+    <string name="yest">Dün</string>
+    <string name="yesterday_abbrev_lowercase">dün</string>
+    <string name="yesterday">Dün</string>
+    <string name="yesterday_lowercase">dün</string>
+    <string name="today">Bugün</string>
+    <string name="today_lowercase">bugün</string>
+</resources>

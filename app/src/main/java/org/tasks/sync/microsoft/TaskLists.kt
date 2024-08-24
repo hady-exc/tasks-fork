@@ -1,13 +1,15 @@
 package org.tasks.sync.microsoft
 
 import com.squareup.moshi.Json
-import org.tasks.data.CaldavCalendar
+import kotlinx.serialization.Serializable
+import org.tasks.data.entity.CaldavCalendar
 
 data class TaskLists(
     @field:Json(name = "@odata.context") val context: String,
     val value: List<TaskList>,
     @field:Json(name = "@odata.nextLink") val nextPage: String?,
 ) {
+    @Serializable
     data class TaskList(
         @Json(name = "@odata.etag") val etag: String? = null,
         val displayName: String? = null,

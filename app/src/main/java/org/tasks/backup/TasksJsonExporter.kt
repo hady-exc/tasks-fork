@@ -7,20 +7,34 @@ import android.content.Context
 import android.net.Uri
 import android.os.Handler
 import com.google.common.io.Files
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import com.todoroo.andlib.utility.DialogUtilities
-import com.todoroo.astrid.data.Task
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.encodeToJsonElement
 import org.tasks.BuildConfig
 import org.tasks.R
 import org.tasks.backup.BackupContainer.TaskBackup
 import org.tasks.caldav.VtodoCache
 import org.tasks.data.*
+import org.tasks.data.dao.AlarmDao
+import org.tasks.data.dao.CaldavDao
+import org.tasks.data.dao.FilterDao
+import org.tasks.data.dao.LocationDao
+import org.tasks.data.dao.TagDao
+import org.tasks.data.dao.TagDataDao
+import org.tasks.data.dao.TaskAttachmentDao
+import org.tasks.data.dao.TaskDao
+import org.tasks.data.dao.TaskListMetadataDao
+import org.tasks.data.dao.UserActivityDao
+import org.tasks.data.entity.Task
 import org.tasks.date.DateTimeUtils.newDateTime
 import org.tasks.extensions.Context.toast
 import org.tasks.files.FileHelper
 import org.tasks.jobs.WorkManager
 import org.tasks.preferences.Preferences
+import org.tasks.time.DateTimeUtils2.currentTimeMillis
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
@@ -30,19 +44,19 @@ import java.nio.charset.Charset
 import javax.inject.Inject
 
 class TasksJsonExporter @Inject constructor(
-        private val tagDataDao: TagDataDao,
-        private val taskDao: TaskDao,
-        private val userActivityDao: UserActivityDao,
-        private val preferences: Preferences,
-        private val alarmDao: AlarmDao,
-        private val locationDao: LocationDao,
-        private val tagDao: TagDao,
-        private val filterDao: FilterDao,
-        private val taskAttachmentDao: TaskAttachmentDao,
-        private val caldavDao: CaldavDao,
-        private val workManager: WorkManager,
-        private val taskListMetadataDao: TaskListMetadataDao,
-        private val vtodoCache: VtodoCache,
+    private val tagDataDao: TagDataDao,
+    private val taskDao: TaskDao,
+    private val userActivityDao: UserActivityDao,
+    private val preferences: Preferences,
+    private val alarmDao: AlarmDao,
+    private val locationDao: LocationDao,
+    private val tagDao: TagDao,
+    private val filterDao: FilterDao,
+    private val taskAttachmentDao: TaskAttachmentDao,
+    private val caldavDao: CaldavDao,
+    private val workManager: WorkManager,
+    private val taskListMetadataDao: TaskListMetadataDao,
+    private val vtodoCache: VtodoCache,
     ) {
 
     private var context: Context? = null
@@ -111,37 +125,43 @@ class TasksJsonExporter @Inject constructor(
             val caldavTasks = caldavDao.getTasks(taskId)
             taskBackups.add(
                     TaskBackup(
-                        task,
-                        alarmDao.getAlarms(taskId),
-                        locationDao.getGeofencesForTask(taskId),
-                        tagDao.getTagsForTask(taskId),
-                        userActivityDao.getComments(taskId),
-                        taskAttachmentDao.getAttachmentsForTask(taskId),
-                        caldavTasks,
-                        vtodoCache.getVtodo( caldavTasks.firstOrNull { !it.isDeleted() })
-                    ))
+                        task = task,
+                        alarms = alarmDao.getAlarms(taskId),
+                        geofences = locationDao.getGeofencesForTask(taskId),
+                        tags = tagDao.getTagsForTask(taskId),
+                        comments = userActivityDao.getComments(taskId),
+                        attachments = taskAttachmentDao.getAttachmentsForTask(taskId),
+                        caldavTasks = caldavTasks,
+                        vtodo = vtodoCache.getVtodo(caldavTasks.firstOrNull { !it.isDeleted() })
+                    )
+            )
         }
-        val data: MutableMap<String, Any> = HashMap()
-        data["version"] = BuildConfig.VERSION_CODE
-        data["timestamp"] = System.currentTimeMillis()
-        data["data"] = BackupContainer(
-                taskBackups,
-                locationDao.getPlaces(),
-                tagDataDao.getAll(),
-                filterDao.getFilters(),
-                caldavDao.getAccounts(),
-                caldavDao.getCalendars(),
-                taskListMetadataDao.getAll(),
-                taskAttachmentDao.getAttachments(),
-                preferences.getPrefs(Integer::class.java),
-                preferences.getPrefs(java.lang.Long::class.java),
-                preferences.getPrefs(String::class.java),
-                preferences.getPrefs(java.lang.Boolean::class.java),
-                preferences.getPrefs(java.util.Set::class.java),
+        val data = JsonObject(
+            mapOf(
+                "version" to JsonPrimitive(BuildConfig.VERSION_CODE),
+                "timestamp" to JsonPrimitive(currentTimeMillis()),
+                "data" to Json.encodeToJsonElement(
+                    BackupContainer(
+                        taskBackups,
+                        locationDao.getPlaces(),
+                        tagDataDao.getAll(),
+                        filterDao.getFilters(),
+                        caldavDao.getAccounts(),
+                        caldavDao.getCalendars(),
+                        taskListMetadataDao.getAll(),
+                        taskAttachmentDao.getAttachments(),
+                        preferences.getPrefs(Integer::class.java),
+                        preferences.getPrefs(java.lang.Long::class.java),
+                        preferences.getPrefs(String::class.java),
+                        preferences.getPrefs(java.lang.Boolean::class.java),
+                        preferences.getPrefs(java.util.Set::class.java) as Map<String, java.util.Set<String>>,
+                    )
+                )
+            )
         )
         val out = OutputStreamWriter(os, UTF_8)
-        val gson = if (BuildConfig.DEBUG) GsonBuilder().setPrettyPrinting().create() else Gson()
-        out.write(gson.toJson(data))
+        val json = if (BuildConfig.DEBUG) Json { prettyPrint = true } else Json
+        out.write(json.encodeToString(data))
         out.close()
         exportCount = taskBackups.size
     }

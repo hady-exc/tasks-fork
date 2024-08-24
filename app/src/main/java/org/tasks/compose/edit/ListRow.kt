@@ -7,13 +7,14 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.android.material.composethemeadapter.MdcTheme
-import com.todoroo.astrid.api.Filter
-import com.todoroo.astrid.api.FilterImpl
 import org.tasks.R
 import org.tasks.compose.ChipGroup
 import org.tasks.compose.FilterChip
 import org.tasks.compose.TaskEditRow
+import org.tasks.filters.Filter
+import org.tasks.filters.FilterImpl
+import org.tasks.themes.TasksIcons
+import org.tasks.themes.TasksTheme
 
 @Composable
 fun ListRow(
@@ -28,7 +29,7 @@ fun ListRow(
                 if (list != null) {
                     FilterChip(
                         filter = list,
-                        defaultIcon = R.drawable.ic_list_24px,
+                        defaultIcon = TasksIcons.LIST,
                         showText = true,
                         showIcon = true,
                         onClick = { onClick() },
@@ -46,7 +47,7 @@ fun ListRow(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, widthDp = 320)
 @Composable
 fun ListPreview() {
-    MdcTheme {
+    TasksTheme {
         ListRow(
             list = FilterImpl("Default list", ""),
             colorProvider = { -769226 },

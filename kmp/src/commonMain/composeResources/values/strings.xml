@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search">Search</string>
+    <string name="search_no_results">No results</string>
+    <string name="requires_pro_subscription">Pro feature</string>
+    <string name="subscription_required_description">Unlock all features for as little as $1 USD/year</string>
+    <string name="subscribe">Subscribe</string>
+    <string name="filter_my_tasks">My Tasks</string>
+    <string name="filter_notifications">Notifications</string>
+    <string name="filter_snoozed">Snoozed</string>
+    <string name="filter_timer">Tasks Being Timed</string>
+    <string name="filter_today">Today</string>
+    <string name="filter_recently_modified">Recently modified</string>
+    <string name="default_list">Default list</string>
+    <string name="help_and_feedback">Help &amp; feedback</string>
+    <string name="settings">Settings</string>
+    <string name="drawer_filters">Filters</string>
+    <string name="drawer_tags">Tags</string>
+    <string name="drawer_places">Places</string>
+    <string name="drawer_local_lists">Local lists</string>
+    <string name="tmrw">Tmrw</string>
+    <string name="tomorrow_abbrev_lowercase">tmrw</string>
+    <string name="tomorrow">Tomorrow</string>
+    <string name="tomorrow_lowercase">tomorrow</string>
+    <string name="yest">Yest</string>
+    <string name="yesterday_abbrev_lowercase">yest</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="yesterday_lowercase">yesterday</string>
+    <string name="today">Today</string>
+    <string name="today_lowercase">today</string>
+</resources>

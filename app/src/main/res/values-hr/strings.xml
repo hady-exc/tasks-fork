@@ -157,7 +157,6 @@
     <string name="not_signed_in">Nisi prijavljen/a</string>
     <string name="contact_developer">Kontaktiraj programera</string>
     <string name="hide_unused_places">Sakrij nekorištena mjesta</string>
-    <string name="manage_drawer">Upravljaj ladicom</string>
     <string name="place_settings">Postavke mjesta</string>
     <string name="places">Mjesta</string>
     <string name="desaturate_colors_summary_off">Boje neće biti nezasićene u tamnim temama</string>
@@ -300,7 +299,7 @@
     <string name="upgrade_to_pro">Nadogradi na Pro verziju</string>
     <string name="network_error">Neuspjelo spajanje</string>
     <string name="caldav_home_set_not_found">Početni skup nije pronađen</string>
-    <string name="tasker_list_notification">Obavijesti popisa</string>
+    <string name="tasker_list_notification">Obavijest popisa</string>
     <string name="tasker_create_task">Stvori zadatak</string>
     <string name="repeat_monthly_last_week">zadnji</string>
     <string name="repeat_monthly_fifth_week">peti</string>
@@ -517,10 +516,9 @@
     <string name="sort_modified_group">Promijenjeno %s</string>
     <string name="sort_created_group">Stvoreno %s</string>
     <string name="sort_due_group">Rok %s</string>
-    <string name="sort_start_group">Počni %s</string>
+    <string name="sort_start_group">Pokreni %s</string>
     <string name="got_it">Razumijem!</string>
     <string name="support_development_subscribe">Otključaj dodatne funkcije i podrži softver otvorenog koda</string>
-    <string name="tasks_needs_your_support">Tasks treba tovju podršku!</string>
     <string name="enjoying_tasks">Sviđa ti se Tasks\?</string>
     <string name="filter_eisenhower_box_4">Nije važno i nije hitno</string>
     <string name="filter_eisenhower_box_3">Nije važno i hitno</string>
@@ -583,7 +581,6 @@
     <string name="TEA_timer_comment_stopped">je prekinuo obavljati ovaj zadatak:</string>
     <string name="TEA_timer_comment_started">je započeo ovaj zadatak:</string>
     <string name="TEA_timer_controls">Mjerač vremena</string>
-    <string name="TFE_workingOn">Zadaci kojima se mjeri vrijeme</string>
     <string name="TPl_notification">Mjerači vremena aktivni za %s!</string>
     <string name="delete_tag_confirmation">Izbrisati %s\?</string>
     <string name="repeat_snackbar">%1$s preraspoređen za %2$s</string>
@@ -708,7 +705,6 @@
     <string name="caldav_server_unknown">Nepoznato</string>
     <string name="caldav_server_other">Drugi</string>
     <string name="caldav_server_type">Vrsta poslužitelja</string>
-    <string name="filter_snoozed">Odgođeno</string>
     <string name="dismiss">Odbaci</string>
     <string name="hint_customize_edit_body">Ovaj ekran možeš prilagoditi mijenjanjem rasporeda polja ili uklanjanjem polja</string>
     <string name="customize_edit_screen_summary">Prerasporedi ili ukloni polja</string>
@@ -758,4 +754,9 @@
     <string name="swipe_to_snooze_time_immediately">odmah</string>
     <string name="swipe_to_snooze_time_15_minutes">nakon 15 minuta</string>
     <string name="swipe_to_snooze_time_30_minutes">nakon 30 minuta</string>
+    <string name="customize_drawer">Prilagodi izbornik</string>
+    <string name="customize_drawer_summary">Povuci i ispusti stavke za mijenjanje rasporeda u izborniku</string>
+    <string name="donate_nag">Podrži projekt donacijom!</string>
+    <string name="donate_today">Doniraj danas</string>
+    <string name="donate_maybe_later">Možda kasnije</string>
 </resources>

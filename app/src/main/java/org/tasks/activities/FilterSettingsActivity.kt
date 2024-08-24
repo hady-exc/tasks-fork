@@ -3,13 +3,11 @@ package org.tasks.activities
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.view.MenuItem
-import android.widget.RelativeLayout
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Help
 import androidx.compose.runtime.Composable
@@ -21,25 +19,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.composethemeadapter.MdcTheme
-import com.todoroo.andlib.sql.Field
-import com.todoroo.andlib.sql.Query
-import com.todoroo.andlib.sql.UnaryCriterion
-import com.todoroo.andlib.utility.AndroidUtilities
 import com.todoroo.astrid.activity.MainActivity
 import com.todoroo.astrid.activity.TaskListFragment
 import com.todoroo.astrid.api.BooleanCriterion
-import com.todoroo.astrid.api.CustomFilter
 import com.todoroo.astrid.api.CustomFilterCriterion
-import com.todoroo.astrid.api.Filter.Companion.NO_ORDER
 import com.todoroo.astrid.api.MultipleSelectCriterion
 import com.todoroo.astrid.api.PermaSql
 import com.todoroo.astrid.api.TextInputCriterion
 import com.todoroo.astrid.core.CriterionInstance
-import com.todoroo.astrid.dao.Database
-import com.todoroo.astrid.data.Task
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import org.tasks.LocalBroadcastManager
 import org.tasks.R
 import org.tasks.Strings
 import org.tasks.compose.DeleteButton
@@ -48,13 +38,23 @@ import org.tasks.compose.FilterCondition.InputTextOption
 import org.tasks.compose.FilterCondition.NewCriterionFAB
 import org.tasks.compose.FilterCondition.SelectCriterionType
 import org.tasks.compose.FilterCondition.SelectFromList
-import org.tasks.data.Filter
-import org.tasks.data.FilterDao
-import org.tasks.data.TaskDao.TaskCriteria.activeAndVisible
+import org.tasks.data.NO_ORDER
+import org.tasks.data.dao.FilterDao
+import org.tasks.data.dao.TaskDao.TaskCriteria.activeAndVisible
+import org.tasks.data.db.Database
+import org.tasks.data.entity.Filter
+import org.tasks.data.entity.Task
+import org.tasks.data.rawQuery
+import org.tasks.data.sql.Field
+import org.tasks.data.sql.Query
+import org.tasks.data.sql.UnaryCriterion
 import org.tasks.db.QueryUtils
 import org.tasks.extensions.Context.openUri
+import org.tasks.filters.CustomFilter
 import org.tasks.filters.FilterCriteriaProvider
-import org.tasks.themes.CustomIcons
+import org.tasks.filters.mapToSerializedString
+import org.tasks.themes.TasksIcons
+import org.tasks.themes.TasksTheme
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.max
@@ -65,10 +65,17 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
     @Inject lateinit var locale: Locale
     @Inject lateinit var database: Database
     @Inject lateinit var filterCriteriaProvider: FilterCriteriaProvider
+    @Inject lateinit var localBroadcastManager: LocalBroadcastManager
 
 
     private var filter: CustomFilter? = null
-    override val defaultIcon: Int = CustomIcons.FILTER
+    override val defaultIcon = TasksIcons.FILTER_LIST
+
+    private var criteria: SnapshotStateList<CriterionInstance> = emptyList<CriterionInstance>().toMutableStateList()
+    private val fabExtended = mutableStateOf(false)
+    private val editCriterionType: MutableState<String?> = mutableStateOf(null)
+    private val newCriterionTypes: MutableState<List<CustomFilterCriterion>?> = mutableStateOf(null)
+    private val newCriterionOptions: MutableState<CriterionInstance?> = mutableStateOf(null)
 
     override val compose: Boolean
         get() = true
@@ -84,7 +91,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null && filter != null) {
             selectedColor = filter!!.tint
-            selectedIcon = filter!!.icon
+            selectedIcon.value =  filter!!.icon ?: defaultIcon
             textState.value = filter!!.title ?: ""
         }
         when {
@@ -123,7 +130,11 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
         fabExtended.value = isNew || criteria.size <= 1
         updateList()
 
-        this.setContent { activityContent() }
+        this.setContent {
+            TasksTheme {
+                activityContent()
+            }
+        }
     }
 
     private fun onDelete(index: Int) {
@@ -166,7 +177,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                 id = filter?.id ?: 0L,
                 title = newName,
                 color = selectedColor,
-                icon = selectedIcon,
+                icon = selectedIcon.value,
                 values = criteria.values,
                 criterion = CriterionInstance.serialize(criteria),
                 sql = criteria.sql,
@@ -182,6 +193,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
             } else {
                 filterDao.update(f)
             }
+            localBroadcastManager.broadcastRefresh()
             setResult(
                     Activity.RESULT_OK,
                     Intent(TaskListFragment.ACTION_RELOAD)
@@ -196,10 +208,10 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
     override fun hasChanges(): Boolean {
         return if (isNew) {
             (!Strings.isNullOrEmpty(newName)
-                    || selectedColor != 0 || selectedIcon != -1 || criteria.size > 1)
+                    || selectedColor != 0 || selectedIcon.value?.isBlank() == false || criteria.size > 1)
         } else newName != filter!!.title
                 || selectedColor != filter!!.tint
-                || selectedIcon != filter!!.icon
+                || selectedIcon.value != filter!!.icon
                 || CriterionInstance.serialize(criteria) != filter!!.criterion!!.trim()
                 || criteria.values != filter!!.valuesForNewTasks
                 || criteria.sql != filter!!.sql
@@ -209,8 +221,6 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
         super.finish()
     }
 
-    override fun bind(): RelativeLayout { TODO("must be deleted") }
-
     override suspend fun delete() {
         filterDao.delete(filter!!.id)
         setResult(
@@ -218,18 +228,9 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
         finish()
     }
 
-    override fun onMenuItemClick(item: MenuItem): Boolean =
-        /* TODO(delete after help button introduced) */
-        if (item.itemId == R.id.menu_help) {
-            help()
-            true
-        } else {
-            super.onMenuItemClick(item)
-        }
-
     private fun help() = openUri(R.string.url_filters)
 
-    private fun updateList() {
+    private fun updateList() = lifecycleScope.launch {
         var max = 0
         var last = -1
         val sql = StringBuilder(Query.select(Field.COUNT).from(Task.TABLE).toString())
@@ -245,7 +246,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
             if (instance.type == CriterionInstance.TYPE_UNIVERSE || instance.criterion.sql == null) {
                 sql.append(activeAndVisible()).append(' ')
             } else {
-                var subSql: String? = instance.criterion.sql.replace(
+                var subSql: String = instance.criterion.sql.replace(
                     "?",
                     UnaryCriterion.sanitize(instance.valueFromCriterion!!)
                 )
@@ -253,8 +254,8 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                 sql.append(Task.ID).append(" IN (").append(subSql).append(")")
             }
             val sqlString = QueryUtils.showHiddenAndCompleted(sql.toString())
-            database.query(sqlString, null).use { cursor ->
-                cursor.moveToNext()
+            database.rawQuery(sqlString) { cursor ->
+                cursor.step()
                 instance.start = if (last == -1) cursor.getInt(0) else last
                 instance.end = cursor.getInt(0)
                 last = instance.end
@@ -269,7 +270,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
     @Composable
     private fun activityContent ()
     {
-        MdcTheme {
+        TasksTheme {
             Box(  // to layout FAB over the main content
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.TopStart
@@ -374,7 +375,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                                 title = textInCriterion.name,
                                 onCancel = { newCriterionOptions.value = null },
                                 onDone = { text ->
-                                    text.trim().takeIf{ it != "" }?. let {text ->
+                                    text.trim().takeIf{ it != "" }?. let { text ->
                                         instance.selectedText = text
                                         criteria.add(instance)
                                         updateList()
@@ -432,7 +433,7 @@ class FilterSettingsActivity : BaseListSettingsActivity() {
                         }
                     }
                 }
-                return AndroidUtilities.mapToSerializedString(values)
+                return mapToSerializedString(values)
             }
     }
 }

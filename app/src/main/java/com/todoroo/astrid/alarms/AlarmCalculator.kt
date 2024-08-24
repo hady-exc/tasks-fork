@@ -1,12 +1,11 @@
 package com.todoroo.astrid.alarms
 
-import com.todoroo.andlib.utility.DateUtilities
-import com.todoroo.astrid.data.Task
-import org.tasks.data.Alarm
-import org.tasks.jobs.AlarmEntry
+import org.tasks.data.entity.Alarm
+import org.tasks.data.entity.Notification
+import org.tasks.data.entity.Task
 import org.tasks.preferences.Preferences
 import org.tasks.reminders.Random
-import org.tasks.time.DateTimeUtils.withMillisOfDay
+import org.tasks.time.withMillisOfDay
 import javax.inject.Inject
 
 class AlarmCalculator(
@@ -19,7 +18,7 @@ class AlarmCalculator(
         preferences: Preferences
     ) : this(preferences.isDefaultDueTimeEnabled, Random(), preferences.defaultDueTime)
 
-    fun toAlarmEntry(task: Task, alarm: Alarm): AlarmEntry? {
+    fun toAlarmEntry(task: Task, alarm: Alarm): Notification? {
         val trigger = when (alarm.type) {
             Alarm.TYPE_SNOOZE,
             Alarm.TYPE_DATE_TIME ->
@@ -51,12 +50,12 @@ class AlarmCalculator(
             trigger <= AlarmService.NO_ALARM ->
                 null
             trigger > task.reminderLast || alarm.type == Alarm.TYPE_SNOOZE ->
-                AlarmEntry(alarm.id, alarm.task, trigger, alarm.type)
+                Notification(taskId = alarm.task, timestamp = trigger, type = alarm.type)
             alarm.repeat > 0 -> {
                 val past = (task.reminderLast - trigger) / alarm.interval
                 val next = trigger + (past + 1) * alarm.interval
                 if (past < alarm.repeat && next > task.reminderLast) {
-                    AlarmEntry(alarm.id, alarm.task, next, alarm.type)
+                    Notification(taskId = alarm.task, timestamp = next, type = alarm.type)
                 } else {
                     null
                 }
@@ -74,19 +73,15 @@ class AlarmCalculator(
      * We take the last reminder time and add approximately the reminder period. If it's still in
      * the past, we set it to some time in the near future.
      */
-    private fun calculateNextRandomReminder(random: Random, task: Task, reminderPeriod: Long): Long {
+    private fun calculateNextRandomReminder(random: Random, task: Task, reminderPeriod: Long) =
         if (reminderPeriod > 0) {
-            var `when` = task.reminderLast
-            if (`when` == 0L) {
-                `when` = task.creationDate
-            }
-            `when` += (reminderPeriod * (0.85f + 0.3f * random.nextFloat())).toLong()
-            if (`when` < DateUtilities.now()) {
-                `when` =
-                    DateUtilities.now() + ((0.5f + 6 * random.nextFloat()) * DateUtilities.ONE_HOUR).toLong()
-            }
-            return `when`
+            maxOf(
+                task.reminderLast
+                    .coerceAtLeast(task.creationDate)
+                    .plus((reminderPeriod * (0.85f + 0.3f * random.nextFloat())).toLong()),
+                task.hideUntil
+            )
+        } else {
+            AlarmService.NO_ALARM
         }
-        return AlarmService.NO_ALARM
-    }
 }

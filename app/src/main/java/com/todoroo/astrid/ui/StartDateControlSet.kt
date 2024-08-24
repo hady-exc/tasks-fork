@@ -7,30 +7,31 @@ import android.os.Bundle
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.composethemeadapter.MdcTheme
-import com.todoroo.andlib.utility.DateUtilities
-import com.todoroo.andlib.utility.DateUtilities.getTimeString
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.runBlocking
 import org.tasks.R
-import org.tasks.compose.collectAsStateLifecycleAware
 import org.tasks.compose.edit.StartDateRow
-import org.tasks.date.DateTimeUtils.newDateTime
 import org.tasks.dialogs.StartDatePicker
 import org.tasks.dialogs.StartDatePicker.Companion.EXTRA_DAY
 import org.tasks.dialogs.StartDatePicker.Companion.EXTRA_TIME
 import org.tasks.dialogs.StartDatePicker.Companion.NO_DAY
 import org.tasks.dialogs.StartDatePicker.Companion.NO_TIME
+import org.tasks.extensions.Context.is24HourFormat
+import org.tasks.kmp.org.tasks.time.DateStyle
+import org.tasks.kmp.org.tasks.time.getRelativeDateTime
+import org.tasks.kmp.org.tasks.time.getTimeString
 import org.tasks.preferences.Preferences
+import org.tasks.themes.TasksTheme
+import org.tasks.time.DateTimeUtils2.currentTimeMillis
+import org.tasks.time.withMillisOfDay
 import org.tasks.ui.TaskEditControlFragment
-import java.time.format.FormatStyle
-import java.util.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class StartDateControlSet : TaskEditControlFragment() {
     @Inject lateinit var preferences: Preferences
-    @Inject lateinit var locale: Locale
 
     private val vm: StartDateViewModel by viewModels()
 
@@ -48,23 +49,23 @@ class StartDateControlSet : TaskEditControlFragment() {
     override fun bind(parent: ViewGroup?) =
         (parent as ComposeView).apply {
             setContent {
-                MdcTheme {
-                    val selectedDay = vm.selectedDay.collectAsStateLifecycleAware().value
-                    val selectedTime = vm.selectedTime.collectAsStateLifecycleAware().value
+                TasksTheme {
+                    val selectedDay = vm.selectedDay.collectAsStateWithLifecycle().value
+                    val selectedTime = vm.selectedTime.collectAsStateWithLifecycle().value
                     StartDateRow(
-                        startDate = viewModel.startDate.collectAsStateLifecycleAware().value,
+                        startDate = viewModel.startDate.collectAsStateWithLifecycle().value,
                         selectedDay = selectedDay,
                         selectedTime = selectedTime,
-                        hasDueDate = viewModel.dueDate.collectAsStateLifecycleAware().value > 0,
+                        hasDueDate = viewModel.dueDate.collectAsStateWithLifecycle().value > 0,
                         printDate = {
-                            DateUtilities.getRelativeDateTime(
-                                context,
-                                selectedDay + selectedTime,
-                                locale,
-                                FormatStyle.FULL,
-                                preferences.alwaysDisplayFullDate,
-                                false
-                            )
+                            runBlocking {
+                                getRelativeDateTime(
+                                    selectedDay + selectedTime,
+                                    requireContext().is24HourFormat,
+                                    DateStyle.FULL,
+                                    alwaysDisplayFullDate = preferences.alwaysDisplayFullDate
+                                )
+                            }
                         },
                         onClick = {
                             val fragmentManager = parentFragmentManager
@@ -117,7 +118,7 @@ class StartDateControlSet : TaskEditControlFragment() {
             if (time == NO_TIME) {
                 getString(resId)
             } else {
-                "${getString(resId)} ${getTimeString(this, newDateTime().withMillisOfDay(time))}"
+                "${getString(resId)} ${getTimeString(currentTimeMillis().withMillisOfDay(time), this.is24HourFormat)}"
             }
     }
 }

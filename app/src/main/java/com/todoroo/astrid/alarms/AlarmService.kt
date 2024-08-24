@@ -5,14 +5,19 @@
  */
 package com.todoroo.astrid.alarms
 
-import com.todoroo.astrid.data.Task
 import org.tasks.LocalBroadcastManager
-import org.tasks.data.Alarm
-import org.tasks.data.Alarm.Companion.TYPE_SNOOZE
-import org.tasks.data.AlarmDao
-import org.tasks.data.TaskDao
-import org.tasks.jobs.NotificationQueue
+import org.tasks.data.dao.AlarmDao
+import org.tasks.data.dao.TaskDao
+import org.tasks.data.db.DbUtils
+import org.tasks.data.entity.Alarm
+import org.tasks.data.entity.Alarm.Companion.TYPE_SNOOZE
+import org.tasks.data.entity.Notification
+import org.tasks.jobs.WorkManager
 import org.tasks.notifications.NotificationManager
+import org.tasks.preferences.Preferences
+import org.tasks.time.DateTime
+import org.tasks.time.DateTimeUtils2.currentTimeMillis
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -22,11 +27,12 @@ import javax.inject.Inject
  */
 class AlarmService @Inject constructor(
     private val alarmDao: AlarmDao,
-    private val jobs: NotificationQueue,
     private val taskDao: TaskDao,
     private val localBroadcastManager: LocalBroadcastManager,
     private val notificationManager: NotificationManager,
+    private val workManager: WorkManager,
     private val alarmCalculator: AlarmCalculator,
+    private val preferences: Preferences,
 ) {
     suspend fun getAlarms(taskId: Long): List<Alarm> = alarmDao.getAlarms(taskId)
 
@@ -36,70 +42,82 @@ class AlarmService @Inject constructor(
      * @return true if data was changed
      */
     suspend fun synchronizeAlarms(taskId: Long, alarms: MutableSet<Alarm>): Boolean {
-        val task = taskDao.fetch(taskId) ?: return false
         var changed = false
         for (existing in alarmDao.getAlarms(taskId)) {
-            if (!alarms.removeIf {
-                    it.type == existing.type &&
-                            it.time == existing.time &&
-                            it.repeat == existing.repeat &&
-                            it.interval == existing.interval
-                }) {
+            if (!alarms.removeIf { it.same(existing)}) {
                 alarmDao.delete(existing)
                 changed = true
             }
         }
-        for (alarm in alarms) {
-            alarm.task = taskId
-            alarmDao.insert(alarm)
+        alarmDao.insert(alarms.map { it.copy(task = taskId) })
+        if (alarms.isNotEmpty()) {
             changed = true
         }
         if (changed) {
-            scheduleAlarms(task)
             localBroadcastManager.broadcastRefreshList()
         }
         return changed
     }
 
-    suspend fun scheduleAllAlarms() {
-        alarmDao
-            .getActiveAlarms()
+    suspend fun snooze(time: Long, taskIds: List<Long>) {
+        notificationManager.cancel(taskIds)
+        alarmDao.deleteSnoozed(taskIds)
+        alarmDao.insert(taskIds.map { Alarm(task = it, time = time, type = TYPE_SNOOZE) })
+        taskDao.touch(taskIds)
+        workManager.triggerNotifications()
+    }
+
+    suspend fun triggerAlarms(
+        trigger: suspend (List<Notification>) -> Unit
+    ): Long {
+        if (preferences.isCurrentlyQuietHours) {
+            return preferences.adjustForQuietHours(currentTimeMillis())
+        }
+        val (overdue, _) = getAlarms()
+        overdue
+            .sortedBy { it.timestamp }
+            .also { alarms ->
+                alarms
+                    .map { it.taskId }
+                    .chunked(DbUtils.MAX_SQLITE_ARGS)
+                    .onEach { alarmDao.deleteSnoozed(it) }
+            }
+            .map { it.copy(timestamp = currentTimeMillis()) }
+            .let { trigger(it) }
+        val alreadyTriggered = overdue.map { it.taskId }.toSet()
+        val (moreOverdue, future) = getAlarms()
+        return moreOverdue
+            .filterNot { it.type == Alarm.TYPE_RANDOM || alreadyTriggered.contains(it.taskId) }
+            .plus(future)
+            .minOfOrNull { it.timestamp }
+            ?: 0
+    }
+
+    internal suspend fun getAlarms(): Pair<List<Notification>, List<Notification>> {
+        val start = currentTimeMillis()
+        val overdue = ArrayList<Notification>()
+        val future = ArrayList<Notification>()
+        alarmDao.getActiveAlarms()
             .groupBy { it.task }
             .forEach { (taskId, alarms) ->
                 val task = taskDao.fetch(taskId) ?: return@forEach
-                scheduleAlarms(task, alarms)
+                val alarmEntries = alarms.mapNotNull {
+                    alarmCalculator.toAlarmEntry(task, it)
+                }
+                val (now, later) = alarmEntries.partition {
+                    it.timestamp < DateTime().startOfMinute().plusMinutes(1).millis
+                }
+                later
+                    .filter { it.type == TYPE_SNOOZE }
+                    .maxByOrNull { it.timestamp }
+                    ?.let { future.add(it) }
+                    ?: run {
+                        now.firstOrNull()?.let { overdue.add(it) }
+                        later.minByOrNull { it.timestamp }?.let { future.add(it) }
+                    }
             }
-    }
-
-    fun cancelAlarms(taskId: Long) {
-        jobs.cancelForTask(taskId)
-    }
-
-    suspend fun snooze(time: Long, taskIds: List<Long>) {
-        notificationManager.cancel(taskIds)
-        alarmDao.getSnoozed(taskIds).let { alarmDao.delete(it) }
-        taskIds.map { Alarm(it, time, TYPE_SNOOZE) }.let { alarmDao.insert(it) }
-        taskDao.touch(taskIds)
-        scheduleAlarms(taskIds)
-    }
-
-    suspend fun scheduleAlarms(taskIds: List<Long>) {
-        taskDao.fetch(taskIds).forEach { scheduleAlarms(it) }
-    }
-
-    /** Schedules alarms for a single task  */
-    suspend fun scheduleAlarms(task: Task) {
-        scheduleAlarms(task, alarmDao.getActiveAlarms(task.id))
-    }
-
-    private fun scheduleAlarms(task: Task, alarms: List<Alarm>) {
-        jobs.cancelForTask(task.id)
-        val alarmEntries = alarms.mapNotNull {
-            alarmCalculator.toAlarmEntry(task, it)
-        }
-        val next =
-            alarmEntries.find { it.type == TYPE_SNOOZE } ?: alarmEntries.minByOrNull { it.time }
-        next?.let { jobs.add(it) }
+        Timber.d("took ${currentTimeMillis() - start}ms overdue=${overdue.size} future=${future.size}")
+        return overdue to future
     }
 
     companion object {

@@ -10,13 +10,10 @@
   <string name="FSA_label">Tasks Shortcut</string>
   <string name="caldav">CalDAV</string>
   <string name="etesync">EteSync</string>
-  <string name="etesync_v1">EteSync v1</string>
   <string name="davx5">DAVx⁵</string>
   <string name="decsync">DecSync CC</string>
   <string name="tasks_org">Tasks.org</string>
   <string name="microsoft">Microsoft To Do</string>
-  <string name="etesync_url">https://api.etesync.com</string>
-  <string name="etesync_deprecated">Native EteSync v1 support has been removed. Please switch to the EteSync client to continue synchronizing your EteSync v1 account, or migrate to EteSync v2</string>
   <string name="etebase_url">https://api.etebase.com/partner/tasksorg/</string>
   <string name="help_url_sync">https://tasks.org/sync</string>
   <string name="caldav_server_owncloud">ownCloud</string>
@@ -393,10 +390,6 @@
   <string name="p_list_chips">chips_list</string>
   <string name="p_tag_chips">chips_tag</string>
   <string name="p_desaturate_colors">desaturate_colors</string>
-  <string name="p_collapse_filters">collapse_filters</string>
-  <string name="p_collapse_debug">collapse_debug</string>
-  <string name="p_collapse_tags">collapse_tags</string>
-  <string name="p_collapse_locations">collapse_locations</string>
   <string name="p_auto_dismiss_datetime_edit_screen">auto_dismiss_datetime_edit_screen</string>
   <string name="p_auto_dismiss_datetime_list_screen">auto_dismiss_datetime_list_screen</string>
   <string name="p_auto_dismiss_datetime_widget">auto_dismiss_datetime_widget</string>
@@ -414,6 +407,7 @@
   <string name="p_install_version">install_version</string>
   <string name="p_install_date">install_date</string>
   <string name="p_default_location">default_location</string>
+  <string name="p_warn_notifications_disabled">warn_notifications_disabled</string>
 
   <string name="event_showed_purchase_dialog">showed_purchase_dialog</string>
   <string name="event_purchase_result">billing_flow_result</string>

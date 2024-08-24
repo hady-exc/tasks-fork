@@ -132,7 +132,6 @@
     <string name="new_list">Crea unha nova lista</string>
     <string name="delete_tag_confirmation">Borrar %s\?</string>
     <string name="TPl_notification">Temporizadores activos para %s!</string>
-    <string name="TFE_workingOn">Tarefas a cronometrar</string>
     <string name="TEA_timer_controls">Temporizador</string>
     <string name="TEA_timer_comment_started">comezou esta tarefa:</string>
     <string name="TEA_timer_comment_stopped">deixou de facer esta tarefa:</string>
@@ -257,7 +256,6 @@
     <string name="widget_show_menu">Amosar menú</string>
     <string name="date_and_time">Data e hora</string>
     <string name="custom_filter_is_subtask">É unha subtarefa</string>
-    <string name="manage_drawer">Xestionar as caixoneiras</string>
     <string name="start_date">Data de inicio</string>
     <string name="SSD_sort_start">Por data de inicio</string>
     <string name="TEA_add_subtask">Engadir subtarefa</string>
@@ -389,7 +387,6 @@
     <string name="more_options">Máis opcións</string>
     <string name="snackbar_tasks_completed">%d tarefas finalizadas</string>
     <string name="caldav_server_type">Tipo de servidor</string>
-    <string name="filter_snoozed">Posposta</string>
     <string name="next_sunday">Próx Dom</string>
     <string name="now">Agora</string>
     <string name="yesterday_lowercase">onte</string>

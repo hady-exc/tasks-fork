@@ -1,11 +1,13 @@
 package org.tasks.opentasks
 
 import com.natpryce.makeiteasy.MakeItEasy.with
-import com.todoroo.astrid.data.Task
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.tasks.SuspendFreeze.Companion.freezeAt
 import org.tasks.TestUtilities.withTZ
@@ -13,27 +15,25 @@ import org.tasks.caldav.iCalendar.Companion.collapsed
 import org.tasks.caldav.iCalendar.Companion.order
 import org.tasks.caldav.iCalendar.Companion.parent
 import org.tasks.caldav.iCalendar.Companion.snooze
-import org.tasks.data.Alarm
-import org.tasks.data.Alarm.Companion.TYPE_SNOOZE
-import org.tasks.data.AlarmDao
-import org.tasks.data.TagDao
-import org.tasks.data.TagDataDao
+import org.tasks.data.dao.AlarmDao
+import org.tasks.data.dao.TagDao
+import org.tasks.data.dao.TagDataDao
+import org.tasks.data.entity.Alarm
+import org.tasks.data.entity.Alarm.Companion.TYPE_SNOOZE
+import org.tasks.data.entity.Tag
+import org.tasks.data.entity.TagData
+import org.tasks.data.entity.Task
 import org.tasks.injection.ProductionModule
 import org.tasks.makers.CaldavTaskMaker
 import org.tasks.makers.CaldavTaskMaker.CALENDAR
 import org.tasks.makers.CaldavTaskMaker.REMOTE_ID
 import org.tasks.makers.CaldavTaskMaker.newCaldavTask
-import org.tasks.makers.TagDataMaker.NAME
-import org.tasks.makers.TagDataMaker.newTagData
-import org.tasks.makers.TagMaker.TAGDATA
-import org.tasks.makers.TagMaker.TASK
-import org.tasks.makers.TagMaker.newTag
 import org.tasks.makers.TaskMaker
 import org.tasks.makers.TaskMaker.COLLAPSED
 import org.tasks.makers.TaskMaker.ORDER
 import org.tasks.makers.TaskMaker.newTask
 import org.tasks.time.DateTime
-import java.util.*
+import java.util.TimeZone
 import javax.inject.Inject
 
 @UninstallModules(ProductionModule::class)
@@ -90,8 +90,7 @@ class OpenTasksPropertiesTests : OpenTasksTest() {
     @Test
     fun matchExistingTag() = runBlocking {
         val (_, list) = withVtodo(ONE_TAG)
-        val tag = newTagData(with(NAME, "Tag1"))
-        tagDataDao.createNew(tag)
+        val tag = TagData(name = "Tag1").let { it.copy(id = tagDataDao.insert(it)) }
 
         synchronizer.sync()
 
@@ -213,7 +212,14 @@ class OpenTasksPropertiesTests : OpenTasksTest() {
                 ?.let { taskDao.fetch(it.task) }
 
         assertEquals(
-            listOf(Alarm(task!!.id, 1612972355000, TYPE_SNOOZE).apply { id = 1 }),
+            listOf(
+                Alarm(
+                    id = 1,
+                    task = task!!.id,
+                    time = 1612972355000,
+                    type = TYPE_SNOOZE
+                )
+            ),
             alarmDao.getAlarms(task.id)
         )
     }
@@ -222,7 +228,13 @@ class OpenTasksPropertiesTests : OpenTasksTest() {
     fun pushSnoozeTime() = withTZ(CHICAGO) {
         val (listId, list) = openTaskDao.insertList()
         val taskId = taskDao.createNew(newTask())
-        alarmDao.insert(Alarm(taskId, DateTime(2021, 2, 4, 13, 30).millis, TYPE_SNOOZE))
+        alarmDao.insert(
+            Alarm(
+                task = taskId,
+                time = DateTime(2021, 2, 4, 13, 30).millis,
+                type = TYPE_SNOOZE
+            )
+        )
 
         caldavDao.insert(newCaldavTask(
                 with(CALENDAR, list.uuid),
@@ -241,7 +253,13 @@ class OpenTasksPropertiesTests : OpenTasksTest() {
     fun dontPushLapsedSnoozeTime() = withTZ(CHICAGO) {
         val (listId, list) = openTaskDao.insertList()
         val taskId = taskDao.createNew(newTask())
-        alarmDao.insert(Alarm(taskId, DateTime(2021, 2, 4, 13, 30).millis, TYPE_SNOOZE))
+        alarmDao.insert(
+            Alarm(
+                task = taskId,
+                time = DateTime(2021, 2, 4, 13, 30).millis,
+                type = TYPE_SNOOZE
+            )
+        )
 
         caldavDao.insert(newCaldavTask(
                 with(CALENDAR, list.uuid),
@@ -257,17 +275,18 @@ class OpenTasksPropertiesTests : OpenTasksTest() {
     }
 
     @Test
-    fun removeSnoozeTime() = runBlocking {
+    fun removeSnoozeTime() = withTZ(CHICAGO) {
         val (listId, list) = withVtodo(SNOOZED)
 
         synchronizer.sync()
 
         val task = caldavDao.getTaskByRemoteId(list.uuid!!, "4CBBC669-70E3-474D-A0A3-0FC42A14A5A5")
             ?: throw IllegalStateException("Missing task")
-        val snooze = alarmDao.getSnoozed(listOf(task.task))
-        assertEquals(1, snooze.size)
-        alarmDao.delete(snooze.first())
-        assertTrue(alarmDao.getSnoozed(listOf(task.task)).isEmpty())
+        assertEquals(
+            listOf(Alarm(1, task.id, DateTime(2021, 2, 10, 9, 52, 35).millis, TYPE_SNOOZE)),
+            alarmDao.getAlarms(1)
+        )
+        alarmDao.deleteSnoozed(listOf(1))
         taskDao.touch(task.task)
 
         synchronizer.sync()
@@ -281,9 +300,9 @@ class OpenTasksPropertiesTests : OpenTasksTest() {
     }
 
     private suspend fun insertTag(task: Task, name: String) =
-            newTagData(with(NAME, name))
-                    .apply { tagDataDao.createNew(this) }
-                    .let { tagDao.insert(newTag(with(TASK, task), with(TAGDATA, it))) }
+        TagData(name = name)
+            .apply { tagDataDao.insert(this) }
+            .let { tagDao.insert(Tag(task = task.id, taskUid = task.uuid, tagUid = it.remoteId)) }
 
     companion object {
         private val CHICAGO = TimeZone.getTimeZone("America/Chicago")

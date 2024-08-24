@@ -4,15 +4,15 @@ import android.content.ContentProviderResult
 import android.content.Context
 import at.bitfire.ical4android.BatchOperation
 import at.bitfire.ical4android.Task
-import com.todoroo.astrid.helper.UUIDHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.dmfs.tasks.contract.TaskContract
 import org.dmfs.tasks.contract.TaskContract.TaskListColumns.ACCESS_LEVEL_OWNER
 import org.tasks.caldav.iCalendar
-import org.tasks.data.CaldavCalendar
-import org.tasks.data.CaldavDao
 import org.tasks.data.MyAndroidTask
 import org.tasks.data.OpenTaskDao
+import org.tasks.data.UUIDHelper
+import org.tasks.data.dao.CaldavDao
+import org.tasks.data.entity.CaldavCalendar
 import javax.inject.Inject
 
 class TestOpenTaskDao @Inject constructor(
@@ -20,11 +20,11 @@ class TestOpenTaskDao @Inject constructor(
         private val caldavDao: CaldavDao
 ) : OpenTaskDao(context, caldavDao) {
     suspend fun insertList(
-            name: String = DEFAULT_LIST,
-            type: String = DEFAULT_TYPE,
-            account: String = DEFAULT_ACCOUNT,
-            url: String = UUIDHelper.newUUID(),
-            accessLevel: Int = ACCESS_LEVEL_OWNER,
+        name: String = DEFAULT_LIST,
+        type: String = DEFAULT_TYPE,
+        account: String = DEFAULT_ACCOUNT,
+        url: String = UUIDHelper.newUUID(),
+        accessLevel: Int = ACCESS_LEVEL_OWNER,
     ): Pair<Long, CaldavCalendar> {
         val uri = taskLists.buildUpon()
                 .appendQueryParameter(TaskContract.CALLER_IS_SYNCADAPTER, "true")
@@ -92,7 +92,7 @@ class TestOpenTaskDao @Inject constructor(
 
     companion object {
         const val DEFAULT_ACCOUNT = "test_account"
-        const val DEFAULT_TYPE = ACCOUNT_TYPE_DAVx5
+        const val DEFAULT_TYPE = ACCOUNT_TYPE_DAVX5
         const val DEFAULT_LIST = "default_list"
     }
 }

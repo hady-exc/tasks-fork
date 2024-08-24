@@ -18,24 +18,24 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.todoroo.astrid.adapter.FilterViewHolder
 import com.todoroo.astrid.adapter.NavigationDrawerAdapter
-import com.todoroo.astrid.api.CaldavFilter
-import com.todoroo.astrid.api.CustomFilter
-import com.todoroo.astrid.api.Filter
-import com.todoroo.astrid.api.FilterListItem
-import com.todoroo.astrid.api.FilterListItem.Type.ITEM
-import com.todoroo.astrid.api.GtasksFilter
-import com.todoroo.astrid.api.TagFilter
+import org.tasks.filters.CaldavFilter
+import org.tasks.filters.CustomFilter
+import org.tasks.filters.GtasksFilter
+import org.tasks.filters.TagFilter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.tasks.LocalBroadcastManager
 import org.tasks.R
 import org.tasks.caldav.BaseCaldavCalendarSettingsActivity
-import org.tasks.data.CaldavDao
-import org.tasks.data.FilterDao
-import org.tasks.data.GoogleTaskListDao
-import org.tasks.data.LocationDao
-import org.tasks.data.TagDataDao
+import org.tasks.data.dao.CaldavDao
+import org.tasks.data.dao.FilterDao
+import org.tasks.data.dao.GoogleTaskListDao
+import org.tasks.data.dao.LocationDao
+import org.tasks.data.dao.TagDataDao
+import org.tasks.data.listSettingsClass
 import org.tasks.databinding.ActivityTagOrganizerBinding
+import org.tasks.filters.Filter
+import org.tasks.filters.FilterListItem
 import org.tasks.filters.FilterProvider
 import org.tasks.filters.PlaceFilter
 import org.tasks.injection.ThemedInjectingAppCompatActivity
@@ -69,7 +69,7 @@ class NavigationDrawerCustomization : ThemedInjectingAppCompatActivity(), Toolba
         toolbar = binding.toolbar.toolbar
 
         with(toolbar) {
-            title = getString(R.string.manage_drawer)
+            title = getString(R.string.customize_drawer)
             navigationIcon = getDrawable(R.drawable.ic_outline_arrow_back_24px)
             setNavigationOnClickListener { finish() }
             setOnMenuItemClickListener(this@NavigationDrawerCustomization)
@@ -161,7 +161,7 @@ class NavigationDrawerCustomization : ThemedInjectingAppCompatActivity(), Toolba
         private var to = -1
 
         override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) =
-                if (viewHolder.itemViewType == ITEM.ordinal) ALLOW_DRAGGING else NO_MOVEMENT
+                if (viewHolder.itemViewType == 0) ALLOW_DRAGGING else NO_MOVEMENT
 
         override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
             super.onSelectedChanged(viewHolder, actionState)

@@ -1,14 +1,15 @@
 package org.tasks.sync.microsoft
 
-import com.todoroo.astrid.data.Task
+import org.tasks.data.entity.Task
 import net.fortuna.ical4j.model.Recur
 import net.fortuna.ical4j.model.WeekDay
 import net.fortuna.ical4j.model.WeekDayList
-import org.tasks.data.CaldavTask
-import org.tasks.data.TagData
+import org.tasks.data.entity.CaldavTask
+import org.tasks.data.entity.TagData
 import org.tasks.sync.microsoft.Tasks.Task.RecurrenceDayOfWeek
 import org.tasks.sync.microsoft.Tasks.Task.RecurrenceType
 import org.tasks.time.DateTime
+import org.tasks.time.DateTimeUtils2.currentTimeMillis
 import java.text.SimpleDateFormat
 import java.time.ZonedDateTime
 import java.util.Locale
@@ -32,7 +33,7 @@ object MicrosoftConverter {
             defaultPriority != Task.Priority.HIGH -> defaultPriority
             else -> Task.Priority.NONE
         }
-        completionDate = remote.completedDateTime.toLong(System.currentTimeMillis())
+        completionDate = remote.completedDateTime.toLong(currentTimeMillis())
         dueDate = remote.dueDateTime.toLong(0L)
         creationDate = remote.createdDateTime.parseDateTime()
         modificationDate = remote.lastModifiedDateTime.parseDateTime()
@@ -163,7 +164,7 @@ object MicrosoftConverter {
     private fun String?.parseDateTime(): Long =
         this
             ?.let { ZonedDateTime.parse(this).toInstant().toEpochMilli() }
-            ?: System.currentTimeMillis()
+            ?: currentTimeMillis()
 
     private fun Tasks.Task.DateTime?.toLong(default: Long): Long =
         this

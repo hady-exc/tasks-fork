@@ -6,7 +6,7 @@ import android.content.UriMatcher
 import android.database.Cursor
 import android.net.Uri
 import androidx.sqlite.db.SupportSQLiteQueryBuilder
-import com.todoroo.astrid.data.Task
+import org.tasks.data.entity.Task
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -38,10 +38,12 @@ class TasksContentProvider : ContentProvider() {
             URI_TODO_AGENDA -> {
                 hilt.firebase.logEvent(R.string.event_todoagenda)
                 hilt.contentProviderDao.rawQuery(
-                        SupportSQLiteQueryBuilder
-                                .builder(TODO_AGENDA_TABLES)
-                                .selection(selection, selectionArgs)
-                                .create())
+                    SupportSQLiteQueryBuilder
+                        .builder(TODO_AGENDA_TABLES)
+                        .selection(selection, selectionArgs)
+                        .create()
+                        .sql
+                )
             }
             URI_TASKS -> hilt.contentProviderDao.getTasks()
             URI_LISTS -> hilt.contentProviderDao.getLists()

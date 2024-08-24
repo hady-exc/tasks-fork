@@ -1,17 +1,24 @@
 package org.tasks.data
 
 import com.natpryce.makeiteasy.MakeItEasy.with
-import com.todoroo.andlib.utility.DateUtilities.now
 import com.todoroo.astrid.dao.TaskDao
-import com.todoroo.astrid.data.Task
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.tasks.SuspendFreeze.Companion.freezeAt
 import org.tasks.caldav.GeoUtils.toLikeString
-import org.tasks.data.Alarm.Companion.TYPE_SNOOZE
+import org.tasks.data.dao.AlarmDao
+import org.tasks.data.dao.LocationDao
+import org.tasks.data.entity.Alarm
+import org.tasks.data.entity.Alarm.Companion.TYPE_SNOOZE
+import org.tasks.data.entity.Geofence
+import org.tasks.data.entity.Place
+import org.tasks.data.entity.Task
 import org.tasks.date.DateTimeUtils.newDateTime
 import org.tasks.injection.InjectingTestCase
 import org.tasks.injection.ProductionModule
@@ -21,6 +28,7 @@ import org.tasks.makers.TaskMaker.DUE_TIME
 import org.tasks.makers.TaskMaker.HIDE_TYPE
 import org.tasks.makers.TaskMaker.ID
 import org.tasks.makers.TaskMaker.newTask
+import org.tasks.time.DateTimeUtils2.currentTimeMillis
 import javax.inject.Inject
 
 @UninstallModules(ProductionModule::class)
@@ -113,61 +121,89 @@ class LocationDaoTest : InjectingTestCase() {
 
     @Test
     fun ignoreArrivalForSnoozedTask() = runBlocking {
-        freezeAt(now()).thawAfter {
+        freezeAt(currentTimeMillis()).thawAfter {
             val place = Place()
             locationDao.insert(place)
             val task = taskDao.createNew(newTask())
-            alarmDao.insert(Alarm(task, newDateTime().plusMinutes(15).millis, TYPE_SNOOZE))
+            alarmDao.insert(
+                Alarm(
+                    task = task,
+                    time = newDateTime().plusMinutes(15).millis,
+                    type = TYPE_SNOOZE
+                )
+            )
             locationDao.insert(Geofence(task = task, place = place.uid, isArrival = true))
 
-            assertTrue(locationDao.getArrivalGeofences(place.uid!!, now()).isEmpty())
+            assertTrue(locationDao.getArrivalGeofences(place.uid!!, currentTimeMillis()).isEmpty())
         }
     }
 
     @Test
     fun ignoreDepartureForSnoozedTask() = runBlocking {
-        freezeAt(now()).thawAfter {
+        freezeAt(currentTimeMillis()).thawAfter {
             val place = Place()
             locationDao.insert(place)
             val task = taskDao.createNew(newTask())
-            alarmDao.insert(Alarm(task, newDateTime().plusMinutes(15).millis, TYPE_SNOOZE))
+            alarmDao.insert(
+                Alarm(
+                    task = task,
+                    time = newDateTime().plusMinutes(15).millis,
+                    type = TYPE_SNOOZE
+                )
+            )
             locationDao.insert(Geofence(task = task, place = place.uid, isDeparture = true))
 
-            assertTrue(locationDao.getDepartureGeofences(place.uid!!, now()).isEmpty())
+            assertTrue(locationDao.getDepartureGeofences(place.uid!!, currentTimeMillis()).isEmpty())
         }
     }
 
     @Test
     fun getArrivalWithElapsedSnooze() = runBlocking {
-        freezeAt(now()).thawAfter {
+        freezeAt(currentTimeMillis()).thawAfter {
             val place = Place()
             locationDao.insert(place)
             val task = taskDao.createNew(newTask())
-            alarmDao.insert(Alarm(task, newDateTime().minusMinutes(15).millis, TYPE_SNOOZE))
+            alarmDao.insert(
+                Alarm(
+                    task = task,
+                    time = newDateTime().minusMinutes(15).millis,
+                    type = TYPE_SNOOZE
+                )
+            )
             val geofence = Geofence(task = task, place = place.uid, isArrival = true)
                 .let { it.copy(id = locationDao.insert(it)) }
 
-            assertEquals(listOf(geofence), locationDao.getArrivalGeofences(place.uid!!, now()))
+            assertEquals(listOf(geofence), locationDao.getArrivalGeofences(place.uid!!,
+                currentTimeMillis()
+            ))
         }
     }
 
     @Test
     fun getDepartureWithElapsedSnooze() = runBlocking {
-        freezeAt(now()).thawAfter {
+        freezeAt(currentTimeMillis()).thawAfter {
             val place = Place()
             locationDao.insert(place)
             val task = taskDao.createNew(newTask())
-            alarmDao.insert(Alarm(task, newDateTime().minusMinutes(15).millis, TYPE_SNOOZE))
+            alarmDao.insert(
+                Alarm(
+                    task = task,
+                    time = newDateTime().minusMinutes(15).millis,
+                    type = TYPE_SNOOZE
+                )
+            )
             val geofence = Geofence(task = task, place = place.uid, isDeparture = true)
                 .let { it.copy(id = locationDao.insert(it)) }
 
-            assertEquals(listOf(geofence), locationDao.getDepartureGeofences(place.uid!!, now()))
+            assertEquals(listOf(geofence), locationDao.getDepartureGeofences(place.uid!!,
+                currentTimeMillis()
+            ))
         }
     }
 
     @Test
     fun ignoreArrivalForHiddenTask() = runBlocking {
-        freezeAt(now()).thawAfter {
+        freezeAt(currentTimeMillis()).thawAfter {
             val place = Place()
             locationDao.insert(place)
             taskDao.createNew(newTask(
@@ -176,13 +212,13 @@ class LocationDaoTest : InjectingTestCase() {
                     with(HIDE_TYPE, Task.HIDE_UNTIL_DUE_TIME)))
             locationDao.insert(Geofence(task = 1, place = place.uid, isArrival = true))
 
-            assertTrue(locationDao.getArrivalGeofences(place.uid!!, now()).isEmpty())
+            assertTrue(locationDao.getArrivalGeofences(place.uid!!, currentTimeMillis()).isEmpty())
         }
     }
 
     @Test
     fun ignoreDepartureForHiddenTask() = runBlocking {
-        freezeAt(now()).thawAfter {
+        freezeAt(currentTimeMillis()).thawAfter {
             val place = Place()
             locationDao.insert(place)
             taskDao.createNew(newTask(
@@ -191,13 +227,13 @@ class LocationDaoTest : InjectingTestCase() {
                     with(HIDE_TYPE, Task.HIDE_UNTIL_DUE_TIME)))
             locationDao.insert(Geofence(task = 1, place = place.uid, isDeparture = true))
 
-            assertTrue(locationDao.getDepartureGeofences(place.uid!!, now()).isEmpty())
+            assertTrue(locationDao.getDepartureGeofences(place.uid!!, currentTimeMillis()).isEmpty())
         }
     }
 
     @Test
     fun getArrivalWithElapsedHideUntil() = runBlocking {
-        freezeAt(now()).thawAfter {
+        freezeAt(currentTimeMillis()).thawAfter {
             val place = Place()
             locationDao.insert(place)
             taskDao.createNew(newTask(
@@ -209,13 +245,15 @@ class LocationDaoTest : InjectingTestCase() {
                     it.copy(id = locationDao.insert(it))
                 }
 
-            assertEquals(listOf(geofence), locationDao.getArrivalGeofences(place.uid!!, now()))
+            assertEquals(listOf(geofence), locationDao.getArrivalGeofences(place.uid!!,
+                currentTimeMillis()
+            ))
         }
     }
 
     @Test
     fun getDepartureWithElapsedHideUntil() = runBlocking {
-        freezeAt(now()).thawAfter {
+        freezeAt(currentTimeMillis()).thawAfter {
             val place = Place()
             locationDao.insert(place)
             taskDao.createNew(newTask(
@@ -225,7 +263,9 @@ class LocationDaoTest : InjectingTestCase() {
             val geofence = Geofence(task = 1, place = place.uid, isDeparture = true)
                 .let { it.copy(id = locationDao.insert(it)) }
 
-            assertEquals(listOf(geofence), locationDao.getDepartureGeofences(place.uid!!, now()))
+            assertEquals(listOf(geofence), locationDao.getDepartureGeofences(place.uid!!,
+                currentTimeMillis()
+            ))
         }
     }
 }

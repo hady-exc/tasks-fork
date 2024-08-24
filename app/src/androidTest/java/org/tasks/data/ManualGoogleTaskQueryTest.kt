@@ -1,9 +1,8 @@
 package org.tasks.data
 
 import com.natpryce.makeiteasy.MakeItEasy.with
-import com.todoroo.astrid.api.GtasksFilter
+import org.tasks.filters.GtasksFilter
 import com.todoroo.astrid.dao.TaskDao
-import com.todoroo.astrid.helper.UUIDHelper
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import kotlinx.coroutines.runBlocking
@@ -11,11 +10,12 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.tasks.R
+import org.tasks.data.dao.CaldavDao
+import org.tasks.data.dao.GoogleTaskDao
+import org.tasks.data.entity.CaldavAccount
+import org.tasks.data.entity.CaldavCalendar
 import org.tasks.injection.InjectingTestCase
 import org.tasks.injection.ProductionModule
-import org.tasks.makers.CaldavAccountMaker.newCaldavAccount
-import org.tasks.makers.CaldavCalendarMaker.UUID
-import org.tasks.makers.CaldavCalendarMaker.newCaldavCalendar
 import org.tasks.makers.CaldavTaskMaker.CALENDAR
 import org.tasks.makers.CaldavTaskMaker.TASK
 import org.tasks.makers.CaldavTaskMaker.newCaldavTask
@@ -40,9 +40,9 @@ class ManualGoogleTaskQueryTest : InjectingTestCase() {
         super.setUp()
         preferences.clear()
         preferences.setBoolean(R.string.p_manual_sort, true)
-        val calendar = newCaldavCalendar(with(UUID, "1234"))
+        val calendar = CaldavCalendar(uuid = "1234")
         runBlocking {
-            caldavDao.insert(newCaldavAccount())
+            caldavDao.insert(CaldavAccount())
             caldavDao.insert(calendar)
         }
         filter = GtasksFilter(calendar)

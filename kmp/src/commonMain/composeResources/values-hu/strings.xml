@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search">Keresés</string>
+    <string name="subscribe">Előfizetés</string>
+    <string name="filter_my_tasks">Saját Feladatok</string>
+    <string name="filter_notifications">Értesítések</string>
+    <string name="filter_snoozed">Elhalasztva</string>
+    <string name="filter_timer">Időzített Feladatok</string>
+    <string name="filter_today">Ma</string>
+    <string name="filter_recently_modified">Nemrég módosítva</string>
+    <string name="default_list">Alapértelmezett lista</string>
+    <string name="help_and_feedback">Segítség és visszajelzés</string>
+    <string name="settings">Beállítások</string>
+    <string name="drawer_filters">Szűrők</string>
+    <string name="drawer_tags">Címkék</string>
+    <string name="drawer_places">Helyek</string>
+    <string name="drawer_local_lists">Helyi listák</string>
+    <string name="tmrw">Holn</string>
+    <string name="tomorrow_abbrev_lowercase">hlnp</string>
+    <string name="tomorrow">Holnap</string>
+    <string name="tomorrow_lowercase">holnap</string>
+    <string name="today">Ma</string>
+    <string name="yest">Tegn</string>
+    <string name="yesterday_abbrev_lowercase">tgnp</string>
+    <string name="yesterday">Tegnap</string>
+    <string name="yesterday_lowercase">tegnap</string>
+    <string name="today_lowercase">ma</string>
+</resources>

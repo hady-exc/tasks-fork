@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.todoroo.astrid.helper.UUIDHelper
+import org.tasks.data.UUIDHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import net.openid.appauth.AuthorizationException
@@ -14,19 +14,19 @@ import net.openid.appauth.GrantTypeValues
 import net.openid.appauth.TokenRequest
 import org.tasks.R
 import org.tasks.caldav.CaldavClientProvider
-import org.tasks.data.CaldavAccount
-import org.tasks.data.CaldavDao
+import org.tasks.data.entity.CaldavAccount
+import org.tasks.data.dao.CaldavDao
 import org.tasks.security.KeyStoreEncryption
 import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class SignInViewModel @Inject constructor(
-        @ApplicationContext private val context: Context,
-        private val provider: CaldavClientProvider,
-        private val caldavDao: CaldavDao,
-        private val encryption: KeyStoreEncryption,
-        private val debugConnectionBuilder: DebugConnectionBuilder
+    @ApplicationContext private val context: Context,
+    private val provider: CaldavClientProvider,
+    private val caldavDao: CaldavDao,
+    private val encryption: KeyStoreEncryption,
+    private val debugConnectionBuilder: DebugConnectionBuilder
 ) : ViewModel() {
     val error = MutableLiveData<Throwable>()
 
@@ -76,19 +76,19 @@ class SignInViewModel @Inject constructor(
                     .homeSet(username, tokenString)
             val password = encryption.encrypt(tokenString)
             return caldavDao.getAccount(CaldavAccount.TYPE_TASKS, username)
-                    ?.apply {
-                        error = null
-                        this.password = password
-                        caldavDao.update(this)
+                    ?.let {
+                        it.copy(error = null, password = password)
+                            .also { caldavDao.update(it) }
                     }
-                    ?: CaldavAccount().apply {
-                        accountType = CaldavAccount.TYPE_TASKS
-                        uuid = UUIDHelper.newUUID()
-                        this.username = username
-                        this.password = password
-                        url = homeSet
-                        name = idToken.email ?: idToken.login
-                        caldavDao.insert(this)
+                    ?: CaldavAccount(
+                        accountType = CaldavAccount.TYPE_TASKS,
+                        uuid = UUIDHelper.newUUID(),
+                        username = username,
+                        password = password,
+                        url = homeSet,
+                        name = idToken.email ?: idToken.login,
+                    ).let {
+                        it.copy(id = caldavDao.insert(it))
                     }
         } catch (e: Exception) {
             error.postValue(e)

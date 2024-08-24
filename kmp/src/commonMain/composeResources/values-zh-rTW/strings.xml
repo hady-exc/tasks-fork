@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="subscribe">訂閱</string>
+    <string name="search">搜尋</string>
+    <string name="subscription_required_description">解鎖所有功能最低僅需每年 1 美元</string>
+    <string name="search_no_results">沒有結果</string>
+    <string name="requires_pro_subscription">專業版功能</string>
+    <string name="filter_my_tasks">我的工作</string>
+    <string name="filter_notifications">通知</string>
+    <string name="filter_snoozed">延後</string>
+    <string name="filter_timer">有啟用碼錶的工作</string>
+    <string name="filter_today">今天</string>
+    <string name="filter_recently_modified">最近修改過</string>
+    <string name="default_list">預設清單</string>
+    <string name="help_and_feedback">幫助與回饋</string>
+    <string name="settings">設定</string>
+    <string name="drawer_filters">過濾</string>
+    <string name="drawer_tags">標籤</string>
+    <string name="drawer_places">地點</string>
+    <string name="drawer_local_lists">本機清單</string>
+    <string name="tmrw">明天</string>
+    <string name="tomorrow_abbrev_lowercase">明天</string>
+    <string name="tomorrow">明天</string>
+    <string name="yest">昨天</string>
+    <string name="tomorrow_lowercase">明天</string>
+    <string name="yesterday_abbrev_lowercase">昨天</string>
+    <string name="yesterday">昨天</string>
+    <string name="yesterday_lowercase">昨天</string>
+    <string name="today">今天</string>
+    <string name="today_lowercase">今天</string>
+</resources>

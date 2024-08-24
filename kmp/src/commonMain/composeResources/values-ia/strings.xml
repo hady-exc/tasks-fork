@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search">Cercar</string>
+    <string name="filter_notifications">Notificationes</string>
+    <string name="filter_today">Hodie</string>
+    <string name="help_and_feedback">Adjuta e commentarios</string>
+    <string name="settings">Parametros</string>
+    <string name="today">Hodie</string>
+    <string name="today_lowercase">hodie</string>
+</resources>
