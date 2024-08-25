@@ -149,7 +149,7 @@ class CaldavCalendarSettingsActivity : BaseCaldavCalendarSettingsActivity() {
     }
 
     private val canRemovePrincipals: Boolean
-        get() = true // TODO( revert back !) caldavCalendar?.access == ACCESS_OWNER && caldavAccount.canRemovePrincipal
+        get() = caldavCalendar?.access == ACCESS_OWNER && caldavAccount.canRemovePrincipal
 
     private fun onRemove(principal: PrincipalWithAccess) {
         if (requestInProgress()) return
@@ -200,13 +200,13 @@ class CaldavCalendarSettingsActivity : BaseCaldavCalendarSettingsActivity() {
         val CaldavAccount.canRemovePrincipal: Boolean
             get() = when (serverType) {
                 SERVER_TASKS, SERVER_OWNCLOUD, SERVER_SABREDAV, SERVER_NEXTCLOUD -> true
-                else -> true // false TODO(rollback to false)
+                else -> false
             }
 
         val CaldavAccount.canShare: Boolean
             get() = when (serverType) {
-                SERVER_TASKS, SERVER_OWNCLOUD, SERVER_SABREDAV, SERVER_NEXTCLOUD, SERVER_MAILBOX_ORG -> true // TODO(revert MAILBOX_ORG out!!!)
-                else -> true // false TODO(the same with the above!!!)
+                SERVER_TASKS, SERVER_OWNCLOUD, SERVER_SABREDAV, SERVER_NEXTCLOUD -> true
+                else -> false
             }
     }
 }
