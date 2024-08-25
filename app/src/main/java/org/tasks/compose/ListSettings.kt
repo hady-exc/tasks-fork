@@ -1,12 +1,14 @@
 package org.tasks.compose
 
+/**
+ * Composables for BaseListSettingActivity
+*/
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -148,7 +150,9 @@ object ListSettings {
 
     @Composable
     fun ProgressBar(showProgress: State<Boolean>) {
-        Box(modifier = Modifier.fillMaxWidth().requiredHeight(3.dp))
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .requiredHeight(3.dp))
         {
             if (showProgress.value) {
                 LinearProgressIndicator(
@@ -167,23 +171,24 @@ object ListSettings {
         requestKeyboard: Boolean,
         modifier: Modifier = Modifier,
         label: String = stringResource(R.string.display_name),
-        errorState: Color = MaterialTheme.colorScheme.secondary,
+        errorState: Color = colorResource(id = org.tasks.kmp.R.color.red_a400), //MaterialTheme.colorScheme.secondary,
         activeState: Color = LocalContentColor.current.copy(alpha = 0.75f),
-        inactiveState: Color = LocalContentColor.current.copy(alpha = 0.5f),
+        inactiveState: Color = LocalContentColor.current.copy(alpha = 0.3f),
     ) {
         val keyboardController = LocalSoftwareKeyboardController.current
         val requester = remember { FocusRequester() }
+        val focused = remember { mutableStateOf(false) }
+        val labelColor = when {
+            (error.value != "") -> errorState
+            (focused.value) -> activeState
+            else -> inactiveState
+        }
+        val dividerColor = if (focused.value) errorState else labelColor
+        val labelText = if (error.value != "") error.value else label
 
         Row (modifier = modifier)
         {
             Column {
-                val focused = remember { mutableStateOf(false) }
-                val labelColor = when {
-                    (error.value != "") -> errorState
-                    (focused.value) -> activeState
-                    else -> inactiveState
-                }
-                val labelText = if (error.value != "") error.value else label
                 Text(
                     modifier = Modifier.padding(top = 18.dp, bottom = 4.dp),
                     text = labelText,
@@ -203,14 +208,15 @@ object ListSettings {
                         text.value = it
                         if (error.value != "") error.value = ""
                     },
-                    cursorBrush = SolidColor(LocalContentColor.current),
+                    cursorBrush = SolidColor(errorState), // SolidColor(LocalContentColor.current),
                     modifier = Modifier
+                        .fillMaxWidth()
                         .padding(bottom = 3.dp)
                         .focusRequester(requester)
                         .onFocusChanged { focused.value = (it.isFocused) }
                 )
                 HorizontalDivider(
-                    color = labelColor,
+                    color = dividerColor,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
             }
@@ -219,14 +225,7 @@ object ListSettings {
         if (requestKeyboard) {
             LaunchedEffect(null) {
                 requester.requestFocus()
-
-                /* Part of requester.requestFocus logic is performed in separate coroutine,
-            so the actual view may not be really focused right upon return
-            from it, what makes the subsequent "IME.show" call to be ignored by the system.
-            The delay below is a workaround trick for it.
-            30ms period is not the guarantee but makes it working almost always */
-                delay(30)
-
+                delay(30) // Workaround. Otherwise keyboard don't show in 4/5 tries
                 keyboardController?.show()
             }
         }
@@ -234,7 +233,7 @@ object ListSettings {
 
     @Composable
     fun SelectColorRow(color: State<Color>, selectColor: () -> Unit, clearColor: () -> Unit) =
-        ListSettingRow(
+        SettingRow(
             modifier = Modifier.clickable(onClick =  selectColor),
             left = {
                 IconButton(onClick = { selectColor() }) {
@@ -279,7 +278,7 @@ object ListSettings {
 
     @Composable
     fun SelectIconRow(icon: State<String>, selectIcon: () -> Unit) =
-        ListSettingRow(
+        SettingRow(
             modifier = Modifier.clickable(onClick =  selectIcon),
             left = {
                 IconButton(onClick = selectIcon) {
@@ -299,7 +298,7 @@ object ListSettings {
 
 
     @Composable
-    fun ListSettingRow(
+    fun SettingRow(
         left: @Composable () -> Unit,
         center: @Composable () -> Unit,
         right: @Composable (() -> Unit)? = null,
@@ -309,7 +308,11 @@ object ListSettings {
             Box (modifier = Modifier.size(56.dp), contentAlignment = Alignment.Center) {
                 left()
             }
-            Box (modifier = Modifier.height(56.dp).weight(1f), contentAlignment = Alignment.CenterStart) {
+            Box (
+                modifier = Modifier
+                .height(56.dp)
+                .weight(1f), contentAlignment = Alignment.CenterStart
+            ) {
                 center()
             }
             right?.let {
@@ -321,7 +324,7 @@ object ListSettings {
     }
 
     @Composable
-    fun ListSettingsSurface(content: @Composable ColumnScope.() -> Unit) {
+    fun SettingsSurface(content: @Composable ColumnScope.() -> Unit) {
         ProvideTextStyle(LocalTextStyle.current.copy(fontSize = 18.sp)) {
             Surface(
                 color = colorResource(id = R.color.window_background),
@@ -333,7 +336,7 @@ object ListSettings {
     }
 
     @Composable
-    fun SettingsSnackBar(state: SnackbarHostState) {
+    fun Toaster(state: SnackbarHostState) {
         SnackbarHost(state) { data ->
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -362,8 +365,8 @@ object ListSettings {
             AlertDialog(
                 onDismissRequest = onCancel,
                 title = { Text(title, style = MaterialTheme.typography.headlineSmall) },
-                confirmButton = { Constants.TextButton(R.string.ok, onClick = onAction) },
-                dismissButton = { Constants.TextButton(text = R.string.cancel, onCancel) }
+                confirmButton = { Constants.TextButton(text = R.string.ok, onClick = onAction) },
+                dismissButton = { Constants.TextButton(text = R.string.cancel, onClick = onCancel) }
             )
         }
     }
