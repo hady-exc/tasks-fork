@@ -137,6 +137,8 @@ private fun PopupContent(save: (String) -> Unit = {},
     val foreground = colorResource(id = R.color.input_popup_foreground)
     val padding = keyboardHeight()
 
+    val opened = remember { mutableStateOf(false) }
+
     Card(
         backgroundColor = background,
         contentColor = foreground,
@@ -229,6 +231,12 @@ private fun PopupContent(save: (String) -> Unit = {},
                         }
                     }
                 }
+            }
+
+            if (opened.value) {
+                if (padding.value < 30.dp) close()
+            } else {
+                if (padding.value > 60.dp) opened.value = true
             }
             Box(modifier = Modifier
                 .fillMaxWidth()
