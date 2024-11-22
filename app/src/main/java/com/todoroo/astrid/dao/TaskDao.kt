@@ -8,6 +8,7 @@ package com.todoroo.astrid.dao
 import com.todoroo.astrid.timers.TimerPlugin
 import org.tasks.LocalBroadcastManager
 import org.tasks.data.TaskContainer
+import org.tasks.data.count
 import org.tasks.data.dao.TaskDao
 import org.tasks.data.db.SuspendDbUtils.eachChunk
 import org.tasks.data.entity.Task
@@ -20,6 +21,7 @@ import org.tasks.jobs.WorkManager
 import org.tasks.location.GeofenceApi
 import org.tasks.notifications.NotificationManager
 import org.tasks.preferences.Preferences
+import org.tasks.preferences.QueryPreferences
 import org.tasks.sync.SyncAdapters
 import javax.inject.Inject
 
@@ -39,6 +41,8 @@ class TaskDao @Inject constructor(
 
     suspend fun fetch(remoteId: String): Task? = taskDao.fetch(remoteId)
 
+    suspend fun count(item: Filter): Int = taskDao.count(item)
+
     suspend fun getRecurringTasks(remoteIds: List<String>): List<Task> =
             taskDao.getRecurringTasks(remoteIds)
 
@@ -54,7 +58,7 @@ class TaskDao @Inject constructor(
     suspend fun getCaldavTasksToPush(calendar: String): List<Task> =
             taskDao.getCaldavTasksToPush(calendar)
 
-    suspend fun fetchTasks(preferences: Preferences, filter: Filter): List<TaskContainer> =
+    suspend fun fetchTasks(preferences: QueryPreferences, filter: Filter): List<TaskContainer> =
             taskDao.fetchTasks(preferences, filter)
 
     suspend fun touch(id: Long) = touch(listOf(id))

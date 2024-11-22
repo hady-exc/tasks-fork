@@ -2,13 +2,6 @@
 
 -keep class org.tasks.** { *; }
 
-# remove logging statements
--assumenosideeffects class timber.log.Timber* {
-    public static *** v(...);
-    public static *** d(...);
-    public static *** i(...);
-}
-
 # guava
 -dontwarn sun.misc.Unsafe
 -dontwarn java.lang.ClassValue
@@ -57,3 +50,5 @@
 
 # material icons
 -keep class androidx.compose.material.icons.outlined.** { *; }
+
+-keepclassmembers class * extends com.google.protobuf.GeneratedMessageLite { <fields>; }

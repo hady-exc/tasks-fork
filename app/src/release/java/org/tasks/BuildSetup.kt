@@ -1,12 +1,20 @@
 package org.tasks
 
 import android.annotation.SuppressLint
+import android.app.Application
 import android.util.Log
+import org.tasks.logging.FileLogger
 import timber.log.Timber
 import javax.inject.Inject
 
-class BuildSetup @Inject constructor() {
-    fun setup() = Timber.plant(ErrorReportingTree())
+class BuildSetup @Inject constructor(
+    private val context: Application,
+    private val fileLogger: FileLogger,
+) {
+    fun setup() {
+        Timber.plant(ErrorReportingTree())
+        Timber.plant(fileLogger)
+    }
 
     private class ErrorReportingTree : Timber.Tree() {
         @SuppressLint("LogNotTimber")

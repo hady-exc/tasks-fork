@@ -232,7 +232,7 @@ dependencies {
     implementation("androidx.compose.material:material")
     implementation("androidx.compose.runtime:runtime-livedata")
     implementation(libs.androidx.activity.compose)
-    implementation("androidx.compose.material:material-icons-extended")
+    implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation("androidx.compose.ui:ui-viewbinding")
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -246,16 +246,21 @@ dependencies {
     implementation(libs.accompanist.systemuicontroller)
 
     googleplayImplementation(platform(libs.firebase))
-    googleplayImplementation("com.google.firebase:firebase-crashlytics")
-    googleplayImplementation("com.google.firebase:firebase-analytics") {
+    googleplayImplementation(libs.firebase.crashlytics)
+    googleplayImplementation(libs.firebase.analytics) {
         exclude("com.google.android.gms", "play-services-ads-identifier")
     }
-    googleplayImplementation("com.google.firebase:firebase-config-ktx")
+    googleplayImplementation(libs.firebase.config.ktx)
     googleplayImplementation(libs.play.services.location)
     googleplayImplementation(libs.play.services.maps)
     googleplayImplementation(libs.play.billing.ktx)
     googleplayImplementation(libs.play.review)
     googleplayImplementation(libs.play.services.oss.licenses)
+    googleplayImplementation(libs.horologist.datalayer.phone)
+    googleplayImplementation(libs.horologist.datalayer.grpc)
+    googleplayImplementation(libs.horologist.datalayer.core)
+    googleplayImplementation(libs.play.services.wearable)
+    googleplayImplementation(projects.wearDatalayer)
 
     androidTestImplementation(libs.dagger.hilt.testing)
     kspAndroidTest(libs.dagger.hilt.compiler)

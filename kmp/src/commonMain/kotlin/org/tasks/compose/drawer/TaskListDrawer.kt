@@ -52,6 +52,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
 import org.jetbrains.compose.resources.stringResource
@@ -69,6 +70,7 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskListDrawer(
+    arrangement: Arrangement.Vertical,
     bottomSearchBar: Boolean,
     filters: ImmutableList<DrawerItem>,
     onClick: (DrawerItem) -> Unit,
@@ -136,7 +138,7 @@ fun TaskListDrawer(
                 ) else
                     48.dp
             ),
-            verticalArrangement = if (bottomSearchBar) Arrangement.Bottom else Arrangement.Top,
+            verticalArrangement = arrangement,
         ) {
             items(items = filters, key = { it.key() }) {
                 when (it) {
@@ -188,7 +190,9 @@ internal fun FilterItem(
         Text(
             text = item.title,
             color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f).padding(end = 8.dp),
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
         )
         if (item.shareCount > 0) {
             Icon(
@@ -201,7 +205,6 @@ internal fun FilterItem(
             )
         }
         Box(
-            modifier = Modifier.width(48.dp),
             contentAlignment = Alignment.CenterEnd,
         ) {
             if (item.count > 0) {

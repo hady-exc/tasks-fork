@@ -55,7 +55,6 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
                 selectedIcon.value = caldavCalendar?.icon ?: defaultIcon
             }
         }
-
         updateTheme()
     }
 

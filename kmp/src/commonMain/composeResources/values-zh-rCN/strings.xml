@@ -28,4 +28,9 @@
     <string name="yesterday_lowercase">昨天</string>
     <string name="today">今天</string>
     <string name="today_lowercase">今日</string>
+    <string name="add_task">添加任务</string>
+    <string name="show_unstarted">显示未开始项目</string>
+    <string name="show_completed">显示已完成任务</string>
+    <string name="wear_install_app">在手机上安装</string>
+    <string name="wear_unknown_error">未知错误</string>
 </resources>

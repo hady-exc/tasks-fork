@@ -1,41 +1,45 @@
 [versions]
+versionCode = "140018" # increment by 2
+versionName = "14.0.1"
+agp = "8.7.2"
 android-compileSdk = "34"
 android-minSdk = "24"
-android-targetSdk = "33"
+android-targetSdk = "34"
 accompanist = "0.34.0"
-activity-compose = "1.9.1"
+activity-compose = "1.9.3"
 appauth = "0.11.1"
 appcompat = "1.7.0"
 cert4android = "7814052"
 coil = "2.6.0"
 colorpicker = "0.0.15"
-compose = "2024.06.00"
+compose = "2024.09.02"
 constraintlayout = "2.1.4"
 dagger-hilt = "2.50"
 dashclock-api = "2.0.0"
 dav4jvm = "2.2.1"
-desugar_jdk_libs = "2.0.4"
+desugar_jdk_libs = "2.1.2"
 etebase = "2.3.2"
-firebase = "33.1.2"
+firebase = "33.5.1"
 firebase-crashlytics-gradle = "3.0.2"
-flipper = "0.262.0"
-fragment-ktx = "1.8.2"
-google-oauth2 = "1.24.0"
-google-api-drive = "v3-rev20240730-2.0.0"
+flipper = "0.272.0"
+fragment-ktx = "1.8.5"
+google-oauth2 = "1.30.0"
+google-api-drive = "v3-rev20240914-2.0.0"
 google-api-tasks = "v1-rev20240630-2.0.0"
 google-services = "4.4.2"
-agp = "8.5.2"
+grpc = "1.68.0"
 hilt = "1.2.0"
+horologist = "0.6.20"
 ical4android = "12fe73a"
 jchronic = "0.2.6"
 jems = "1.33"
 junit-junit = "4.13.2"
 junit = "1.2.1"
-kotlin = "2.0.10"
-kotlinx-coroutines = "1.8.1"
+kotlin = "2.0.21"
+kotlinx-coroutines = "1.9.0"
 leakcanary = "2.14"
 lib-recur = "0.11.4"
-lifecycle = "2.8.4"
+lifecycle = "2.8.6"
 locale = "1.0.2"
 make-it-easy = "4.0.1"
 markwon = "4.6.2"
@@ -43,25 +47,27 @@ material = "1.12.0"
 mockito = "5.12.0"
 okhttp = "4.12.0"
 opentasks = "562fec5"
-osmdroid = "6.1.18"
+osmdroid = "6.1.20"
 oss-licenses-plugin = "0.10.6"
 persistent-cookiejar = "1.0.1"
 play-services-maps = "19.0.0"
 play-services-location = "21.3.0"
 play-services-oss-licenses = "17.1.0"
 preference = "1.2.1"
+protobuf = "4.28.2"
 recyclerview = "1.3.2"
 retrofit = "2.9.0"
 rfc5545-datetime = "0.2.4"
-room = "2.7.0-alpha06"
+room = "2.7.0-alpha08"
 shortcut-badger = "1.1.22"
 soloader = "0.11.0"
 timber = "5.0.1"
 swiperefreshlayout = "1.1.0"
 work = "2.8.1"
 androidx-test = "1.6.1"
-androidx-test-runner = "1.6.1"
+androidx-test-runner = "1.6.2"
 xpp3 = "1.1.6"
+wearCompose = "1.4.0"
 
 [libraries]
 accompanist-flowlayout = { module = "com.google.accompanist:accompanist-flowlayout", version.ref = "accompanist" }
@@ -72,6 +78,7 @@ androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "a
 androidx-compose = { module = "androidx.compose:compose-bom", version.ref = "compose" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
+androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version = "1.0.1" }
 androidx-datastore = { module = "androidx.datastore:datastore-preferences", version = "1.1.1" }
 androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragment-ktx" }
 androidx-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hilt" }
@@ -81,6 +88,8 @@ androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime", 
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
 androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel", version.ref = "lifecycle" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
+androidx-paging-compose = { module = "androidx.paging:paging-compose", version = "3.3.4" }
 androidx-preference = { module = "androidx.preference:preference", version.ref = "preference" }
 androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }
 androidx-room = { module = "androidx.room:room-runtime", version.ref = "room" }
@@ -114,12 +123,22 @@ facebook-flipper = { module = "com.facebook.flipper:flipper", version.ref = "fli
 facebook-flipper-network = { module = "com.facebook.flipper:flipper-network-plugin", version.ref = "flipper" }
 facebook-soloader = { module = "com.facebook.soloader:soloader", version.ref = "soloader" }
 firebase = { module = "com.google.firebase:firebase-bom", version.ref = "firebase" }
+firebase-config-ktx = { module = "com.google.firebase:firebase-config-ktx" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 firebase-crashlytics-gradle = { module = "com.google.firebase:firebase-crashlytics-gradle", version.ref = "firebase-crashlytics-gradle" }
 google-oauth2 = { module = "com.google.auth:google-auth-library-oauth2-http", version.ref = "google-oauth2" }
 google-api-drive = { module = "com.google.apis:google-api-services-drive", version.ref = "google-api-drive" }
 google-api-tasks = { module = "com.google.apis:google-api-services-tasks", version.ref = "google-api-tasks" }
 google-services = { module = "com.google.gms:google-services", version.ref = "google-services" }
 gradle = { module = "com.android.tools.build:gradle", version.ref = "agp" }
+horologist-compose-layout = { group = "com.google.android.horologist", name = "horologist-compose-layout", version.ref = "horologist" }
+horologist-compose-material = { group = "com.google.android.horologist", name = "horologist-compose-material", version.ref = "horologist" }
+horologist-compose-tools = { group = "com.google.android.horologist", name = "horologist-compose-tools", version.ref = "horologist" }
+horologist-datalayer-core = { group = "com.google.android.horologist", name = "horologist-datalayer", version.ref = "horologist" }
+horologist-datalayer-grpc = { group = "com.google.android.horologist", name = "horologist-datalayer-grpc", version.ref = "horologist" }
+horologist-datalayer-phone = { group = "com.google.android.horologist", name = "horologist-datalayer-phone", version.ref = "horologist" }
+horologist-datalayer-watch = { group = "com.google.android.horologist", name = "horologist-datalayer-watch", version.ref = "horologist" }
 jchronic = { module = "com.rubiconproject.oss:jchronic", version.ref = "jchronic" }
 junit = { module = "junit:junit", version.ref = "junit-junit" }
 kermit = { module = "co.touchlab:kermit", version = "2.0.4" }
@@ -127,9 +146,9 @@ kotlin-gradle = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.
 kotlin-jdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
-kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version = "0.6.0" }
-kotlinx-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version = "0.3.7" }
-kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.7.1" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version = "0.6.1" }
+kotlinx-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version = "0.3.8" }
+kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.7.3" }
 leakcanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
 locale = { module = "com.github.twofortyfouram:android-plugin-api-for-locale", version.ref = "locale" }
 make-it-easy = { module = "com.natpryce:make-it-easy", version.ref = "make-it-easy" }
@@ -147,7 +166,7 @@ okhttp-mockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version.
 osmdroid = { module = "org.osmdroid:osmdroid-android", version.ref = "osmdroid" }
 oss-licenses-plugin = { module = "com.google.android.gms:oss-licenses-plugin", version.ref = "oss-licenses-plugin" }
 persistent-cookiejar = { module = "com.github.franmontiel:PersistentCookieJar", version.ref = "persistent-cookiejar" }
-play-billing-ktx = { module = "com.android.billingclient:billing-ktx", version = "6.1.0" }
+play-billing-ktx = { module = "com.android.billingclient:billing-ktx", version = "6.2.1" }
 play-review = { module = "com.google.android.play:review-ktx", version = "2.0.1" }
 play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "play-services-maps" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "play-services-location" }
@@ -157,8 +176,31 @@ retrofit-moshi = { module = "com.squareup.retrofit2:converter-moshi", version.re
 shortcut-badger = { module = "me.leolin:ShortcutBadger", version.ref = "shortcut-badger" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 xpp3 = { module = "org.ogce:xpp3", version.ref = "xpp3" }
-androidx-ui-tooling-preview-android = { group = "androidx.compose.ui", name = "ui-tooling-preview-android", version = "1.6.8" }
+androidx-ui-tooling-preview-android = { group = "androidx.compose.ui", name = "ui-tooling-preview-android", version = "1.7.2" }
 iconics = { module = "com.mikepenz:iconics-core", version = "5.5.0-b01" }
+play-services-wearable = { group = "com.google.android.gms", name = "play-services-wearable", version = "18.2.0" }
+androidx-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+wear-compose-foundation = { group = "androidx.wear.compose", name = "compose-foundation", version.ref = "wearCompose" }
+wear-compose-material = { group = "androidx.wear.compose", name = "compose-material", version.ref = "wearCompose" }
+wear-compose-navigation = { group = "androidx.wear.compose", name = "compose-navigation", version.ref = "wearCompose" }
+wear-input = { group = "androidx.wear", name = "wear-input", version = "1.2.0-alpha02" }
+wear-tiles-proto = { group = "androidx.wear.tiles", name = "tiles-proto", version = "1.4.1" }
+wear-tooling-preview = { group = "androidx.wear", name = "wear-tooling-preview", version = "1.0.0" }
+
+protobuf-protoc-gen-grpc-java = { module = "io.grpc:protoc-gen-grpc-java", version.ref = "grpc" }
+protobuf-protoc-gen-grpc-kotlin = { module = "io.grpc:protoc-gen-grpc-kotlin", version = "1.3.0:jdk8@jar" }
+protobuf-protoc-gen-javalite = { group = "com.google.protobuf", name = "protoc-gen-javalite", version = "3.0.0" }
+protobuf-protoc-stnd = { group = "com.google.protobuf", name = "protoc", version.ref = "protobuf" }
+io-grpc-grpc-android = { group = "io.grpc", name = "grpc-android", version.ref = "grpc" }
+io-grpc-grpc-binder = { group = "io.grpc", name = "grpc-binder", version.ref = "grpc" }
+io-grpc-grpc-kotlin = { group = "io.grpc", name = "grpc-kotlin-stub", version = "1.4.1" }
+io-grpc-protobuf-lite = { group = "io.grpc", name = "grpc-protobuf-lite", version.ref = "grpc" }
+protobuf-kotlin-lite = { group = "com.google.protobuf", name = "protobuf-kotlin-lite", version.ref = "protobuf" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -168,6 +210,8 @@ kotlin-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-ksp = { id = "com.google.devtools.ksp", version = "2.0.10-1.0.24" }
+ksp = { id = "com.google.devtools.ksp", version = "2.0.21-1.0.26" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+protobuf = { id = "com.google.protobuf", version = "0.9.4" }
+redacted = { id = "dev.zacsweers.redacted", version = "1.10.0" }

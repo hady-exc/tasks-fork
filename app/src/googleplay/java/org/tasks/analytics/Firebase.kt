@@ -22,7 +22,6 @@ class Firebase @Inject constructor(
         @param:ApplicationContext val context: Context,
         private val preferences: Preferences
 ) {
-
     private var crashlytics: FirebaseCrashlytics? = null
     private var analytics: FirebaseAnalytics? = null
     private var remoteConfig: FirebaseRemoteConfig? = null
@@ -50,6 +49,9 @@ class Firebase @Inject constructor(
     fun addTask(source: String) =
         logEvent(R.string.event_add_task, R.string.param_type to source)
 
+    fun completeTask(source: String) =
+        logEvent(R.string.event_complete_task, R.string.param_type to source)
+
     fun logEvent(@StringRes event: Int, vararg p: Pair<Int, Any>) {
         analytics?.logEvent(context.getString(event), Bundle().apply {
             p.forEach {
@@ -73,11 +75,8 @@ class Firebase @Inject constructor(
         get() = installCooldown
                 || preferences.lastSubscribeRequest + days("subscribe_cooldown", 30L) > currentTimeMillis()
 
-    val moreOptionsBadge: Boolean
-        get() = remoteConfig?.getBoolean("more_options_badge") ?: false
-
-    val moreOptionsSolid: Boolean
-        get() = remoteConfig?.getBoolean("more_options_solid") ?: false
+    val subGroupA: Boolean
+        get() = remoteConfig?.getBoolean("sub_group_a") ?: false
 
     private fun days(key: String, default: Long): Long =
             TimeUnit.DAYS.toMillis(remoteConfig?.getLong(key) ?: default)

@@ -1,3 +1,58 @@
+### 14.0.1 (2024-11-10)
+
+* Fix widget crash
+* Fix EteSync sync failure [#3092](https://github.com/tasks/tasks/issues/3092)
+* Minor Wear OS improvements
+* Update translations
+  * Hungarian - Kaci
+  * Italian - @ppasserini
+  * Kannada - @historicattle
+  * Marathi - @historicattle
+  * Spanish - gallegonovato
+  * Swedish - @bittin
+
+### 14.0 (2024-11-05)
+
+* Wear OS support (Google Play only)
+* Move drawer items to top unless searching
+* Fix drawer item layout issues
+* Update translations
+  * Brazilian Portuguese - Nicolas Suzuki, pogoyar888
+  * Bulgarian - @StoyanDimitrov
+  * Chinese (Simplified) - 大王叫我来巡山
+  * Chinese (Traditional) - hugoalh
+  * Dutch - Luna, @fvbommel
+  * French - @FlorianLeChat
+  * German - @p-rogalski, @franconian
+  * Hungarian - Kaci
+  * Italian - @ppasserini
+  * Spanish - gallegonovato
+  * Swedish - @bittin
+  * Turkish - @oersen
+  * Ukrainian - @IhorHordiichuk
+
+### 13.11.2 (2024-09-29)
+
+* Target Android 14
+* Fix crash in location picker [#2990](https://github.com/tasks/tasks/issues/2990)
+* Fix SQLite crash [#3045](https://github.com/tasks/tasks/issues/3045)
+* Update translations
+  * Arabic - @sanabel-al-firdaws
+  * Belarusian - @katalim
+  * Brazilian Portuguese - Jose Delvani
+  * Catalan - raulmagdalena, @truita
+  * Chinese (Traditional) - @abc0922001
+  * Croatian - @milotype
+  * Czech - atmosphericignition
+  * Danish - Tntdruid, Luna
+  * Dutch - @VIMVa
+  * Esperanto - Don Zouras
+  * Estonian - @dermezl
+  * German - @Atalanttore, @tct123
+  * Italian - @ppasserini
+  * Norwegian Bokmål - @RonnyAL
+  * Swedish - @JonatanWick, @bittin
+
 ### 13.11.1 (2024-07-15)
 
 * Fix crash when collapsing list picker sections

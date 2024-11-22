@@ -1,5 +1,6 @@
 package org.tasks
 
+import android.app.ActivityManager
 import android.app.Application
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -13,8 +14,7 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.coroutineScope
 import androidx.work.Configuration
 import com.mikepenz.iconics.Iconics
-import org.tasks.icons.OutlinedGoogleMaterial
-import org.tasks.icons.OutlinedGoogleMaterial2
+import com.todoroo.andlib.utility.AndroidUtilities
 import com.todoroo.astrid.service.Upgrader
 import dagger.Lazy
 import dagger.hilt.android.HiltAndroidApp
@@ -24,7 +24,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.tasks.billing.Inventory
 import org.tasks.caldav.CaldavSynchronizer
-import org.tasks.files.FileHelper
+import org.tasks.icons.OutlinedGoogleMaterial
+import org.tasks.icons.OutlinedGoogleMaterial2
 import org.tasks.injection.InjectingJobIntentService
 import org.tasks.jobs.WorkManager
 import org.tasks.location.GeofenceApi
@@ -32,6 +33,7 @@ import org.tasks.opentasks.OpenTaskContentObserver
 import org.tasks.preferences.Preferences
 import org.tasks.receivers.RefreshReceiver
 import org.tasks.scheduling.NotificationSchedulerIntentService
+import org.tasks.sync.SyncAdapters
 import org.tasks.themes.ThemeBase
 import org.tasks.time.DateTimeUtils2.currentTimeMillis
 import org.tasks.widget.AppWidgetManager
@@ -53,6 +55,7 @@ class Tasks : Application(), Configuration.Provider {
     @Inject lateinit var appWidgetManager: Lazy<AppWidgetManager>
     @Inject lateinit var workerFactory: HiltWorkerFactory
     @Inject lateinit var contentObserver: Lazy<OpenTaskContentObserver>
+    @Inject lateinit var syncAdapters: Lazy<SyncAdapters>
 
     override fun onCreate() {
         super.onCreate()
@@ -67,9 +70,7 @@ class Tasks : Application(), Configuration.Provider {
                 override fun onResume(owner: LifecycleOwner) {
                     localBroadcastManager.broadcastRefresh()
                     if (currentTimeMillis() - preferences.lastSync > TimeUnit.MINUTES.toMillis(5)) {
-                        owner.lifecycle.coroutineScope.launch {
-                            workManager.get().sync(true)
-                        }
+                        syncAdapters.get().sync(true)
                     }
                 }
 
@@ -86,6 +87,11 @@ class Tasks : Application(), Configuration.Provider {
         val lastVersion = preferences.lastSetVersion
         val currentVersion = BuildConfig.VERSION_CODE
         Timber.i("Astrid Startup. %s => %s", lastVersion, currentVersion)
+        if (AndroidUtilities.atLeastR()) {
+            val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            val exitReasons = activityManager.getHistoricalProcessExitReasons(null, 0, 5)
+            Timber.i(exitReasons.joinToString("\n"))
+        }
 
         // invoke upgrade service
         if (lastVersion != currentVersion) {
@@ -108,7 +114,6 @@ class Tasks : Application(), Configuration.Provider {
         }
         OpenTaskContentObserver.registerObserver(context, contentObserver.get())
         geofenceApi.get().registerAll()
-        FileHelper.delete(context, preferences.cacheDirectory)
         appWidgetManager.get().reconfigureWidgets()
         CaldavSynchronizer.registerFactories()
     }

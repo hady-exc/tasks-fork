@@ -1,6 +1,7 @@
 package org.tasks.previews
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.collections.immutable.persistentListOf
@@ -18,6 +19,7 @@ import org.tasks.themes.TasksTheme
 fun MenuPreview() {
     TasksTheme {
         TaskListDrawer(
+            arrangement = Arrangement.Top,
             searchBar = {
                 MenuSearchBar(
                     begForMoney = true,
@@ -32,6 +34,7 @@ fun MenuPreview() {
                     title = "My Tasks",
                     icon = TasksIcons.ALL_INBOX,
                     filter = FilterImpl(),
+                    count = 100
                 ),
                 DrawerItem.Header(
                     title = "Filters",
@@ -45,6 +48,12 @@ fun MenuPreview() {
                         NavigationDrawerSubheader.SubheaderType.PREFERENCE,
                         "",
                     ),
+                ),
+                DrawerItem.Filter(
+                    title = "A really really really really really really really really really really really really really long title",
+                    icon = TasksIcons.CLOUD,
+                    filter = FilterImpl(),
+                    count = 123456,
                 )
             ),
             onClick = {},

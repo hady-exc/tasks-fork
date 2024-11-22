@@ -1,0 +1,109 @@
+syntax = "proto3";
+
+package org.tasks.grpc;
+
+option java_package = "org.tasks";
+option java_outer_classname = "GrpcProto";
+
+enum ListItemType {
+  Header = 0;
+  Item = 1;
+}
+
+message UiItem {
+  ListItemType type = 1;
+  uint64 id = 2;
+  string title = 3;
+  bool completed = 4;
+  uint32 priority = 5;
+  bool repeating = 6;
+  bool collapsed = 7;
+  bool hidden = 8;
+  uint32 indent = 9;
+  uint32 numSubtasks = 10;
+  optional string timestamp = 11;
+}
+
+message Tasks {
+  uint32 totalItems = 1;
+  repeated UiItem items = 2;
+}
+
+message LastUpdate {
+  uint64 now = 1;
+}
+
+message Settings {
+  repeated uint64 collapsed = 1;
+  optional string filter = 2;
+  bool showHidden = 3;
+  bool showCompleted = 4;
+}
+
+message UpdateSettingsRequest {
+  Settings settings = 1;
+}
+
+message GetTasksRequest {
+  uint32 position = 1;
+  uint32 limit = 2;
+}
+message CompleteTaskRequest {
+  uint64 id = 1;
+  bool completed = 2;
+}
+message CompleteTaskResponse { bool success = 1; }
+
+message ToggleGroupRequest {
+  uint64 value = 1;
+  bool collapsed = 2;
+}
+message ToggleGroupResponse {}
+
+message ListItem {
+  ListItemType type = 1;
+  string id = 2;
+  string title = 3;
+  string icon = 4;
+  uint32 color = 5;
+  uint32 taskCount = 6;
+}
+
+message GetListsRequest {
+  uint32 position = 1;
+  uint32 limit = 2;
+}
+message GetListsResponse {
+  uint32 totalItems = 1;
+  repeated ListItem items = 2;
+}
+
+message GetTaskRequest {
+  uint64 taskId = 1;
+}
+message GetTaskResponse {
+  string title = 1;
+  bool completed = 2;
+  bool repeating = 3;
+  uint32 priority = 4;
+}
+
+message SaveTaskRequest {
+  uint64 taskId = 1;
+  string title = 2;
+  bool completed = 3;
+}
+message SaveTaskResponse {
+  uint64 taskId = 1;
+}
+
+service WearService {
+  rpc getTasks(GetTasksRequest) returns (Tasks);
+  rpc completeTask(CompleteTaskRequest) returns (CompleteTaskResponse);
+  rpc toggleGroup(ToggleGroupRequest) returns (ToggleGroupResponse);
+  rpc updateSettings(UpdateSettingsRequest) returns (Settings);
+  rpc toggleSubtasks(ToggleGroupRequest) returns (ToggleGroupResponse);
+  rpc getLists(GetListsRequest) returns (GetListsResponse);
+  rpc getTask(GetTaskRequest) returns (GetTaskResponse);
+  rpc saveTask(SaveTaskRequest) returns (SaveTaskResponse);
+}
