@@ -44,6 +44,7 @@ fun TasksTheme(
         colorScheme = colorScheme.copy(
             primary = Color(primary),
             onPrimary = colorOnPrimary,
+            secondary = Color.Red  /* TODO(fond regular solution) */
         ),
     ) {
         content()

@@ -19,12 +19,14 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -132,16 +134,14 @@ private fun PopupContent(save: (String) -> Unit = {},
                          close: () -> Unit = {}) {
 
     val keyboardController = LocalSoftwareKeyboardController.current
-    val requester = remember { FocusRequester() }
     val background = colorResource(id = R.color.input_popup_background)
     val foreground = colorResource(id = R.color.input_popup_foreground)
     val padding = keyboardHeight()
 
     Card(
-        backgroundColor = background,
-        contentColor = foreground,
+        colors = CardDefaults.cardColors(containerColor = background, contentColor = foreground),
         shape = RoundedCornerShape(topStart = 9.dp, topEnd = 9.dp),
-        elevation = 16.dp
+        elevation = CardDefaults.cardElevation(defaultElevation = 16.dp)
     ) {
         Column(
             modifier = Modifier
@@ -171,10 +171,14 @@ private fun PopupContent(save: (String) -> Unit = {},
                 placeholder = { Text( stringResource(id = R.string.TEA_title_hint) ) }, /* "Task name" */
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                 keyboardActions = KeyboardActions(onDone = { doSave() } ),
-                colors = TextFieldDefaults.textFieldColors(
-                    backgroundColor = Color.Transparent,
+                colors = TextFieldDefaults.colors(
+                    cursorColor = MaterialTheme.colorScheme.secondary,
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
                     focusedIndicatorColor = foreground,
-                    placeholderColor = foreground
+                    unfocusedIndicatorColor = foreground.copy(alpha = 0.7f),
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = foreground
                 )
             )
 
