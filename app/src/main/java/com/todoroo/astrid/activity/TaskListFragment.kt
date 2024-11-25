@@ -70,7 +70,6 @@ import com.todoroo.astrid.service.TaskMover
 import com.todoroo.astrid.timers.TimerPlugin
 import com.todoroo.astrid.utility.Flags
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
@@ -93,14 +92,11 @@ import org.tasks.compose.FilterSelectionActivity.Companion.launch
 import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPickerResult
 import org.tasks.compose.NotificationsDisabledBanner
 import org.tasks.compose.SubscriptionNagBanner
-import org.tasks.compose.collectAsStateLifecycleAware
 import org.tasks.compose.edit.InputPanel
-import org.tasks.data.CaldavDao
-import org.tasks.data.Tag
-import org.tasks.data.TagDao
-import org.tasks.data.TagDataDao
+import org.tasks.compose.rememberReminderPermissionState
 import org.tasks.data.TaskContainer
 import org.tasks.data.dao.CaldavDao
+import org.tasks.data.dao.TagDao
 import org.tasks.data.dao.TagDataDao
 import org.tasks.data.db.Database
 import org.tasks.data.db.SuspendDbUtils.chunkedMap
@@ -165,7 +161,6 @@ import kotlin.math.max
 class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickListener,
         MenuItem.OnActionExpandListener, SearchView.OnQueryTextListener, ActionMode.Callback,
         TaskViewHolder.ViewHolderCallbacks {
-    private val refreshReceiver = RefreshReceiver()
     private val repeatConfirmationReceiver = RepeatConfirmationReceiver()
 
     @Inject lateinit var syncAdapters: SyncAdapters
@@ -201,9 +196,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     private lateinit var taskAdapter: TaskAdapter
     private var recyclerAdapter: DragAndDropRecyclerAdapter? = null
     private lateinit var filter: Filter
-    private var searchJob: Job? = null
     private lateinit var search: MenuItem
-    private var searchQuery: String? = null
     private var mode: ActionMode? = null
     lateinit var themeColor: ThemeColor
     private lateinit var binding: FragmentTaskListBinding
@@ -285,13 +278,13 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
 
     private val inputPanelVisible = mutableStateOf( false )
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+/*    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         requireActivity().onBackPressedDispatcher.addCallback(requireActivity(), onBackPressed)
     }
-
-    @OptIn(ExperimentalAnimationApi::class)
+*/
+    @OptIn(ExperimentalAnimationApi::class, ExperimentalPermissionsApi::class)
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         requireActivity().onBackPressedDispatcher.addCallback(owner = viewLifecycleOwner) {
@@ -321,7 +314,6 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             fab.isVisible = filter.isWritable
             inputHost.setContent {
                 InputPanel(inputPanelVisible, taskListCoordinator,
-                    switchOff = { switchInput(false) },
                     switchOff = { switchInput(false) },
                     save = {  title ->
                         lifecycleScope.launch {
