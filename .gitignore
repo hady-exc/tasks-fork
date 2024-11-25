@@ -11,3 +11,5 @@ Thumbs.db
 /captures/
 /fastlane/report.xml
 /compose-metrics/
+app/src/androidTest/
+/app/src/androidTest/
