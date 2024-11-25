@@ -79,16 +79,6 @@
 
   </LinearLayout>
 
-    <androidx.compose.ui.platform.ComposeView
-        android:id="@+id/input_host"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_gravity="bottom"
-        android:backgroundTint="@color/avocado"
-        android:backgroundTintMode="screen" />
-
-  </LinearLayout>
-
   <com.google.android.material.bottomappbar.BottomAppBar
       android:id="@+id/bottomAppBar"
       style="@style/Widget.MaterialComponents.BottomAppBar"

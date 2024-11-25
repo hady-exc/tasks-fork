@@ -62,9 +62,9 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.isVisible
 import androidx.viewbinding.ViewBindings
 import com.google.android.material.bottomappbar.BottomAppBar
-import com.google.android.material.composethemeadapter.MdcTheme
 import kotlinx.coroutines.delay
 import org.tasks.R
+import org.tasks.themes.TasksTheme
 
 /*
 * Aligns the popup bottom with the bottom of the coordinator_layout
@@ -97,7 +97,7 @@ fun InputPanel(showPopup: MutableState<Boolean>,
     }
 
     if ( showPopup.value ) {
-        MdcTheme {
+        TasksTheme {
             Popup(
                 popupPositionProvider = WindowBottomPositionProvider(remember { getViewY(rootView) }),
                 onDismissRequest = switchOff,
