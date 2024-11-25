@@ -35,6 +35,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -59,6 +60,7 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import com.google.android.material.composethemeadapter.MdcTheme
 import kotlinx.coroutines.delay
 import org.tasks.R
 import org.tasks.themes.TasksTheme
@@ -134,6 +136,7 @@ private fun PopupContent(save: (String) -> Unit = {},
                          close: () -> Unit = {}) {
 
     val keyboardController = LocalSoftwareKeyboardController.current
+    val requester = remember { FocusRequester() }
     val background = colorResource(id = R.color.input_popup_background)
     val foreground = colorResource(id = R.color.input_popup_foreground)
     val padding = keyboardHeight()
@@ -184,17 +187,17 @@ private fun PopupContent(save: (String) -> Unit = {},
                 )
             )
 
-            LaunchedEffect(null) {
-                requester.requestFocus()
-                /* The delay below is a workaround trick necessary because
-                   focus requester works via queue in some delayed coroutine and
-                   the isFocused state is not set on yet on return from requestFocus() call.
-                   As a consequence keyboardController.show() is ignored by system because
-                   "the view is not served"
-                   The delay period is not the guarantee but makes it working almost always
-                * */
-                delay(30)
-                keyboardController!!.show()
+           LaunchedEffect(null) {
+               requester.requestFocus()
+               /* The delay below is a workaround trick necessary because
+                  focus requester works via queue in some delayed coroutine and
+                  the isFocused state is not set on yet on return from requestFocus() call.
+                  As a consequence keyboardController.show() is ignored by system because
+                  "the view is not served"
+                  The delay period is not the guarantee but makes it working almost always
+               * */
+               delay(30)
+               keyboardController!!.show()
             }
 
             Row (
