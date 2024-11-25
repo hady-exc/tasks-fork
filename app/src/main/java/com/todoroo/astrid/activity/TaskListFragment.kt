@@ -28,6 +28,7 @@ import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
@@ -45,6 +46,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.compose.runtime.getValue
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -188,7 +190,8 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     @Inject lateinit var taskEditEventBus: TaskEditEventBus
     @Inject lateinit var database: Database
     @Inject lateinit var markdown: MarkdownProvider
-    
+    @Inject lateinit var defaultFilterProvider: DefaultFilterProvider
+
     private val listViewModel: TaskListViewModel by viewModels()
     private val mainViewModel: MainActivityViewModel by activityViewModels()
     private lateinit var taskAdapter: TaskAdapter
