@@ -138,6 +138,8 @@ private fun PopupContent(save: (String) -> Unit = {},
     val foreground = colorResource(id = R.color.input_popup_foreground)
     val padding = keyboardHeight()
 
+    val opened = remember { mutableStateOf(false) }
+
     Card(
         colors = CardDefaults.cardColors(containerColor = background, contentColor = foreground),
         shape = RoundedCornerShape(topStart = 9.dp, topEnd = 9.dp),
@@ -182,24 +184,23 @@ private fun PopupContent(save: (String) -> Unit = {},
                 )
             )
 
-           LaunchedEffect(null) {
-               requester.requestFocus()
-               /* The delay below is a workaround trick necessary because
-                  focus requester works via queue in some delayed coroutine and
-                  the isFocused state is not set on yet on return from requestFocus() call.
-                  As a consequence keyboardController.show() is ignored by system because
-                  "the view is not served"
-                  The delay period is not the guarantee but makes it working almost always
-               * */
-               delay(30)
-               keyboardController!!.show()
+            LaunchedEffect(null) {
+                requester.requestFocus()
+                /* The delay below is a workaround trick necessary because
+                   focus requester works via queue in some delayed coroutine and
+                   the isFocused state is not set on yet on return from requestFocus() call.
+                   As a consequence keyboardController.show() is ignored by system because
+                   "the view is not served"
+                   The delay period is not the guarantee but makes it working almost always
+                * */
+                delay(30)
+                keyboardController!!.show()
             }
 
             Row (
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Start
-            )
-            {
+            ) {
                 IconButton(
                     modifier = Modifier.padding(8.dp,0.dp,8.dp,8.dp),  //(8.dp, 8.dp),
                     onClick = { doEdit() }
@@ -209,7 +210,8 @@ private fun PopupContent(save: (String) -> Unit = {},
                         contentDescription = "Details"
                     )
                 }
-                Row(horizontalArrangement = Arrangement.End,
+                Row(
+                    horizontalArrangement = Arrangement.End,
                     modifier = Modifier.fillMaxWidth() )
                 {
                     if (text.value == "") {
@@ -234,6 +236,13 @@ private fun PopupContent(save: (String) -> Unit = {},
                         }
                     }
                 }
+            }
+
+            /* close the InputPanel when keyboard is explicitly closed */
+            if (opened.value) {
+                if (padding.value < 30.dp) close()
+            } else {
+                if (padding.value > 60.dp) opened.value = true
             }
             Box(modifier = Modifier
                 .fillMaxWidth()
