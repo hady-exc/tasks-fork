@@ -61,7 +61,10 @@ import androidx.compose.ui.window.PopupProperties
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import kotlinx.coroutines.delay
 import org.tasks.R
+import org.tasks.compose.pickers.DatePickerDialog
 import org.tasks.themes.TasksTheme
+import org.tasks.date.DateTimeUtils.newDateTime
+
 
 /*
 * Aligns the popup bottom with the bottom of the coordinator_layout
@@ -100,7 +103,7 @@ fun InputPanel(showPopup: MutableState<Boolean>,
                 onDismissRequest = switchOff,
                 properties = PopupProperties(
                     focusable = true,
-                    dismissOnClickOutside = true,
+                    dismissOnClickOutside = false,
                     clippingEnabled = false )
             ) {
                 AnimatedVisibility(
@@ -139,6 +142,8 @@ private fun PopupContent(save: (String) -> Unit = {},
     val padding = keyboardHeight()
 
     val opened = remember { mutableStateOf(false) }
+
+    val dtPicker = remember { mutableStateOf(false) }
 
     Card(
         colors = CardDefaults.cardColors(containerColor = background, contentColor = foreground),
@@ -183,8 +188,7 @@ private fun PopupContent(save: (String) -> Unit = {},
                     unfocusedTextColor = foreground
                 )
             )
-
-           LaunchedEffect(null) {
+            LaunchedEffect(null) {
                requester.requestFocus()
                /* The delay below is a workaround trick necessary because
                   focus requester works via queue in some delayed coroutine and
@@ -198,13 +202,16 @@ private fun PopupContent(save: (String) -> Unit = {},
             }
 
             Row (
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(start = 8.dp),
                 horizontalArrangement = Arrangement.Start
             ) {
-                IconButton(
-                    modifier = Modifier.padding(8.dp,0.dp,8.dp,8.dp),  //(8.dp, 8.dp),
-                    onClick = { doEdit() }
-                ) {
+                IconButton(onClick = { dtPicker.value = true}) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_outline_schedule_24px),
+                        contentDescription = "Date Time"
+                    )
+                }
+                IconButton(onClick = { doEdit() }) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_outline_settings_24px),
                         contentDescription = "Details"
@@ -215,20 +222,14 @@ private fun PopupContent(save: (String) -> Unit = {},
                     modifier = Modifier.fillMaxWidth() )
                 {
                     if (text.value == "") {
-                        IconButton(
-                            modifier = Modifier.padding(8.dp,0.dp,8.dp,8.dp),
-                            onClick = { close() }
-                        ) {
+                        IconButton(onClick = { close() }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_outline_clear_24px),
                                 contentDescription = "Close"
                             )
                         }
                     } else {
-                        IconButton(
-                            modifier = Modifier.padding(8.dp,0.dp,8.dp,8.dp),
-                            onClick = { doSave() }
-                        ) {
+                        IconButton(onClick = { doSave() }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_outline_done_24px),
                                 contentDescription = "Close"
@@ -239,15 +240,21 @@ private fun PopupContent(save: (String) -> Unit = {},
             }
 
             /* close the InputPanel when keyboard is explicitly closed */
+/*
             if (opened.value) {
                 if (padding.value < 30.dp) close()
             } else {
                 if (padding.value > 60.dp) opened.value = true
             }
+*/
             Box(modifier = Modifier
                 .fillMaxWidth()
                 .height(padding.value))
         }
+    }
+
+    if ( dtPicker.value ) {
+        DatePickerDialog(initialDate = newDateTime().millis, selected = { dtPicker.value = false } ) { dtPicker.value = false }
     }
 }
 
