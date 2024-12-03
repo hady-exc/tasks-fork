@@ -1,3 +1,35 @@
+### 14.1.1 (2024-11-26)
+
+* Show warning when quiet hours are in effect
+* Fix escape character in some localizations [#3046](https://github.com/tasks/tasks/issues/3046)
+* Fix comment delete button color [#3102](https://github.com/tasks/tasks/issues/3102)
+* Update translations
+  * Bosnian - @hasak
+  * Bulgarian - @StoyanDimitrov
+  * Catalan - raulmagdalena
+  * Chinese (Simplified) - 大王叫我来巡山
+  * Croatian - @milotype
+  * Dutch - @fvbommel
+  * Esperanto - Don Zouras
+  * French - @FlorianLeChat
+  * Hungarian - Kaci
+  * Italian - @ppasserini
+  * Polish - @rom4nik
+  * Spanish - gallegonovato
+  * Swedish - Nick Wick
+
+### 14.1 (2024-11-20)
+
+* Add 'Help & Feedback > Send application logs'
+* Delete snoozed reminders when completing tasks
+* Fix duplicated tasks when using 'Share' [#2404](https://github.com/tasks/tasks/issues/2404)
+* Don't show sync indicator on startup when sync is not used
+* Update translations
+  * Bosnian - @hasak
+  * Brazilian Portuguese - kowih83264
+  * Croatian - @milotype
+  * German - min7-i
+
 ### 14.0.1 (2024-11-10)
 
 * Fix widget crash

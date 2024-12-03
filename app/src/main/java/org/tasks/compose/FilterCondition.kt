@@ -123,6 +123,7 @@ object FilterCondition {
         items: SnapshotStateList<CriterionInstance>,
         onDelete: (Int) -> Unit,
         doSwap: (Int, Int) -> Unit,
+        onComplete: () -> Unit,
         onClick: (String) -> Unit
     ) {
 
@@ -139,7 +140,8 @@ object FilterCondition {
         val listState = rememberLazyListState()
         val dragDropState = rememberDragDropState(
             lazyListState = listState,
-            confirmDrag = { index -> index != 0 }
+            confirmDrag = { index -> index != 0 },
+            completeDragDrop = onComplete,
         ) { fromIndex, toIndex ->
             if (fromIndex != 0 && toIndex != 0) doSwap(fromIndex, toIndex)
         }
@@ -163,7 +165,7 @@ object FilterCondition {
             ) {
                 itemsIndexed(
                     items = items,
-                    key = { _, item -> item.id + item.type }
+                    key = { _, item -> item.id + " " + item.type + " " + item.end}
                 ) { index, criterion ->
                     if (index == 0) {
                         FilterConditionRow(criterion, false, getIcon, onClick)
@@ -236,7 +238,7 @@ object FilterCondition {
                         ?: Locale.getDefault()
                 }
                 Text(
-                    text = locale.formatNumber(criterion.max),
+                    text = locale.formatNumber(criterion.end),
                     modifier = Modifier.padding(end = Constants.KEYLINE_FIRST),
                     color = Color.Gray,
                     fontSize = 14.sp,

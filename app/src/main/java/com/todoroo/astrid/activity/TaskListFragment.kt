@@ -92,6 +92,7 @@ import org.tasks.caldav.BaseCaldavCalendarSettingsActivity
 import org.tasks.compose.FilterSelectionActivity.Companion.launch
 import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPickerResult
 import org.tasks.compose.NotificationsDisabledBanner
+import org.tasks.compose.QuietHoursBanner
 import org.tasks.compose.SubscriptionNagBanner
 import org.tasks.compose.rememberReminderPermissionState
 import org.tasks.compose.edit.InputPanel
@@ -134,6 +135,7 @@ import org.tasks.kmp.org.tasks.time.getRelativeDateTime
 import org.tasks.markdown.MarkdownProvider
 import org.tasks.preferences.DefaultFilterProvider
 import org.tasks.preferences.Device
+import org.tasks.preferences.MainPreferences
 import org.tasks.preferences.Preferences
 import org.tasks.scheduling.NotificationSchedulerIntentService
 import org.tasks.sync.SyncAdapters
@@ -399,6 +401,8 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 }
                 val showNotificationBanner = state.warnNotificationsDisabled &&
                         (!hasRemindersPermission || notificationPermissions?.status is PermissionStatus.Denied)
+                val showSubscriptionNag = !showNotificationBanner && state.begForSubscription
+                val showQuietHoursWarning = !showNotificationBanner && !showSubscriptionNag && state.warnQuietHoursEnabled
                 NotificationsDisabledBanner(
                     visible = showNotificationBanner,
                     settings = {
@@ -413,7 +417,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                     dismiss = { listViewModel.dismissNotificationBanner() },
                 )
                 SubscriptionNagBanner(
-                    visible = state.begForSubscription && !showNotificationBanner,
+                    visible = showSubscriptionNag,
                     subscribe = {
                         listViewModel.dismissPurchaseBanner(clickedPurchase = true)
                         if (Tasks.IS_GOOGLE_PLAY) {
@@ -426,6 +430,16 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                     dismiss = {
                         listViewModel.dismissPurchaseBanner(clickedPurchase = false)
                     },
+                )
+                QuietHoursBanner(
+                    visible = showQuietHoursWarning,
+                    showSettings = {
+                        listViewModel.dismissQuietHoursBanner()
+                        context.startActivity(Intent(context, MainPreferences::class.java))
+                    },
+                    dismiss = {
+                        listViewModel.dismissQuietHoursBanner()
+                    }
                 )
             }
         }

@@ -274,13 +274,13 @@
     <item>@string/TEA_ctrl_when_pref</item>
     <item>@string/TEA_ctrl_repeat_pref</item>
     <item>@string/TEA_ctrl_importance_pref</item>
-    <item>@string/TEA_ctrl_locations_pref</item>
-    <item>@string/TEA_ctrl_lists_pref</item>
     <item>@string/TEA_ctrl_google_task_list</item>
+    <item>@string/TEA_ctrl_lists_pref</item>
     <item>@string/TEA_ctrl_subtask_pref</item>
     <item>@string/TEA_ctrl_reminders_pref</item>
-    <item>@string/TEA_ctrl_files_pref</item>
     <item>@string/TEA_ctrl_notes_pref</item>
+    <item>@string/TEA_ctrl_locations_pref</item>
+    <item>@string/TEA_ctrl_files_pref</item>
     <item>@string/TEA_ctrl_gcal</item>
     <item>@string/TEA_ctrl_timer_pref</item>
     <item>@string/TEA_ctrl_creation_date</item>
@@ -408,6 +408,7 @@
   <string name="p_install_date">install_date</string>
   <string name="p_default_location">default_location</string>
   <string name="p_warn_notifications_disabled">warn_notifications_disabled</string>
+  <string name="p_warn_quiet_hours_enabled">warn_quiet_hours_enabled</string>
 
   <string name="event_showed_purchase_dialog">showed_purchase_dialog</string>
   <string name="event_purchase_result">billing_flow_result</string>
