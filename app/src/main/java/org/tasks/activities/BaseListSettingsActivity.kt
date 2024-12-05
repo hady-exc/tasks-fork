@@ -40,12 +40,11 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Co
     @Inject lateinit var colorProvider: ColorProvider
     protected abstract val defaultIcon: String
     protected var selectedColor = 0
-    protected var selectedIcon = mutableStateOf("") //MutableStateFlow<String?>(null)
+    protected var selectedIcon = mutableStateOf<String?>(null)
 
     protected val textState = mutableStateOf("")
     protected val errorState = mutableStateOf("")
     protected val colorState = mutableStateOf(Color.Unspecified)
-    protected val iconState = mutableIntStateOf(R.drawable.ic_outline_not_interested_24px)
     protected val showProgress = mutableStateOf(false)
     protected val promptDelete = mutableStateOf(false)
     protected val promptDiscard = mutableStateOf(false)
@@ -146,7 +145,7 @@ abstract class BaseListSettingsActivity : ThemedInjectingAppCompatActivity(), Co
                     selectColor = { showThemePicker() },
                     clearColor = { clearColor() })
                 SelectIconRow(
-                    icon = selectedIcon,
+                    icon = selectedIcon.value ?: defaultIcon,
                     selectIcon = { showIconPicker() })
                 extensionContent()
 
