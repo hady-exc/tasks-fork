@@ -59,6 +59,12 @@ android {
     }
 
     signingConfigs {
+        getByName("debug") {
+            storeFile = file(project.ext["tasksStoreFile"] as String)
+            storePassword = project.ext["tasksStorePassword"] as String
+            keyAlias = project.ext["tasksKeyAlias"] as String
+            keyPassword = project.ext["tasksKeyPassword"] as String
+        }
         create("release") {
             keyAlias = project.ext["tasksKeyAlias"] as String
             storeFile = file(project.ext["tasksStoreFile"] as String)
