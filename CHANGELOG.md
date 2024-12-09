@@ -1,3 +1,26 @@
+### 14.2.1 (2024-02-03)
+
+* Fix save button when 'Back button saves task' is enabled [#3149](https://github.com/tasks/tasks/issues/3149)
+* Fix customizing edit screen order screen
+
+### 14.2 (2024-12-02)
+
+* Updated edit screen task title
+  * Show full title
+  * Removed collapse on scroll
+  * Removed floating action button
+* Add separate alarms and reminders warning
+* Capitalize tag picker text field
+* Update translations
+  * Bulgarian - @StoyanDimitrov
+  * Catalan - raulmagdalena
+  * Chinese (Simplified) - 大王叫我来巡山
+  * Dutch - @fvbommel
+  * French - @FlorianLeChat
+  * Italian - @ppasserini
+  * Spanish - gallegonovato
+  * Ukrainian - @nathalier
+
 ### 14.1.1 (2024-11-26)
 
 * Show warning when quiet hours are in effect

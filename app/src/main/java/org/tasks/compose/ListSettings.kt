@@ -171,7 +171,7 @@ object ListSettings {
         requestKeyboard: Boolean,
         modifier: Modifier = Modifier,
         label: String = stringResource(R.string.display_name),
-        errorState: Color = colorResource(id = org.tasks.kmp.R.color.red_a400), //MaterialTheme.colorScheme.secondary,
+        errorState: Color = MaterialTheme.colorScheme.secondary,
         activeState: Color = LocalContentColor.current.copy(alpha = 0.75f),
         inactiveState: Color = LocalContentColor.current.copy(alpha = 0.3f),
     ) {

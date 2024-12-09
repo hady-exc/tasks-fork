@@ -28,8 +28,10 @@ import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
@@ -89,6 +91,7 @@ import org.tasks.activities.TagSettingsActivity
 import org.tasks.analytics.Firebase
 import org.tasks.billing.PurchaseActivity
 import org.tasks.caldav.BaseCaldavCalendarSettingsActivity
+import org.tasks.compose.AlarmsDisabledBanner
 import org.tasks.compose.FilterSelectionActivity.Companion.launch
 import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPickerResult
 import org.tasks.compose.NotificationsDisabledBanner
@@ -112,7 +115,6 @@ import org.tasks.dialogs.DateTimePicker.Companion.newDateTimePicker
 import org.tasks.dialogs.DialogBuilder
 import org.tasks.dialogs.PriorityPicker.Companion.newPriorityPicker
 import org.tasks.dialogs.SortSettingsActivity
-import org.tasks.extensions.Context.canScheduleExactAlarms
 import org.tasks.extensions.Context.is24HourFormat
 import org.tasks.extensions.Context.openAppNotificationSettings
 import org.tasks.extensions.Context.openReminderSettings
@@ -147,6 +149,7 @@ import org.tasks.tasklist.TasksResults
 import org.tasks.tasklist.ViewHolderFactory
 import org.tasks.themes.ColorProvider
 import org.tasks.themes.TasksTheme
+import org.tasks.themes.Theme
 import org.tasks.themes.ThemeColor
 import org.tasks.time.DateTimeUtils2.currentTimeMillis
 import org.tasks.ui.TaskEditEvent
@@ -191,6 +194,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     @Inject lateinit var database: Database
     @Inject lateinit var markdown: MarkdownProvider
     @Inject lateinit var defaultFilterProvider: DefaultFilterProvider
+    @Inject lateinit var theme: Theme
 
     private val listViewModel: TaskListViewModel by viewModels()
     private val mainViewModel: MainActivityViewModel by activityViewModels()
@@ -384,7 +388,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         binding.banner.setContent {
             val context = LocalContext.current
             val state = listViewModel.state.collectAsStateWithLifecycle().value
-            TasksTheme {
+            TasksTheme(theme = theme.themeBase.index) {
                 val hasRemindersPermission by rememberReminderPermissionState()
                 val notificationPermissions = if (AndroidUtilities.atLeastTiramisu()) {
                     rememberPermissionState(
@@ -399,21 +403,24 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 } else {
                     null
                 }
-                val showNotificationBanner = state.warnNotificationsDisabled &&
-                        (!hasRemindersPermission || notificationPermissions?.status is PermissionStatus.Denied)
-                val showSubscriptionNag = !showNotificationBanner && state.begForSubscription
-                val showQuietHoursWarning = !showNotificationBanner && !showSubscriptionNag && state.warnQuietHoursEnabled
+                val showNotificationBanner = state.warnNotificationsDisabled && notificationPermissions?.status is PermissionStatus.Denied
+                val showAlarmsBanner = !showNotificationBanner && state.warnNotificationsDisabled && !hasRemindersPermission
+                val showSubscriptionNag = !showNotificationBanner && !showAlarmsBanner && state.begForSubscription
+                val showQuietHoursWarning = !showNotificationBanner && !showAlarmsBanner && !showSubscriptionNag && state.warnQuietHoursEnabled
                 NotificationsDisabledBanner(
                     visible = showNotificationBanner,
                     settings = {
-                        if (!context.canScheduleExactAlarms()) {
-                            context.openReminderSettings()
-                        } else if (notificationPermissions?.status?.shouldShowRationale == true) {
+                        if (notificationPermissions?.status?.shouldShowRationale == true) {
                             context.openAppNotificationSettings()
                         } else {
                             notificationPermissions?.launchPermissionRequest()
                         }
                     },
+                    dismiss = { listViewModel.dismissNotificationBanner() },
+                )
+                AlarmsDisabledBanner(
+                    visible = showAlarmsBanner,
+                    settings = { context.openReminderSettings() },
                     dismiss = { listViewModel.dismissNotificationBanner() },
                 )
                 SubscriptionNagBanner(
