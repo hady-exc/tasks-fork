@@ -79,24 +79,26 @@ private class WindowBottomPositionProvider(
         layoutDirection: LayoutDirection,
         popupContentSize: IntSize
     ): IntOffset {
-        return IntOffset(0, rootViewBottomY - popupContentSize.height )
+        return IntOffset(0, rootViewBottomY - popupContentSize.height)
     }
 }
+
 @Composable
-fun InputPanel(showPopup: MutableState<Boolean>,
-               rootView: CoordinatorLayout,
-               switchOff: () -> Unit,
-               save: (String) -> Unit,
-               edit: (String) -> Unit )
-{
+fun InputPanel(
+    showPopup: MutableState<Boolean>,
+    rootView: CoordinatorLayout,
+    switchOff: () -> Unit,
+    save: (String) -> Unit,
+    edit: (String) -> Unit
+) {
     val fadeColor = colorResource(R.color.input_popup_foreground).copy(alpha = 0.12f)
     val getViewY: (view: CoordinatorLayout) -> Int = {
-        val rootViewXY = intArrayOf(0,0)
+        val rootViewXY = intArrayOf(0, 0)
         rootView.getLocationOnScreen(rootViewXY)
         rootView.height + rootViewXY[1]   /* rootViewXY[1] == rootView.y */
     }
 
-    if ( showPopup.value ) {
+    if (showPopup.value) {
         TasksTheme {
             Popup(
                 popupPositionProvider = WindowBottomPositionProvider(remember { getViewY(rootView) }),
@@ -104,11 +106,12 @@ fun InputPanel(showPopup: MutableState<Boolean>,
                 properties = PopupProperties(
                     focusable = true,
                     dismissOnClickOutside = false,
-                    clippingEnabled = false )
+                    clippingEnabled = false
+                )
             ) {
                 AnimatedVisibility(
                     visible = showPopup.value,
-                    enter = fadeIn() + expandVertically( expandFrom = Alignment.Bottom),
+                    enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom),
                     exit = shrinkVertically()
                 ) {
                     /* Modifier.fillMaxSize() gives height not covering the system status bar,
@@ -132,9 +135,11 @@ fun InputPanel(showPopup: MutableState<Boolean>,
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-private fun PopupContent(save: (String) -> Unit = {},
-                         edit: (String) -> Unit = {},
-                         close: () -> Unit = {}) {
+private fun PopupContent(
+    save: (String) -> Unit = {},
+    edit: (String) -> Unit = {},
+    close: () -> Unit = {}
+) {
 
     val keyboardController = LocalSoftwareKeyboardController.current
     val background = colorResource(id = R.color.input_popup_background)
@@ -144,6 +149,7 @@ private fun PopupContent(save: (String) -> Unit = {},
     val opened = remember { mutableStateOf(false) }
 
     val dtPicker = remember { mutableStateOf(false) }
+    val date = rememberSaveable { mutableStateOf<Long?>(null) }
 
     Card(
         colors = CardDefaults.cardColors(containerColor = background, contentColor = foreground),
@@ -175,9 +181,9 @@ private fun PopupContent(save: (String) -> Unit = {},
                 singleLine = true,
                 enabled = true,
                 readOnly = false,
-                placeholder = { Text( stringResource(id = R.string.TEA_title_hint) ) }, /* "Task name" */
+                placeholder = { Text(stringResource(id = R.string.TEA_title_hint)) }, /* "Task name" */
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                keyboardActions = KeyboardActions(onDone = { doSave() } ),
+                keyboardActions = KeyboardActions(onDone = { doSave() }),
                 colors = TextFieldDefaults.colors(
                     cursorColor = MaterialTheme.colorScheme.secondary,
                     focusedContainerColor = Color.Transparent,
@@ -188,24 +194,27 @@ private fun PopupContent(save: (String) -> Unit = {},
                     unfocusedTextColor = foreground
                 )
             )
-            LaunchedEffect(null) {
-               requester.requestFocus()
-               /* The delay below is a workaround trick necessary because
+            LaunchedEffect(dtPicker.value == false) {
+                requester.requestFocus()
+                /* The delay below is a workaround trick necessary because
                   focus requester works via queue in some delayed coroutine and
                   the isFocused state is not set on yet on return from requestFocus() call.
                   As a consequence keyboardController.show() is ignored by system because
                   "the view is not served"
                   The delay period is not the guarantee but makes it working almost always
-               * */
-               delay(30)
-               keyboardController!!.show()
+                * */
+                delay(30)
+                keyboardController!!.show()
+                //opened.value = true
             }
 
-            Row (
-                modifier = Modifier.fillMaxWidth().padding(start = 8.dp),
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 8.dp),
                 horizontalArrangement = Arrangement.Start
             ) {
-                IconButton(onClick = { dtPicker.value = true}) {
+                IconButton(onClick = { dtPicker.value = true }) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_outline_schedule_24px),
                         contentDescription = "Date Time"
@@ -219,7 +228,8 @@ private fun PopupContent(save: (String) -> Unit = {},
                 }
                 Row(
                     horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth() )
+                    modifier = Modifier.fillMaxWidth()
+                )
                 {
                     if (text.value == "") {
                         IconButton(onClick = { close() }) {
@@ -240,34 +250,40 @@ private fun PopupContent(save: (String) -> Unit = {},
             }
 
             /* close the InputPanel when keyboard is explicitly closed */
-/*
             if (opened.value) {
-                if (padding.value < 30.dp) close()
+                if (padding.value < 30.dp) {
+                    if (dtPicker.value == true) opened.value = false
+                    else close()
+                }
             } else {
                 if (padding.value > 60.dp) opened.value = true
             }
-*/
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .height(padding.value))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(padding.value)
+            )
         }
     }
 
-    if ( dtPicker.value ) {
-        DatePickerDialog(initialDate = newDateTime().millis, selected = { dtPicker.value = false } ) { dtPicker.value = false }
+    if (dtPicker.value) {
+        DatePickerDialog(
+            initialDate = date.value ?: newDateTime().endOfDay().plusDays(1).millis,
+            selected = { date.value = it; dtPicker.value = false },
+            dismiss = { dtPicker.value = false } )
     }
 }
 
 @Composable
 fun keyboardHeight(): State<Dp> {
-    with ( LocalDensity.current ) {
-        return rememberUpdatedState( WindowInsets.ime.getBottom(LocalDensity.current).toDp() )
+    with(LocalDensity.current) {
+        return rememberUpdatedState(WindowInsets.ime.getBottom(LocalDensity.current).toDp())
     }
 }
 
 @Preview(showBackground = true, widthDp = 320)
 @Composable
-fun InputPanelPreview()
-{
+fun InputPanelPreview() {
     PopupContent()
 }
