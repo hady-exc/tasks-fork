@@ -29,8 +29,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -48,7 +48,6 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -65,43 +64,40 @@ import org.tasks.compose.pickers.DatePickerDialog
 import org.tasks.themes.TasksTheme
 import org.tasks.date.DateTimeUtils.newDateTime
 
+class TaskInputDrawerState (
+    val rootView: CoordinatorLayout,
+    title: String = "",
+    dueDate: Long = 0
+) {
+    val title = mutableStateOf(title)
+    val dueDate = mutableLongStateOf(dueDate)
+    internal val visible = mutableStateOf(false)
 
-/*
-* Aligns the popup bottom with the bottom of the coordinator_layout
-* which is aligned with the top of the IME by the system
-*/
-private class WindowBottomPositionProvider(
-    val rootViewBottomY: Int    /* positioning anchor point */
-) : PopupPositionProvider {
-    override fun calculatePosition(
-        anchorBounds: IntRect,
-        windowSize: IntSize,
-        layoutDirection: LayoutDirection,
-        popupContentSize: IntSize
-    ): IntOffset {
-        return IntOffset(0, rootViewBottomY - popupContentSize.height)
+    fun clear() {
+        title.value = ""
+        dueDate.longValue = 0L
     }
 }
 
+
 @Composable
-fun InputPanel(
-    showPopup: MutableState<Boolean>,
-    rootView: CoordinatorLayout,
+fun TaskInputDrawer(
+    state: TaskInputDrawerState,
     switchOff: () -> Unit,
-    save: (String) -> Unit,
-    edit: (String) -> Unit
+    save: () -> Unit,
+    edit: () -> Unit
 ) {
     val fadeColor = colorResource(R.color.input_popup_foreground).copy(alpha = 0.12f)
     val getViewY: (view: CoordinatorLayout) -> Int = {
         val rootViewXY = intArrayOf(0, 0)
-        rootView.getLocationOnScreen(rootViewXY)
-        rootView.height + rootViewXY[1]   /* rootViewXY[1] == rootView.y */
+        state.rootView.getLocationOnScreen(rootViewXY)
+        state.rootView.height + rootViewXY[1]   /* rootViewXY[1] == rootView.y */
     }
 
-    if (showPopup.value) {
+    if (state.visible.value) {
         TasksTheme {
             Popup(
-                popupPositionProvider = WindowBottomPositionProvider(remember { getViewY(rootView) }),
+                popupPositionProvider = WindowBottomPositionProvider(remember { getViewY(state.rootView) }),
                 onDismissRequest = switchOff,
                 properties = PopupProperties(
                     focusable = true,
@@ -110,7 +106,7 @@ fun InputPanel(
                 )
             ) {
                 AnimatedVisibility(
-                    visible = showPopup.value,
+                    visible = state.visible.value,
                     enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom),
                     exit = shrinkVertically()
                 ) {
@@ -125,7 +121,7 @@ fun InputPanel(
                             .background(fadeColor),
                         contentAlignment = Alignment.BottomCenter
                     ) {
-                        PopupContent(save, { switchOff(); edit(it) }, switchOff)
+                        PopupContent(state, save, { switchOff(); edit() }, switchOff)
                     }
                 }
             }
@@ -136,8 +132,9 @@ fun InputPanel(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun PopupContent(
-    save: (String) -> Unit = {},
-    edit: (String) -> Unit = {},
+    state: TaskInputDrawerState,
+    save: () -> Unit = {},
+    edit: () -> Unit = {},
     close: () -> Unit = {}
 ) {
 
@@ -161,19 +158,18 @@ private fun PopupContent(
                 .fillMaxWidth()
                 .wrapContentHeight()
         ) {
-            val text = rememberSaveable { mutableStateOf("") }
             val requester = remember { FocusRequester() }
 
-            val doSave = {
-                val string = text.value.trim()
-                if (string != "") save(string)
-                text.value = ""
+            val doSave = {  // TODO(check "closability" with all values, as original Task.org do)
+                val string = state.title.value.trim()
+                if (string != "") save()
+                state.clear()
             }
-            val doEdit = { edit(text.value.trim()) }
+            val doEdit = { edit() }
 
             TextField(
-                value = text.value,
-                onValueChange = { text.value = it },
+                value = state.title.value,
+                onValueChange = { state.title.value = it },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp, 8.dp, 8.dp, 0.dp)
@@ -231,7 +227,7 @@ private fun PopupContent(
                     modifier = Modifier.fillMaxWidth()
                 )
                 {
-                    if (text.value == "") {
+                    if (state.title.value == "") {
                         IconButton(onClick = { close() }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_outline_clear_24px),
@@ -270,7 +266,7 @@ private fun PopupContent(
     if (dtPicker.value) {
         DatePickerDialog(
             initialDate = date.value ?: newDateTime().endOfDay().plusDays(1).millis,
-            selected = { date.value = it; dtPicker.value = false },
+            selected = { date.value = it; state.dueDate.value = it; dtPicker.value = false },
             dismiss = { dtPicker.value = false } )
     }
 }
@@ -282,8 +278,25 @@ fun keyboardHeight(): State<Dp> {
     }
 }
 
+/*
+* Aligns the popup bottom with the bottom of the coordinator_layout
+* which is aligned with the top of the IME by the system
+*/
+private class WindowBottomPositionProvider(
+    val rootViewBottomY: Int    /* positioning anchor point */
+) : PopupPositionProvider {
+    override fun calculatePosition(
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        layoutDirection: LayoutDirection,
+        popupContentSize: IntSize
+    ): IntOffset {
+        return IntOffset(0, rootViewBottomY - popupContentSize.height)
+    }
+}
+
+/*
 @Preview(showBackground = true, widthDp = 320)
 @Composable
 fun InputPanelPreview() {
-    PopupContent()
-}
+}*/

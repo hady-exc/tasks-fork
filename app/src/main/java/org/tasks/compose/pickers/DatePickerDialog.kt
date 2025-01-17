@@ -26,7 +26,7 @@ fun DatePickerDialog(
     TasksTheme {
         val initialDateUTC by remember(initialDate) {
             derivedStateOf {
-                DateTime(initialDate).toUTC().millis
+                DateTime(initialDate).let { it.millis + it.offset }
             }
         }
         val datePickerState = rememberDatePickerState(

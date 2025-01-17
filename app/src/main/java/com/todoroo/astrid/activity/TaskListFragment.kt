@@ -28,7 +28,6 @@ import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
@@ -93,7 +92,8 @@ import org.tasks.compose.FilterSelectionActivity.Companion.launch
 import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPickerResult
 import org.tasks.compose.NotificationsDisabledBanner
 import org.tasks.compose.SubscriptionNagBanner
-import org.tasks.compose.edit.InputPanel
+import org.tasks.compose.edit.TaskInputDrawer
+import org.tasks.compose.edit.TaskInputDrawerState
 import org.tasks.compose.rememberReminderPermissionState
 import org.tasks.data.TaskContainer
 import org.tasks.data.dao.CaldavDao
@@ -279,7 +279,8 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             .launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
-    private val inputPanelVisible = mutableStateOf( false )
+    //private val inputPanelVisible = mutableStateOf( false )
+    private lateinit var taskInputState: TaskInputDrawerState
 
     @OptIn(ExperimentalAnimationApi::class, ExperimentalPermissionsApi::class)
     override fun onCreateView(
@@ -302,22 +303,24 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         val emptyRefreshLayout: SwipeRefreshLayout
         val recyclerView: RecyclerView
         with (binding) {
+            taskInputState = TaskInputDrawerState(taskListCoordinator)
             swipeRefreshLayout = bodyStandard.swipeLayout
             emptyRefreshLayout = bodyEmpty.swipeLayoutEmpty
             recyclerView = bodyStandard.recyclerView
             fab.setOnClickListener {
-                switchInput(true)
+                showTaskInputDrawer(true)
             }
             fab.isVisible = filter.isWritable
             inputHost.setContent {
-                InputPanel(inputPanelVisible, taskListCoordinator,
-                    switchOff = { switchInput(false) },
-                    save = {  title ->
+                //val state = remember { TaskInputDrawerState(taskListCoordinator) }
+                TaskInputDrawer(taskInputState,
+                    switchOff = { taskInputState.visible.value = false; showTaskInputDrawer(false) },
+                    save = {
                         lifecycleScope.launch {
-                            saveTask( addTask(title) )
+                            saveTask(addTask(taskInputState))
                         }
                     },
-                    edit = { title -> createNewTask(title) }
+                    edit = { createNewTask(taskInputState) }
                 )
             }
         }
@@ -663,16 +666,6 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         taskMover.move( listOf(task.id), list )
         val tags = task.tags.mapNotNull { tagDataDao.getTagByName(it) }
         tagDao.insert(task, tags)
-    }
-
-    private fun switchInput(on: Boolean)
-    {
-        lifecycleScope.launch {
-            inputPanelVisible.value = on
-            if (!on) delay(100)  /* to prevent Fab flicker before soft  keyboard disappear */
-            binding.fab.isVisible = !on
-            if ( !preferences.isTopAppBar ) binding.bottomAppBar.isVisible = !on
-        }
     }
 
     private fun setupRefresh(layout: SwipeRefreshLayout) {
@@ -1111,6 +1104,32 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 }
             }
         }
+    }
+
+    private fun showTaskInputDrawer(on: Boolean)
+    {
+        lifecycleScope.launch {
+            taskInputState.visible.value = on
+            if (!on) delay(100)  /* to prevent Fab flicker before soft keyboard disappear */
+            binding.fab.isVisible = !on
+            if ( !preferences.isTopAppBar ) binding.bottomAppBar.isVisible = !on
+        }
+    }
+
+    private fun createNewTask(values: TaskInputDrawerState) {
+        lifecycleScope.launch {
+            shortcutManager.reportShortcutUsed(ShortcutManager.SHORTCUT_NEW_TASK)
+            onTaskListItemClicked(addTask(values))
+            firebase.addTask("fab")
+        }
+    }
+
+    private suspend fun addTask(values: TaskInputDrawerState): Task {
+        return taskCreator.createWithValues(filter, values.title.value.trim())
+            .let {
+                if (values.dueDate.longValue != 0L) it.dueDate = values.dueDate.longValue
+                it
+            }
     }
 
     companion object {
