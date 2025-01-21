@@ -46,6 +46,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -60,6 +61,7 @@ import com.todoroo.astrid.adapter.TaskAdapter
 import com.todoroo.astrid.adapter.TaskAdapterProvider
 import com.todoroo.astrid.api.AstridApiConstants.EXTRAS_OLD_DUE_DATE
 import com.todoroo.astrid.api.AstridApiConstants.EXTRAS_TASK_ID
+import com.todoroo.astrid.api.PermaSql
 import com.todoroo.astrid.dao.TaskDao
 import com.todoroo.astrid.repeats.RepeatTaskHelper
 import com.todoroo.astrid.service.TaskCompleter
@@ -102,6 +104,7 @@ import org.tasks.data.dao.TagDataDao
 import org.tasks.data.db.Database
 import org.tasks.data.db.SuspendDbUtils.chunkedMap
 import org.tasks.data.entity.Task
+import org.tasks.data.entity.Task.Companion.DUE_DATE
 import org.tasks.data.listSettingsClass
 import org.tasks.data.open
 import org.tasks.data.sql.QueryTemplate
@@ -129,6 +132,7 @@ import org.tasks.filters.GtasksFilter
 import org.tasks.filters.MyTasksFilter
 import org.tasks.filters.PlaceFilter
 import org.tasks.filters.TagFilter
+import org.tasks.filters.mapFromSerializedString
 import org.tasks.kmp.org.tasks.time.DateStyle
 import org.tasks.kmp.org.tasks.time.getRelativeDateTime
 import org.tasks.markdown.MarkdownProvider
@@ -279,9 +283,6 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             .launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
-    //private val inputPanelVisible = mutableStateOf( false )
-    private lateinit var taskInputState: TaskInputDrawerState
-
     @OptIn(ExperimentalAnimationApi::class, ExperimentalPermissionsApi::class)
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -303,16 +304,37 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         val emptyRefreshLayout: SwipeRefreshLayout
         val recyclerView: RecyclerView
         with (binding) {
-            taskInputState = TaskInputDrawerState(taskListCoordinator)
             swipeRefreshLayout = bodyStandard.swipeLayout
             emptyRefreshLayout = bodyEmpty.swipeLayoutEmpty
             recyclerView = bodyStandard.recyclerView
+/*          moved to inputHost.setContent
             fab.setOnClickListener {
                 showTaskInputDrawer(true)
             }
+*/
             fab.isVisible = filter.isWritable
             inputHost.setContent {
-                //val state = remember { TaskInputDrawerState(taskListCoordinator) }
+                val taskInputState = remember {
+                    TaskInputDrawerState(
+                        rootView = taskListCoordinator,
+                        initialDueDate = getFilterDueDate()
+                    )
+                }
+
+                fun showTaskInputDrawer(on: Boolean)
+                {
+                    lifecycleScope.launch {
+                        taskInputState.visible.value = on
+                        if (!on) delay(100)  /* to prevent Fab flicker before soft keyboard disappear */
+                        binding.fab.isVisible = !on
+                        if ( !preferences.isTopAppBar ) binding.bottomAppBar.isVisible = !on
+                    }
+                }
+
+                fab.setOnClickListener {
+                    showTaskInputDrawer(true)
+                }
+
                 TaskInputDrawer(taskInputState,
                     switchOff = { taskInputState.visible.value = false; showTaskInputDrawer(false) },
                     save = {
@@ -645,10 +667,10 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         }
     }
 
-    private fun createNewTask(title: String = "") {
+    private fun createNewTask() {
        lifecycleScope.launch {
             shortcutManager.reportShortcutUsed(ShortcutManager.SHORTCUT_NEW_TASK)
-            onTaskListItemClicked(addTask(title))
+            onTaskListItemClicked(addTask(""))
             firebase.addTask("fab")
         }
     }
@@ -1106,15 +1128,10 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         }
     }
 
-    private fun showTaskInputDrawer(on: Boolean)
-    {
-        lifecycleScope.launch {
-            taskInputState.visible.value = on
-            if (!on) delay(100)  /* to prevent Fab flicker before soft keyboard disappear */
-            binding.fab.isVisible = !on
-            if ( !preferences.isTopAppBar ) binding.bottomAppBar.isVisible = !on
-        }
-    }
+    private fun getFilterDueDate(): Long =
+        (mapFromSerializedString(filter.valuesForNewTasks).get(DUE_DATE.name) as? String)
+            ?.let { PermaSql.replacePlaceholdersForNewTask(it) }
+            ?.toLongOrNull() ?: 0L
 
     private fun createNewTask(values: TaskInputDrawerState) {
         lifecycleScope.launch {

@@ -6,10 +6,10 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,14 +19,19 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.MoreHoriz
+import androidx.compose.material.icons.outlined.Save
+import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
@@ -34,20 +39,21 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -59,26 +65,30 @@ import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.tasks.R
+import org.tasks.compose.ChipGroup
+import org.tasks.compose.Constants
 import org.tasks.compose.pickers.DatePickerDialog
-import org.tasks.themes.TasksTheme
 import org.tasks.date.DateTimeUtils.newDateTime
+import org.tasks.kmp.org.tasks.time.getRelativeDay
+import org.tasks.themes.TasksTheme
 
 class TaskInputDrawerState (
     val rootView: CoordinatorLayout,
-    title: String = "",
-    dueDate: Long = 0
+    val initialTitle: String = "",
+    val initialDueDate: Long = 0L
 ) {
-    val title = mutableStateOf(title)
-    val dueDate = mutableLongStateOf(dueDate)
+    val title = mutableStateOf(initialTitle)
+    val dueDate = mutableLongStateOf(initialDueDate)
     internal val visible = mutableStateOf(false)
 
+    fun isChanged(): Boolean = (title.value != initialTitle || dueDate.longValue != initialDueDate)
     fun clear() {
-        title.value = ""
-        dueDate.longValue = 0L
+        title.value = initialTitle
+        dueDate.longValue = initialDueDate
     }
 }
-
 
 @Composable
 fun TaskInputDrawer(
@@ -110,8 +120,6 @@ fun TaskInputDrawer(
                     enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom),
                     exit = shrinkVertically()
                 ) {
-                    /* Modifier.fillMaxSize() gives height not covering the system status bar,
-                     * so screenHeight used as a workaround to prevent flicking on top  */
                     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
                     Box(
                         modifier = Modifier
@@ -144,9 +152,7 @@ private fun PopupContent(
     val padding = keyboardHeight()
 
     val opened = remember { mutableStateOf(false) }
-
-    val dtPicker = remember { mutableStateOf(false) }
-    val date = rememberSaveable { mutableStateOf<Long?>(null) }
+    val datePicker = remember { mutableStateOf(false) }
 
     Card(
         colors = CardDefaults.cardColors(containerColor = background, contentColor = foreground),
@@ -157,98 +163,69 @@ private fun PopupContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
+                .padding(horizontal = 8.dp)
         ) {
             val requester = remember { FocusRequester() }
 
-            val doSave = {  // TODO(check "closability" with all values, as original Task.org do)
+            val doSave: ()->Unit = {  // TODO(check "closability" with all values, as original Task.org do)
                 val string = state.title.value.trim()
                 if (string != "") save()
                 state.clear()
             }
-            val doEdit = { edit() }
+            val doEdit = { edit(); state.clear() }
 
-            TextField(
+            Spacer(Modifier.height(16.dp))
+            OutlinedTextField(
                 value = state.title.value,
                 onValueChange = { state.title.value = it },
+                trailingIcon = {
+                    if (state.isChanged()) {
+                        IconButton(onClick = doSave) { Icon(Values.save, "Save") }
+                    } else {
+                        IconButton(onClick = close) { Icon(Values.clear, "Close") }
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp, 8.dp, 8.dp, 0.dp)
                     .focusRequester(requester),
-                singleLine = true,
-                enabled = true,
-                readOnly = false,
                 placeholder = { Text(stringResource(id = R.string.TEA_title_hint)) }, /* "Task name" */
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                 keyboardActions = KeyboardActions(onDone = { doSave() }),
-                colors = TextFieldDefaults.colors(
-                    cursorColor = MaterialTheme.colorScheme.secondary,
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    focusedIndicatorColor = foreground,
-                    unfocusedIndicatorColor = foreground.copy(alpha = 0.7f),
-                    focusedTextColor = Color.Black,
-                    unfocusedTextColor = foreground
-                )
+                singleLine = true,
+                textStyle = MaterialTheme.typography.bodyLarge,
+                colors = Constants.textFieldColors(),
+                shape = MaterialTheme.shapes.medium
             )
-            LaunchedEffect(dtPicker.value == false) {
+
+            LaunchedEffect(datePicker.value == false) {
                 requester.requestFocus()
-                /* The delay below is a workaround trick necessary because
-                  focus requester works via queue in some delayed coroutine and
-                  the isFocused state is not set on yet on return from requestFocus() call.
-                  As a consequence keyboardController.show() is ignored by system because
-                  "the view is not served"
-                  The delay period is not the guarantee but makes it working almost always
-                * */
-                delay(30)
+                delay(30) /* workaround for delay in the system between requestFocus and actual focused state */
                 keyboardController!!.show()
                 //opened.value = true
             }
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 8.dp),
-                horizontalArrangement = Arrangement.Start
-            ) {
-                IconButton(onClick = { dtPicker.value = true }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_outline_schedule_24px),
-                        contentDescription = "Date Time"
-                    )
-                }
-                IconButton(onClick = { doEdit() }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_outline_settings_24px),
-                        contentDescription = "Details"
-                    )
-                }
-                Row(
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                {
-                    if (state.title.value == "") {
-                        IconButton(onClick = { close() }) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_outline_clear_24px),
-                                contentDescription = "Close"
-                            )
-                        }
+            Row (modifier = Modifier.padding(8.dp)) {
+                ChipGroup {
+                    /* Due Date */
+                    if (state.dueDate.longValue != 0L) {
+                        Chip(
+                            title = runBlocking { getRelativeDay(state.dueDate.longValue) },
+                            leading = Values.schedule,
+                            action = { datePicker.value = true },
+                            delete = { state.dueDate.longValue = 0L }
+                        )
                     } else {
-                        IconButton(onClick = { doSave() }) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_outline_done_24px),
-                                contentDescription = "Close"
-                            )
-                        }
+                        IconChip(Values.schedule) { datePicker.value = true }
                     }
+                    IconChip(Values.more, doEdit)
                 }
             }
 
             /* close the InputPanel when keyboard is explicitly closed */
             if (opened.value) {
                 if (padding.value < 30.dp) {
-                    if (dtPicker.value == true) opened.value = false
+                    if (datePicker.value == true) opened.value = false
                     else close()
                 }
             } else {
@@ -263,13 +240,46 @@ private fun PopupContent(
         }
     }
 
-    if (dtPicker.value) {
+    if (datePicker.value) {
         DatePickerDialog(
-            initialDate = date.value ?: newDateTime().endOfDay().plusDays(1).millis,
-            selected = { date.value = it; state.dueDate.value = it; dtPicker.value = false },
-            dismiss = { dtPicker.value = false } )
+            initialDate = if (state.dueDate.longValue != 0L) state.dueDate.longValue else newDateTime().startOfDay().plusDays(1).millis,
+            selected = { state.dueDate.longValue = it; datePicker.value = false },
+            dismiss = { datePicker.value = false } )
     }
 }
+
+
+@Composable
+fun IconChip(icon: ImageVector, action: (() -> Unit)) = Chip(null, null, action, null, icon)
+
+@Composable
+private fun Chip (
+    title: String?,
+    leading: ImageVector?,
+    action: (() -> Unit),
+    delete: (() -> Unit)? = null,
+    titleIcon: ImageVector? = null
+) = InputChip ( //FilterChip(
+        selected = false,
+        onClick = action,
+        label = {
+            title?.let {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            titleIcon?.let { Icon(titleIcon, null) }
+        },
+        leadingIcon = {
+            leading?.let { Icon(leading, null) }
+        },
+        trailingIcon = {
+            delete?.let { Icon(Values.clear, null, Modifier.clickable(onClick = delete)) }
+        }
+    )
 
 @Composable
 fun keyboardHeight(): State<Dp> {
@@ -295,8 +305,24 @@ private class WindowBottomPositionProvider(
     }
 }
 
-/*
+private object Values {
+    val clear = Icons.Outlined.Close
+    val save = Icons.Outlined.Save
+    val more = Icons.Outlined.MoreHoriz
+    val schedule = Icons.Outlined.Schedule
+}
+
 @Preview(showBackground = true, widthDp = 320)
 @Composable
-fun InputPanelPreview() {
-}*/
+fun TaskInputDrawerPreview() {
+    val context = LocalContext.current
+    PopupContent(
+        state = remember {
+            TaskInputDrawerState(
+                rootView = CoordinatorLayout(context),
+                initialDueDate = newDateTime().startOfDay().millis
+            )
+        }
+    )
+}
+
