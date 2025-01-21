@@ -99,7 +99,6 @@ import org.tasks.compose.SubscriptionNagBanner
 import org.tasks.compose.edit.TaskInputDrawer
 import org.tasks.compose.edit.TaskInputDrawerState
 import org.tasks.compose.rememberReminderPermissionState
-import org.tasks.compose.edit.InputPanel
 import org.tasks.data.TaskContainer
 import org.tasks.data.dao.CaldavDao
 import org.tasks.data.dao.TagDao
@@ -138,6 +137,8 @@ import org.tasks.filters.mapFromSerializedString
 import org.tasks.kmp.org.tasks.time.DateStyle
 import org.tasks.kmp.org.tasks.time.getRelativeDateTime
 import org.tasks.markdown.MarkdownProvider
+import org.tasks.notifications.NotificationManager
+import org.tasks.preferences.DefaultFilterProvider
 import org.tasks.preferences.Device
 import org.tasks.preferences.MainPreferences
 import org.tasks.preferences.Preferences
@@ -285,8 +286,6 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             .onEach(this::process)
             .launchIn(viewLifecycleOwner.lifecycleScope)
     }
-
-    private val inputPanelVisible = mutableStateOf( false )
 
     @OptIn(ExperimentalAnimationApi::class, ExperimentalPermissionsApi::class)
     override fun onCreateView(
@@ -690,7 +689,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     private fun createNewTask() {
        lifecycleScope.launch {
             shortcutManager.reportShortcutUsed(ShortcutManager.SHORTCUT_NEW_TASK)
-            onTaskListItemClicked(addTask(title))
+            onTaskListItemClicked(addTask(""))
             firebase.addTask("fab")
         }
     }
@@ -708,16 +707,6 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         taskMover.move( listOf(task.id), list )
         val tags = task.tags.mapNotNull { tagDataDao.getTagByName(it) }
         tagDao.insert(task, tags)
-    }
-
-    private fun switchInput(on: Boolean)
-    {
-        lifecycleScope.launch {
-            inputPanelVisible.value = on
-            if (!on) delay(100)  /* to prevent Fab flicker before soft  keyboard disappear */
-            binding.fab.isVisible = !on
-            if ( !preferences.isTopAppBar ) binding.bottomAppBar.isVisible = !on
-        }
     }
 
     private fun setupRefresh(layout: SwipeRefreshLayout) {
