@@ -28,8 +28,6 @@ import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
@@ -47,6 +45,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -61,6 +61,7 @@ import com.todoroo.astrid.adapter.TaskAdapter
 import com.todoroo.astrid.adapter.TaskAdapterProvider
 import com.todoroo.astrid.api.AstridApiConstants.EXTRAS_OLD_DUE_DATE
 import com.todoroo.astrid.api.AstridApiConstants.EXTRAS_TASK_ID
+import com.todoroo.astrid.api.PermaSql
 import com.todoroo.astrid.dao.TaskDao
 import com.todoroo.astrid.repeats.RepeatTaskHelper
 import com.todoroo.astrid.service.TaskCompleter
@@ -70,6 +71,7 @@ import com.todoroo.astrid.service.TaskMover
 import com.todoroo.astrid.timers.TimerPlugin
 import com.todoroo.astrid.utility.Flags
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
@@ -94,6 +96,8 @@ import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPicker
 import org.tasks.compose.NotificationsDisabledBanner
 import org.tasks.compose.QuietHoursBanner
 import org.tasks.compose.SubscriptionNagBanner
+import org.tasks.compose.edit.TaskInputDrawer
+import org.tasks.compose.edit.TaskInputDrawerState
 import org.tasks.compose.rememberReminderPermissionState
 import org.tasks.compose.edit.InputPanel
 import org.tasks.data.TaskContainer
@@ -103,6 +107,7 @@ import org.tasks.data.dao.TagDataDao
 import org.tasks.data.db.Database
 import org.tasks.data.db.SuspendDbUtils.chunkedMap
 import org.tasks.data.entity.Task
+import org.tasks.data.entity.Task.Companion.DUE_DATE
 import org.tasks.data.listSettingsClass
 import org.tasks.data.open
 import org.tasks.data.sql.QueryTemplate
@@ -129,10 +134,10 @@ import org.tasks.filters.GtasksFilter
 import org.tasks.filters.MyTasksFilter
 import org.tasks.filters.PlaceFilter
 import org.tasks.filters.TagFilter
+import org.tasks.filters.mapFromSerializedString
 import org.tasks.kmp.org.tasks.time.DateStyle
 import org.tasks.kmp.org.tasks.time.getRelativeDateTime
 import org.tasks.markdown.MarkdownProvider
-import org.tasks.preferences.DefaultFilterProvider
 import org.tasks.preferences.Device
 import org.tasks.preferences.MainPreferences
 import org.tasks.preferences.Preferences
@@ -182,6 +187,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     @Inject lateinit var caldavDao: CaldavDao
     @Inject lateinit var defaultThemeColor: ThemeColor
     @Inject lateinit var colorProvider: ColorProvider
+    @Inject lateinit var notificationManager: NotificationManager
     @Inject lateinit var shortcutManager: ShortcutManager
     @Inject lateinit var taskCompleter: TaskCompleter
     @Inject lateinit var firebase: Firebase
@@ -198,7 +204,9 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     private lateinit var taskAdapter: TaskAdapter
     private var recyclerAdapter: DragAndDropRecyclerAdapter? = null
     private lateinit var filter: Filter
+    private var searchJob: Job? = null
     private lateinit var search: MenuItem
+    private var searchQuery: String? = null
     private var mode: ActionMode? = null
     lateinit var themeColor: ThemeColor
     private lateinit var binding: FragmentTaskListBinding
@@ -304,19 +312,42 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             swipeRefreshLayout = bodyStandard.swipeLayout
             emptyRefreshLayout = bodyEmpty.swipeLayoutEmpty
             recyclerView = bodyStandard.recyclerView
+/*          moved to inputHost.setContent
             fab.setOnClickListener {
-                switchInput(true)
+                showTaskInputDrawer(true)
             }
+*/
             fab.isVisible = filter.isWritable
             inputHost.setContent {
-                InputPanel(inputPanelVisible, taskListCoordinator,
-                    switchOff = { switchInput(false) },
-                    save = {  title ->
+                val taskInputState = remember {
+                    TaskInputDrawerState(
+                        rootView = taskListCoordinator,
+                        initialDueDate = getFilterDueDate()
+                    )
+                }
+
+                fun showTaskInputDrawer(on: Boolean)
+                {
+                    lifecycleScope.launch {
+                        taskInputState.visible.value = on
+                        if (!on) delay(100)  /* to prevent Fab flicker before soft keyboard disappear */
+                        binding.fab.isVisible = !on
+                        if ( !preferences.isTopAppBar ) binding.bottomAppBar.isVisible = !on
+                    }
+                }
+
+                fab.setOnClickListener {
+                    showTaskInputDrawer(true)
+                }
+
+                TaskInputDrawer(taskInputState,
+                    switchOff = { taskInputState.visible.value = false; showTaskInputDrawer(false) },
+                    save = {
                         lifecycleScope.launch {
-                            saveTask( addTask(title) )
+                            saveTask(addTask(taskInputState))
                         }
                     },
-                    edit = { title -> createNewTask(title) }
+                    edit = { createNewTask(taskInputState) }
                 )
             }
         }
@@ -552,12 +583,14 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 item.isChecked = !item.isChecked
                 preferences.showHidden = item.isChecked
                 loadTaskListContent()
+                localBroadcastManager.broadcastRefresh()
                 true
             }
             R.id.menu_show_completed -> {
                 item.isChecked = !item.isChecked
                 preferences.showCompleted = item.isChecked
                 loadTaskListContent()
+                localBroadcastManager.broadcastRefresh()
                 true
             }
             R.id.menu_clear_completed -> {
@@ -654,7 +687,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         }
     }
 
-    private fun createNewTask(title: String = "") {
+    private fun createNewTask() {
        lifecycleScope.launch {
             shortcutManager.reportShortcutUsed(ShortcutManager.SHORTCUT_NEW_TASK)
             onTaskListItemClicked(addTask(title))
@@ -1123,6 +1156,27 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 }
             }
         }
+    }
+
+    private fun getFilterDueDate(): Long =
+        (mapFromSerializedString(filter.valuesForNewTasks).get(DUE_DATE.name) as? String)
+            ?.let { PermaSql.replacePlaceholdersForNewTask(it) }
+            ?.toLongOrNull() ?: 0L
+
+    private fun createNewTask(values: TaskInputDrawerState) {
+        lifecycleScope.launch {
+            shortcutManager.reportShortcutUsed(ShortcutManager.SHORTCUT_NEW_TASK)
+            onTaskListItemClicked(addTask(values))
+            firebase.addTask("fab")
+        }
+    }
+
+    private suspend fun addTask(values: TaskInputDrawerState): Task {
+        return taskCreator.createWithValues(filter, values.title.value.trim())
+            .let {
+                if (values.dueDate.longValue != 0L) it.dueDate = values.dueDate.longValue
+                it
+            }
     }
 
     companion object {

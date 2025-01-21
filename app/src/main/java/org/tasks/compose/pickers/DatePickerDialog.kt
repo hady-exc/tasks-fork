@@ -23,35 +23,37 @@ fun DatePickerDialog(
     selected: (Long) -> Unit,
     dismiss: () -> Unit,
 ) {
-    val initialDateUTC by remember(initialDate) {
-        derivedStateOf {
-            DateTime(initialDate).toUTC().millis
-        }
-    }
-    val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = initialDateUTC,
-    )
-    androidx.compose.material3.DatePickerDialog(
-        onDismissRequest = { dismiss() },
-        dismissButton = {
-            TextButton(onClick = dismiss) {
-                Text(text = stringResource(id = R.string.cancel))
+    TasksTheme {
+        val initialDateUTC by remember(initialDate) {
+            derivedStateOf {
+                DateTime(initialDate).let { it.millis + it.offset }
             }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    datePickerState
-                        .selectedDateMillis
-                        ?.let { selected(it - DateTime(it).offset) }
-                    dismiss()
+        }
+        val datePickerState = rememberDatePickerState(
+            initialSelectedDateMillis = initialDateUTC,
+        )
+        androidx.compose.material3.DatePickerDialog(
+            onDismissRequest = { dismiss() },
+            dismissButton = {
+                TextButton(onClick = dismiss) {
+                    Text(text = stringResource(id = R.string.cancel))
                 }
-            ) {
-                Text(text = stringResource(id = R.string.ok))
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        datePickerState
+                            .selectedDateMillis
+                            ?.let { selected(it - DateTime(it).offset) }
+                        dismiss()
+                    }
+                ) {
+                    Text(text = stringResource(id = R.string.ok))
+                }
             }
+        ) {
+            DatePicker(state = datePickerState)
         }
-    ) {
-        DatePicker(state = datePickerState)
     }
 }
 

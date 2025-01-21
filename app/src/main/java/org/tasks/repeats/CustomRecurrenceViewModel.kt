@@ -172,7 +172,7 @@ class CustomRecurrenceViewModel @Inject constructor(
             builder.interval(state.interval)
         }
         when (state.endSelection) {
-            1 -> builder.until(Date(state.endDate))
+            1 -> builder.until(Date(DateTime(state.endDate).let { it.millis + it.offset }))
             2 -> builder.count(state.endCount.coerceAtLeast(1))
         }
         return builder.build().toString()
