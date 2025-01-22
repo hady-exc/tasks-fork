@@ -90,6 +90,7 @@ class TaskInputDrawerState (
         title.value = initialTitle
         dueDate.longValue = initialDueDate
     }
+    fun copy(): TaskInputDrawerState = TaskInputDrawerState(rootView, title.value, dueDate.longValue)
 }
 
 @Composable
@@ -107,32 +108,30 @@ fun TaskInputDrawer(
     }
 
     if (state.visible.value) {
-        TasksTheme {
-            Popup(
-                popupPositionProvider = WindowBottomPositionProvider(remember { getViewY(state.rootView) }),
-                onDismissRequest = switchOff,
-                properties = PopupProperties(
-                    focusable = true,
-                    dismissOnClickOutside = false,
-                    clippingEnabled = false
-                )
+        Popup(
+            popupPositionProvider = WindowBottomPositionProvider(remember { getViewY(state.rootView) }),
+            onDismissRequest = switchOff,
+            properties = PopupProperties(
+                focusable = true,
+                dismissOnClickOutside = false,
+                clippingEnabled = false
+            )
+        ) {
+            AnimatedVisibility(
+                visible = state.visible.value,
+                enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom),
+                exit = shrinkVertically()
             ) {
-                AnimatedVisibility(
-                    visible = state.visible.value,
-                    enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom),
-                    exit = shrinkVertically()
+                val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(screenHeight)
+                        .clickable { switchOff() }
+                        .background(fadeColor),
+                    contentAlignment = Alignment.BottomCenter
                 ) {
-                    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(screenHeight)
-                            .clickable { switchOff() }
-                            .background(fadeColor),
-                        contentAlignment = Alignment.BottomCenter
-                    ) {
-                        PopupContent(state, save, { switchOff(); edit() }, switchOff)
-                    }
+                    PopupContent(state, save, { switchOff(); edit() }, switchOff)
                 }
             }
         }
