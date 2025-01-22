@@ -330,20 +330,25 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                         if ( !preferences.isTopAppBar ) binding.bottomAppBar.isVisible = !on
                     }
                 }
-
                 fab.setOnClickListener {
                     showTaskInputDrawer(true)
                 }
 
-                TaskInputDrawer(taskInputState,
-                    switchOff = { taskInputState.visible.value = false; showTaskInputDrawer(false) },
-                    save = {
-                        lifecycleScope.launch {
-                            saveTask(addTask(taskInputState))
-                        }
-                    },
-                    edit = { createNewTask(taskInputState) }
-                )
+                TasksTheme {
+                    TaskInputDrawer(
+                        state = taskInputState,
+                        switchOff = {
+                            taskInputState.visible.value = false;
+                            showTaskInputDrawer(false)
+                        },
+                        save = {
+                            lifecycleScope.launch {
+                                saveTask(addTask(taskInputState.copy()))
+                            }
+                        },
+                        edit = { createNewTask(taskInputState.copy()) }
+                    )
+                }
             }
         }
         themeColor = if (filter.tint != 0) colorProvider.getThemeColor(filter.tint, true) else defaultThemeColor

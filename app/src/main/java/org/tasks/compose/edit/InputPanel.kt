@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.ContentAlpha
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.MoreHoriz
@@ -31,6 +32,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -88,6 +90,7 @@ class TaskInputDrawerState (
         title.value = initialTitle
         dueDate.longValue = initialDueDate
     }
+    fun copy(): TaskInputDrawerState = TaskInputDrawerState(rootView, title.value, dueDate.longValue)
 }
 
 @Composable
@@ -105,32 +108,30 @@ fun TaskInputDrawer(
     }
 
     if (state.visible.value) {
-        TasksTheme {
-            Popup(
-                popupPositionProvider = WindowBottomPositionProvider(remember { getViewY(state.rootView) }),
-                onDismissRequest = switchOff,
-                properties = PopupProperties(
-                    focusable = true,
-                    dismissOnClickOutside = false,
-                    clippingEnabled = false
-                )
+        Popup(
+            popupPositionProvider = WindowBottomPositionProvider(remember { getViewY(state.rootView) }),
+            onDismissRequest = switchOff,
+            properties = PopupProperties(
+                focusable = true,
+                dismissOnClickOutside = false,
+                clippingEnabled = false
+            )
+        ) {
+            AnimatedVisibility(
+                visible = state.visible.value,
+                enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom),
+                exit = shrinkVertically()
             ) {
-                AnimatedVisibility(
-                    visible = state.visible.value,
-                    enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom),
-                    exit = shrinkVertically()
+                val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(screenHeight)
+                        .clickable { switchOff() }
+                        .background(fadeColor),
+                    contentAlignment = Alignment.BottomCenter
                 ) {
-                    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(screenHeight)
-                            .clickable { switchOff() }
-                            .background(fadeColor),
-                        contentAlignment = Alignment.BottomCenter
-                    ) {
-                        PopupContent(state, save, { switchOff(); edit() }, switchOff)
-                    }
+                    PopupContent(state, save, { switchOff(); edit() }, switchOff)
                 }
             }
         }
@@ -194,7 +195,11 @@ private fun PopupContent(
                 keyboardActions = KeyboardActions(onDone = { doSave() }),
                 singleLine = true,
                 textStyle = MaterialTheme.typography.bodyLarge,
-                colors = Constants.textFieldColors(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    cursorColor = MaterialTheme.colorScheme.onSurface,
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = ContentAlpha.high),
+                    focusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = ContentAlpha.medium)
+                ),
                 shape = MaterialTheme.shapes.medium
             )
 
