@@ -70,11 +70,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.tasks.R
 import org.tasks.compose.ChipGroup
-import org.tasks.compose.Constants
 import org.tasks.compose.pickers.DatePickerDialog
 import org.tasks.date.DateTimeUtils.newDateTime
 import org.tasks.kmp.org.tasks.time.getRelativeDay
-import org.tasks.themes.TasksTheme
 
 class TaskInputDrawerState (
     val rootView: CoordinatorLayout,

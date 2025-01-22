@@ -28,6 +28,7 @@ import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
@@ -314,43 +315,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             }
 */
             fab.isVisible = filter.isWritable
-            inputHost.setContent {
-                val taskInputState = remember {
-                    TaskInputDrawerState(
-                        rootView = taskListCoordinator,
-                        initialDueDate = getFilterDueDate()
-                    )
-                }
-
-                fun showTaskInputDrawer(on: Boolean)
-                {
-                    lifecycleScope.launch {
-                        taskInputState.visible.value = on
-                        if (!on) delay(100)  /* to prevent Fab flicker before soft keyboard disappear */
-                        binding.fab.isVisible = !on
-                        if ( !preferences.isTopAppBar ) binding.bottomAppBar.isVisible = !on
-                    }
-                }
-                fab.setOnClickListener {
-                    showTaskInputDrawer(true)
-                }
-
-                TasksTheme {
-                    TaskInputDrawer(
-                        state = taskInputState,
-                        switchOff = {
-                            taskInputState.visible.value = false;
-                            showTaskInputDrawer(false)
-                        },
-                        save = {
-                            lifecycleScope.launch {
-                                saveTask(addTask(taskInputState.copy()))
-                            }
-                        },
-                        edit = { createNewTask(taskInputState.copy()) }
-                    )
-                }
-            }
+            inputHost.setContent { taskEditDrawerContent() }
         }
         themeColor = if (filter.tint != 0) colorProvider.getThemeColor(filter.tint, true) else defaultThemeColor
         (filter as? AstridOrderingFilter)?.filterOverride = null
@@ -1154,6 +1119,47 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 if (values.dueDate.longValue != 0L) it.dueDate = values.dueDate.longValue
                 it
             }
+    }
+
+    @Composable
+    private fun taskEditDrawerContent()
+    {
+        val taskInputState = remember {
+            TaskInputDrawerState(
+                rootView = binding.taskListCoordinator,
+                initialDueDate = getFilterDueDate()
+            )
+        }
+
+        fun showTaskInputDrawer(on: Boolean)
+        {
+            lifecycleScope.launch {
+                taskInputState.visible.value = on
+                if (!on) delay(100)  /* to prevent Fab flicker before soft keyboard disappear */
+                binding.fab.isVisible = !on
+                if ( !preferences.isTopAppBar ) binding.bottomAppBar.isVisible = !on
+            }
+        }
+        binding.fab.setOnClickListener {
+            showTaskInputDrawer(true)
+        }
+
+        TasksTheme {
+            TaskInputDrawer(
+                state = taskInputState,
+                switchOff = {
+                    taskInputState.visible.value = false;
+                    showTaskInputDrawer(false)
+                },
+                save = {
+                    lifecycleScope.launch {
+                        saveTask(addTask(taskInputState.copy()))
+                    }
+                },
+                edit = { createNewTask(taskInputState.copy()) }
+            )
+        }
+
     }
 
     companion object {
