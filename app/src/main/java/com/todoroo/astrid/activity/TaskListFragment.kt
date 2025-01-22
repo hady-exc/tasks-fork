@@ -158,6 +158,7 @@ import org.tasks.ui.TaskListEvent
 import org.tasks.ui.TaskListEventBus
 import org.tasks.ui.TaskListViewModel
 import org.tasks.ui.TaskListViewModel.Companion.createSearchQuery
+import timber.log.Timber
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.max
@@ -684,17 +685,6 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         return taskCreator.createWithValues(filter, title)
     }
 
-    private suspend fun saveTask(task: Task) {
-        taskDao.createNew(task)
-        taskDao.save(task)
-        val list =
-            if ( filter is CaldavFilter || filter is GtasksFilter ) filter
-            else defaultFilterProvider.getList(task)
-        taskMover.move( listOf(task.id), list )
-        val tags = task.tags.mapNotNull { tagDataDao.getTagByName(it) }
-        tagDao.insert(task, tags)
-    }
-
     private fun setupRefresh(layout: SwipeRefreshLayout) {
         layout.setOnRefreshListener(this)
         layout.setColorSchemeColors(
@@ -1144,6 +1134,18 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             onTaskListItemClicked(addTask(values))
             firebase.addTask("fab")
         }
+    }
+
+    private suspend fun saveTask(task: Task) {
+        if (task.title.isNullOrBlank()) task.title = resources.getString(R.string.no_title)
+        taskDao.createNew(task)
+        taskDao.save(task)
+        val list =
+            if ( filter is CaldavFilter || filter is GtasksFilter ) filter
+            else defaultFilterProvider.getList(task)
+        taskMover.move( listOf(task.id), list )
+        val tags = task.tags.mapNotNull { tagDataDao.getTagByName(it) }
+        tagDao.insert(task, tags)
     }
 
     private suspend fun addTask(values: TaskInputDrawerState): Task {
