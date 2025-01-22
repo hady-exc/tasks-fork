@@ -704,6 +704,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     }
 
     private suspend fun saveTask(task: Task) {
+        if (task.title.isNullOrBlank()) task.title = resources.getString(R.string.no_title)
         taskDao.createNew(task)
         taskDao.save(task)
         val list =

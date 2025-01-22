@@ -70,11 +70,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.tasks.R
 import org.tasks.compose.ChipGroup
-import org.tasks.compose.Constants
 import org.tasks.compose.pickers.DatePickerDialog
 import org.tasks.date.DateTimeUtils.newDateTime
 import org.tasks.kmp.org.tasks.time.getRelativeDay
-import org.tasks.themes.TasksTheme
 
 class TaskInputDrawerState (
     val rootView: CoordinatorLayout,
@@ -85,7 +83,7 @@ class TaskInputDrawerState (
     val dueDate = mutableLongStateOf(initialDueDate)
     internal val visible = mutableStateOf(false)
 
-    fun isChanged(): Boolean = (title.value != initialTitle || dueDate.longValue != initialDueDate)
+    fun isChanged(): Boolean = (title.value.trim() != initialTitle.trim() || dueDate.longValue != initialDueDate)
     fun clear() {
         title.value = initialTitle
         dueDate.longValue = initialDueDate
@@ -168,11 +166,7 @@ private fun PopupContent(
         ) {
             val requester = remember { FocusRequester() }
 
-            val doSave: ()->Unit = {  // TODO(check "closability" with all values, as original Task.org do)
-                val string = state.title.value.trim()
-                if (string != "") save()
-                state.clear()
-            }
+            val doSave: ()->Unit = { save(); state.clear() }
             val doEdit = { edit(); state.clear() }
 
             Spacer(Modifier.height(16.dp))
@@ -192,7 +186,7 @@ private fun PopupContent(
                     .focusRequester(requester),
                 placeholder = { Text(stringResource(id = R.string.TEA_title_hint)) }, /* "Task name" */
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                keyboardActions = KeyboardActions(onDone = { doSave() }),
+                keyboardActions = KeyboardActions(onDone = { if (state.isChanged()) doSave() }),
                 singleLine = true,
                 textStyle = MaterialTheme.typography.bodyLarge,
                 colors = OutlinedTextFieldDefaults.colors(
