@@ -21,6 +21,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.addCallback
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
@@ -315,7 +316,17 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             }
 */
             fab.isVisible = filter.isWritable
-            inputHost.setContent { taskEditDrawerContent() }
+            taskInputState = TaskInputDrawerState(
+                rootView = binding.taskListCoordinator,
+                initialFilter = filter,
+                initialDueDate = getFilterDueDate()
+            )
+
+            filterPickerLauncher = registerForListPickerResult {
+                taskInputState.filter.value = it
+                taskInputState.externalActivity.value = false
+            }
+            inputHost.setContent { TaskEditDrawerContent() }
         }
         themeColor = if (filter.tint != 0) colorProvider.getThemeColor(filter.tint, true) else defaultThemeColor
         (filter as? AstridOrderingFilter)?.filterOverride = null
@@ -1088,6 +1099,13 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         }
     }
 
+    private lateinit var taskInputState: TaskInputDrawerState
+
+    private lateinit var filterPickerLauncher: ActivityResultLauncher<Intent>
+    /*= registerForListPickerResult {
+        taskInputState.filter.value = it
+    }
+*/
     private fun getFilterDueDate(): Long =
         (mapFromSerializedString(filter.valuesForNewTasks).get(DUE_DATE.name) as? String)
             ?.let { PermaSql.replacePlaceholdersForNewTask(it) }
@@ -1101,7 +1119,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         }
     }
 
-    private suspend fun saveTask(task: Task) {
+    private suspend fun saveTask(filter: Filter, task: Task) {
         if (task.title.isNullOrBlank()) task.title = resources.getString(R.string.no_title)
         taskDao.createNew(task)
         taskDao.save(task)
@@ -1114,7 +1132,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     }
 
     private suspend fun addTask(values: TaskInputDrawerState): Task {
-        return taskCreator.createWithValues(filter, values.title.value.trim())
+        return taskCreator.createWithValues(values.filter.value, values.title.value.trim())
             .let {
                 if (values.dueDate.longValue != 0L) it.dueDate = values.dueDate.longValue
                 it
@@ -1122,18 +1140,18 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     }
 
     @Composable
-    private fun taskEditDrawerContent()
+    private fun TaskEditDrawerContent()
     {
-        val taskInputState = remember {
-            TaskInputDrawerState(
-                rootView = binding.taskListCoordinator,
-                initialDueDate = getFilterDueDate()
-            )
-        }
-
         fun showTaskInputDrawer(on: Boolean)
         {
             lifecycleScope.launch {
+                if (on) {
+                    Timber.d("trying to set filter to ${filter.title}")
+                    taskInputState.setFilter(
+                        if (filter is GtasksFilter || filter is CaldavFilter) filter
+                        else defaultFilterProvider.getDefaultList()
+                    )
+                }
                 taskInputState.visible.value = on
                 if (!on) delay(100)  /* to prevent Fab flicker before soft keyboard disappear */
                 binding.fab.isVisible = !on
@@ -1148,15 +1166,22 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             TaskInputDrawer(
                 state = taskInputState,
                 switchOff = {
+                    Timber.d("switchOff called")
                     taskInputState.visible.value = false;
                     showTaskInputDrawer(false)
                 },
                 save = {
                     lifecycleScope.launch {
-                        saveTask(addTask(taskInputState.copy()))
+                        saveTask(taskInputState.filter.value, addTask(taskInputState.copy()))
                     }
                 },
-                edit = { createNewTask(taskInputState.copy()) }
+                edit = { createNewTask(taskInputState.copy()) },
+                getList = {
+                    filterPickerLauncher.launch(
+                        context = requireContext(),
+                        selectedFilter = taskInputState.filter.value,
+                        listsOnly = true )
+                }
             )
         }
 
