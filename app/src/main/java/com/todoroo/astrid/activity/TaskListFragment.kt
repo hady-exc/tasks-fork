@@ -30,6 +30,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
@@ -47,8 +48,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -63,7 +62,6 @@ import com.todoroo.astrid.adapter.TaskAdapter
 import com.todoroo.astrid.adapter.TaskAdapterProvider
 import com.todoroo.astrid.api.AstridApiConstants.EXTRAS_OLD_DUE_DATE
 import com.todoroo.astrid.api.AstridApiConstants.EXTRAS_TASK_ID
-import com.todoroo.astrid.api.PermaSql
 import com.todoroo.astrid.dao.TaskDao
 import com.todoroo.astrid.repeats.RepeatTaskHelper
 import com.todoroo.astrid.service.TaskCompleter
@@ -106,7 +104,6 @@ import org.tasks.data.dao.TagDataDao
 import org.tasks.data.db.Database
 import org.tasks.data.db.SuspendDbUtils.chunkedMap
 import org.tasks.data.entity.Task
-import org.tasks.data.entity.Task.Companion.DUE_DATE
 import org.tasks.data.listSettingsClass
 import org.tasks.data.open
 import org.tasks.data.sql.QueryTemplate
@@ -134,7 +131,6 @@ import org.tasks.filters.GtasksFilter
 import org.tasks.filters.MyTasksFilter
 import org.tasks.filters.PlaceFilter
 import org.tasks.filters.TagFilter
-import org.tasks.filters.mapFromSerializedString
 import org.tasks.kmp.org.tasks.time.DateStyle
 import org.tasks.kmp.org.tasks.time.getRelativeDateTime
 import org.tasks.markdown.MarkdownProvider
@@ -316,17 +312,12 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             }
 */
             fab.isVisible = filter.isWritable
-            taskInputState = TaskInputDrawerState(
-                rootView = binding.taskListCoordinator,
-                initialFilter = filter,
-                initialDueDate = getFilterDueDate()
-            )
 
+            inputHost.setContent { TaskEditDrawerContent() }
             filterPickerLauncher = registerForListPickerResult {
                 taskInputState.filter.value = it
                 taskInputState.externalActivity.value = false
             }
-            inputHost.setContent { TaskEditDrawerContent() }
         }
         themeColor = if (filter.tint != 0) colorProvider.getThemeColor(filter.tint, true) else defaultThemeColor
         (filter as? AstridOrderingFilter)?.filterOverride = null
@@ -1102,41 +1093,24 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     private lateinit var taskInputState: TaskInputDrawerState
 
     private lateinit var filterPickerLauncher: ActivityResultLauncher<Intent>
-    /*= registerForListPickerResult {
-        taskInputState.filter.value = it
-    }
-*/
-    private fun getFilterDueDate(): Long =
-        (mapFromSerializedString(filter.valuesForNewTasks).get(DUE_DATE.name) as? String)
-            ?.let { PermaSql.replacePlaceholdersForNewTask(it) }
-            ?.toLongOrNull() ?: 0L
 
-    private fun createNewTask(values: TaskInputDrawerState) {
+    private fun createNewTask(task: Task) {
         lifecycleScope.launch {
             shortcutManager.reportShortcutUsed(ShortcutManager.SHORTCUT_NEW_TASK)
-            onTaskListItemClicked(addTask(values))
+            onTaskListItemClicked(task)
             firebase.addTask("fab")
         }
     }
 
     private suspend fun saveTask(filter: Filter, task: Task) {
         if (task.title.isNullOrBlank()) task.title = resources.getString(R.string.no_title)
+        assert(Task.isUuidEmpty(task.remoteId))
         taskDao.createNew(task)
         taskDao.save(task)
-        val list =
-            if ( filter is CaldavFilter || filter is GtasksFilter ) filter
-            else defaultFilterProvider.getList(task)
-        taskMover.move( listOf(task.id), list )
+        assert(filter is CaldavFilter || filter is GtasksFilter)
+        taskMover.move( listOf(task.id), filter )
         val tags = task.tags.mapNotNull { tagDataDao.getTagByName(it) }
         tagDao.insert(task, tags)
-    }
-
-    private suspend fun addTask(values: TaskInputDrawerState): Task {
-        return taskCreator.createWithValues(values.filter.value, values.title.value.trim())
-            .let {
-                if (values.dueDate.longValue != 0L) it.dueDate = values.dueDate.longValue
-                it
-            }
     }
 
     @Composable
@@ -1146,7 +1120,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         {
             lifecycleScope.launch {
                 if (on) {
-                    Timber.d("trying to set filter to ${filter.title}")
+                    taskInputState.setTask(taskCreator.createWithValues(filter, null))
                     taskInputState.setFilter(
                         if (filter is GtasksFilter || filter is CaldavFilter) filter
                         else defaultFilterProvider.getDefaultList()
@@ -1158,24 +1132,24 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 if ( !preferences.isTopAppBar ) binding.bottomAppBar.isVisible = !on
             }
         }
-        binding.fab.setOnClickListener {
-            showTaskInputDrawer(true)
-        }
+
+        taskInputState = TaskInputDrawerState(binding.taskListCoordinator, filter)
+        binding.fab.setOnClickListener { showTaskInputDrawer(true) }
 
         TasksTheme {
             TaskInputDrawer(
                 state = taskInputState,
                 switchOff = {
                     Timber.d("switchOff called")
-                    taskInputState.visible.value = false;
+                    taskInputState.visible.value = false
                     showTaskInputDrawer(false)
                 },
                 save = {
                     lifecycleScope.launch {
-                        saveTask(taskInputState.filter.value, addTask(taskInputState.copy()))
+                        saveTask(taskInputState.filter.value, taskInputState.retrieveTask())
                     }
                 },
-                edit = { createNewTask(taskInputState.copy()) },
+                edit = { createNewTask(taskInputState.retrieveTask()) },
                 getList = {
                     filterPickerLauncher.launch(
                         context = requireContext(),
