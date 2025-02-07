@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +20,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material.icons.outlined.Save
@@ -48,14 +48,12 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -71,24 +69,55 @@ import kotlinx.coroutines.runBlocking
 import org.tasks.R
 import org.tasks.compose.ChipGroup
 import org.tasks.compose.pickers.DatePickerDialog
+import org.tasks.data.entity.Task
 import org.tasks.date.DateTimeUtils.newDateTime
+import org.tasks.filters.Filter
 import org.tasks.kmp.org.tasks.time.getRelativeDay
 
 class TaskInputDrawerState (
     val rootView: CoordinatorLayout,
-    val initialTitle: String = "",
-    val initialDueDate: Long = 0L
+    val originalFilter: Filter
 ) {
-    val title = mutableStateOf(initialTitle)
-    val dueDate = mutableLongStateOf(initialDueDate)
+    val title = mutableStateOf("")
+    val dueDate = mutableLongStateOf(0L)
+    internal var initialFilter = originalFilter
+    val filter = mutableStateOf(initialFilter)
     internal val visible = mutableStateOf(false)
+    internal val externalActivity = mutableStateOf(false)
 
-    fun isChanged(): Boolean = (title.value.trim() != initialTitle.trim() || dueDate.longValue != initialDueDate)
+    private var _task: Task? = null
+    val task get() = _task
+    private val initialTitle get() = _task?.title ?: ""
+
+    fun setFilter(new: Filter) {
+        if ( initialFilter == originalFilter ) initialFilter = new
+        filter.value = new
+    }
+
+    fun setTask(new: Task) {
+        _task = new
+        title.value = initialTitle
+        dueDate.longValue = _task!!.dueDate
+    }
+
+    fun isChanged(): Boolean =
+        (title.value.trim() != initialTitle.trim()
+                || dueDate.longValue != _task!!.dueDate
+                || filter.value != initialFilter
+                )
     fun clear() {
         title.value = initialTitle
-        dueDate.longValue = initialDueDate
+        dueDate.longValue = _task!!.dueDate
+        filter.value = initialFilter
     }
-    fun copy(): TaskInputDrawerState = TaskInputDrawerState(rootView, title.value, dueDate.longValue)
+
+    fun retrieveTask(): Task =
+        _task!!.copy().let {
+            it.title = title.value
+            it.dueDate = dueDate.longValue
+            it.uuid = Task.NO_UUID
+            it
+        }
 }
 
 @Composable
@@ -96,9 +125,10 @@ fun TaskInputDrawer(
     state: TaskInputDrawerState,
     switchOff: () -> Unit,
     save: () -> Unit,
-    edit: () -> Unit
-) {
-    val fadeColor = colorResource(R.color.input_popup_foreground).copy(alpha = 0.12f)
+    edit: () -> Unit,
+    getList: (() -> Unit),
+    ) {
+    //val fadeColor = colorResource(R.color.input_popup_foreground).copy(alpha = 0.12f)
     val getViewY: (view: CoordinatorLayout) -> Int = {
         val rootViewXY = intArrayOf(0, 0)
         state.rootView.getLocationOnScreen(rootViewXY)
@@ -108,7 +138,7 @@ fun TaskInputDrawer(
     if (state.visible.value) {
         Popup(
             popupPositionProvider = WindowBottomPositionProvider(remember { getViewY(state.rootView) }),
-            onDismissRequest = switchOff,
+            onDismissRequest = {}, //switchOff,
             properties = PopupProperties(
                 focusable = true,
                 dismissOnClickOutside = false,
@@ -125,11 +155,12 @@ fun TaskInputDrawer(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(screenHeight)
-                        .clickable { switchOff() }
-                        .background(fadeColor),
+                        //.clickable { switchOff() }
+                        //.background(fadeColor)
+                            ,
                     contentAlignment = Alignment.BottomCenter
                 ) {
-                    PopupContent(state, save, { switchOff(); edit() }, switchOff)
+                    PopupContent(state, save, { switchOff(); edit() }, switchOff, getList)
                 }
             }
         }
@@ -142,8 +173,9 @@ private fun PopupContent(
     state: TaskInputDrawerState,
     save: () -> Unit = {},
     edit: () -> Unit = {},
-    close: () -> Unit = {}
-) {
+    close: () -> Unit = {},
+    getList: (() -> Unit),
+    ) {
 
     val keyboardController = LocalSoftwareKeyboardController.current
     val background = colorResource(id = R.color.input_popup_background)
@@ -197,11 +229,10 @@ private fun PopupContent(
                 shape = MaterialTheme.shapes.medium
             )
 
-            LaunchedEffect(datePicker.value == false) {
+            LaunchedEffect(state.externalActivity.value == false) {
                 requester.requestFocus()
                 delay(30) /* workaround for delay in the system between requestFocus and actual focused state */
                 keyboardController!!.show()
-                //opened.value = true
             }
 
             Row (modifier = Modifier.padding(8.dp)) {
@@ -211,24 +242,38 @@ private fun PopupContent(
                         Chip(
                             title = runBlocking { getRelativeDay(state.dueDate.longValue) },
                             leading = Values.schedule,
-                            action = { datePicker.value = true },
-                            delete = { state.dueDate.longValue = 0L }
+                            action = { datePicker.value = true; state.externalActivity.value = true },
+                            delete = { state.dueDate.longValue = state.task!!.dueDate }
                         )
                     } else {
-                        IconChip(Values.schedule) { datePicker.value = true }
+                        IconChip(Values.schedule) { datePicker.value = true; state.externalActivity.value = true }
                     }
+
+                    /* Target List */
+                    if (state.initialFilter == state.originalFilter && state.filter.value == state.initialFilter) {
+                        IconChip(Values.list) { state.externalActivity.value = true; getList() }
+                    } else {
+                        Chip(
+                            title = state.filter.value!!.title!!,
+                            leading = Values.list,
+                            action = { state.externalActivity.value = true; getList() },
+                            delete =
+                                if (state.initialFilter == state.originalFilter || state.filter.value ==  state.initialFilter) null
+                                else {{ state.filter.value = state.initialFilter }}
+                        )
+                    }
+
+                    /* Main Task Edit launch - must be the last */
                     IconChip(Values.more, doEdit)
                 }
             }
 
-            /* close the InputPanel when keyboard is explicitly closed */
-            if (opened.value) {
-                if (padding.value < 30.dp) {
-                    if (datePicker.value == true) opened.value = false
-                    else close()
-                }
-            } else {
-                if (padding.value > 60.dp) opened.value = true
+            if (opened.value && padding.value < 30.dp) {
+                opened.value = false
+                /* close the drawer if keyboard is closed by user */
+                if (!state.externalActivity.value) close()
+            } else if (!opened.value && padding.value > 60.dp) {
+                opened.value = true
             }
 
             Box(
@@ -242,8 +287,8 @@ private fun PopupContent(
     if (datePicker.value) {
         DatePickerDialog(
             initialDate = if (state.dueDate.longValue != 0L) state.dueDate.longValue else newDateTime().startOfDay().plusDays(1).millis,
-            selected = { state.dueDate.longValue = it; datePicker.value = false },
-            dismiss = { datePicker.value = false } )
+            selected = { state.dueDate.longValue = it; datePicker.value = false; state.externalActivity.value = false },
+            dismiss = { datePicker.value = false; state.externalActivity.value = false } )
     }
 }
 
@@ -309,8 +354,10 @@ private object Values {
     val save = Icons.Outlined.Save
     val more = Icons.Outlined.MoreHoriz
     val schedule = Icons.Outlined.Schedule
+    val list = Icons.AutoMirrored.Outlined.List
 }
 
+/*
 @Preview(showBackground = true, widthDp = 320)
 @Composable
 fun TaskInputDrawerPreview() {
@@ -324,4 +371,5 @@ fun TaskInputDrawerPreview() {
         }
     )
 }
+*/
 
