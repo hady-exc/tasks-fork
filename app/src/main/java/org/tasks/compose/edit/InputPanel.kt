@@ -47,7 +47,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
@@ -128,7 +127,6 @@ fun TaskInputDrawer(
     edit: () -> Unit,
     getList: (() -> Unit),
     ) {
-    //val fadeColor = colorResource(R.color.input_popup_foreground).copy(alpha = 0.12f)
     val getViewY: (view: CoordinatorLayout) -> Int = {
         val rootViewXY = intArrayOf(0, 0)
         state.rootView.getLocationOnScreen(rootViewXY)
@@ -138,10 +136,10 @@ fun TaskInputDrawer(
     if (state.visible.value) {
         Popup(
             popupPositionProvider = WindowBottomPositionProvider(remember { getViewY(state.rootView) }),
-            onDismissRequest = {}, //switchOff,
+            onDismissRequest = { switchOff() },
             properties = PopupProperties(
                 focusable = true,
-                dismissOnClickOutside = false,
+                dismissOnClickOutside = true,
                 clippingEnabled = false
             )
         ) {
@@ -150,14 +148,8 @@ fun TaskInputDrawer(
                 enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom),
                 exit = shrinkVertically()
             ) {
-                val screenHeight = LocalConfiguration.current.screenHeightDp.dp
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(screenHeight)
-                        //.clickable { switchOff() }
-                        //.background(fadeColor)
-                            ,
+                    modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.BottomCenter
                 ) {
                     PopupContent(state, save, { switchOff(); edit() }, switchOff, getList)
@@ -254,7 +246,7 @@ private fun PopupContent(
                         IconChip(Values.list) { state.externalActivity.value = true; getList() }
                     } else {
                         Chip(
-                            title = state.filter.value!!.title!!,
+                            title = state.filter.value.title!!,
                             leading = Values.list,
                             action = { state.externalActivity.value = true; getList() },
                             delete =
