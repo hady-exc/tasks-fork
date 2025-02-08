@@ -95,7 +95,7 @@ import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPicker
 import org.tasks.compose.NotificationsDisabledBanner
 import org.tasks.compose.SubscriptionNagBanner
 import org.tasks.compose.edit.TaskEditDrawer
-import org.tasks.compose.edit.KeyboardDock
+import org.tasks.compose.KeyboardDock
 import org.tasks.compose.edit.TaskEditDrawerState
 import org.tasks.compose.rememberReminderPermissionState
 import org.tasks.data.TaskContainer

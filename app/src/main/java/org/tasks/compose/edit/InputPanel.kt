@@ -1,11 +1,6 @@
 package org.tasks.compose.edit
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -41,7 +36,6 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -53,16 +47,9 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupPositionProvider
-import androidx.compose.ui.window.PopupProperties
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.tasks.R
@@ -118,54 +105,6 @@ class TaskEditDrawerState (
         }
 }
 
-@Composable
-fun KeyboardDock(
-    rootView: CoordinatorLayout,
-    visible: State<Boolean>,
-    onDismissRequest: (() -> Unit),
-    content: @Composable () -> Unit = {}
-) {
-
-    if (visible.value) {
-        Popup(
-            popupPositionProvider = remember { WindowBottomPositionProvider(rootView) },
-            onDismissRequest = onDismissRequest,
-            properties = PopupProperties(
-                focusable = true,
-                dismissOnClickOutside = true,
-                clippingEnabled = false
-            )
-        ) {
-            AnimatedVisibility(
-                visible = visible.value,
-                enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom),
-                exit = shrinkVertically()
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.BottomCenter
-                ) {
-                    Column {
-                        //PopupContent(state, save, { switchOff(); edit() }, switchOff, getList)
-                        content()
-                        Box(modifier = Modifier.fillMaxWidth().height(height = rememberKeyboardHeight().value ))
-                    }
-                }
-            }
-
-            val keyboardHeight = rememberKeyboardHeight()
-            val keyboardOpened = remember { mutableStateOf(false) }
-            if (keyboardOpened.value && keyboardHeight.value < 30.dp) {
-                keyboardOpened.value = false
-                onDismissRequest()
-            } else if (!keyboardOpened.value && keyboardHeight.value > 60.dp) {
-                keyboardOpened.value = true
-            }
-
-        }
-    }
-}
-
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun TaskEditDrawer(
@@ -179,9 +118,7 @@ fun TaskEditDrawer(
     val keyboardController = LocalSoftwareKeyboardController.current
     val background = colorResource(id = R.color.input_popup_background)
     val foreground = colorResource(id = R.color.input_popup_foreground)
-    val padding = rememberKeyboardHeight()
 
-    val opened = remember { mutableStateOf(false) }
     val datePicker = remember { mutableStateOf(false) }
 
     Card(
@@ -266,22 +203,6 @@ fun TaskEditDrawer(
                     IconChip(Values.more, doEdit)
                 }
             }
-
-            if (opened.value && padding.value < 30.dp) {
-                opened.value = false
-                /* close the drawer if keyboard is closed by user */
-                if (!state.externalActivity.value) close()
-            } else if (!opened.value && padding.value > 60.dp) {
-                opened.value = true
-            }
-
-/*
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(padding.value)
-            )
-*/
         }
     }
 
@@ -333,26 +254,6 @@ fun rememberKeyboardHeight(): State<Dp> {
     }
 }
 
-/*
-* Aligns the popup bottom with the bottom of the coordinator_layout
-* which is aligned with the top of the IME by the system
-*/
-private class WindowBottomPositionProvider(
-    val rootView: CoordinatorLayout
-) : PopupPositionProvider {
-    override fun calculatePosition(
-        anchorBounds: IntRect,
-        windowSize: IntSize,
-        layoutDirection: LayoutDirection,
-        popupContentSize: IntSize
-    ): IntOffset {
-        val rootViewXY = intArrayOf(0, 0)
-        rootView.getLocationOnScreen(rootViewXY)
-        val bottom = rootView.height + rootViewXY[1]   /* rootViewXY[1] == rootView.y */
-        return IntOffset(0, bottom - popupContentSize.height)
-    }
-}
-
 private object Values {
     val clear = Icons.Outlined.Close
     val save = Icons.Outlined.Save
@@ -364,16 +265,16 @@ private object Values {
 /*
 @Preview(showBackground = true, widthDp = 320)
 @Composable
-fun TaskInputDrawerPreview() {
-    val context = LocalContext.current
-    PopupContent(
+fun TaskEditDrawerPreview() {
+    TaskEditDrawer (
         state = remember {
-            TaskInputDrawerState(
-                rootView = CoordinatorLayout(context),
-                initialDueDate = newDateTime().startOfDay().millis
+            TaskEditDrawerState(
+                originalFilter = Filter()
             )
-        }
+        },
+        getList = {}
     )
 }
 */
+
 

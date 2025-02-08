@@ -25,6 +25,7 @@ import androidx.compose.ui.window.PopupProperties
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import org.tasks.compose.edit.rememberKeyboardHeight
 
+/** TODO - write comments on use and implementation details */
 @Composable
 fun KeyboardDock(
     rootView: CoordinatorLayout,
@@ -53,9 +54,8 @@ fun KeyboardDock(
                     contentAlignment = Alignment.BottomCenter
                 ) {
                     Column {
-                        //PopupContent(state, save, { switchOff(); edit() }, switchOff, getList)
                         content()
-                        Box(modifier = Modifier.fillMaxWidth().height(height = rememberKeyboardHeight().value ))
+                        Box(modifier = Modifier.fillMaxWidth().height(height = rememberKeyboardHeight().value))
                     }
                 }
             }
@@ -74,7 +74,7 @@ fun KeyboardDock(
 }
 
 /*
-* Aligns the popup bottom with the bottom of the coordinator_layout
+* Aligns popup bottom with the bottom of the coordinator_layout
 * which is aligned with the top of the IME by the system
 */
 private class WindowBottomPositionProvider(
