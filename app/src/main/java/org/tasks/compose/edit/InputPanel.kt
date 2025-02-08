@@ -73,8 +73,7 @@ import org.tasks.date.DateTimeUtils.newDateTime
 import org.tasks.filters.Filter
 import org.tasks.kmp.org.tasks.time.getRelativeDay
 
-class TaskInputDrawerState (
-    val rootView: CoordinatorLayout,
+class TaskEditDrawerState (
     val originalFilter: Filter
 ) {
     val title = mutableStateOf("")
@@ -120,23 +119,17 @@ class TaskInputDrawerState (
 }
 
 @Composable
-fun TaskInputDrawer(
-    state: TaskInputDrawerState,
-    switchOff: () -> Unit,
-    save: () -> Unit,
-    edit: () -> Unit,
-    getList: (() -> Unit),
-    ) {
-    val getViewY: (view: CoordinatorLayout) -> Int = {
-        val rootViewXY = intArrayOf(0, 0)
-        state.rootView.getLocationOnScreen(rootViewXY)
-        state.rootView.height + rootViewXY[1]   /* rootViewXY[1] == rootView.y */
-    }
+fun KeyboardDock(
+    rootView: CoordinatorLayout,
+    visible: State<Boolean>,
+    onDismissRequest: (() -> Unit),
+    content: @Composable () -> Unit = {}
+) {
 
-    if (state.visible.value) {
+    if (visible.value) {
         Popup(
-            popupPositionProvider = WindowBottomPositionProvider(remember { getViewY(state.rootView) }),
-            onDismissRequest = { switchOff() },
+            popupPositionProvider = remember { WindowBottomPositionProvider(rootView) },
+            onDismissRequest = onDismissRequest,
             properties = PopupProperties(
                 focusable = true,
                 dismissOnClickOutside = true,
@@ -144,7 +137,7 @@ fun TaskInputDrawer(
             )
         ) {
             AnimatedVisibility(
-                visible = state.visible.value,
+                visible = visible.value,
                 enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom),
                 exit = shrinkVertically()
             ) {
@@ -152,17 +145,31 @@ fun TaskInputDrawer(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.BottomCenter
                 ) {
-                    PopupContent(state, save, { switchOff(); edit() }, switchOff, getList)
+                    Column {
+                        //PopupContent(state, save, { switchOff(); edit() }, switchOff, getList)
+                        content()
+                        Box(modifier = Modifier.fillMaxWidth().height(height = rememberKeyboardHeight().value ))
+                    }
                 }
             }
+
+            val keyboardHeight = rememberKeyboardHeight()
+            val keyboardOpened = remember { mutableStateOf(false) }
+            if (keyboardOpened.value && keyboardHeight.value < 30.dp) {
+                keyboardOpened.value = false
+                onDismissRequest()
+            } else if (!keyboardOpened.value && keyboardHeight.value > 60.dp) {
+                keyboardOpened.value = true
+            }
+
         }
     }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-private fun PopupContent(
-    state: TaskInputDrawerState,
+fun TaskEditDrawer(
+    state: TaskEditDrawerState,
     save: () -> Unit = {},
     edit: () -> Unit = {},
     close: () -> Unit = {},
@@ -172,7 +179,7 @@ private fun PopupContent(
     val keyboardController = LocalSoftwareKeyboardController.current
     val background = colorResource(id = R.color.input_popup_background)
     val foreground = colorResource(id = R.color.input_popup_foreground)
-    val padding = keyboardHeight()
+    val padding = rememberKeyboardHeight()
 
     val opened = remember { mutableStateOf(false) }
     val datePicker = remember { mutableStateOf(false) }
@@ -268,11 +275,13 @@ private fun PopupContent(
                 opened.value = true
             }
 
+/*
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(padding.value)
             )
+*/
         }
     }
 
@@ -318,7 +327,7 @@ private fun Chip (
     )
 
 @Composable
-fun keyboardHeight(): State<Dp> {
+fun rememberKeyboardHeight(): State<Dp> {
     with(LocalDensity.current) {
         return rememberUpdatedState(WindowInsets.ime.getBottom(LocalDensity.current).toDp())
     }
@@ -329,7 +338,7 @@ fun keyboardHeight(): State<Dp> {
 * which is aligned with the top of the IME by the system
 */
 private class WindowBottomPositionProvider(
-    val rootViewBottomY: Int    /* positioning anchor point */
+    val rootView: CoordinatorLayout
 ) : PopupPositionProvider {
     override fun calculatePosition(
         anchorBounds: IntRect,
@@ -337,7 +346,10 @@ private class WindowBottomPositionProvider(
         layoutDirection: LayoutDirection,
         popupContentSize: IntSize
     ): IntOffset {
-        return IntOffset(0, rootViewBottomY - popupContentSize.height)
+        val rootViewXY = intArrayOf(0, 0)
+        rootView.getLocationOnScreen(rootViewXY)
+        val bottom = rootView.height + rootViewXY[1]   /* rootViewXY[1] == rootView.y */
+        return IntOffset(0, bottom - popupContentSize.height)
     }
 }
 

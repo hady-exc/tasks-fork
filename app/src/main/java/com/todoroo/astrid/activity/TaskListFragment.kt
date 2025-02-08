@@ -94,8 +94,9 @@ import org.tasks.compose.FilterSelectionActivity.Companion.launch
 import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPickerResult
 import org.tasks.compose.NotificationsDisabledBanner
 import org.tasks.compose.SubscriptionNagBanner
-import org.tasks.compose.edit.TaskInputDrawer
-import org.tasks.compose.edit.TaskInputDrawerState
+import org.tasks.compose.edit.TaskEditDrawer
+import org.tasks.compose.edit.KeyboardDock
+import org.tasks.compose.edit.TaskEditDrawerState
 import org.tasks.compose.rememberReminderPermissionState
 import org.tasks.data.TaskContainer
 import org.tasks.data.dao.CaldavDao
@@ -156,7 +157,6 @@ import org.tasks.ui.TaskListEvent
 import org.tasks.ui.TaskListEventBus
 import org.tasks.ui.TaskListViewModel
 import org.tasks.ui.TaskListViewModel.Companion.createSearchQuery
-import timber.log.Timber
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.max
@@ -315,8 +315,8 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
 
             inputHost.setContent { TaskEditDrawerContent() }
             filterPickerLauncher = registerForListPickerResult {
-                taskInputState.filter.value = it
-                taskInputState.externalActivity.value = false
+                taskEditDrawerState.filter.value = it
+                taskEditDrawerState.externalActivity.value = false
             }
         }
         themeColor = if (filter.tint != 0) colorProvider.getThemeColor(filter.tint, true) else defaultThemeColor
@@ -1090,7 +1090,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         }
     }
 
-    private lateinit var taskInputState: TaskInputDrawerState
+    private lateinit var taskEditDrawerState: TaskEditDrawerState
 
     private lateinit var filterPickerLauncher: ActivityResultLauncher<Intent>
 
@@ -1120,43 +1120,48 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         {
             lifecycleScope.launch {
                 if (on) {
-                    taskInputState.setTask(taskCreator.createWithValues(filter, null))
-                    taskInputState.setFilter(
+                    taskEditDrawerState.setTask(taskCreator.createWithValues(filter, ""))
+                    taskEditDrawerState.setFilter(
                         if (filter is GtasksFilter || filter is CaldavFilter) filter
                         else defaultFilterProvider.getDefaultList()
                     )
                 }
-                taskInputState.visible.value = on
+                taskEditDrawerState.visible.value = on
                 if (!on) delay(100)  /* to prevent Fab flicker before soft keyboard disappear */
                 binding.fab.isVisible = !on
                 if ( !preferences.isTopAppBar ) binding.bottomAppBar.isVisible = !on
             }
         }
 
-        taskInputState = TaskInputDrawerState(binding.taskListCoordinator, filter)
+        taskEditDrawerState = TaskEditDrawerState(filter)
         binding.fab.setOnClickListener { showTaskInputDrawer(true) }
 
         TasksTheme {
-            TaskInputDrawer(
-                state = taskInputState,
-                switchOff = {
-                    Timber.d("switchOff called")
-                    taskInputState.visible.value = false
+            KeyboardDock(
+                rootView = binding.taskListCoordinator,
+                visible = taskEditDrawerState.visible,
+                onDismissRequest = {
+                    //taskInputState.visible.value = false
                     showTaskInputDrawer(false)
                 },
-                save = {
-                    lifecycleScope.launch {
-                        saveTask(taskInputState.filter.value, taskInputState.retrieveTask())
+            ) {
+                TaskEditDrawer(
+                    state = taskEditDrawerState,
+                    save = {
+                        lifecycleScope.launch {
+                            saveTask(taskEditDrawerState.filter.value, taskEditDrawerState.retrieveTask())
+                        }
+                    },
+                    edit = { createNewTask(taskEditDrawerState.retrieveTask()) },
+                    close = { showTaskInputDrawer(false) },
+                    getList = {
+                        filterPickerLauncher.launch(
+                            context = requireContext(),
+                            selectedFilter = taskEditDrawerState.filter.value,
+                            listsOnly = true )
                     }
-                },
-                edit = { createNewTask(taskInputState.retrieveTask()) },
-                getList = {
-                    filterPickerLauncher.launch(
-                        context = requireContext(),
-                        selectedFilter = taskInputState.filter.value,
-                        listsOnly = true )
-                }
-            )
+                )
+            }
         }
 
     }
