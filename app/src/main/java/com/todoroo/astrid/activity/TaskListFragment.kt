@@ -31,7 +31,12 @@ import androidx.appcompat.widget.Toolbar
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
 import androidx.core.content.IntentCompat
@@ -98,6 +103,7 @@ import org.tasks.compose.edit.TaskEditDrawer
 import org.tasks.compose.KeyboardDock
 import org.tasks.compose.edit.TaskEditDrawerState
 import org.tasks.compose.rememberReminderPermissionState
+import org.tasks.compose.settings.PromptAction
 import org.tasks.data.TaskContainer
 import org.tasks.data.dao.CaldavDao
 import org.tasks.data.dao.TagDao
@@ -1136,13 +1142,24 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         taskEditDrawerState = TaskEditDrawerState(filter)
         binding.fab.setOnClickListener { showTaskInputDrawer(true) }
 
+
         TasksTheme {
+            var promptDiscard by remember { mutableStateOf(false) }
+            PromptAction(
+                showDialog = promptDiscard,
+                title = stringResource(R.string.discard_confirmation),
+                onAction = { promptDiscard = false; showTaskInputDrawer(false) },
+                onCancel = { promptDiscard = false }
+            )
+
             KeyboardDock(
                 rootView = binding.taskListCoordinator,
                 visible = taskEditDrawerState.visible,
                 onDismissRequest = {
-                    //taskInputState.visible.value = false
-                    showTaskInputDrawer(false)
+                    if (taskEditDrawerState.isChanged())
+                        promptDiscard = true
+                    else
+                        showTaskInputDrawer(false)
                 },
             ) {
                 TaskEditDrawer(
