@@ -1,11 +1,6 @@
 package org.tasks.compose.edit
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -37,11 +32,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -54,15 +50,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupPositionProvider
-import androidx.compose.ui.window.PopupProperties
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.tasks.R
@@ -73,12 +61,11 @@ import org.tasks.date.DateTimeUtils.newDateTime
 import org.tasks.filters.Filter
 import org.tasks.kmp.org.tasks.time.getRelativeDay
 
-class TaskInputDrawerState (
-    val rootView: CoordinatorLayout,
+class TaskEditDrawerState (
     val originalFilter: Filter
 ) {
-    val title = mutableStateOf("")
-    val dueDate = mutableLongStateOf(0L)
+    var title by mutableStateOf("")
+    var dueDate by mutableLongStateOf(0L)
     internal var initialFilter = originalFilter
     val filter = mutableStateOf(initialFilter)
     internal val visible = mutableStateOf(false)
@@ -95,74 +82,34 @@ class TaskInputDrawerState (
 
     fun setTask(new: Task) {
         _task = new
-        title.value = initialTitle
-        dueDate.longValue = _task!!.dueDate
+        title = initialTitle
+        dueDate = _task!!.dueDate
     }
 
     fun isChanged(): Boolean =
-        (title.value.trim() != initialTitle.trim()
-                || dueDate.longValue != _task!!.dueDate
+        (title.trim() != initialTitle.trim()
+                || dueDate != _task!!.dueDate
                 || filter.value != initialFilter
                 )
     fun clear() {
-        title.value = initialTitle
-        dueDate.longValue = _task!!.dueDate
+        title = initialTitle
+        dueDate = _task!!.dueDate
         filter.value = initialFilter
     }
 
     fun retrieveTask(): Task =
         _task!!.copy().let {
-            it.title = title.value
-            it.dueDate = dueDate.longValue
+            it.title = title
+            it.dueDate = dueDate
             it.uuid = Task.NO_UUID
             it
         }
 }
 
-@Composable
-fun TaskInputDrawer(
-    state: TaskInputDrawerState,
-    switchOff: () -> Unit,
-    save: () -> Unit,
-    edit: () -> Unit,
-    getList: (() -> Unit),
-    ) {
-    val getViewY: (view: CoordinatorLayout) -> Int = {
-        val rootViewXY = intArrayOf(0, 0)
-        state.rootView.getLocationOnScreen(rootViewXY)
-        state.rootView.height + rootViewXY[1]   /* rootViewXY[1] == rootView.y */
-    }
-
-    if (state.visible.value) {
-        Popup(
-            popupPositionProvider = WindowBottomPositionProvider(remember { getViewY(state.rootView) }),
-            onDismissRequest = { switchOff() },
-            properties = PopupProperties(
-                focusable = true,
-                dismissOnClickOutside = true,
-                clippingEnabled = false
-            )
-        ) {
-            AnimatedVisibility(
-                visible = state.visible.value,
-                enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom),
-                exit = shrinkVertically()
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.BottomCenter
-                ) {
-                    PopupContent(state, save, { switchOff(); edit() }, switchOff, getList)
-                }
-            }
-        }
-    }
-}
-
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-private fun PopupContent(
-    state: TaskInputDrawerState,
+fun TaskEditDrawer(
+    state: TaskEditDrawerState,
     save: () -> Unit = {},
     edit: () -> Unit = {},
     close: () -> Unit = {},
@@ -172,10 +119,8 @@ private fun PopupContent(
     val keyboardController = LocalSoftwareKeyboardController.current
     val background = colorResource(id = R.color.input_popup_background)
     val foreground = colorResource(id = R.color.input_popup_foreground)
-    val padding = keyboardHeight()
 
-    val opened = remember { mutableStateOf(false) }
-    val datePicker = remember { mutableStateOf(false) }
+    var datePicker by remember { mutableStateOf(false) }
 
     Card(
         colors = CardDefaults.cardColors(containerColor = background, contentColor = foreground),
@@ -195,13 +140,13 @@ private fun PopupContent(
 
             Spacer(Modifier.height(16.dp))
             OutlinedTextField(
-                value = state.title.value,
-                onValueChange = { state.title.value = it },
+                value = state.title,
+                onValueChange = { state.title = it },
                 trailingIcon = {
                     if (state.isChanged()) {
-                        IconButton(onClick = doSave) { Icon(Values.save, "Save") }
+                        IconButton(onClick = doSave) { Icon(IconValues.save, "Save") }
                     } else {
-                        IconButton(onClick = close) { Icon(Values.clear, "Close") }
+                        IconButton(onClick = close) { Icon(IconValues.clear, "Close") }
                     }
                 },
                 modifier = Modifier
@@ -230,24 +175,24 @@ private fun PopupContent(
             Row (modifier = Modifier.padding(8.dp)) {
                 ChipGroup {
                     /* Due Date */
-                    if (state.dueDate.longValue != 0L) {
+                    if (state.dueDate != 0L) {
                         Chip(
-                            title = runBlocking { getRelativeDay(state.dueDate.longValue) },
-                            leading = Values.schedule,
-                            action = { datePicker.value = true; state.externalActivity.value = true },
-                            delete = { state.dueDate.longValue = state.task!!.dueDate }
+                            title = runBlocking { getRelativeDay(state.dueDate) },
+                            leading = IconValues.schedule,
+                            action = { datePicker = true; state.externalActivity.value = true },
+                            delete = { state.dueDate = state.task!!.dueDate }
                         )
                     } else {
-                        IconChip(Values.schedule) { datePicker.value = true; state.externalActivity.value = true }
+                        IconChip(IconValues.schedule) { datePicker = true; state.externalActivity.value = true }
                     }
 
                     /* Target List */
                     if (state.initialFilter == state.originalFilter && state.filter.value == state.initialFilter) {
-                        IconChip(Values.list) { state.externalActivity.value = true; getList() }
+                        IconChip(IconValues.list) { state.externalActivity.value = true; getList() }
                     } else {
                         Chip(
                             title = state.filter.value.title!!,
-                            leading = Values.list,
+                            leading = IconValues.list,
                             action = { state.externalActivity.value = true; getList() },
                             delete =
                                 if (state.initialFilter == state.originalFilter || state.filter.value ==  state.initialFilter) null
@@ -256,31 +201,17 @@ private fun PopupContent(
                     }
 
                     /* Main Task Edit launch - must be the last */
-                    IconChip(Values.more, doEdit)
+                    IconChip(IconValues.more, doEdit)
                 }
             }
-
-            if (opened.value && padding.value < 30.dp) {
-                opened.value = false
-                /* close the drawer if keyboard is closed by user */
-                if (!state.externalActivity.value) close()
-            } else if (!opened.value && padding.value > 60.dp) {
-                opened.value = true
-            }
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(padding.value)
-            )
         }
     }
 
-    if (datePicker.value) {
+    if (datePicker) {
         DatePickerDialog(
-            initialDate = if (state.dueDate.longValue != 0L) state.dueDate.longValue else newDateTime().startOfDay().plusDays(1).millis,
-            selected = { state.dueDate.longValue = it; datePicker.value = false; state.externalActivity.value = false },
-            dismiss = { datePicker.value = false; state.externalActivity.value = false } )
+            initialDate = if (state.dueDate != 0L) state.dueDate else newDateTime().startOfDay().plusDays(1).millis,
+            selected = { state.dueDate = it; datePicker = false; state.externalActivity.value = false },
+            dismiss = { datePicker = false; state.externalActivity.value = false } )
     }
 }
 
@@ -313,35 +244,18 @@ private fun Chip (
             leading?.let { Icon(leading, null) }
         },
         trailingIcon = {
-            delete?.let { Icon(Values.clear, null, Modifier.clickable(onClick = delete)) }
+            delete?.let { Icon(IconValues.clear, null, Modifier.clickable(onClick = delete)) }
         }
     )
 
 @Composable
-fun keyboardHeight(): State<Dp> {
+fun rememberKeyboardHeight(): State<Dp> {
     with(LocalDensity.current) {
         return rememberUpdatedState(WindowInsets.ime.getBottom(LocalDensity.current).toDp())
     }
 }
 
-/*
-* Aligns the popup bottom with the bottom of the coordinator_layout
-* which is aligned with the top of the IME by the system
-*/
-private class WindowBottomPositionProvider(
-    val rootViewBottomY: Int    /* positioning anchor point */
-) : PopupPositionProvider {
-    override fun calculatePosition(
-        anchorBounds: IntRect,
-        windowSize: IntSize,
-        layoutDirection: LayoutDirection,
-        popupContentSize: IntSize
-    ): IntOffset {
-        return IntOffset(0, rootViewBottomY - popupContentSize.height)
-    }
-}
-
-private object Values {
+private object IconValues {
     val clear = Icons.Outlined.Close
     val save = Icons.Outlined.Save
     val more = Icons.Outlined.MoreHoriz
@@ -352,16 +266,16 @@ private object Values {
 /*
 @Preview(showBackground = true, widthDp = 320)
 @Composable
-fun TaskInputDrawerPreview() {
-    val context = LocalContext.current
-    PopupContent(
+fun TaskEditDrawerPreview() {
+    TaskEditDrawer (
         state = remember {
-            TaskInputDrawerState(
-                rootView = CoordinatorLayout(context),
-                initialDueDate = newDateTime().startOfDay().millis
+            TaskEditDrawerState(
+                originalFilter = Filter()
             )
-        }
+        },
+        getList = {}
     )
 }
 */
+
 

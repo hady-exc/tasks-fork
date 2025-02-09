@@ -31,7 +31,12 @@ import androidx.appcompat.widget.Toolbar
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
 import androidx.core.content.IntentCompat
@@ -96,9 +101,11 @@ import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPicker
 import org.tasks.compose.NotificationsDisabledBanner
 import org.tasks.compose.QuietHoursBanner
 import org.tasks.compose.SubscriptionNagBanner
-import org.tasks.compose.edit.TaskInputDrawer
-import org.tasks.compose.edit.TaskInputDrawerState
+import org.tasks.compose.edit.TaskEditDrawer
+import org.tasks.compose.KeyboardDock
+import org.tasks.compose.edit.TaskEditDrawerState
 import org.tasks.compose.rememberReminderPermissionState
+import org.tasks.compose.settings.PromptAction
 import org.tasks.data.TaskContainer
 import org.tasks.data.dao.CaldavDao
 import org.tasks.data.dao.TagDao
@@ -159,7 +166,6 @@ import org.tasks.ui.TaskListEvent
 import org.tasks.ui.TaskListEventBus
 import org.tasks.ui.TaskListViewModel
 import org.tasks.ui.TaskListViewModel.Companion.createSearchQuery
-import timber.log.Timber
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.max
@@ -319,8 +325,8 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
 
             inputHost.setContent { TaskEditDrawerContent() }
             filterPickerLauncher = registerForListPickerResult {
-                taskInputState.filter.value = it
-                taskInputState.externalActivity.value = false
+                taskEditDrawerState.filter.value = it
+                taskEditDrawerState.externalActivity.value = false
             }
         }
         themeColor = if (filter.tint != 0) colorProvider.getThemeColor(filter.tint, true) else defaultThemeColor
@@ -1109,7 +1115,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         }
     }
 
-    private lateinit var taskInputState: TaskInputDrawerState
+    private lateinit var taskEditDrawerState: TaskEditDrawerState
 
     private lateinit var filterPickerLauncher: ActivityResultLauncher<Intent>
 
@@ -1139,43 +1145,59 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         {
             lifecycleScope.launch {
                 if (on) {
-                    taskInputState.setTask(taskCreator.createWithValues(filter, null))
-                    taskInputState.setFilter(
+                    taskEditDrawerState.setTask(taskCreator.createWithValues(filter, ""))
+                    taskEditDrawerState.setFilter(
                         if (filter is GtasksFilter || filter is CaldavFilter) filter
                         else defaultFilterProvider.getDefaultList()
                     )
                 }
-                taskInputState.visible.value = on
+                taskEditDrawerState.visible.value = on
                 if (!on) delay(100)  /* to prevent Fab flicker before soft keyboard disappear */
                 binding.fab.isVisible = !on
                 if ( !preferences.isTopAppBar ) binding.bottomAppBar.isVisible = !on
             }
         }
 
-        taskInputState = TaskInputDrawerState(binding.taskListCoordinator, filter)
+        taskEditDrawerState = TaskEditDrawerState(filter)
         binding.fab.setOnClickListener { showTaskInputDrawer(true) }
 
+
         TasksTheme {
-            TaskInputDrawer(
-                state = taskInputState,
-                switchOff = {
-                    Timber.d("switchOff called")
-                    taskInputState.visible.value = false
-                    showTaskInputDrawer(false)
-                },
-                save = {
-                    lifecycleScope.launch {
-                        saveTask(taskInputState.filter.value, taskInputState.retrieveTask())
-                    }
-                },
-                edit = { createNewTask(taskInputState.retrieveTask()) },
-                getList = {
-                    filterPickerLauncher.launch(
-                        context = requireContext(),
-                        selectedFilter = taskInputState.filter.value,
-                        listsOnly = true )
-                }
+            var promptDiscard by remember { mutableStateOf(false) }
+            PromptAction(
+                showDialog = promptDiscard,
+                title = stringResource(R.string.discard_confirmation),
+                onAction = { promptDiscard = false; showTaskInputDrawer(false) },
+                onCancel = { promptDiscard = false }
             )
+
+            KeyboardDock(
+                rootView = binding.taskListCoordinator,
+                visible = taskEditDrawerState.visible,
+                onDismissRequest = {
+                    if (taskEditDrawerState.isChanged())
+                        promptDiscard = true
+                    else
+                        showTaskInputDrawer(false)
+                },
+            ) {
+                TaskEditDrawer(
+                    state = taskEditDrawerState,
+                    save = {
+                        lifecycleScope.launch {
+                            saveTask(taskEditDrawerState.filter.value, taskEditDrawerState.retrieveTask())
+                        }
+                    },
+                    edit = { createNewTask(taskEditDrawerState.retrieveTask()) },
+                    close = { showTaskInputDrawer(false) },
+                    getList = {
+                        filterPickerLauncher.launch(
+                            context = requireContext(),
+                            selectedFilter = taskEditDrawerState.filter.value,
+                            listsOnly = true )
+                    }
+                )
+            }
         }
 
     }
