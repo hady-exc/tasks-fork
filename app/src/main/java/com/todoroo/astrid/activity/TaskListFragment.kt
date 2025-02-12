@@ -33,7 +33,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -97,10 +96,10 @@ import org.tasks.billing.PurchaseActivity
 import org.tasks.caldav.BaseCaldavCalendarSettingsActivity
 import org.tasks.compose.FilterSelectionActivity.Companion.launch
 import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPickerResult
+import org.tasks.compose.KeyboardDock
 import org.tasks.compose.NotificationsDisabledBanner
 import org.tasks.compose.SubscriptionNagBanner
 import org.tasks.compose.edit.TaskEditDrawer
-import org.tasks.compose.KeyboardDock
 import org.tasks.compose.edit.TaskEditDrawerState
 import org.tasks.compose.rememberReminderPermissionState
 import org.tasks.compose.settings.PromptAction
@@ -1148,18 +1147,20 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             PromptAction(
                 showDialog = promptDiscard,
                 title = stringResource(R.string.discard_confirmation),
-                onAction = { promptDiscard = false; showTaskInputDrawer(false) },
-                onCancel = { promptDiscard = false }
+                onAction = { promptDiscard = false; taskEditDrawerState.externalActivity.value = false; showTaskInputDrawer(false) },
+                onCancel = { promptDiscard = false; taskEditDrawerState.externalActivity.value = false }
             )
 
             KeyboardDock(
                 rootView = binding.taskListCoordinator,
                 visible = taskEditDrawerState.visible,
+                ignoreImeClose = taskEditDrawerState.externalActivity,
                 onDismissRequest = {
-                    if (taskEditDrawerState.isChanged())
-                        promptDiscard = true
-                    else
+                    if (taskEditDrawerState.isChanged()) {
+                        promptDiscard = true; taskEditDrawerState.externalActivity.value = true
+                    } else {
                         showTaskInputDrawer(false)
+                    }
                 },
             ) {
                 TaskEditDrawer(
