@@ -64,12 +64,15 @@ import com.google.android.material.snackbar.Snackbar
 import com.todoroo.andlib.utility.AndroidUtilities
 import com.todoroo.astrid.adapter.TaskAdapter
 import com.todoroo.astrid.adapter.TaskAdapterProvider
+import com.todoroo.astrid.alarms.AlarmService
 import com.todoroo.astrid.api.AstridApiConstants.EXTRAS_OLD_DUE_DATE
 import com.todoroo.astrid.api.AstridApiConstants.EXTRAS_TASK_ID
 import com.todoroo.astrid.dao.TaskDao
+import com.todoroo.astrid.gcal.GCalHelper
 import com.todoroo.astrid.repeats.RepeatTaskHelper
 import com.todoroo.astrid.service.TaskCompleter
 import com.todoroo.astrid.service.TaskCreator
+import com.todoroo.astrid.service.TaskCreator.Companion.getDefaultAlarms
 import com.todoroo.astrid.service.TaskDuplicator
 import com.todoroo.astrid.service.TaskMover
 import com.todoroo.astrid.timers.TimerPlugin
@@ -86,6 +89,7 @@ import kotlinx.coroutines.withContext
 import org.tasks.LocalBroadcastManager
 import org.tasks.R
 import org.tasks.ShortcutManager
+import org.tasks.Strings
 import org.tasks.Tasks
 import org.tasks.activities.FilterSettingsActivity
 import org.tasks.activities.GoogleTaskListSettingsActivity
@@ -103,13 +107,25 @@ import org.tasks.compose.edit.TaskEditDrawer
 import org.tasks.compose.edit.TaskEditDrawerState
 import org.tasks.compose.rememberReminderPermissionState
 import org.tasks.compose.settings.PromptAction
+import org.tasks.data.Location
+import org.tasks.data.getLocation
 import org.tasks.data.TaskContainer
 import org.tasks.data.dao.CaldavDao
+import org.tasks.data.dao.LocationDao
 import org.tasks.data.dao.TagDao
 import org.tasks.data.dao.TagDataDao
+import org.tasks.data.dao.TaskAttachmentDao
 import org.tasks.data.db.Database
 import org.tasks.data.db.SuspendDbUtils.chunkedMap
+import org.tasks.data.entity.Alarm
+import org.tasks.data.entity.Alarm.Companion.TYPE_REL_END
+import org.tasks.data.entity.Alarm.Companion.TYPE_REL_START
+import org.tasks.data.entity.Attachment
+import org.tasks.data.entity.CaldavTask
+import org.tasks.data.entity.FORCE_CALDAV_SYNC
+import org.tasks.data.entity.TagData
 import org.tasks.data.entity.Task
+import org.tasks.data.entity.TaskAttachment
 import org.tasks.data.listSettingsClass
 import org.tasks.data.open
 import org.tasks.data.sql.QueryTemplate
@@ -139,10 +155,12 @@ import org.tasks.filters.PlaceFilter
 import org.tasks.filters.TagFilter
 import org.tasks.kmp.org.tasks.time.DateStyle
 import org.tasks.kmp.org.tasks.time.getRelativeDateTime
+import org.tasks.location.GeofenceApi
 import org.tasks.markdown.MarkdownProvider
 import org.tasks.notifications.NotificationManager
 import org.tasks.preferences.DefaultFilterProvider
 import org.tasks.preferences.Device
+import org.tasks.preferences.PermissionChecker
 import org.tasks.preferences.Preferences
 import org.tasks.scheduling.NotificationSchedulerIntentService
 import org.tasks.sync.SyncAdapters
@@ -158,10 +176,12 @@ import org.tasks.themes.ThemeColor
 import org.tasks.time.DateTimeUtils2.currentTimeMillis
 import org.tasks.ui.TaskEditEvent
 import org.tasks.ui.TaskEditEventBus
+import org.tasks.ui.TaskEditViewModel
 import org.tasks.ui.TaskListEvent
 import org.tasks.ui.TaskListEventBus
 import org.tasks.ui.TaskListViewModel
 import org.tasks.ui.TaskListViewModel.Companion.createSearchQuery
+import timber.log.Timber
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.max
@@ -199,6 +219,14 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     @Inject lateinit var database: Database
     @Inject lateinit var markdown: MarkdownProvider
     @Inject lateinit var defaultFilterProvider: DefaultFilterProvider
+
+    @Inject lateinit var permissionChecker: PermissionChecker
+    @Inject lateinit var taskListEvents: TaskListEventBus
+    @Inject lateinit var taskAttachmentDao: TaskAttachmentDao
+    @Inject lateinit var alarmService: AlarmService
+    @Inject lateinit var geofenceApi: GeofenceApi
+    @Inject lateinit var locationDao: LocationDao
+    @Inject lateinit var gCalHelper: GCalHelper
 
     private val listViewModel: TaskListViewModel by viewModels()
     private val mainViewModel: MainActivityViewModel by activityViewModels()
@@ -1118,6 +1146,127 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         tagDao.insert(task, tags)
     }
 
+    /** This is generally a copy of the TaskEditViewModel.save(), specialized with Task.isNew == true */
+    suspend fun saveNewTask(
+        filter: Filter,
+        task: Task,
+        eventUri: String? = null,
+        selectedCalendar: String? = null,
+        selectedLocation: Location? = null,
+        selectedTags: List<TagData> = emptyList<TagData>(),
+        selectedAlarms: List<Alarm> = emptyList<Alarm>(),
+        selectedAttachments: List<TaskAttachment> = emptyList<TaskAttachment>()
+    ) = withContext(NonCancellable) {
+/*
+        TODO: Get sure that all tasks came here have changes, e.g. UI calls this fun only when user changed something
+        if (!hasChanges() || isReadOnly) {
+            discard(remove)
+            return@withContext false
+        }
+*/
+        with(task) { if (title.isNullOrBlank()) title = resources.getString(R.string.no_title) }
+
+/*
+        It is supposed that the task object already have all its properties set to edited values
+
+        task.dueDate = dueDate.value
+        task.priority = priority.value
+        task.notes = description
+        task.hideUntil = startDate.value
+        task.recurrence = recurrence.value
+        task.repeatFrom = if (repeatAfterCompletion.value) {
+            Task.RepeatFrom.COMPLETION_DATE
+        } else {
+            Task.RepeatFrom.DUE_DATE
+        }
+        task.elapsedSeconds = elapsedSeconds.value
+        task.estimatedSeconds = estimatedSeconds.value
+        task.ringFlags = getRingFlags()
+*/
+        val currentLocation = locationDao.getLocation(task,preferences)
+        val tags = task.tags.mapNotNull { tagDataDao.getTagByName(it) }
+
+        /* applyCalendarChanges() -- inlined below */
+        if (permissionChecker.canAccessCalendars()) {
+            if (task.hasDueDate()) {
+                selectedCalendar?.let {
+                    try {
+                        task.calendarURI = gCalHelper.createTaskEvent(task, it)?.toString()
+                    } catch (e: Exception) {
+                        Timber.e(e)
+                    }
+                }
+            }
+        }
+
+        taskDao.createNew(task)
+
+        currentLocation?.let { location ->
+            val place = location.place
+            locationDao.insert(
+                location.geofence.copy(
+                    task = task.id,
+                    place = place.uid,
+                )
+            )
+            geofenceApi.update(place)
+            task.putTransitory(FORCE_CALDAV_SYNC, true)
+            task.modificationDate = currentTimeMillis()
+        }
+
+        if (tags.isNotEmpty()) {
+            tagDao.applyTags(task, tagDataDao, tags)
+            task.modificationDate = currentTimeMillis()
+        }
+
+        var _selectedAlarms = selectedAlarms
+        if (!task.hasStartDate()) {
+            _selectedAlarms = _selectedAlarms.filterNot { a -> a.type == TYPE_REL_START }
+        }
+        if (!task.hasDueDate()) {
+            _selectedAlarms = selectedAlarms.filterNot { a -> a.type == TYPE_REL_END }
+        }
+
+        if (_selectedAlarms.isNotEmpty()) {
+            alarmService.synchronizeAlarms(task.id, _selectedAlarms.toMutableSet())
+            task.putTransitory(FORCE_CALDAV_SYNC, true)
+            task.modificationDate = currentTimeMillis()
+        }
+
+        taskDao.save(task, null)
+
+        assert(filter is CaldavFilter || filter is GtasksFilter)
+        task.parent = 0
+        taskMover.move(listOf(task.id), filter)
+
+/*
+        Subtasks are not supposed to be created or edited before this save
+        for (subtask in newSubtasks.value) {
+            . . .
+        }
+*/
+
+        if (selectedAttachments.isNotEmpty()) {
+            selectedAttachments
+                .map {
+                    Attachment(
+                        task = task.id,
+                        fileId = it.id!!,
+                        attachmentUid = it.remoteId,
+                    )
+                }
+                .let { taskAttachmentDao.insert(it) }
+        }
+
+            val model = task
+            taskListEvents.emit(TaskListEvent.TaskCreated(model.uuid))
+            model.calendarURI?.takeIf { it.isNotBlank() }?.let {
+                taskListEvents.emit(TaskListEvent.CalendarEventCreated(model.title, it))
+            }
+
+    }
+
+
     @Composable
     private fun TaskEditDrawerContent()
     {
@@ -1167,10 +1316,13 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                     state = taskEditDrawerState,
                     save = {
                         lifecycleScope.launch {
-                            saveTask(taskEditDrawerState.filter.value, taskEditDrawerState.retrieveTask())
+                            saveNewTask(
+                                filter = taskEditDrawerState.filter.value,
+                                task = taskEditDrawerState.retrieveTask()
+                            )
                         }
                     },
-                    edit = { createNewTask(taskEditDrawerState.retrieveTask()) },
+                    edit = { createNewTask(taskEditDrawerState.retrieveTask()); showTaskInputDrawer(false) },
                     close = { showTaskInputDrawer(false) },
                     getList = {
                         filterPickerLauncher.launch(
@@ -1181,8 +1333,8 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 )
             }
         }
-
     }
+
 
     companion object {
         const val ACTION_RELOAD = "action_reload"
