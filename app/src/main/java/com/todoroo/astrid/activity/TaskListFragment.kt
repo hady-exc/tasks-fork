@@ -72,7 +72,6 @@ import com.todoroo.astrid.gcal.GCalHelper
 import com.todoroo.astrid.repeats.RepeatTaskHelper
 import com.todoroo.astrid.service.TaskCompleter
 import com.todoroo.astrid.service.TaskCreator
-import com.todoroo.astrid.service.TaskCreator.Companion.getDefaultAlarms
 import com.todoroo.astrid.service.TaskDuplicator
 import com.todoroo.astrid.service.TaskMover
 import com.todoroo.astrid.timers.TimerPlugin
@@ -89,7 +88,6 @@ import kotlinx.coroutines.withContext
 import org.tasks.LocalBroadcastManager
 import org.tasks.R
 import org.tasks.ShortcutManager
-import org.tasks.Strings
 import org.tasks.Tasks
 import org.tasks.activities.FilterSettingsActivity
 import org.tasks.activities.GoogleTaskListSettingsActivity
@@ -108,8 +106,9 @@ import org.tasks.compose.edit.TaskEditDrawerState
 import org.tasks.compose.rememberReminderPermissionState
 import org.tasks.compose.settings.PromptAction
 import org.tasks.data.Location
-import org.tasks.data.getLocation
 import org.tasks.data.TaskContainer
+import org.tasks.data.createGeofence
+import org.tasks.data.dao.AlarmDao
 import org.tasks.data.dao.CaldavDao
 import org.tasks.data.dao.LocationDao
 import org.tasks.data.dao.TagDao
@@ -121,11 +120,11 @@ import org.tasks.data.entity.Alarm
 import org.tasks.data.entity.Alarm.Companion.TYPE_REL_END
 import org.tasks.data.entity.Alarm.Companion.TYPE_REL_START
 import org.tasks.data.entity.Attachment
-import org.tasks.data.entity.CaldavTask
 import org.tasks.data.entity.FORCE_CALDAV_SYNC
-import org.tasks.data.entity.TagData
+import org.tasks.data.entity.Geofence
 import org.tasks.data.entity.Task
 import org.tasks.data.entity.TaskAttachment
+import org.tasks.data.getLocation
 import org.tasks.data.listSettingsClass
 import org.tasks.data.open
 import org.tasks.data.sql.QueryTemplate
@@ -156,6 +155,8 @@ import org.tasks.filters.TagFilter
 import org.tasks.kmp.org.tasks.time.DateStyle
 import org.tasks.kmp.org.tasks.time.getRelativeDateTime
 import org.tasks.location.GeofenceApi
+import org.tasks.location.LocationPickerActivity.Companion.launch
+import org.tasks.location.LocationPickerActivity.Companion.registerForLocationPickerResult
 import org.tasks.markdown.MarkdownProvider
 import org.tasks.notifications.NotificationManager
 import org.tasks.preferences.DefaultFilterProvider
@@ -176,7 +177,6 @@ import org.tasks.themes.ThemeColor
 import org.tasks.time.DateTimeUtils2.currentTimeMillis
 import org.tasks.ui.TaskEditEvent
 import org.tasks.ui.TaskEditEventBus
-import org.tasks.ui.TaskEditViewModel
 import org.tasks.ui.TaskListEvent
 import org.tasks.ui.TaskListEventBus
 import org.tasks.ui.TaskListViewModel
@@ -227,6 +227,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     @Inject lateinit var geofenceApi: GeofenceApi
     @Inject lateinit var locationDao: LocationDao
     @Inject lateinit var gCalHelper: GCalHelper
+    @Inject lateinit var alarmDao: AlarmDao
 
     private val listViewModel: TaskListViewModel by viewModels()
     private val mainViewModel: MainActivityViewModel by activityViewModels()
@@ -349,6 +350,21 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             inputHost.setContent { TaskEditDrawerContent() }
             filterPickerLauncher = registerForListPickerResult {
                 taskEditDrawerState.filter.value = it
+                taskEditDrawerState.externalActivity.value = false
+            }
+            locationPickerLauncher = registerForLocationPickerResult { place ->
+                val location = taskEditDrawerState.location
+                val geofence = if (location == null) {
+                    createGeofence(place.uid, preferences)
+                } else {
+                    val existing = location.geofence
+                    Geofence(
+                        place = place.uid,
+                        isArrival = existing.isArrival,
+                        isDeparture = existing.isDeparture,
+                    )
+                }
+                taskEditDrawerState.location = Location(geofence, place)
                 taskEditDrawerState.externalActivity.value = false
             }
         }
@@ -1126,6 +1142,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     private lateinit var taskEditDrawerState: TaskEditDrawerState
 
     private lateinit var filterPickerLauncher: ActivityResultLauncher<Intent>
+    private lateinit var locationPickerLauncher: ActivityResultLauncher<Intent>
 
     private fun createNewTask(task: Task) {
         lifecycleScope.launch {
@@ -1150,21 +1167,15 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     suspend fun saveNewTask(
         filter: Filter,
         task: Task,
-        eventUri: String? = null,
+        location: Location? = null,
         selectedCalendar: String? = null,
-        selectedLocation: Location? = null,
-        selectedTags: List<TagData> = emptyList<TagData>(),
         selectedAlarms: List<Alarm> = emptyList<Alarm>(),
         selectedAttachments: List<TaskAttachment> = emptyList<TaskAttachment>()
     ) = withContext(NonCancellable) {
 /*
         TODO: Get sure that all tasks came here have changes, e.g. UI calls this fun only when user changed something
-        if (!hasChanges() || isReadOnly) {
-            discard(remove)
-            return@withContext false
-        }
 */
-        with(task) { if (title.isNullOrBlank()) title = resources.getString(R.string.no_title) }
+        if (task.title.isNullOrBlank()) task.title = resources.getString(R.string.no_title)
 
 /*
         It is supposed that the task object already have all its properties set to edited values
@@ -1183,7 +1194,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         task.estimatedSeconds = estimatedSeconds.value
         task.ringFlags = getRingFlags()
 */
-        val currentLocation = locationDao.getLocation(task,preferences)
+        val currentLocation = location //locationDao.getLocation(task,preferences)
         val tags = task.tags.mapNotNull { tagDataDao.getTagByName(it) }
 
         /* applyCalendarChanges() -- inlined below */
@@ -1274,11 +1285,13 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         {
             lifecycleScope.launch {
                 if (on) {
-                    taskEditDrawerState.setTask(taskCreator.createWithValues(filter, ""))
-                    taskEditDrawerState.setFilter(
-                        if (filter is GtasksFilter || filter is CaldavFilter) filter
-                        else defaultFilterProvider.getDefaultList()
-                    )
+                    val task = taskCreator.createWithValues(filter, "")
+                    val targetList = defaultFilterProvider.getList(task)
+                    val currentLocation = locationDao.getLocation(task,preferences)
+                    val currentTags = tagDataDao.getTags(task)
+                    val currentAlarms = alarmDao.getAlarms(task)
+
+                    taskEditDrawerState.setTask(task, targetList, currentLocation, currentTags, currentAlarms)
                 }
                 taskEditDrawerState.visible.value = on
                 if (!on) delay(100)  /* to prevent Fab flicker before soft keyboard disappear */
@@ -1318,7 +1331,8 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                         lifecycleScope.launch {
                             saveNewTask(
                                 filter = taskEditDrawerState.filter.value,
-                                task = taskEditDrawerState.retrieveTask()
+                                task = taskEditDrawerState.retrieveTask(),
+                                location = taskEditDrawerState.location
                             )
                         }
                     },
@@ -1329,6 +1343,12 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                             context = requireContext(),
                             selectedFilter = taskEditDrawerState.filter.value,
                             listsOnly = true )
+                    },
+                    getLocation = {
+                        locationPickerLauncher.launch(
+                            context = requireContext(),
+                            selectedLocation = taskEditDrawerState.location
+                        )
                     }
                 )
             }

@@ -4,10 +4,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,6 +15,7 @@ import androidx.compose.material.ContentAlpha
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.outlined.Schedule
@@ -31,31 +30,31 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.tasks.R
 import org.tasks.compose.ChipGroup
 import org.tasks.compose.pickers.DatePickerDialog
+import org.tasks.data.Location
+import org.tasks.data.displayName
+import org.tasks.data.entity.Alarm
+import org.tasks.data.entity.TagData
 import org.tasks.data.entity.Task
 import org.tasks.date.DateTimeUtils.newDateTime
 import org.tasks.filters.Filter
@@ -66,8 +65,12 @@ class TaskEditDrawerState (
 ) {
     var title by mutableStateOf("")
     var dueDate by mutableLongStateOf(0L)
+
+    private var originalLocation: Location? = null
+    var location by mutableStateOf<Location?>(null)
     internal var initialFilter = originalFilter
     val filter = mutableStateOf(initialFilter)
+
     internal val visible = mutableStateOf(false)
     internal val externalActivity = mutableStateOf(false)
 
@@ -75,35 +78,41 @@ class TaskEditDrawerState (
     val task get() = _task
     private val initialTitle get() = _task?.title ?: ""
 
-    fun setFilter(new: Filter) {
-        if ( initialFilter == originalFilter ) initialFilter = new
-        filter.value = new
-    }
-
-    fun setTask(new: Task) {
-        _task = new
+    fun setTask(
+        newTask: Task,
+        targetFilter: Filter,
+        currentLocation: Location?,
+        currentTags: ArrayList<TagData>,
+        currentAlarms: ArrayList<Alarm>
+    ) {
+        _task = newTask
+        if (initialFilter == originalFilter) initialFilter = targetFilter
+        filter.value = targetFilter
         title = initialTitle
         dueDate = _task!!.dueDate
+        originalLocation = currentLocation
+        location = currentLocation
     }
 
     fun isChanged(): Boolean =
         (title.trim() != initialTitle.trim()
                 || dueDate != _task!!.dueDate
                 || filter.value != initialFilter
+                || originalLocation != location
                 )
     fun clear() {
         title = initialTitle
         dueDate = _task!!.dueDate
         filter.value = initialFilter
+        location = originalLocation
     }
 
     fun retrieveTask(): Task =
-        _task!!.copy().let {
-            it.title = title
-            it.dueDate = dueDate
-            it.uuid = Task.NO_UUID
-            it
-        }
+        _task!!.copy(
+            title = title,
+            dueDate = dueDate,
+            remoteId = Task.NO_UUID )
+
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -114,7 +123,10 @@ fun TaskEditDrawer(
     edit: () -> Unit = {},
     close: () -> Unit = {},
     getList: (() -> Unit),
-    ) {
+    getLocation: () -> Unit) {
+
+    fun trunk(s: String, len: Int = 10): String =
+        if (s.length > len) s.substring(0..len-3) + "..." else s
 
     val keyboardController = LocalSoftwareKeyboardController.current
     val background = colorResource(id = R.color.input_popup_background)
@@ -200,6 +212,18 @@ fun TaskEditDrawer(
                         )
                     }
 
+                    /* location */
+                    if (state.location == null) {
+                        IconChip(IconValues.location, { state.externalActivity.value = true; getLocation()} )
+                    } else {
+                        Chip(
+                            title = trunk(state.location!!.displayName),
+                            leading = IconValues.location,
+                            action = { state.externalActivity.value = true; getLocation()},
+                            delete = { state.location = null }
+                        )
+                    }
+
                     /* Main Task Edit launch - must be the last */
                     IconChip(IconValues.more, doEdit)
                 }
@@ -226,7 +250,7 @@ private fun Chip (
     action: (() -> Unit),
     delete: (() -> Unit)? = null,
     titleIcon: ImageVector? = null
-) = InputChip ( //FilterChip(
+) = InputChip (
         selected = false,
         onClick = action,
         label = {
@@ -248,12 +272,14 @@ private fun Chip (
         }
     )
 
+/*
 @Composable
 fun rememberKeyboardHeight(): State<Dp> {
     with(LocalDensity.current) {
         return rememberUpdatedState(WindowInsets.ime.getBottom(LocalDensity.current).toDp())
     }
 }
+*/
 
 private object IconValues {
     val clear = Icons.Outlined.Close
@@ -261,6 +287,7 @@ private object IconValues {
     val more = Icons.Outlined.MoreHoriz
     val schedule = Icons.Outlined.Schedule
     val list = Icons.AutoMirrored.Outlined.List
+    val location = Icons.Outlined.LocationOn
 }
 
 /*
