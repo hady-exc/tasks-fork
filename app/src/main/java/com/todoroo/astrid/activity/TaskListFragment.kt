@@ -1314,7 +1314,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             )
 
             KeyboardDock(
-                rootView = binding.taskListCoordinator,
+                /*rootView = binding.taskListCoordinator,*/
                 visible = taskEditDrawerState.visible,
                 ignoreImeClose = taskEditDrawerState.externalActivity,
                 onDismissRequest = {
