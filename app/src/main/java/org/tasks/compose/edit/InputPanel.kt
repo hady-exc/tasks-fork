@@ -2,6 +2,7 @@ package org.tasks.compose.edit
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -50,6 +51,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.tasks.R
 import org.tasks.compose.ChipGroup
+import org.tasks.compose.KeyboardDetector
 import org.tasks.compose.pickers.DatePickerDialog
 import org.tasks.data.Location
 import org.tasks.data.displayName
@@ -115,7 +117,7 @@ class TaskEditDrawerState (
 
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun TaskEditDrawer(
     state: TaskEditDrawerState,
@@ -123,10 +125,13 @@ fun TaskEditDrawer(
     edit: () -> Unit = {},
     close: () -> Unit = {},
     getList: (() -> Unit),
-    getLocation: () -> Unit) {
-
+    getLocation: () -> Unit,
+    keyboardDetector: KeyboardDetector)
+{
     fun trunk(s: String, len: Int = 10): String =
         if (s.length > len) s.substring(0..len-3) + "..." else s
+
+    val blockDismiss: (Boolean) -> Unit = { on -> keyboardDetector.blockDismiss(on) }
 
     val keyboardController = LocalSoftwareKeyboardController.current
     val background = colorResource(id = R.color.input_popup_background)
@@ -178,7 +183,7 @@ fun TaskEditDrawer(
                 shape = MaterialTheme.shapes.medium
             )
 
-            LaunchedEffect(state.externalActivity.value == false) {
+            LaunchedEffect(keyboardDetector.state.value.externalActivity == false) {
                 requester.requestFocus()
                 delay(30) /* workaround for delay in the system between requestFocus and actual focused state */
                 keyboardController!!.show()
@@ -191,21 +196,21 @@ fun TaskEditDrawer(
                         Chip(
                             title = runBlocking { getRelativeDay(state.dueDate) },
                             leading = IconValues.schedule,
-                            action = { datePicker = true; state.externalActivity.value = true },
+                            action = { datePicker = true; blockDismiss(true) },
                             delete = { state.dueDate = state.task!!.dueDate }
                         )
                     } else {
-                        IconChip(IconValues.schedule) { datePicker = true; state.externalActivity.value = true }
+                        IconChip(IconValues.schedule) { datePicker = true; blockDismiss(true) }
                     }
 
                     /* Target List */
                     if (state.initialFilter == state.originalFilter && state.filter.value == state.initialFilter) {
-                        IconChip(IconValues.list) { state.externalActivity.value = true; getList() }
+                        IconChip(IconValues.list) { blockDismiss(true); getList() }
                     } else {
                         Chip(
                             title = state.filter.value.title!!,
                             leading = IconValues.list,
-                            action = { state.externalActivity.value = true; getList() },
+                            action = { blockDismiss(true); getList() },
                             delete =
                                 if (state.initialFilter == state.originalFilter || state.filter.value ==  state.initialFilter) null
                                 else {{ state.filter.value = state.initialFilter }}
@@ -214,12 +219,12 @@ fun TaskEditDrawer(
 
                     /* location */
                     if (state.location == null) {
-                        IconChip(IconValues.location, { state.externalActivity.value = true; getLocation()} )
+                        IconChip(IconValues.location, { blockDismiss(true); getLocation()} )
                     } else {
                         Chip(
                             title = trunk(state.location!!.displayName),
                             leading = IconValues.location,
-                            action = { state.externalActivity.value = true; getLocation()},
+                            action = { blockDismiss(true); getLocation()},
                             delete = { state.location = null }
                         )
                     }
@@ -234,8 +239,8 @@ fun TaskEditDrawer(
     if (datePicker) {
         DatePickerDialog(
             initialDate = if (state.dueDate != 0L) state.dueDate else newDateTime().startOfDay().plusDays(1).millis,
-            selected = { state.dueDate = it; datePicker = false; state.externalActivity.value = false },
-            dismiss = { datePicker = false; state.externalActivity.value = false } )
+            selected = { state.dueDate = it; datePicker = false; blockDismiss(false) },
+            dismiss = { datePicker = false; blockDismiss(false) } )
     }
 }
 
@@ -271,15 +276,6 @@ private fun Chip (
             delete?.let { Icon(IconValues.clear, null, Modifier.clickable(onClick = delete)) }
         }
     )
-
-/*
-@Composable
-fun rememberKeyboardHeight(): State<Dp> {
-    with(LocalDensity.current) {
-        return rememberUpdatedState(WindowInsets.ime.getBottom(LocalDensity.current).toDp())
-    }
-}
-*/
 
 private object IconValues {
     val clear = Icons.Outlined.Close

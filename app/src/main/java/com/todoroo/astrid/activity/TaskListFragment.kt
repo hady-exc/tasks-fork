@@ -98,6 +98,7 @@ import org.tasks.billing.PurchaseActivity
 import org.tasks.caldav.BaseCaldavCalendarSettingsActivity
 import org.tasks.compose.FilterSelectionActivity.Companion.launch
 import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPickerResult
+import org.tasks.compose.KeyboardDetector
 import org.tasks.compose.KeyboardDock
 import org.tasks.compose.NotificationsDisabledBanner
 import org.tasks.compose.SubscriptionNagBanner
@@ -348,9 +349,9 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             fab.isVisible = filter.isWritable
 
             inputHost.setContent { TaskEditDrawerContent() }
-            filterPickerLauncher = registerForListPickerResult {
-                taskEditDrawerState.filter.value = it
-                taskEditDrawerState.externalActivity.value = false
+            filterPickerLauncher = registerForListPickerResult { list ->
+                taskEditDrawerState.filter.value = list
+                keyboardDetector.blockDismiss(false)
             }
             locationPickerLauncher = registerForLocationPickerResult { place ->
                 val location = taskEditDrawerState.location
@@ -365,7 +366,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                     )
                 }
                 taskEditDrawerState.location = Location(geofence, place)
-                taskEditDrawerState.externalActivity.value = false
+                keyboardDetector.blockDismiss(false)
             }
         }
         themeColor = if (filter.tint != 0) colorProvider.getThemeColor(filter.tint, true) else defaultThemeColor
@@ -1140,6 +1141,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     }
 
     private lateinit var taskEditDrawerState: TaskEditDrawerState
+    private lateinit var keyboardDetector: KeyboardDetector
 
     private lateinit var filterPickerLauncher: ActivityResultLauncher<Intent>
     private lateinit var locationPickerLauncher: ActivityResultLauncher<Intent>
@@ -1303,28 +1305,28 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         taskEditDrawerState = TaskEditDrawerState(filter)
         binding.fab.setOnClickListener { showTaskInputDrawer(true) }
 
-
         TasksTheme {
             var promptDiscard by remember { mutableStateOf(false) }
             PromptAction(
                 showDialog = promptDiscard,
                 title = stringResource(R.string.discard_confirmation),
-                onAction = { promptDiscard = false; taskEditDrawerState.externalActivity.value = false; showTaskInputDrawer(false) },
-                onCancel = { promptDiscard = false; taskEditDrawerState.externalActivity.value = false }
+                onAction = { promptDiscard = false; keyboardDetector.blockDismiss(false); showTaskInputDrawer(false) },
+                onCancel = { promptDiscard = false; keyboardDetector.blockDismiss(false) }
             )
 
-            KeyboardDock(
-                /*rootView = binding.taskListCoordinator,*/
-                visible = taskEditDrawerState.visible,
-                ignoreImeClose = taskEditDrawerState.externalActivity,
-                onDismissRequest = {
+            val onDiscard: () -> Unit = {
                     if (taskEditDrawerState.isChanged()) {
-                        promptDiscard = true; taskEditDrawerState.externalActivity.value = true
+                        promptDiscard = true; keyboardDetector.blockDismiss(true)
                     } else {
                         showTaskInputDrawer(false)
                     }
-                },
-            ) {
+                }
+            keyboardDetector = KeyboardDetector.rememberDetector(onDiscard)
+            KeyboardDock(
+                visible = taskEditDrawerState.visible,
+                onDismissRequest = onDiscard,
+                keyboardDetector = keyboardDetector
+            ) { detector ->
                 TaskEditDrawer(
                     state = taskEditDrawerState,
                     save = {
@@ -1349,7 +1351,8 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                             context = requireContext(),
                             selectedLocation = taskEditDrawerState.location
                         )
-                    }
+                    },
+                    keyboardDetector = detector
                 )
             }
         }
