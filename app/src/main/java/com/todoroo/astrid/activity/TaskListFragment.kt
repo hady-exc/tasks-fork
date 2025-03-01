@@ -29,6 +29,9 @@ import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -96,6 +99,7 @@ import org.tasks.activities.TagSettingsActivity
 import org.tasks.analytics.Firebase
 import org.tasks.billing.PurchaseActivity
 import org.tasks.caldav.BaseCaldavCalendarSettingsActivity
+import org.tasks.compose.Constants
 import org.tasks.compose.FilterSelectionActivity.Companion.launch
 import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPickerResult
 import org.tasks.compose.KeyboardDetector
@@ -1307,12 +1311,23 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
 
         TasksTheme {
             var promptDiscard by remember { mutableStateOf(false) }
-            PromptAction(
-                showDialog = promptDiscard,
-                title = stringResource(R.string.discard_confirmation),
-                onAction = { promptDiscard = false; keyboardDetector.blockDismiss(false); showTaskInputDrawer(false) },
-                onCancel = { promptDiscard = false; keyboardDetector.blockDismiss(false) }
-            )
+            if (promptDiscard) {
+                val confirmed: () -> Unit = {
+                    promptDiscard = false
+                    keyboardDetector.blockDismiss(false)
+                    showTaskInputDrawer(false)
+                }
+                val keepEditing: () -> Unit = {
+                    promptDiscard = false
+                    keyboardDetector.blockDismiss(false)
+                }
+                AlertDialog(
+                    onDismissRequest = confirmed,
+                    title = { Text(stringResource(R.string.discard_confirmation), style = MaterialTheme.typography.headlineSmall) },
+                    confirmButton = { Constants.TextButton(text = R.string.keep_editing, onClick = keepEditing) },
+                    dismissButton = { Constants.TextButton(text = R.string.discard, onClick = confirmed) }
+                )
+            }
 
             val onDiscard: () -> Unit = {
                     if (taskEditDrawerState.isChanged()) {
