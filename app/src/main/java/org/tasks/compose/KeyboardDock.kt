@@ -14,6 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -30,7 +32,6 @@ import androidx.compose.ui.window.PopupProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
-import timber.log.Timber
 
 /** TODO - write comments on use and implementation details */
 @OptIn(ExperimentalLayoutApi::class)
@@ -86,7 +87,7 @@ private class WindowBottomPositionProvider(
     ): IntOffset {
         val rootViewXY = intArrayOf(0, 0)
         rootView.getLocationOnScreen(rootViewXY)
-        Timber.d("*** rootY == ${rootViewXY[1]}  rootHeight = ${rootView.height}  popupHeight = ${popupContentSize.height}")
+        //Timber.d("*** rootY == ${rootViewXY[1]}  rootHeight = ${rootView.height}  popupHeight = ${popupContentSize.height}")
         val bottom = rootView.height + rootViewXY[1]   /* rootViewXY[1] == rootView.y */
         return IntOffset(0, bottom - popupContentSize.height)
     }
@@ -97,23 +98,35 @@ data class ImeState (
     val imeOpen: Boolean = false
 )
 
-class KeyboardDetector () {
-    private val stateFlow = MutableStateFlow(ImeState(false, false))
+class KeyboardDetector (externalActivity: Boolean = false, imeOpen: Boolean = false) {
+    private val stateFlow = MutableStateFlow(ImeState(externalActivity, imeOpen))
     lateinit var state: State<ImeState>
 
     fun blockDismiss(on: Boolean) = stateFlow.update {
-        Timber.d("***BLOCKDISMISS called with $on")
-        stateFlow.value.copy(externalActivity = on)
+        if (on) {
+            /* dirty trick to compensate possible loosing onGlobal notification due to an inactivity period */
+            stateFlow.value.copy(externalActivity = on, imeOpen = false)
+        } else {
+            stateFlow.value.copy(externalActivity = on)
+        }
     }
+
     fun setImeVisible(on: Boolean) = stateFlow.update {
-        Timber.d("***setImeVisible called with $on")
         stateFlow.value.copy(imeOpen = on)
     }
 
     companion object {
         @Composable
         fun rememberDetector(onDismissRequest: () -> Unit): KeyboardDetector {
-            val detector = remember { KeyboardDetector() }
+            val saver = Saver<KeyboardDetector,Pair<Boolean, Boolean>> (
+                save = {
+                    Pair<Boolean, Boolean>(it.stateFlow.value.externalActivity, it.stateFlow.value.imeOpen)
+                },
+                restore = {
+                    KeyboardDetector(it.first, it.second)
+                }
+            )
+            val detector = rememberSaveable(saver = saver) { KeyboardDetector() }
             detector.state = detector.stateFlow.collectAsStateWithLifecycle()
 
             val view = LocalView.current
@@ -125,10 +138,8 @@ class KeyboardDetector () {
                     view.getWindowVisibleDisplayFrame(rect)
                     val keyboardHeight = with (density) { (screenHeight - rect.bottom).toDp() }
                     val state = detector.state.value
-                    Timber.d("***KeyboardDetector  rect == $rect  keyboardHeight == $keyboardHeight  imeOpen == ${state.imeOpen}  blocker == ${state.externalActivity}")
                     if (state.imeOpen && keyboardHeight < 30.dp) {
                         if (!state.externalActivity) {
-                            Timber.d("***DETECTOR: must be closed!!!")
                             onDismissRequest()
                         }
                         detector.setImeVisible(false)
