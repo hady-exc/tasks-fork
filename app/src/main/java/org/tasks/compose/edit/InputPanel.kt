@@ -25,6 +25,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -40,6 +41,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
@@ -53,6 +55,8 @@ import org.tasks.R
 import org.tasks.compose.ChipGroup
 import org.tasks.compose.KeyboardDetector
 import org.tasks.compose.pickers.DatePickerDialog
+import org.tasks.compose.taskdrawer.IconChip
+import org.tasks.compose.taskdrawer.PriorityPickerDialog
 import org.tasks.data.Location
 import org.tasks.data.displayName
 import org.tasks.data.entity.Alarm
@@ -61,12 +65,15 @@ import org.tasks.data.entity.Task
 import org.tasks.date.DateTimeUtils.newDateTime
 import org.tasks.filters.Filter
 import org.tasks.kmp.org.tasks.time.getRelativeDay
+import org.tasks.compose.taskdrawer.Chip
+import org.tasks.compose.taskdrawer.PriorityChip
 
 class TaskEditDrawerState (
     val originalFilter: Filter
 ) {
     var title by mutableStateOf("")
     var dueDate by mutableLongStateOf(0L)
+    var priority by mutableStateOf(0)
 
     private var originalLocation: Location? = null
     var location by mutableStateOf<Location?>(null)
@@ -94,6 +101,7 @@ class TaskEditDrawerState (
         dueDate = _task!!.dueDate
         originalLocation = currentLocation
         location = currentLocation
+        priority = _task!!.priority
     }
 
     fun isChanged(): Boolean =
@@ -101,18 +109,22 @@ class TaskEditDrawerState (
                 || dueDate != _task!!.dueDate
                 || filter.value != initialFilter
                 || originalLocation != location
+                || _task!!.priority != priority
                 )
+
     fun clear() {
         title = initialTitle
         dueDate = _task!!.dueDate
         filter.value = initialFilter
         location = originalLocation
+        priority = _task!!.priority
     }
 
     fun retrieveTask(): Task =
         _task!!.copy(
             title = title,
             dueDate = dueDate,
+            priority = priority,
             remoteId = Task.NO_UUID )
 
 }
@@ -138,6 +150,7 @@ fun TaskEditDrawer(
     val foreground = colorResource(id = R.color.input_popup_foreground)
 
     var datePicker by remember { mutableStateOf(false) }
+    var priorityPicker by remember { mutableStateOf(false) }
 
     Card(
         colors = CardDefaults.cardColors(containerColor = background, contentColor = foreground),
@@ -219,7 +232,7 @@ fun TaskEditDrawer(
 
                     /* location */
                     if (state.location == null) {
-                        IconChip(IconValues.location, { blockDismiss(true); getLocation()} )
+                        IconChip(IconValues.location) { blockDismiss(true); getLocation()}
                     } else {
                         Chip(
                             title = trunk(state.location!!.displayName),
@@ -229,8 +242,11 @@ fun TaskEditDrawer(
                         )
                     }
 
+                    /* priority */
+                    PriorityChip(state.priority) { blockDismiss(true); priorityPicker = true}
+
                     /* Main Task Edit launch - must be the last */
-                    IconChip(IconValues.more, doEdit)
+                    IconChip(icon = IconValues.more, action = doEdit)
                 }
             }
         }
@@ -242,9 +258,18 @@ fun TaskEditDrawer(
             selected = { state.dueDate = it; datePicker = false; blockDismiss(false) },
             dismiss = { datePicker = false; blockDismiss(false) } )
     }
+
+    if (priorityPicker) {
+        PriorityPickerDialog(
+            selected = state.priority,
+            onClick = { state.priority = it; blockDismiss(false); priorityPicker = false },
+            onDismissRequest = { blockDismiss(false); priorityPicker = false }
+        )
+    }
 }
 
 
+/*
 @Composable
 fun IconChip(icon: ImageVector, action: (() -> Unit)) = Chip(null, null, action, null, icon)
 
@@ -254,7 +279,8 @@ private fun Chip (
     leading: ImageVector?,
     action: (() -> Unit),
     delete: (() -> Unit)? = null,
-    titleIcon: ImageVector? = null
+    titleIcon: ImageVector? = null,
+    iconColor: Color = Color.Unspecified
 ) = InputChip (
         selected = false,
         onClick = action,
@@ -267,15 +293,16 @@ private fun Chip (
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            titleIcon?.let { Icon(titleIcon, null) }
+            titleIcon?.let { Icon(titleIcon, null, tint = if (iconColor == Color.Unspecified) LocalContentColor.current else iconColor) }
         },
         leadingIcon = {
-            leading?.let { Icon(leading, null) }
+            leading?.let { Icon(leading, null, tint = if (iconColor == Color.Unspecified) LocalContentColor.current else iconColor) }
         },
         trailingIcon = {
             delete?.let { Icon(IconValues.clear, null, Modifier.clickable(onClick = delete)) }
         }
     )
+*/
 
 private object IconValues {
     val clear = Icons.Outlined.Close
