@@ -1,5 +1,6 @@
 package org.tasks.compose.taskdrawer
 
+import android.content.res.Configuration
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Flag
@@ -9,6 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import org.tasks.kmp.org.tasks.themes.ColorProvider.priorityColor
 
 val icon = Icons.Outlined.Flag
@@ -41,4 +43,20 @@ private fun PriorityChip(current: Int, action: () -> Unit)
 
     IconChip(icon = icon, iconColor = color, action = action)
 
+}
+
+@Composable
+@Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+private fun PriorityChipRedPreview()
+{
+    PriorityChip(0,{})
+}
+
+@Composable
+@Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+private fun PriorityChipBluePreview()
+{
+    PriorityChip(2,{})
 }
