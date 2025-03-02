@@ -18,7 +18,6 @@ import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material.icons.outlined.Save
-import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -45,23 +44,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import org.tasks.R
 import org.tasks.compose.ChipGroup
 import org.tasks.compose.KeyboardDetector
-import org.tasks.compose.pickers.DatePickerDialog
 import org.tasks.compose.taskdrawer.Chip
+import org.tasks.compose.taskdrawer.DueDateChip
 import org.tasks.compose.taskdrawer.IconChip
 import org.tasks.compose.taskdrawer.PriorityChip
-import org.tasks.compose.taskdrawer.PriorityPickerDialog
 import org.tasks.data.Location
 import org.tasks.data.displayName
 import org.tasks.data.entity.Alarm
 import org.tasks.data.entity.TagData
 import org.tasks.data.entity.Task
-import org.tasks.date.DateTimeUtils.newDateTime
 import org.tasks.filters.Filter
-import org.tasks.kmp.org.tasks.time.getRelativeDay
 
 class TaskEditDrawerState (
     val originalFilter: Filter
@@ -199,16 +194,11 @@ fun TaskEditDrawer(
             Row (modifier = Modifier.padding(8.dp)) {
                 ChipGroup {
                     /* Due Date */
-                    if (state.dueDate != 0L) {
-                        Chip(
-                            title = runBlocking { getRelativeDay(state.dueDate) },
-                            leading = IconValues.schedule,
-                            action = { datePicker = true; blockDismiss(true) },
-                            delete = { state.dueDate = state.task!!.dueDate }
-                        )
-                    } else {
-                        IconChip(IconValues.schedule) { datePicker = true; blockDismiss(true) }
-                    }
+                    DueDateChip(
+                        current = state.dueDate,
+                        setValue = { value -> state.dueDate = value },
+                        dialogStarted = { on -> blockDismiss(on) }
+                    )
 
                     /* Target List */
                     if (state.initialFilter == state.originalFilter && state.filter.value == state.initialFilter) {
@@ -244,25 +234,16 @@ fun TaskEditDrawer(
                     )
 
                     /* Main Task Edit launch - must be the last */
-                    IconChip(icon = IconValues.more, action = doEdit)
+                    IconChip(icon = Icons.Outlined.MoreHoriz, action = doEdit)
                 }
             }
         }
-    }
-
-    if (datePicker) {
-        DatePickerDialog(
-            initialDate = if (state.dueDate != 0L) state.dueDate else newDateTime().startOfDay().plusDays(1).millis,
-            selected = { state.dueDate = it; datePicker = false; blockDismiss(false) },
-            dismiss = { datePicker = false; blockDismiss(false) } )
     }
 }
 
 private object IconValues {
     val clear = Icons.Outlined.Close
     val save = Icons.Outlined.Save
-    val more = Icons.Outlined.MoreHoriz
-    val schedule = Icons.Outlined.Schedule
     val list = Icons.AutoMirrored.Outlined.List
     val location = Icons.Outlined.LocationOn
 }

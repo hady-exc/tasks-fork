@@ -13,7 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import org.tasks.kmp.org.tasks.themes.ColorProvider.priorityColor
 
-val icon = Icons.Outlined.Flag
+private val priorityIcon = Icons.Outlined.Flag
 
 @Composable
 fun PriorityChip(current: Int, setValue: (Int) -> Unit, dialogStarted: (Boolean) -> Unit)
@@ -41,7 +41,7 @@ private fun PriorityChip(current: Int, action: () -> Unit)
         )
     )
 
-    IconChip(icon = icon, iconColor = color, action = action)
+    IconChip(icon = priorityIcon, iconColor = color, action = action)
 
 }
 
