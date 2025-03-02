@@ -16,7 +16,7 @@ fun PriorityChip(current: Int, action: () -> Unit)
         priorityColor(
             priority = current,
             isDarkMode = isSystemInDarkTheme(),
-            desaturate = false, // TODO -- get from preferemnces
+            desaturate = false, // TODO -- get from preferences
         )
     )
 

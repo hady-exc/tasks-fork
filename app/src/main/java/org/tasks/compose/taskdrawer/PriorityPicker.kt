@@ -4,7 +4,11 @@ import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -13,12 +17,12 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import org.tasks.R
 import org.tasks.compose.edit.Priority
 import org.tasks.data.entity.Task
 import org.tasks.themes.TasksTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PriorityPickerDialog (
     selected: Int,
@@ -27,7 +31,7 @@ fun PriorityPickerDialog (
     onDismissRequest: () -> Unit = {}
 ) {
     TasksTheme {
-        Dialog(
+        BasicAlertDialog(
             onDismissRequest = onDismissRequest,
         ) {
             PriorityPicker(selected, onClick, desaturate)
@@ -41,10 +45,10 @@ fun PriorityPicker(
     onClick: (Int) -> Unit = {},
     desaturate: Boolean = false
 ) {
-    TasksTheme {
+    Card () {
         Column(
             modifier = Modifier
-                //.wrapContentHeight()
+                .height(120.dp)
                 .padding(16.dp),
             verticalArrangement = Arrangement.Center
 
@@ -62,25 +66,17 @@ fun PriorityPicker(
 }
 
 @Composable
-@Preview( showBackground = true, heightDp = 120)
-@Preview(showBackground = true, heightDp = 120, uiMode = Configuration.UI_MODE_NIGHT_YES)
-fun PriorityPickerPreview()
-{
-    PriorityPicker(selected = Task.Priority.MEDIUM, desaturate = false)
-}
-
-@Composable
-@Preview( showBackground = true, heightDp = 120)
-@Preview(showBackground = true, heightDp = 120, uiMode = Configuration.UI_MODE_NIGHT_YES)
-fun PriorityPickerDesaturatePreview()
-{
-    PriorityPicker(selected = Task.Priority.MEDIUM, desaturate = true)
-}
-
-@Composable
-@Preview( showBackground = true, heightDp = 120)
-@Preview(showBackground = true, heightDp = 120, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 fun PriorityPickerDialogPreview()
+{
+    PriorityPickerDialog(selected = Task.Priority.MEDIUM, desaturate = false)
+}
+
+@Composable
+@Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+fun PriorityPickerDialogDesaturetePreview()
 {
     PriorityPickerDialog(selected = Task.Priority.MEDIUM, desaturate = true)
 }

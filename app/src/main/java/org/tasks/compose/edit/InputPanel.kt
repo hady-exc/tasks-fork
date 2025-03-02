@@ -1,6 +1,5 @@
 package org.tasks.compose.edit
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
@@ -24,8 +23,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.InputChip
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -33,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,13 +39,10 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -55,7 +50,9 @@ import org.tasks.R
 import org.tasks.compose.ChipGroup
 import org.tasks.compose.KeyboardDetector
 import org.tasks.compose.pickers.DatePickerDialog
+import org.tasks.compose.taskdrawer.Chip
 import org.tasks.compose.taskdrawer.IconChip
+import org.tasks.compose.taskdrawer.PriorityChip
 import org.tasks.compose.taskdrawer.PriorityPickerDialog
 import org.tasks.data.Location
 import org.tasks.data.displayName
@@ -65,15 +62,13 @@ import org.tasks.data.entity.Task
 import org.tasks.date.DateTimeUtils.newDateTime
 import org.tasks.filters.Filter
 import org.tasks.kmp.org.tasks.time.getRelativeDay
-import org.tasks.compose.taskdrawer.Chip
-import org.tasks.compose.taskdrawer.PriorityChip
 
 class TaskEditDrawerState (
     val originalFilter: Filter
 ) {
     var title by mutableStateOf("")
     var dueDate by mutableLongStateOf(0L)
-    var priority by mutableStateOf(0)
+    var priority by mutableIntStateOf(0)
 
     private var originalLocation: Location? = null
     var location by mutableStateOf<Location?>(null)
@@ -81,7 +76,7 @@ class TaskEditDrawerState (
     val filter = mutableStateOf(initialFilter)
 
     internal val visible = mutableStateOf(false)
-    internal val externalActivity = mutableStateOf(false)
+    //internal val externalActivity = mutableStateOf(false)
 
     private var _task: Task? = null
     val task get() = _task
@@ -267,42 +262,6 @@ fun TaskEditDrawer(
         )
     }
 }
-
-
-/*
-@Composable
-fun IconChip(icon: ImageVector, action: (() -> Unit)) = Chip(null, null, action, null, icon)
-
-@Composable
-private fun Chip (
-    title: String?,
-    leading: ImageVector?,
-    action: (() -> Unit),
-    delete: (() -> Unit)? = null,
-    titleIcon: ImageVector? = null,
-    iconColor: Color = Color.Unspecified
-) = InputChip (
-        selected = false,
-        onClick = action,
-        label = {
-            title?.let {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-            titleIcon?.let { Icon(titleIcon, null, tint = if (iconColor == Color.Unspecified) LocalContentColor.current else iconColor) }
-        },
-        leadingIcon = {
-            leading?.let { Icon(leading, null, tint = if (iconColor == Color.Unspecified) LocalContentColor.current else iconColor) }
-        },
-        trailingIcon = {
-            delete?.let { Icon(IconValues.clear, null, Modifier.clickable(onClick = delete)) }
-        }
-    )
-*/
 
 private object IconValues {
     val clear = Icons.Outlined.Close
