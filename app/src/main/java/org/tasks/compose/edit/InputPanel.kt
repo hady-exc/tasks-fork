@@ -145,7 +145,6 @@ fun TaskEditDrawer(
     val foreground = colorResource(id = R.color.input_popup_foreground)
 
     var datePicker by remember { mutableStateOf(false) }
-    var priorityPicker by remember { mutableStateOf(false) }
 
     Card(
         colors = CardDefaults.cardColors(containerColor = background, contentColor = foreground),
@@ -238,7 +237,11 @@ fun TaskEditDrawer(
                     }
 
                     /* priority */
-                    PriorityChip(state.priority) { blockDismiss(true); priorityPicker = true}
+                    PriorityChip(
+                        current = state.priority,
+                        setValue = { value -> state.priority = value },
+                        dialogStarted = { on -> blockDismiss(on) }
+                    )
 
                     /* Main Task Edit launch - must be the last */
                     IconChip(icon = IconValues.more, action = doEdit)
@@ -252,14 +255,6 @@ fun TaskEditDrawer(
             initialDate = if (state.dueDate != 0L) state.dueDate else newDateTime().startOfDay().plusDays(1).millis,
             selected = { state.dueDate = it; datePicker = false; blockDismiss(false) },
             dismiss = { datePicker = false; blockDismiss(false) } )
-    }
-
-    if (priorityPicker) {
-        PriorityPickerDialog(
-            selected = state.priority,
-            onClick = { state.priority = it; blockDismiss(false); priorityPicker = false },
-            onDismissRequest = { blockDismiss(false); priorityPicker = false }
-        )
     }
 }
 
