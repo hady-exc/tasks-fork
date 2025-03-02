@@ -1,19 +1,24 @@
 package org.tasks.location
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
+import androidx.core.content.IntentCompat
 import androidx.core.widget.ContentLoadingProgressBar
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -32,6 +37,7 @@ import org.tasks.activities.PlaceSettingsActivity
 import org.tasks.analytics.Firebase
 import org.tasks.billing.Inventory
 import org.tasks.caldav.GeoUtils.toLikeString
+import org.tasks.data.Location
 import org.tasks.data.PlaceUsage
 import org.tasks.data.dao.LocationDao
 import org.tasks.data.entity.Place
@@ -397,5 +403,28 @@ class LocationPickerActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListe
         private const val EXTRA_MAP_POSITION = "extra_map_position"
         private const val EXTRA_APPBAR_OFFSET = "extra_appbar_offset"
         private const val SEARCH_DEBOUNCE_TIMEOUT = 300L
+
+        fun Fragment.registerForLocationPickerResult(callback: (Place) -> Unit): ActivityResultLauncher<Intent> {
+            return registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                it.data?.let { intent ->
+                    IntentCompat
+                        .getParcelableExtra(intent, EXTRA_PLACE, Place::class.java)
+                        ?.let(callback)
+                }
+            }
+        }
+
+        fun ActivityResultLauncher<Intent>.launch(
+            context: Context,
+            selectedLocation: Location? = null
+        ) {
+            launch(
+                Intent(context, LocationPickerActivity::class.java)
+                    .putExtra(EXTRA_PLACE, selectedLocation?.place as Parcelable?)
+            )
+        }
+
+
+
     }
 }
