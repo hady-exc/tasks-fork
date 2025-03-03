@@ -26,7 +26,7 @@ fun Chip (
     delete: (() -> Unit)? = null,
     titleIcon: ImageVector? = null,
     iconColor: Color = Color.Unspecified,
-    action: (() -> Unit),
+    action: () -> Unit,
 ) = InputChip (
     selected = false,
     onClick = action,

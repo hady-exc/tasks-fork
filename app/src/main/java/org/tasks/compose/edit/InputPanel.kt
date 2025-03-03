@@ -71,7 +71,6 @@ class TaskEditDrawerState (
     val filter = mutableStateOf(initialFilter)
 
     internal val visible = mutableStateOf(false)
-    //internal val externalActivity = mutableStateOf(false)
 
     private var _task: Task? = null
     val task get() = _task
@@ -126,20 +125,16 @@ fun TaskEditDrawer(
     save: () -> Unit = {},
     edit: () -> Unit = {},
     close: () -> Unit = {},
-    getList: (() -> Unit),
+    getList: () -> Unit,
     getLocation: () -> Unit,
     keyboardDetector: KeyboardDetector)
 {
-    fun trunk(s: String, len: Int = 10): String =
-        if (s.length > len) s.substring(0..len-3) + "..." else s
-
-    val blockDismiss: (Boolean) -> Unit = { on -> keyboardDetector.blockDismiss(on) }
-
     val keyboardController = LocalSoftwareKeyboardController.current
     val background = colorResource(id = R.color.input_popup_background)
     val foreground = colorResource(id = R.color.input_popup_foreground)
 
-    var datePicker by remember { mutableStateOf(false) }
+    fun trunk(s: String, len: Int = 10): String =
+        s.takeIf{ it.length <= len } ?: (s.substring(0..len-3) + "...")
 
     Card(
         colors = CardDefaults.cardColors(containerColor = background, contentColor = foreground),
@@ -197,17 +192,17 @@ fun TaskEditDrawer(
                     DueDateChip(
                         current = state.dueDate,
                         setValue = { value -> state.dueDate = value },
-                        dialogStarted = { on -> blockDismiss(on) }
+                        dialogStarted = { on -> keyboardDetector.blockDismiss(on) }
                     )
 
                     /* Target List */
                     if (state.initialFilter == state.originalFilter && state.filter.value == state.initialFilter) {
-                        IconChip(IconValues.list) { blockDismiss(true); getList() }
+                        IconChip(icon = IconValues.list, action = getList)
                     } else {
                         Chip(
                             title = state.filter.value.title!!,
                             leading = IconValues.list,
-                            action = { blockDismiss(true); getList() },
+                            action = getList,
                             delete =
                                 if (state.initialFilter == state.originalFilter || state.filter.value ==  state.initialFilter) null
                                 else {{ state.filter.value = state.initialFilter }}
@@ -216,12 +211,12 @@ fun TaskEditDrawer(
 
                     /* location */
                     if (state.location == null) {
-                        IconChip(IconValues.location) { blockDismiss(true); getLocation()}
+                        IconChip(icon = IconValues.location, action = getLocation)
                     } else {
                         Chip(
                             title = trunk(state.location!!.displayName),
                             leading = IconValues.location,
-                            action = { blockDismiss(true); getLocation()},
+                            action = getLocation,
                             delete = { state.location = null }
                         )
                     }
@@ -230,7 +225,7 @@ fun TaskEditDrawer(
                     PriorityChip(
                         current = state.priority,
                         setValue = { value -> state.priority = value },
-                        dialogStarted = { on -> blockDismiss(on) }
+                        dialogStarted = { on -> keyboardDetector.blockDismiss(on) }
                     )
 
                     /* Main Task Edit launch - must be the last */

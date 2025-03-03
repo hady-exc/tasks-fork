@@ -1356,12 +1356,14 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                     edit = { createNewTask(taskEditDrawerState.retrieveTask()); showTaskInputDrawer(false) },
                     close = { showTaskInputDrawer(false) },
                     getList = {
+                        keyboardDetector.blockDismiss(true)
                         filterPickerLauncher.launch(
                             context = requireContext(),
                             selectedFilter = taskEditDrawerState.filter.value,
                             listsOnly = true )
                     },
                     getLocation = {
+                        keyboardDetector.blockDismiss(true)
                         locationPickerLauncher.launch(
                             context = requireContext(),
                             selectedLocation = taskEditDrawerState.location
