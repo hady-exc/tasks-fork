@@ -109,7 +109,6 @@ import org.tasks.compose.SubscriptionNagBanner
 import org.tasks.compose.edit.TaskEditDrawer
 import org.tasks.compose.edit.TaskEditDrawerState
 import org.tasks.compose.rememberReminderPermissionState
-import org.tasks.compose.settings.PromptAction
 import org.tasks.data.Location
 import org.tasks.data.TaskContainer
 import org.tasks.data.createGeofence
@@ -1355,14 +1354,14 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                     },
                     edit = { createNewTask(taskEditDrawerState.retrieveTask()); showTaskInputDrawer(false) },
                     close = { showTaskInputDrawer(false) },
-                    getList = {
+                    pickList = {
                         keyboardDetector.blockDismiss(true)
                         filterPickerLauncher.launch(
                             context = requireContext(),
                             selectedFilter = taskEditDrawerState.filter.value,
                             listsOnly = true )
                     },
-                    getLocation = {
+                    pickLocation = {
                         keyboardDetector.blockDismiss(true)
                         locationPickerLauncher.launch(
                             context = requireContext(),
