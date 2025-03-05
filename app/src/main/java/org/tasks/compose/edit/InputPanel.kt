@@ -127,6 +127,7 @@ class TaskEditDrawerState (
                     is CaldavFilter -> task.putTransitory(CaldavTask.KEY, (filter.value as CaldavFilter).uuid)
                     else -> {}
                 }
+                if (isChanged()) task.putTransitory(Task.TRANS_IS_CHANGED, "")
             }
 
 }

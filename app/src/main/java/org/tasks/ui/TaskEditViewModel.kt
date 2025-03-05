@@ -251,7 +251,8 @@ class TaskEditViewModel @Inject constructor(
                     task.isNotifyModeNonstop -> NOTIFY_MODE_NONSTOP
                     else -> 0
                 } ||
-                originalAlarms.toHashSet() != selectedAlarms.value.toHashSet()
+                originalAlarms.toHashSet() != selectedAlarms.value.toHashSet() ||
+                task.hasTransitory(Task.TRANS_IS_CHANGED)
 
     @MainThread
     suspend fun save(remove: Boolean = true): Boolean = withContext(NonCancellable) {
