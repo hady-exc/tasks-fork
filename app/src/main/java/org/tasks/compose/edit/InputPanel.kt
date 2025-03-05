@@ -50,11 +50,16 @@ import org.tasks.compose.taskdrawer.IconChip
 import org.tasks.compose.taskdrawer.ListChip
 import org.tasks.compose.taskdrawer.LocationChip
 import org.tasks.compose.taskdrawer.PriorityChip
+import org.tasks.data.GoogleTask
 import org.tasks.data.Location
 import org.tasks.data.entity.Alarm
+import org.tasks.data.entity.CaldavTask
+import org.tasks.data.entity.Place
 import org.tasks.data.entity.TagData
 import org.tasks.data.entity.Task
+import org.tasks.filters.CaldavFilter
 import org.tasks.filters.Filter
+import org.tasks.filters.GtasksFilter
 
 class TaskEditDrawerState (
     val originalFilter: Filter
@@ -113,6 +118,16 @@ class TaskEditDrawerState (
             dueDate = dueDate,
             priority = priority,
             remoteId = Task.NO_UUID )
+            .also { task ->
+                location?.let { location ->
+                    task.putTransitory(Place.KEY, location.place.uid!!)
+                }
+                when (filter.value) {
+                    is GtasksFilter -> task.putTransitory(GoogleTask.KEY, (filter.value as GtasksFilter).remoteId)
+                    is CaldavFilter -> task.putTransitory(CaldavTask.KEY, (filter.value as CaldavFilter).uuid)
+                    else -> {}
+                }
+            }
 
 }
 
@@ -130,9 +145,6 @@ fun TaskEditDrawer(
     val keyboardController = LocalSoftwareKeyboardController.current
     val background = colorResource(id = R.color.input_popup_background)
     val foreground = colorResource(id = R.color.input_popup_foreground)
-
-    fun trunk(s: String, len: Int = 10): String =
-        s.takeIf{ it.length <= len } ?: (s.substring(0..len-3) + "...")
 
     Card(
         colors = CardDefaults.cardColors(containerColor = background, contentColor = foreground),
