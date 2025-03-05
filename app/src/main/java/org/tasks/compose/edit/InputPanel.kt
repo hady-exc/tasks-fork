@@ -13,9 +13,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material3.Card
@@ -47,16 +45,21 @@ import kotlinx.coroutines.delay
 import org.tasks.R
 import org.tasks.compose.ChipGroup
 import org.tasks.compose.KeyboardDetector
-import org.tasks.compose.taskdrawer.Chip
 import org.tasks.compose.taskdrawer.DueDateChip
 import org.tasks.compose.taskdrawer.IconChip
+import org.tasks.compose.taskdrawer.ListChip
+import org.tasks.compose.taskdrawer.LocationChip
 import org.tasks.compose.taskdrawer.PriorityChip
+import org.tasks.data.GoogleTask
 import org.tasks.data.Location
-import org.tasks.data.displayName
 import org.tasks.data.entity.Alarm
+import org.tasks.data.entity.CaldavTask
+import org.tasks.data.entity.Place
 import org.tasks.data.entity.TagData
 import org.tasks.data.entity.Task
+import org.tasks.filters.CaldavFilter
 import org.tasks.filters.Filter
+import org.tasks.filters.GtasksFilter
 
 class TaskEditDrawerState (
     val originalFilter: Filter
@@ -115,6 +118,17 @@ class TaskEditDrawerState (
             dueDate = dueDate,
             priority = priority,
             remoteId = Task.NO_UUID )
+            .also { task ->
+                location?.let { location ->
+                    task.putTransitory(Place.KEY, location.place.uid!!)
+                }
+                when (filter.value) {
+                    is GtasksFilter -> task.putTransitory(GoogleTask.KEY, (filter.value as GtasksFilter).remoteId)
+                    is CaldavFilter -> task.putTransitory(CaldavTask.KEY, (filter.value as CaldavFilter).uuid)
+                    else -> {}
+                }
+                if (isChanged()) task.putTransitory(Task.TRANS_IS_CHANGED, "")
+            }
 
 }
 
@@ -125,16 +139,13 @@ fun TaskEditDrawer(
     save: () -> Unit = {},
     edit: () -> Unit = {},
     close: () -> Unit = {},
-    getList: () -> Unit,
-    getLocation: () -> Unit,
+    pickList: () -> Unit,
+    pickLocation: () -> Unit,
     keyboardDetector: KeyboardDetector)
 {
     val keyboardController = LocalSoftwareKeyboardController.current
     val background = colorResource(id = R.color.input_popup_background)
     val foreground = colorResource(id = R.color.input_popup_foreground)
-
-    fun trunk(s: String, len: Int = 10): String =
-        s.takeIf{ it.length <= len } ?: (s.substring(0..len-3) + "...")
 
     Card(
         colors = CardDefaults.cardColors(containerColor = background, contentColor = foreground),
@@ -196,30 +207,20 @@ fun TaskEditDrawer(
                     )
 
                     /* Target List */
-                    if (state.initialFilter == state.originalFilter && state.filter.value == state.initialFilter) {
-                        IconChip(icon = IconValues.list, action = getList)
-                    } else {
-                        Chip(
-                            title = state.filter.value.title!!,
-                            leading = IconValues.list,
-                            action = getList,
-                            delete =
-                                if (state.initialFilter == state.originalFilter || state.filter.value ==  state.initialFilter) null
-                                else {{ state.filter.value = state.initialFilter }}
-                        )
-                    }
+                    ListChip(
+                        originalFilter = state.originalFilter,
+                        initialFilter = state.initialFilter,
+                        currentFiler = state.filter.value,
+                        setFilter = { filter -> state.filter.value = filter},
+                        pickList = pickList
+                    )
 
                     /* location */
-                    if (state.location == null) {
-                        IconChip(icon = IconValues.location, action = getLocation)
-                    } else {
-                        Chip(
-                            title = trunk(state.location!!.displayName),
-                            leading = IconValues.location,
-                            action = getLocation,
-                            delete = { state.location = null }
-                        )
-                    }
+                    LocationChip(
+                        current = state.location,
+                        setLocation = { location -> state.location = location},
+                        pickLocation = pickLocation
+                    )
 
                     /* priority */
                     PriorityChip(
@@ -239,8 +240,6 @@ fun TaskEditDrawer(
 private object IconValues {
     val clear = Icons.Outlined.Close
     val save = Icons.Outlined.Save
-    val list = Icons.AutoMirrored.Outlined.List
-    val location = Icons.Outlined.LocationOn
 }
 
 /*

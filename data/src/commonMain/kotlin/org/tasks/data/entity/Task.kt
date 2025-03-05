@@ -340,6 +340,7 @@ data class Task @OptIn(ExperimentalSerializationApi::class) constructor(
         private const val TRANS_SUPPRESS_REFRESH = "suppress-refresh"
         const val TRANS_REMINDERS = "reminders"
         const val TRANS_RANDOM = "random"
+        const val TRANS_IS_CHANGED = "task-is-changed"
 
         private val INVALID_COUNT = ";?COUNT=(-1|0)".toRegex()
 
