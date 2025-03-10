@@ -29,16 +29,23 @@ import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
 import androidx.core.content.IntentCompat
@@ -104,7 +111,6 @@ import org.tasks.compose.AlarmsDisabledBanner
 import org.tasks.compose.FilterSelectionActivity.Companion.launch
 import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPickerResult
 import org.tasks.compose.KeyboardDetector
-import org.tasks.compose.KeyboardDock
 import org.tasks.compose.NotificationsDisabledBanner
 import org.tasks.compose.QuietHoursBanner
 import org.tasks.compose.SubscriptionNagBanner
@@ -1302,6 +1308,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     }
 
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun TaskEditDrawerContent()
     {
@@ -1355,40 +1362,60 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                     }
                 }
             keyboardDetector = KeyboardDetector.rememberDetector(onDiscard)
-            KeyboardDock(
-                visible = taskEditDrawerState.visible,
-                onDismissRequest = onDiscard,
-                keyboardDetector = keyboardDetector
-            ) { detector ->
-                TaskEditDrawer(
-                    state = taskEditDrawerState,
-                    save = {
-                        lifecycleScope.launch {
-                            saveNewTask(
-                                filter = taskEditDrawerState.filter.value,
-                                task = taskEditDrawerState.retrieveTask(),
-                                location = taskEditDrawerState.location
-                            )
-                        }
-                    },
-                    edit = { createNewTask(taskEditDrawerState.retrieveTask()); showTaskInputDrawer(false) },
-                    close = { showTaskInputDrawer(false) },
-                    pickList = {
-                        keyboardDetector.blockDismiss(true)
-                        filterPickerLauncher.launch(
-                            context = requireContext(),
-                            selectedFilter = taskEditDrawerState.filter.value,
-                            listsOnly = true )
-                    },
-                    pickLocation = {
-                        keyboardDetector.blockDismiss(true)
-                        locationPickerLauncher.launch(
-                            context = requireContext(),
-                            selectedLocation = taskEditDrawerState.location
+
+            val containerColor = colorResource(id = R.color.input_popup_background)
+
+            val sheetState = rememberModalBottomSheetState(
+                skipPartiallyExpanded = true,
+                confirmValueChange = { newValue ->
+                    if (newValue == SheetValue.Hidden && taskEditDrawerState.isChanged()) {
+                        onDiscard(); false
+                    } else { true }
+                },
+            )
+            if (taskEditDrawerState.visible.value) {
+                ModalBottomSheet(
+                    sheetState = sheetState,
+                    shape = RoundedCornerShape(topStart = 9.dp, topEnd = 9.dp),
+                    onDismissRequest = onDiscard,
+                    containerColor = containerColor,
+                    dragHandle = null
+                ) {
+                    TaskEditDrawer(
+                        state = taskEditDrawerState,
+                        save = {
+                            lifecycleScope.launch {
+                                saveNewTask(
+                                    filter = taskEditDrawerState.filter.value,
+                                    task = taskEditDrawerState.retrieveTask(),
+                                    location = taskEditDrawerState.location
+                                )
+                            }
+                        },
+                        edit = {
+                            createNewTask(taskEditDrawerState.retrieveTask()); showTaskInputDrawer(
+                            false
                         )
-                    },
-                    keyboardDetector = detector
-                )
+                        },
+                        close = { showTaskInputDrawer(false) },
+                        pickList = {
+                            keyboardDetector.blockDismiss(true)
+                            filterPickerLauncher.launch(
+                                context = requireContext(),
+                                selectedFilter = taskEditDrawerState.filter.value,
+                                listsOnly = true
+                            )
+                        },
+                        pickLocation = {
+                            keyboardDetector.blockDismiss(true)
+                            locationPickerLauncher.launch(
+                                context = requireContext(),
+                                selectedLocation = taskEditDrawerState.location
+                            )
+                        },
+                        keyboardDetector = keyboardDetector
+                    )
+                }
             }
         }
     }
