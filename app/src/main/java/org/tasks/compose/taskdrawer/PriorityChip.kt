@@ -16,18 +16,18 @@ import org.tasks.kmp.org.tasks.themes.ColorProvider.priorityColor
 private val priorityIcon = Icons.Outlined.Flag
 
 @Composable
-fun PriorityChip(current: Int, setValue: (Int) -> Unit, dialogStarted: (Boolean) -> Unit)
+fun PriorityChip(current: Int, setValue: (Int) -> Unit)
 {
     var priorityPicker by remember { mutableStateOf(false) }
     if (priorityPicker) {
         PriorityPickerDialog(
             selected = current,
-            onClick = { setValue(it); dialogStarted(false); priorityPicker = false },
-            onDismissRequest = { dialogStarted(false); priorityPicker = false }
+            onClick = { setValue(it); priorityPicker = false },
+            onDismissRequest = { priorityPicker = false }
         )
     }
 
-    PriorityChip(current) { dialogStarted(true); priorityPicker = true }
+    PriorityChip(current = current, action = { priorityPicker = true })
 }
 
 @Composable
@@ -50,7 +50,7 @@ private fun PriorityChip(current: Int, action: () -> Unit)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 private fun PriorityChipRedPreview()
 {
-    PriorityChip(0,{})
+    PriorityChip(current = 0, setValue = {})
 }
 
 @Composable
@@ -58,5 +58,5 @@ private fun PriorityChipRedPreview()
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 private fun PriorityChipBluePreview()
 {
-    PriorityChip(2,{})
+    PriorityChip(current = 2, action = {})
 }

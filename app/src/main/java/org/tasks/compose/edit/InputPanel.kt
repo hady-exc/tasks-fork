@@ -174,7 +174,6 @@ fun TaskEditDrawer(
                     )
             )
         }
-        //Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
             value = state.title,
             onValueChange = { state.title = it },
@@ -212,8 +211,7 @@ fun TaskEditDrawer(
                 /* Due Date */
                 DueDateChip(
                     current = state.dueDate,
-                    setValue = { value -> state.dueDate = value },
-                    dialogStarted = {} //{ on -> keyboardDetector.blockDismiss(on) }
+                    setValue = { value -> state.dueDate = value }
                 )
 
                 /* Target List */
@@ -235,8 +233,7 @@ fun TaskEditDrawer(
                 /* priority */
                 PriorityChip(
                     current = state.priority,
-                    setValue = { value -> state.priority = value },
-                    dialogStarted = {} // { on -> keyboardDetector.blockDismiss(on) }
+                    setValue = { value -> state.priority = value }
                 )
 
                 /* Main Task Edit launch - must be the last */
