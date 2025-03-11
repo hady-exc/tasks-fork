@@ -5,8 +5,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -160,20 +163,21 @@ fun TaskEditDrawer(
         val doSave: ()->Unit = { save(); state.clear() }
         val doEdit = { edit(); state.clear() }
 
-        /* Custom drag handle, because the standard looks ugly because is too high */
+        /* Custom drag handle, because the standard one is too high and so looks ugly */
         Box(
-            modifier = Modifier.height(32.dp).fillMaxWidth(),
+            modifier = Modifier.height(24.dp).fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
             Box(
                 modifier = Modifier
-                    .size(width = 48.dp, height = 4.dp)
+                    .size(width = 72.dp, height = 4.dp)
                     .background(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         shape = RoundedCornerShape(corner = CornerSize(3.dp))
                     )
             )
         }
+        //Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
             value = state.title,
             onValueChange = { state.title = it },
@@ -200,8 +204,7 @@ fun TaskEditDrawer(
             ),
             shape = MaterialTheme.shapes.medium
         )
-
-        LaunchedEffect(keyboardDetector.state.value.externalActivity == false) {
+        LaunchedEffect(WindowInsets.isImeVisible == false) {
             requester.requestFocus()
             delay(30) /* workaround for delay in the system between requestFocus and actual focused state */
             keyboardController!!.show()

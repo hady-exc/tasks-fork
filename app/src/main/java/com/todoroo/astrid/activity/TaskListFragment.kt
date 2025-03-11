@@ -34,6 +34,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -41,6 +42,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -1296,6 +1298,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         fun showTaskInputDrawer(on: Boolean)
         {
             lifecycleScope.launch {
+                Timber.d("*** showTaskInputDrawer($on)")
                 if (on) {
                     val task = taskCreator.createWithValues(filter, "")
                     val targetList = defaultFilterProvider.getList(task)
@@ -1318,35 +1321,31 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         TasksTheme {
             var promptDiscard by remember { mutableStateOf(false) }
             if (promptDiscard) {
-                val confirmed: () -> Unit = {
-                    promptDiscard = false
-                    keyboardDetector.blockDismiss(false)
-                    showTaskInputDrawer(false)
-                }
-                val keepEditing: () -> Unit = {
-                    promptDiscard = false
-                    keyboardDetector.blockDismiss(false)
-                }
+                keyboardDetector.blockDismiss(true)
+                val close: () -> Unit = { promptDiscard = false; keyboardDetector.blockDismiss(false) }
                 AlertDialog(
-                    onDismissRequest = confirmed,
+                    onDismissRequest = { close(); showTaskInputDrawer(false) },
                     title = { Text(stringResource(R.string.discard_confirmation), style = MaterialTheme.typography.headlineSmall) },
-                    confirmButton = { Constants.TextButton(text = R.string.keep_editing, onClick = keepEditing) },
-                    dismissButton = { Constants.TextButton(text = R.string.discard, onClick = confirmed) }
+                    confirmButton = { Constants.TextButton(text = R.string.keep_editing, onClick = close) },
+                    dismissButton = { Constants.TextButton(text = R.string.discard, onClick = { close(); showTaskInputDrawer(false) }) }
                 )
             }
 
-            val onDiscard: () -> Unit = {
-                    if (taskEditDrawerState.isChanged()) {
-                        promptDiscard = true; keyboardDetector.blockDismiss(true)
-                    } else {
-                        showTaskInputDrawer(false)
-                    }
-                }
-            keyboardDetector = KeyboardDetector.rememberDetector(onDiscard)
-
             val containerColor = colorResource(id = R.color.input_popup_background)
-
-            val sheetState = rememberModalBottomSheetState(
+            val scope = rememberCoroutineScope()
+            lateinit var sheetState: SheetState
+            val close: () -> Unit = {
+                scope.launch { sheetState.hide() }
+                    .invokeOnCompletion { showTaskInputDrawer(false) }
+            }
+            val onDiscard: () -> Unit = {
+                if (taskEditDrawerState.isChanged()) {
+                    promptDiscard = true
+                } else {
+                    close()
+                }
+            }
+            sheetState = rememberModalBottomSheetState(
                 skipPartiallyExpanded = true,
                 confirmValueChange = { newValue ->
                     if (newValue == SheetValue.Hidden && taskEditDrawerState.isChanged()) {
@@ -1354,10 +1353,13 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                     } else { true }
                 },
             )
+
+            keyboardDetector = KeyboardDetector.rememberDetector(onDiscard)
+
             if (taskEditDrawerState.visible.value) {
                 ModalBottomSheet(
                     sheetState = sheetState,
-                    shape = RoundedCornerShape(topStart = 9.dp, topEnd = 9.dp),
+                    shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
                     onDismissRequest = onDiscard,
                     containerColor = containerColor,
                     dragHandle = null
@@ -1374,11 +1376,10 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                             }
                         },
                         edit = {
-                            createNewTask(taskEditDrawerState.retrieveTask()); showTaskInputDrawer(
-                            false
-                        )
+                            createNewTask(taskEditDrawerState.retrieveTask())
+                            showTaskInputDrawer(false)
                         },
-                        close = { showTaskInputDrawer(false) },
+                        close = close,
                         pickList = {
                             keyboardDetector.blockDismiss(true)
                             filterPickerLauncher.launch(
