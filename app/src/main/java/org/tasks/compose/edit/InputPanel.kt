@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -49,7 +48,6 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import org.tasks.R
 import org.tasks.compose.ChipGroup
-import org.tasks.compose.KeyboardDetector
 import org.tasks.compose.taskdrawer.DueDateChip
 import org.tasks.compose.taskdrawer.IconChip
 import org.tasks.compose.taskdrawer.ListChip
@@ -145,8 +143,7 @@ fun TaskEditDrawer(
     edit: () -> Unit = {},
     close: () -> Unit = {},
     pickList: () -> Unit,
-    pickLocation: () -> Unit,
-    keyboardDetector: KeyboardDetector)
+    pickLocation: () -> Unit)
 {
     val keyboardController = LocalSoftwareKeyboardController.current
     val background = colorResource(id = R.color.input_popup_background)
@@ -216,7 +213,7 @@ fun TaskEditDrawer(
                 DueDateChip(
                     current = state.dueDate,
                     setValue = { value -> state.dueDate = value },
-                    dialogStarted = { on -> keyboardDetector.blockDismiss(on) }
+                    dialogStarted = {} //{ on -> keyboardDetector.blockDismiss(on) }
                 )
 
                 /* Target List */
@@ -239,7 +236,7 @@ fun TaskEditDrawer(
                 PriorityChip(
                     current = state.priority,
                     setValue = { value -> state.priority = value },
-                    dialogStarted = { on -> keyboardDetector.blockDismiss(on) }
+                    dialogStarted = {} // { on -> keyboardDetector.blockDismiss(on) }
                 )
 
                 /* Main Task Edit launch - must be the last */

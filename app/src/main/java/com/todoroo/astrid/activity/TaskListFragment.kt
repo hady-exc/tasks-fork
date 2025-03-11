@@ -111,12 +111,12 @@ import org.tasks.caldav.BaseCaldavCalendarSettingsActivity
 import org.tasks.compose.Constants
 import org.tasks.compose.FilterSelectionActivity.Companion.launch
 import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPickerResult
-import org.tasks.compose.KeyboardDetector
 import org.tasks.compose.NotificationsDisabledBanner
 import org.tasks.compose.SubscriptionNagBanner
 import org.tasks.compose.edit.TaskEditDrawer
 import org.tasks.compose.edit.TaskEditDrawerState
 import org.tasks.compose.rememberReminderPermissionState
+import org.tasks.compose.taskdrawer.PromptDiscard
 import org.tasks.data.Location
 import org.tasks.data.TaskContainer
 import org.tasks.data.createGeofence
@@ -362,7 +362,6 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             inputHost.setContent { TaskEditDrawerContent() }
             filterPickerLauncher = registerForListPickerResult { list ->
                 taskEditDrawerState.filter.value = list
-                keyboardDetector.blockDismiss(false)
             }
             locationPickerLauncher = registerForLocationPickerResult { place ->
                 val location = taskEditDrawerState.location
@@ -377,7 +376,6 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                     )
                 }
                 taskEditDrawerState.location = Location(geofence, place)
-                keyboardDetector.blockDismiss(false)
             }
         }
         themeColor = if (filter.tint != 0) colorProvider.getThemeColor(filter.tint, true) else defaultThemeColor
@@ -1152,7 +1150,6 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     }
 
     private lateinit var taskEditDrawerState: TaskEditDrawerState
-    private lateinit var keyboardDetector: KeyboardDetector
 
     private lateinit var filterPickerLauncher: ActivityResultLauncher<Intent>
     private lateinit var locationPickerLauncher: ActivityResultLauncher<Intent>
@@ -1320,16 +1317,12 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
 
         TasksTheme {
             var promptDiscard by remember { mutableStateOf(false) }
-            if (promptDiscard) {
-                keyboardDetector.blockDismiss(true)
-                val close: () -> Unit = { promptDiscard = false; keyboardDetector.blockDismiss(false) }
-                AlertDialog(
-                    onDismissRequest = { close(); showTaskInputDrawer(false) },
-                    title = { Text(stringResource(R.string.discard_confirmation), style = MaterialTheme.typography.headlineSmall) },
-                    confirmButton = { Constants.TextButton(text = R.string.keep_editing, onClick = close) },
-                    dismissButton = { Constants.TextButton(text = R.string.discard, onClick = { close(); showTaskInputDrawer(false) }) }
-                )
-            }
+            PromptDiscard(
+                show = promptDiscard,
+                cancel = { promptDiscard = false },
+                discard = { showTaskInputDrawer(false) }
+
+            )
 
             val containerColor = colorResource(id = R.color.input_popup_background)
             val scope = rememberCoroutineScope()
@@ -1338,29 +1331,24 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 scope.launch { sheetState.hide() }
                     .invokeOnCompletion { showTaskInputDrawer(false) }
             }
-            val onDiscard: () -> Unit = {
-                if (taskEditDrawerState.isChanged()) {
-                    promptDiscard = true
-                } else {
-                    close()
-                }
-            }
+
             sheetState = rememberModalBottomSheetState(
                 skipPartiallyExpanded = true,
                 confirmValueChange = { newValue ->
                     if (newValue == SheetValue.Hidden && taskEditDrawerState.isChanged()) {
-                        onDiscard(); false
+                        promptDiscard = true; false
                     } else { true }
                 },
             )
-
-            keyboardDetector = KeyboardDetector.rememberDetector(onDiscard)
 
             if (taskEditDrawerState.visible.value) {
                 ModalBottomSheet(
                     sheetState = sheetState,
                     shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
-                    onDismissRequest = onDiscard,
+                    onDismissRequest = {
+                        if (taskEditDrawerState.isChanged()) promptDiscard = true
+                        else close()
+                    },
                     containerColor = containerColor,
                     dragHandle = null
                 ) {
@@ -1381,7 +1369,6 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                         },
                         close = close,
                         pickList = {
-                            keyboardDetector.blockDismiss(true)
                             filterPickerLauncher.launch(
                                 context = requireContext(),
                                 selectedFilter = taskEditDrawerState.filter.value,
@@ -1389,13 +1376,11 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                             )
                         },
                         pickLocation = {
-                            keyboardDetector.blockDismiss(true)
                             locationPickerLauncher.launch(
                                 context = requireContext(),
                                 selectedLocation = taskEditDrawerState.location
                             )
                         },
-                        keyboardDetector = keyboardDetector
                     )
                 }
             }
