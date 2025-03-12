@@ -48,6 +48,8 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import org.tasks.R
 import org.tasks.compose.ChipGroup
+import org.tasks.compose.taskdrawer.Description
+import org.tasks.compose.taskdrawer.DescriptionChip
 import org.tasks.compose.taskdrawer.DueDateChip
 import org.tasks.compose.taskdrawer.IconChip
 import org.tasks.compose.taskdrawer.ListChip
@@ -63,11 +65,13 @@ import org.tasks.data.entity.Task
 import org.tasks.filters.CaldavFilter
 import org.tasks.filters.Filter
 import org.tasks.filters.GtasksFilter
+import timber.log.Timber
 
 class TaskEditDrawerState (
     val originalFilter: Filter
 ) {
     var title by mutableStateOf("")
+    var desription by mutableStateOf("")
     var dueDate by mutableLongStateOf(0L)
     var priority by mutableIntStateOf(0)
 
@@ -79,7 +83,7 @@ class TaskEditDrawerState (
     internal val visible = mutableStateOf(false)
 
     private var _task: Task? = null
-    val task get() = _task
+    val task get() = _task!!
     private val initialTitle get() = _task?.title ?: ""
 
     fun setTask(
@@ -93,6 +97,7 @@ class TaskEditDrawerState (
         if (initialFilter == originalFilter) initialFilter = targetFilter
         filter.value = targetFilter
         title = initialTitle
+        desription = task.notes ?: ""
         dueDate = _task!!.dueDate
         originalLocation = currentLocation
         location = currentLocation
@@ -101,6 +106,7 @@ class TaskEditDrawerState (
 
     fun isChanged(): Boolean =
         (title.trim() != initialTitle.trim()
+                || desription.trim() != (task.notes ?: "").trim()
                 || dueDate != _task!!.dueDate
                 || filter.value != initialFilter
                 || originalLocation != location
@@ -109,6 +115,7 @@ class TaskEditDrawerState (
 
     fun clear() {
         title = initialTitle
+        desription = ""
         dueDate = _task!!.dueDate
         filter.value = initialFilter
         location = originalLocation
@@ -118,6 +125,7 @@ class TaskEditDrawerState (
     fun retrieveTask(): Task =
         _task!!.copy(
             title = title,
+            notes = desription,
             dueDate = dueDate,
             priority = priority,
             remoteId = Task.NO_UUID )
@@ -206,8 +214,23 @@ fun TaskEditDrawer(
             keyboardController!!.show()
         }
 
+        var descriptionFocus by remember { mutableStateOf(false) }
+        var showDescription by remember { mutableStateOf(false) }
+        Description(
+            show = (state.desription != "") || descriptionFocus || showDescription,
+            current = state.desription,
+            onValueChange = { state.desription = it; showDescription = false },
+            onFocusChange = { descriptionFocus = it; Timber.d("*** focusChange($it)") }
+        )
+
         Row (modifier = Modifier.padding(8.dp)) {
             ChipGroup {
+
+                /* description */
+                DescriptionChip(
+                    show = state.desription == "" && !descriptionFocus,
+                    action = { showDescription = true }
+                )
                 /* Due Date */
                 DueDateChip(
                     current = state.dueDate,
