@@ -1,9 +1,12 @@
 package org.tasks.compose.edit
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.FlowRowOverflow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,7 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import org.tasks.compose.ChipGroup
 import org.tasks.compose.taskdrawer.Description
 import org.tasks.compose.taskdrawer.DescriptionChip
 import org.tasks.compose.taskdrawer.DueDateChip
@@ -45,7 +47,6 @@ import org.tasks.data.entity.Task
 import org.tasks.filters.CaldavFilter
 import org.tasks.filters.Filter
 import org.tasks.filters.GtasksFilter
-import timber.log.Timber
 
 class TaskEditDrawerState (
     val originalFilter: Filter
@@ -162,21 +163,24 @@ fun TaskEditDrawer(
             close = close
         )
 
-        var descriptionFocus by remember { mutableStateOf(false) }
         var showDescription by remember { mutableStateOf(false) }
         Description(
-            show = (state.description != "") || descriptionFocus || showDescription,
+            show = showDescription,
             current = state.description,
-            onValueChange = { state.description = it; showDescription = false },
-            onFocusChange = { descriptionFocus = it; Timber.d("*** focusChange($it)") }
+            onValueChange = { state.description = it },
+            onFocusChange = { showDescription = it }
         )
 
         Row (modifier = Modifier.padding(8.dp)) {
-            ChipGroup {
-
+            FlowRow (
+                Modifier.wrapContentHeight(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.Center,
+                overflow = FlowRowOverflow.Clip
+            ) {
                 /* description */
                 DescriptionChip(
-                    show = state.description == "" && !descriptionFocus,
+                    show = !(state.description != "" || showDescription),
                     action = { showDescription = true }
                 )
                 /* Due Date */
@@ -184,7 +188,6 @@ fun TaskEditDrawer(
                     current = state.dueDate,
                     setValue = { value -> state.dueDate = value }
                 )
-
                 /* Target List */
                 ListChip(
                     originalFilter = state.originalFilter,
@@ -193,21 +196,18 @@ fun TaskEditDrawer(
                     setFilter = { filter -> state.filter.value = filter},
                     pickList = pickList
                 )
-
                 /* location */
                 LocationChip(
                     current = state.location,
                     setLocation = { location -> state.location = location},
                     pickLocation = pickLocation
                 )
-
                 /* priority */
                 PriorityChip(
                     current = state.priority,
                     setValue = { value -> state.priority = value }
                 )
-
-                /* Main Task Edit launch - must be the last */
+                /* Main TaskEditFragment launch - must be the last */
                 IconChip(icon = Icons.Outlined.MoreHoriz, action = { edit(); state.clear() })
             }
         }
