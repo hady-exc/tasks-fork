@@ -29,23 +29,13 @@ import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetValue
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
 import androidx.core.content.IntentCompat
@@ -106,17 +96,16 @@ import org.tasks.activities.TagSettingsActivity
 import org.tasks.analytics.Firebase
 import org.tasks.billing.PurchaseActivity
 import org.tasks.caldav.BaseCaldavCalendarSettingsActivity
-import org.tasks.compose.Constants
-import org.tasks.compose.AlarmsDisabledBanner
 import org.tasks.compose.FilterSelectionActivity.Companion.launch
 import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPickerResult
-import org.tasks.compose.KeyboardDetector
 import org.tasks.compose.NotificationsDisabledBanner
 import org.tasks.compose.QuietHoursBanner
 import org.tasks.compose.SubscriptionNagBanner
 import org.tasks.compose.edit.TaskEditDrawer
 import org.tasks.compose.edit.TaskEditDrawerState
 import org.tasks.compose.rememberReminderPermissionState
+import org.tasks.compose.taskdrawer.BottomSheet
+import org.tasks.compose.taskdrawer.PromptDiscard
 import org.tasks.data.Location
 import org.tasks.data.TaskContainer
 import org.tasks.data.createGeofence
@@ -354,17 +343,15 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             swipeRefreshLayout = bodyStandard.swipeLayout
             emptyRefreshLayout = bodyEmpty.swipeLayoutEmpty
             recyclerView = bodyStandard.recyclerView
-/*          moved to inputHost.setContent
+            taskEditDrawerState = TaskEditDrawerState(filter)
             fab.setOnClickListener {
                 showTaskInputDrawer(true)
             }
-*/
             fab.isVisible = filter.isWritable
 
             inputHost.setContent { TaskEditDrawerContent() }
             filterPickerLauncher = registerForListPickerResult { list ->
                 taskEditDrawerState.filter.value = list
-                keyboardDetector.blockDismiss(false)
             }
             locationPickerLauncher = registerForLocationPickerResult { place ->
                 val location = taskEditDrawerState.location
@@ -379,7 +366,6 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                     )
                 }
                 taskEditDrawerState.location = Location(geofence, place)
-                keyboardDetector.blockDismiss(false)
             }
         }
         themeColor = if (filter.tint != 0) colorProvider.getThemeColor(filter.tint, true) else defaultThemeColor
@@ -1169,7 +1155,6 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     }
 
     private lateinit var taskEditDrawerState: TaskEditDrawerState
-    private lateinit var keyboardDetector: KeyboardDetector
 
     private lateinit var filterPickerLauncher: ActivityResultLauncher<Intent>
     private lateinit var locationPickerLauncher: ActivityResultLauncher<Intent>
@@ -1308,118 +1293,87 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     }
 
 
+    private fun showTaskInputDrawer(on: Boolean)
+    {
+        lifecycleScope.launch {
+            //Timber.d("*** showTaskInputDrawer($on)")
+            if (on) {
+                val task = taskCreator.createWithValues(filter, "")
+                val targetList = defaultFilterProvider.getList(task)
+                val currentLocation = locationDao.getLocation(task,preferences)
+                val currentTags = tagDataDao.getTags(task)
+                val currentAlarms = alarmDao.getAlarms(task)
+
+                taskEditDrawerState.setTask(task, targetList, currentLocation, currentTags, currentAlarms)
+            }
+            taskEditDrawerState.visible.value = on
+            if (!on) delay(100)  /* to prevent Fab flicker before soft keyboard disappear */
+            binding.fab.isVisible = !on
+            if ( !preferences.isTopAppBar ) binding.bottomAppBar.isVisible = !on
+        }
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun TaskEditDrawerContent()
     {
-        fun showTaskInputDrawer(on: Boolean)
-        {
-            lifecycleScope.launch {
-                if (on) {
-                    val task = taskCreator.createWithValues(filter, "")
-                    val targetList = defaultFilterProvider.getList(task)
-                    val currentLocation = locationDao.getLocation(task,preferences)
-                    val currentTags = tagDataDao.getTags(task)
-                    val currentAlarms = alarmDao.getAlarms(task)
-
-                    taskEditDrawerState.setTask(task, targetList, currentLocation, currentTags, currentAlarms)
-                }
-                taskEditDrawerState.visible.value = on
-                if (!on) delay(100)  /* to prevent Fab flicker before soft keyboard disappear */
-                binding.fab.isVisible = !on
-                if ( !preferences.isTopAppBar ) binding.bottomAppBar.isVisible = !on
-            }
-        }
-
-        taskEditDrawerState = TaskEditDrawerState(filter)
-        binding.fab.setOnClickListener { showTaskInputDrawer(true) }
-
         TasksTheme {
             var promptDiscard by remember { mutableStateOf(false) }
-            if (promptDiscard) {
-                val confirmed: () -> Unit = {
-                    promptDiscard = false
-                    keyboardDetector.blockDismiss(false)
-                    showTaskInputDrawer(false)
-                }
-                val keepEditing: () -> Unit = {
-                    promptDiscard = false
-                    keyboardDetector.blockDismiss(false)
-                }
-                AlertDialog(
-                    onDismissRequest = confirmed,
-                    title = { Text(stringResource(R.string.discard_confirmation), style = MaterialTheme.typography.headlineSmall) },
-                    confirmButton = { Constants.TextButton(text = R.string.keep_editing, onClick = keepEditing) },
-                    dismissButton = { Constants.TextButton(text = R.string.discard, onClick = confirmed) }
-                )
-            }
+            PromptDiscard(
+                show = promptDiscard,
+                cancel = { promptDiscard = false },
+                discard = { showTaskInputDrawer(false) }
+            )
 
-            val onDiscard: () -> Unit = {
+            BottomSheet(
+                show = taskEditDrawerState.visible.value,
+                hide = { showTaskInputDrawer(false) },
+                onDismissRequest = {
+                    if (taskEditDrawerState.isChanged()) promptDiscard = true
+                    else showTaskInputDrawer(false) //close()
+                },
+                hideConfirmation = {
                     if (taskEditDrawerState.isChanged()) {
-                        promptDiscard = true; keyboardDetector.blockDismiss(true)
+                        promptDiscard = true
+                        false
                     } else {
-                        showTaskInputDrawer(false)
+                        true
                     }
                 }
-            keyboardDetector = KeyboardDetector.rememberDetector(onDiscard)
-
-            val containerColor = colorResource(id = R.color.input_popup_background)
-
-            val sheetState = rememberModalBottomSheetState(
-                skipPartiallyExpanded = true,
-                confirmValueChange = { newValue ->
-                    if (newValue == SheetValue.Hidden && taskEditDrawerState.isChanged()) {
-                        onDiscard(); false
-                    } else { true }
-                },
-            )
-            if (taskEditDrawerState.visible.value) {
-                ModalBottomSheet(
-                    sheetState = sheetState,
-                    shape = RoundedCornerShape(topStart = 9.dp, topEnd = 9.dp),
-                    onDismissRequest = onDiscard,
-                    containerColor = containerColor,
-                    dragHandle = null
-                ) {
-                    TaskEditDrawer(
-                        state = taskEditDrawerState,
-                        save = {
-                            lifecycleScope.launch {
-                                saveNewTask(
-                                    filter = taskEditDrawerState.filter.value,
-                                    task = taskEditDrawerState.retrieveTask(),
-                                    location = taskEditDrawerState.location
-                                )
-                            }
-                        },
-                        edit = {
-                            createNewTask(taskEditDrawerState.retrieveTask()); showTaskInputDrawer(
-                            false
+            ) { close ->
+                TaskEditDrawer(
+                    state = taskEditDrawerState,
+                    save = {
+                        lifecycleScope.launch {
+                            saveNewTask(
+                                filter = taskEditDrawerState.filter.value,
+                                task = taskEditDrawerState.retrieveTask(),
+                                location = taskEditDrawerState.location
+                            )
+                        }
+                    },
+                    edit = {
+                        createNewTask(taskEditDrawerState.retrieveTask())
+                        showTaskInputDrawer(false)
+                    },
+                    close = close,
+                    pickList = {
+                        filterPickerLauncher.launch(
+                            context = requireContext(),
+                            selectedFilter = taskEditDrawerState.filter.value,
+                            listsOnly = true
                         )
-                        },
-                        close = { showTaskInputDrawer(false) },
-                        pickList = {
-                            keyboardDetector.blockDismiss(true)
-                            filterPickerLauncher.launch(
-                                context = requireContext(),
-                                selectedFilter = taskEditDrawerState.filter.value,
-                                listsOnly = true
-                            )
-                        },
-                        pickLocation = {
-                            keyboardDetector.blockDismiss(true)
-                            locationPickerLauncher.launch(
-                                context = requireContext(),
-                                selectedLocation = taskEditDrawerState.location
-                            )
-                        },
-                        keyboardDetector = keyboardDetector
-                    )
-                }
+                    },
+                    pickLocation = {
+                        locationPickerLauncher.launch(
+                            context = requireContext(),
+                            selectedLocation = taskEditDrawerState.location
+                        )
+                    },
+                )
             }
         }
     }
-
 
     companion object {
         const val ACTION_RELOAD = "action_reload"

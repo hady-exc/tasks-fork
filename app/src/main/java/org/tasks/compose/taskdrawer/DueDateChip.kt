@@ -20,20 +20,19 @@ private val dueDateIcon = Icons.Outlined.Schedule
 @Composable
 fun DueDateChip(
     current: Long,
-    setValue: (Long) -> Unit,
-    dialogStarted: (Boolean) -> Unit
+    setValue: (Long) -> Unit
 ) {
     var datePicker by remember { mutableStateOf(false) }
     if (datePicker) {
         DatePickerDialog(
             initialDate = if (current != 0L) current else newDateTime().startOfDay().millis,
-            selected = { setValue(it); dialogStarted(false); datePicker = false },
-            dismiss = { datePicker = false; dialogStarted(false) } )
+            selected = { setValue(it); datePicker = false },
+            dismiss = { datePicker = false } )
     }
 
     DueDateChip(
         current = current,
-        action = { dialogStarted(true); datePicker = true },
+        action = { datePicker = true },
         delete = { setValue(0L) }
     )
 
@@ -43,7 +42,7 @@ fun DueDateChip(
 private fun DueDateChip(
     current: Long,
     action: () -> Unit,
-    delete: (() -> Unit)? = null
+    delete: (() -> Unit)?
 ) {
     if (current != 0L) {
         Chip(
@@ -62,5 +61,5 @@ private fun DueDateChip(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 private fun DueDateChipPreview()
 {
-    DueDateChip(DateTime().millis, {})
+    DueDateChip(current = DateTime().millis, setValue = {})
 }

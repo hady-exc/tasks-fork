@@ -32,6 +32,7 @@ import androidx.compose.ui.window.PopupProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
+import timber.log.Timber
 
 /** TODO - write comments on use and implementation details */
 @OptIn(ExperimentalLayoutApi::class)
@@ -139,11 +140,15 @@ class KeyboardDetector (externalActivity: Boolean = false, imeOpen: Boolean = fa
                     val keyboardHeight = with (density) { (screenHeight - rect.bottom).toDp() }
                     val state = detector.state.value
                     if (state.imeOpen && keyboardHeight < 30.dp) {
+                        Timber.d("IME SET TO OFF")
+/*
                         if (!state.externalActivity) {
                             onDismissRequest()
                         }
+*/
                         detector.setImeVisible(false)
                     } else if (!state.imeOpen && keyboardHeight > 60.dp) {
+                        Timber.d("IME SET TO ON")
                         detector.setImeVisible(true)
                     }
                 }
