@@ -5,30 +5,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.ContentAlpha
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.MoreHoriz
-import androidx.compose.material.icons.outlined.Save
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -38,15 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.delay
-import org.tasks.R
 import org.tasks.compose.ChipGroup
 import org.tasks.compose.taskdrawer.Description
 import org.tasks.compose.taskdrawer.DescriptionChip
@@ -55,6 +34,7 @@ import org.tasks.compose.taskdrawer.IconChip
 import org.tasks.compose.taskdrawer.ListChip
 import org.tasks.compose.taskdrawer.LocationChip
 import org.tasks.compose.taskdrawer.PriorityChip
+import org.tasks.compose.taskdrawer.TitleRow
 import org.tasks.data.GoogleTask
 import org.tasks.data.Location
 import org.tasks.data.entity.Alarm
@@ -71,7 +51,7 @@ class TaskEditDrawerState (
     val originalFilter: Filter
 ) {
     var title by mutableStateOf("")
-    var desription by mutableStateOf("")
+    var description by mutableStateOf("")
     var dueDate by mutableLongStateOf(0L)
     var priority by mutableIntStateOf(0)
 
@@ -97,7 +77,7 @@ class TaskEditDrawerState (
         if (initialFilter == originalFilter) initialFilter = targetFilter
         filter.value = targetFilter
         title = initialTitle
-        desription = task.notes ?: ""
+        description = task.notes ?: ""
         dueDate = _task!!.dueDate
         originalLocation = currentLocation
         location = currentLocation
@@ -106,7 +86,7 @@ class TaskEditDrawerState (
 
     fun isChanged(): Boolean =
         (title.trim() != initialTitle.trim()
-                || desription.trim() != (task.notes ?: "").trim()
+                || description.trim() != (task.notes ?: "").trim()
                 || dueDate != _task!!.dueDate
                 || filter.value != initialFilter
                 || originalLocation != location
@@ -115,7 +95,7 @@ class TaskEditDrawerState (
 
     fun clear() {
         title = initialTitle
-        desription = ""
+        description = ""
         dueDate = _task!!.dueDate
         filter.value = initialFilter
         location = originalLocation
@@ -125,7 +105,7 @@ class TaskEditDrawerState (
     fun retrieveTask(): Task =
         _task!!.copy(
             title = title,
-            notes = desription,
+            notes = description,
             dueDate = dueDate,
             priority = priority,
             remoteId = Task.NO_UUID )
@@ -153,21 +133,12 @@ fun TaskEditDrawer(
     pickList: () -> Unit,
     pickLocation: () -> Unit)
 {
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val background = colorResource(id = R.color.input_popup_background)
-    val foreground = colorResource(id = R.color.input_popup_foreground)
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
             .padding(horizontal = 8.dp)
     ) {
-        val requester = remember { FocusRequester() }
-
-        val doSave: ()->Unit = { save(); state.clear() }
-        val doEdit = { edit(); state.clear() }
-
         /* Custom drag handle, because the standard one is too high and so looks ugly */
         Box(
             modifier = Modifier.height(24.dp).fillMaxWidth(),
@@ -182,44 +153,21 @@ fun TaskEditDrawer(
                     )
             )
         }
-        OutlinedTextField(
-            value = state.title,
+
+        TitleRow(
+            current = state.title,
             onValueChange = { state.title = it },
-            trailingIcon = {
-                if (state.isChanged()) {
-                    IconButton(onClick = doSave) { Icon(IconValues.save, "Save") }
-                } else {
-                    IconButton(onClick = close) { Icon(IconValues.clear, "Close") }
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp, 8.dp, 8.dp, 0.dp)
-                .focusRequester(requester),
-            placeholder = { Text(stringResource(id = R.string.TEA_title_hint)) }, /* "Task name" */
-            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-            keyboardActions = KeyboardActions(onDone = { if (state.isChanged()) doSave() }),
-            singleLine = true,
-            textStyle = MaterialTheme.typography.bodyLarge,
-            colors = OutlinedTextFieldDefaults.colors(
-                cursorColor = MaterialTheme.colorScheme.onSurface,
-                focusedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = ContentAlpha.high),
-                focusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = ContentAlpha.medium)
-            ),
-            shape = MaterialTheme.shapes.medium
+            changed = state.isChanged(),
+            save = { save(); state.clear() },
+            close = close
         )
-        LaunchedEffect(WindowInsets.isImeVisible == false) {
-            requester.requestFocus()
-            delay(30) /* workaround for delay in the system between requestFocus and actual focused state */
-            keyboardController!!.show()
-        }
 
         var descriptionFocus by remember { mutableStateOf(false) }
         var showDescription by remember { mutableStateOf(false) }
         Description(
-            show = (state.desription != "") || descriptionFocus || showDescription,
-            current = state.desription,
-            onValueChange = { state.desription = it; showDescription = false },
+            show = (state.description != "") || descriptionFocus || showDescription,
+            current = state.description,
+            onValueChange = { state.description = it; showDescription = false },
             onFocusChange = { descriptionFocus = it; Timber.d("*** focusChange($it)") }
         )
 
@@ -228,7 +176,7 @@ fun TaskEditDrawer(
 
                 /* description */
                 DescriptionChip(
-                    show = state.desription == "" && !descriptionFocus,
+                    show = state.description == "" && !descriptionFocus,
                     action = { showDescription = true }
                 )
                 /* Due Date */
@@ -260,15 +208,10 @@ fun TaskEditDrawer(
                 )
 
                 /* Main Task Edit launch - must be the last */
-                IconChip(icon = Icons.Outlined.MoreHoriz, action = doEdit)
+                IconChip(icon = Icons.Outlined.MoreHoriz, action = { edit(); state.clear() })
             }
         }
     }
-}
-
-private object IconValues {
-    val clear = Icons.Outlined.Close
-    val save = Icons.Outlined.Save
 }
 
 /*
