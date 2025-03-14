@@ -21,6 +21,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.addCallback
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
@@ -122,6 +123,7 @@ import org.tasks.data.entity.Alarm.Companion.TYPE_REL_START
 import org.tasks.data.entity.Attachment
 import org.tasks.data.entity.FORCE_CALDAV_SYNC
 import org.tasks.data.entity.Geofence
+import org.tasks.data.entity.TagData
 import org.tasks.data.entity.Task
 import org.tasks.data.entity.TaskAttachment
 import org.tasks.data.getLocation
@@ -363,6 +365,13 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                     )
                 }
                 taskEditDrawerState.location = Location(geofence, place)
+            }
+            tagsPickerLauncher = registerForActivityResult<Intent,ActivityResult>(ActivityResultContracts.StartActivityForResult()) {
+                it.data?.let { intent ->
+                    intent.getParcelableArrayListExtra<TagData>(TagPickerActivity.EXTRA_SELECTED)
+                        ?: ArrayList<TagData>()
+                            .let { taskEditDrawerState.selectedTags = it }
+                }
             }
         }
         themeColor = if (filter.tint != 0) colorProvider.getThemeColor(filter.tint, true) else defaultThemeColor
@@ -1140,6 +1149,14 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
 
     private lateinit var filterPickerLauncher: ActivityResultLauncher<Intent>
     private lateinit var locationPickerLauncher: ActivityResultLauncher<Intent>
+    private lateinit var tagsPickerLauncher: ActivityResultLauncher<Intent>
+    private fun launchTagPicker(context: Context, current: ArrayList<TagData>)
+    {
+        tagsPickerLauncher.launch(
+            Intent(context, TagPickerActivity::class.java)
+                .putParcelableArrayListExtra(TagPickerActivity.EXTRA_SELECTED, current)
+        )
+    }
 
     private fun createNewTask(task: Task) {
         lifecycleScope.launch {
@@ -1266,19 +1283,17 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 .let { taskAttachmentDao.insert(it) }
         }
 
-            val model = task
-            taskListEvents.emit(TaskListEvent.TaskCreated(model.uuid))
-            model.calendarURI?.takeIf { it.isNotBlank() }?.let {
-                taskListEvents.emit(TaskListEvent.CalendarEventCreated(model.title, it))
-            }
-
+        val model = task
+        taskListEvents.emit(TaskListEvent.TaskCreated(model.uuid))
+        model.calendarURI?.takeIf { it.isNotBlank() }?.let {
+            taskListEvents.emit(TaskListEvent.CalendarEventCreated(model.title, it))
+        }
     }
 
 
     private fun showTaskInputDrawer(on: Boolean)
     {
         lifecycleScope.launch {
-            //Timber.d("*** showTaskInputDrawer($on)")
             if (on) {
                 val task = taskCreator.createWithValues(filter, "")
                 val targetList = defaultFilterProvider.getList(task)
@@ -1346,6 +1361,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                             listsOnly = true
                         )
                     },
+                    pickTags = { launchTagPicker(requireContext(),taskEditDrawerState.selectedTags) },
                     pickLocation = {
                         locationPickerLauncher.launch(
                             context = requireContext(),

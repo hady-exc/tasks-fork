@@ -36,17 +36,20 @@ import org.tasks.compose.taskdrawer.IconChip
 import org.tasks.compose.taskdrawer.ListChip
 import org.tasks.compose.taskdrawer.LocationChip
 import org.tasks.compose.taskdrawer.PriorityChip
+import org.tasks.compose.taskdrawer.TagsChip
 import org.tasks.compose.taskdrawer.TitleRow
 import org.tasks.data.GoogleTask
 import org.tasks.data.Location
 import org.tasks.data.entity.Alarm
 import org.tasks.data.entity.CaldavTask
 import org.tasks.data.entity.Place
+import org.tasks.data.entity.Tag
 import org.tasks.data.entity.TagData
 import org.tasks.data.entity.Task
 import org.tasks.filters.CaldavFilter
 import org.tasks.filters.Filter
 import org.tasks.filters.GtasksFilter
+import timber.log.Timber
 
 class TaskEditDrawerState (
     val originalFilter: Filter
@@ -55,6 +58,7 @@ class TaskEditDrawerState (
     var description by mutableStateOf("")
     var dueDate by mutableLongStateOf(0L)
     var priority by mutableIntStateOf(0)
+    var selectedTags by mutableStateOf<ArrayList<TagData>>( ArrayList() )
 
     private var originalLocation: Location? = null
     var location by mutableStateOf<Location?>(null)
@@ -66,6 +70,11 @@ class TaskEditDrawerState (
     private var _task: Task? = null
     val task get() = _task!!
     private val initialTitle get() = _task?.title ?: ""
+    private var initialTags = ArrayList<TagData>()
+
+    fun tagsChanged(): Boolean =
+        initialTags.toHashSet() != selectedTags.toHashSet()
+    fun resetTags() { selectedTags = initialTags }
 
     fun setTask(
         newTask: Task,
@@ -83,6 +92,8 @@ class TaskEditDrawerState (
         originalLocation = currentLocation
         location = currentLocation
         priority = _task!!.priority
+        initialTags = currentTags
+        selectedTags = currentTags
     }
 
     fun isChanged(): Boolean =
@@ -92,6 +103,7 @@ class TaskEditDrawerState (
                 || filter.value != initialFilter
                 || originalLocation != location
                 || _task!!.priority != priority
+                || initialTags.toHashSet() != selectedTags.toHashSet()
                 )
 
     fun clear() {
@@ -101,6 +113,7 @@ class TaskEditDrawerState (
         filter.value = initialFilter
         location = originalLocation
         priority = _task!!.priority
+        selectedTags = initialTags
     }
 
     fun retrieveTask(): Task =
@@ -119,6 +132,7 @@ class TaskEditDrawerState (
                     is CaldavFilter -> task.putTransitory(CaldavTask.KEY, (filter.value as CaldavFilter).uuid)
                     else -> {}
                 }
+                task.putTransitory(Tag.KEY, selectedTags.mapNotNull{ it.name })
                 if (isChanged()) task.putTransitory(Task.TRANS_IS_CHANGED, "")
             }
 
@@ -132,6 +146,7 @@ fun TaskEditDrawer(
     edit: () -> Unit = {},
     close: () -> Unit = {},
     pickList: () -> Unit,
+    pickTags: () -> Unit,
     pickLocation: () -> Unit)
 {
     Column(
@@ -195,6 +210,12 @@ fun TaskEditDrawer(
                     currentFiler = state.filter.value,
                     setFilter = { filter -> state.filter.value = filter},
                     pickList = pickList
+                )
+                /* Tags */
+                TagsChip(
+                    current = state.selectedTags,
+                    action = pickTags,
+                    delete = if (state.tagsChanged()) { { state.resetTags() } } else null
                 )
                 /* location */
                 LocationChip(
