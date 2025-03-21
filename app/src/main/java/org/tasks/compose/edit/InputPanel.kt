@@ -49,32 +49,31 @@ import org.tasks.data.entity.Task
 import org.tasks.filters.CaldavFilter
 import org.tasks.filters.Filter
 import org.tasks.filters.GtasksFilter
-import timber.log.Timber
 
 class TaskEditDrawerState (
     val originalFilter: Filter
 ) {
+    private var initialTask: Task? = null
+    val task get() = initialTask!!
+
+    private val initialTitle get() = task.title ?: ""
+    private val initialDescription get() = task.notes ?: ""
+    private var initialLocation: Location? = null
+    internal var initialFilter = originalFilter
+    private var _initialTags = ArrayList<TagData>()
+    val initialTags get() = _initialTags
+
     var title by mutableStateOf("")
     var description by mutableStateOf("")
     var dueDate by mutableLongStateOf(0L)
     var priority by mutableIntStateOf(0)
     var selectedTags by mutableStateOf<ArrayList<TagData>>( ArrayList() )
-
-    private var originalLocation: Location? = null
     var location by mutableStateOf<Location?>(null)
-    internal var initialFilter = originalFilter
     val filter = mutableStateOf(initialFilter)
 
     internal val visible = mutableStateOf(false)
 
-    private var _task: Task? = null
-    val task get() = _task!!
-    private val initialTitle get() = _task?.title ?: ""
-    private var initialTags = ArrayList<TagData>()
-
-    fun tagsChanged(): Boolean =
-        initialTags.toHashSet() != selectedTags.toHashSet()
-    fun resetTags() { selectedTags = initialTags }
+    fun tagsChanged(): Boolean = (initialTags.toHashSet() != selectedTags.toHashSet())
 
     fun setTask(
         newTask: Task,
@@ -83,41 +82,41 @@ class TaskEditDrawerState (
         currentTags: ArrayList<TagData>,
         currentAlarms: ArrayList<Alarm>
     ) {
-        _task = newTask
+        initialTask = newTask
         if (initialFilter == originalFilter) initialFilter = targetFilter
         filter.value = targetFilter
         title = initialTitle
-        description = task.notes ?: ""
-        dueDate = _task!!.dueDate
-        originalLocation = currentLocation
+        description = initialDescription
+        dueDate = newTask.dueDate
+        initialLocation = currentLocation
         location = currentLocation
-        priority = _task!!.priority
-        initialTags = currentTags
+        priority = newTask.priority
+        _initialTags = currentTags
         selectedTags = currentTags
     }
 
     fun isChanged(): Boolean =
         (title.trim() != initialTitle.trim()
-                || description.trim() != (task.notes ?: "").trim()
-                || dueDate != _task!!.dueDate
+                || description.trim() != initialDescription.trim()
+                || dueDate != initialTask!!.dueDate
                 || filter.value != initialFilter
-                || originalLocation != location
-                || _task!!.priority != priority
+                || initialLocation != location
+                || initialTask!!.priority != priority
                 || initialTags.toHashSet() != selectedTags.toHashSet()
                 )
 
     fun clear() {
         title = initialTitle
         description = ""
-        dueDate = _task!!.dueDate
+        dueDate = task.dueDate
         filter.value = initialFilter
-        location = originalLocation
-        priority = _task!!.priority
+        location = initialLocation
+        priority = task.priority
         selectedTags = initialTags
     }
 
     fun retrieveTask(): Task =
-        _task!!.copy(
+        initialTask!!.copy(
             title = title,
             notes = description,
             dueDate = dueDate,
@@ -215,12 +214,12 @@ fun TaskEditDrawer(
                 TagsChip(
                     current = state.selectedTags,
                     action = pickTags,
-                    delete = if (state.tagsChanged()) { { state.resetTags() } } else null
+                    delete = if (state.tagsChanged()) { { state.selectedTags = state.initialTags } } else null
                 )
                 /* location */
                 LocationChip(
                     current = state.location,
-                    setLocation = { location -> state.location = location},
+                    setLocation = { location -> state.location = location },
                     pickLocation = pickLocation
                 )
                 /* priority */
