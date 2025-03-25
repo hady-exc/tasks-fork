@@ -348,32 +348,10 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             }
             fab.isVisible = filter.isWritable
 
-            inputHost.setContent { TaskEditDrawerContent() }
-            filterPickerLauncher = registerForListPickerResult { list ->
-                taskEditDrawerState.filter.value = list
-            }
-            locationPickerLauncher = registerForLocationPickerResult { place ->
-                val location = taskEditDrawerState.location
-                val geofence = if (location == null) {
-                    createGeofence(place.uid, preferences)
-                } else {
-                    val existing = location.geofence
-                    Geofence(
-                        place = place.uid,
-                        isArrival = existing.isArrival,
-                        isDeparture = existing.isDeparture,
-                    )
-                }
-                taskEditDrawerState.location = Location(geofence, place)
-            }
-            tagsPickerLauncher = registerForActivityResult<Intent,ActivityResult>(ActivityResultContracts.StartActivityForResult()) {
-                it.data?.let { intent ->
-                    intent.getParcelableArrayListExtra<TagData>(TagPickerActivity.EXTRA_SELECTED)
-                        ?: ArrayList<TagData>()
-                            .let { taskEditDrawerState.selectedTags = it }
-                }
-            }
         }
+        binding.inputHost.setContent { TaskEditDrawerContent() }
+        initLaunchers()
+
         themeColor = if (filter.tint != 0) colorProvider.getThemeColor(filter.tint, true) else defaultThemeColor
         (filter as? AstridOrderingFilter)?.filterOverride = null
 
@@ -1146,10 +1124,40 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     }
 
     private lateinit var taskEditDrawerState: TaskEditDrawerState
-
     private lateinit var filterPickerLauncher: ActivityResultLauncher<Intent>
     private lateinit var locationPickerLauncher: ActivityResultLauncher<Intent>
     private lateinit var tagsPickerLauncher: ActivityResultLauncher<Intent>
+
+    private fun initLaunchers() // must be called from onCreateView
+    {
+        filterPickerLauncher = registerForListPickerResult { list ->
+            taskEditDrawerState.filter.value = list
+        }
+        locationPickerLauncher = registerForLocationPickerResult { place ->
+            val location = taskEditDrawerState.location
+            val geofence = if (location == null) {
+                createGeofence(place.uid, preferences)
+            } else {
+                val existing = location.geofence
+                Geofence(
+                    place = place.uid,
+                    isArrival = existing.isArrival,
+                    isDeparture = existing.isDeparture,
+                )
+            }
+            taskEditDrawerState.location = Location(geofence, place)
+        }
+        tagsPickerLauncher = registerForActivityResult<Intent,ActivityResult>(ActivityResultContracts.StartActivityForResult()) {
+            it.data?.let { intent ->
+                (intent.getParcelableArrayListExtra<TagData>(TagPickerActivity.EXTRA_SELECTED)
+                    ?: ArrayList<TagData>())
+                        .let {
+                            taskEditDrawerState.selectedTags = it
+                        }
+            }
+        }
+    }
+
     private fun launchTagPicker(context: Context, current: ArrayList<TagData>)
     {
         tagsPickerLauncher.launch(
