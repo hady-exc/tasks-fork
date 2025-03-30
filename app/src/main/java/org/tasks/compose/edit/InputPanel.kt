@@ -36,6 +36,7 @@ import org.tasks.compose.taskdrawer.IconChip
 import org.tasks.compose.taskdrawer.ListChip
 import org.tasks.compose.taskdrawer.LocationChip
 import org.tasks.compose.taskdrawer.PriorityChip
+import org.tasks.compose.taskdrawer.StartDateTimeChip
 import org.tasks.compose.taskdrawer.TagsChip
 import org.tasks.compose.taskdrawer.TitleRow
 import org.tasks.data.GoogleTask
@@ -70,6 +71,8 @@ class TaskEditDrawerState (
     var selectedTags by mutableStateOf<ArrayList<TagData>>( ArrayList() )
     var location by mutableStateOf<Location?>(null)
     val filter = mutableStateOf(initialFilter)
+    var startDay by mutableLongStateOf(0L)
+    var startTime by mutableIntStateOf(0)
 
     internal val visible = mutableStateOf(false)
 
@@ -93,6 +96,7 @@ class TaskEditDrawerState (
         priority = newTask.priority
         _initialTags = currentTags
         selectedTags = currentTags
+        startDay = newTask.hideUntil
     }
 
     fun isChanged(): Boolean =
@@ -146,7 +150,9 @@ fun TaskEditDrawer(
     close: () -> Unit = {},
     pickList: () -> Unit,
     pickTags: () -> Unit,
-    pickLocation: () -> Unit)
+    pickLocation: () -> Unit,
+    pickStartDateTime: () -> Unit
+)
 {
     Column(
         modifier = Modifier
@@ -202,6 +208,8 @@ fun TaskEditDrawer(
                     current = state.dueDate,
                     setValue = { value -> state.dueDate = value }
                 )
+                /* Start Date */
+                StartDateTimeChip(state.startDay,state.startTime, pickStartDateTime)
                 /* Target List */
                 ListChip(
                     originalFilter = state.originalFilter,

@@ -136,6 +136,11 @@ import org.tasks.dialogs.DateTimePicker.Companion.newDateTimePicker
 import org.tasks.dialogs.DialogBuilder
 import org.tasks.dialogs.PriorityPicker.Companion.newPriorityPicker
 import org.tasks.dialogs.SortSettingsActivity
+import org.tasks.dialogs.StartDatePicker
+import org.tasks.dialogs.StartDatePicker.Companion.EXTRA_DAY
+import org.tasks.dialogs.StartDatePicker.Companion.EXTRA_TIME
+import org.tasks.dialogs.StartDatePicker.Companion.NO_DAY
+import org.tasks.dialogs.StartDatePicker.Companion.NO_TIME
 import org.tasks.extensions.Context.canScheduleExactAlarms
 import org.tasks.extensions.Context.is24HourFormat
 import org.tasks.extensions.Context.openAppNotificationSettings
@@ -775,7 +780,8 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 }
                 finishActionMode()
             }
-            else -> super.onActivityResult(requestCode, resultCode, data)
+            else -> if (!taskDrawerDialogReceiver(requestCode, resultCode, data))
+                super.onActivityResult(requestCode, resultCode, data)
         }
     }
 
@@ -1166,6 +1172,46 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         )
     }
 
+    /* Dialog fragments launching and listening. Hack. TODO(replace by a regular solution)  */
+    private val REQUEST_START_DATE = 11011 // StartDateControlSet.REQUEST_START_DATE
+    private val FRAG_TAG_DATE_PICKER = "frag_tag_date_picker" // StartDateControlSet.FRAG_TAG_DATE_PICKER
+
+    private fun launchStartDateTimePicker(context: Context, date: Long, time: Int)
+    {
+        val fragmentManager = parentFragmentManager
+        if (fragmentManager.findFragmentByTag(FRAG_TAG_DATE_PICKER) == null) {
+            StartDatePicker.newDateTimePicker(
+                this@TaskListFragment,
+                REQUEST_START_DATE,
+                date,
+                time,
+                preferences.getBoolean(
+                    R.string.p_auto_dismiss_datetime_edit_screen,
+                    false
+                )
+            )
+                .show(fragmentManager, FRAG_TAG_DATE_PICKER)
+        }
+    }
+
+    private fun taskDrawerDialogReceiver(requestCode: Int, resultCode: Int, data: Intent?): Boolean
+    {
+        when (requestCode) {
+            REQUEST_START_DATE -> if (resultCode == RESULT_OK) {
+                Timber.d("**** DateTimePicker results arived")
+                data?.let { intent ->
+                    val selectedDate = intent.getLongExtra(EXTRA_DAY, 0L) ?: NO_DAY
+                    val selectedTime = intent.getIntExtra(EXTRA_TIME, 0) ?: NO_TIME
+                    taskEditDrawerState.startDay = selectedDate
+                    taskEditDrawerState.startTime = selectedTime
+                    Timber.d("**** date $selectedDate and time $selectedTime arived")
+                }
+            }
+            else -> return false
+        }
+        return true
+    }
+
     private fun createNewTask(task: Task) {
         lifecycleScope.launch {
             shortcutManager.reportShortcutUsed(ShortcutManager.SHORTCUT_NEW_TASK)
@@ -1376,6 +1422,9 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                             selectedLocation = taskEditDrawerState.location
                         )
                     },
+                    pickStartDateTime = {
+                        launchStartDateTimePicker(requireContext(), taskEditDrawerState.startDay, taskEditDrawerState.startTime)
+                    }
                 )
             }
         }
