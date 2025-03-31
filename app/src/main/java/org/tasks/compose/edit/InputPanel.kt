@@ -28,7 +28,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.runBlocking
 import org.tasks.compose.taskdrawer.Description
 import org.tasks.compose.taskdrawer.DescriptionChip
 import org.tasks.compose.taskdrawer.DueDateChip
@@ -47,9 +49,21 @@ import org.tasks.data.entity.Place
 import org.tasks.data.entity.Tag
 import org.tasks.data.entity.TagData
 import org.tasks.data.entity.Task
+import org.tasks.date.DateTimeUtils.toDateTime
+import org.tasks.dialogs.StartDatePicker
+import org.tasks.dialogs.StartDatePicker.Companion.DAY_BEFORE_DUE
+import org.tasks.dialogs.StartDatePicker.Companion.DUE_DATE
+import org.tasks.dialogs.StartDatePicker.Companion.DUE_TIME
+import org.tasks.dialogs.StartDatePicker.Companion.WEEK_BEFORE_DUE
+import org.tasks.extensions.Context.is24HourFormat
 import org.tasks.filters.CaldavFilter
 import org.tasks.filters.Filter
 import org.tasks.filters.GtasksFilter
+import org.tasks.kmp.org.tasks.time.DateStyle
+import org.tasks.kmp.org.tasks.time.getRelativeDateTime
+import org.tasks.time.millisOfDay
+import org.tasks.time.startOfDay
+import timber.log.Timber
 
 class TaskEditDrawerState (
     val originalFilter: Filter
@@ -74,6 +88,44 @@ class TaskEditDrawerState (
     var startDay by mutableLongStateOf(0L)
     var startTime by mutableIntStateOf(0)
 
+    val startDate: Long
+        get() {
+            if (dueDate == 0L && startDay < 0) return 0L
+            val due = dueDate.takeIf { it > 0 }?.toDateTime()
+                return when (startDay) {
+                    DUE_DATE -> due?.withMillisOfDay(startTime)?.millis ?: 0
+                    DUE_TIME -> due?.millis ?: 0
+                    DAY_BEFORE_DUE -> due?.minusDays(1)?.withMillisOfDay(startTime)?.millis ?: 0
+                    WEEK_BEFORE_DUE -> due?.minusDays(7)?.withMillisOfDay(startTime)?.millis ?: 0
+                    else -> startDay + startTime
+                }
+            }
+
+    private fun setStartDate(dueDate: Long, startDate: Long)
+    {
+        if (startDate < 0) {
+            startDay = startDate
+        } else if (startDate > 0) {
+            val dateTime = startDate.toDateTime()
+            val dueDay = dueDate.startOfDay()
+            startDay = dateTime.startOfDay().millis
+            startTime = dateTime.millisOfDay
+            startDay = when (startDay) {
+                dueDay -> if (startTime == dueDate.millisOfDay) {
+                    startTime = StartDatePicker.NO_TIME
+                    DUE_TIME
+                } else {
+                    DUE_DATE
+                }
+                dueDay.toDateTime().minusDays(1).millis ->
+                    DAY_BEFORE_DUE
+                dueDay.toDateTime().minusDays(7).millis ->
+                    WEEK_BEFORE_DUE
+                else -> startDay
+            }
+        }
+    }
+
     internal val visible = mutableStateOf(false)
 
     fun tagsChanged(): Boolean = (initialTags.toHashSet() != selectedTags.toHashSet())
@@ -96,18 +148,21 @@ class TaskEditDrawerState (
         priority = newTask.priority
         _initialTags = currentTags
         selectedTags = currentTags
-        startDay = newTask.hideUntil
+        setStartDate(newTask.dueDate, newTask.hideUntil)
     }
 
-    fun isChanged(): Boolean =
-        (title.trim() != initialTitle.trim()
+    fun isChanged(): Boolean {
+        Timber.d("**** hideUntil = ${initialTask!!.hideUntil}, startDay = $startDay, sum = ${startDay+startTime}")
+        return title.trim() != initialTitle.trim()
                 || description.trim() != initialDescription.trim()
                 || dueDate != initialTask!!.dueDate
                 || filter.value != initialFilter
                 || initialLocation != location
                 || initialTask!!.priority != priority
                 || initialTags.toHashSet() != selectedTags.toHashSet()
-                )
+                || initialTask!!.hideUntil != startDay + startTime
+
+    }
 
     fun clear() {
         title = initialTitle
@@ -117,6 +172,7 @@ class TaskEditDrawerState (
         location = initialLocation
         priority = task.priority
         selectedTags = initialTags
+        setStartDate(task.dueDate, task.hideUntil)
     }
 
     fun retrieveTask(): Task =
@@ -125,6 +181,7 @@ class TaskEditDrawerState (
             notes = description,
             dueDate = dueDate,
             priority = priority,
+            hideUntil = startDate,
             remoteId = Task.NO_UUID )
             .also { task ->
                 location?.let { location ->
@@ -138,7 +195,6 @@ class TaskEditDrawerState (
                 task.putTransitory(Tag.KEY, selectedTags.mapNotNull{ it.name })
                 if (isChanged()) task.putTransitory(Task.TRANS_IS_CHANGED, "")
             }
-
 }
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class)
@@ -192,6 +248,7 @@ fun TaskEditDrawer(
         )
 
         Row (modifier = Modifier.padding(8.dp)) {
+            val context = LocalContext.current
             FlowRow (
                 Modifier.wrapContentHeight(),
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -209,7 +266,20 @@ fun TaskEditDrawer(
                     setValue = { value -> state.dueDate = value }
                 )
                 /* Start Date */
-                StartDateTimeChip(state.startDay,state.startTime, pickStartDateTime)
+                StartDateTimeChip(
+                    state.startDay,
+                    state.startTime,
+                    { runBlocking {
+                        getRelativeDateTime(
+                            state.startDay + state.startTime,
+                            context.is24HourFormat,
+                            DateStyle.SHORT,
+                            alwaysDisplayFullDate = false //preferences.alwaysDisplayFullDate
+                        )
+                    }},
+                    pickStartDateTime,
+                    delete = { state.startDay = 0L; state.startDay = 0}
+                )
                 /* Target List */
                 ListChip(
                     originalFilter = state.originalFilter,

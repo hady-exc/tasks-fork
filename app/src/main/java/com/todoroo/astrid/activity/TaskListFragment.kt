@@ -137,10 +137,14 @@ import org.tasks.dialogs.DialogBuilder
 import org.tasks.dialogs.PriorityPicker.Companion.newPriorityPicker
 import org.tasks.dialogs.SortSettingsActivity
 import org.tasks.dialogs.StartDatePicker
+import org.tasks.dialogs.StartDatePicker.Companion.DAY_BEFORE_DUE
+import org.tasks.dialogs.StartDatePicker.Companion.DUE_DATE
+import org.tasks.dialogs.StartDatePicker.Companion.DUE_TIME
 import org.tasks.dialogs.StartDatePicker.Companion.EXTRA_DAY
 import org.tasks.dialogs.StartDatePicker.Companion.EXTRA_TIME
 import org.tasks.dialogs.StartDatePicker.Companion.NO_DAY
 import org.tasks.dialogs.StartDatePicker.Companion.NO_TIME
+import org.tasks.dialogs.StartDatePicker.Companion.WEEK_BEFORE_DUE
 import org.tasks.extensions.Context.canScheduleExactAlarms
 import org.tasks.extensions.Context.is24HourFormat
 import org.tasks.extensions.Context.openAppNotificationSettings
@@ -1350,10 +1354,19 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         lifecycleScope.launch {
             if (on) {
                 val task = taskCreator.createWithValues(filter, "")
+                task.hideUntil = when (preferences.getIntegerFromString(R.string.p_default_hideUntil_key, Task.HIDE_UNTIL_NONE)) {
+                    Task.HIDE_UNTIL_DUE -> DUE_DATE
+                    Task.HIDE_UNTIL_DUE_TIME -> DUE_TIME
+                    Task.HIDE_UNTIL_DAY_BEFORE -> DAY_BEFORE_DUE
+                    Task.HIDE_UNTIL_WEEK_BEFORE -> WEEK_BEFORE_DUE
+                    else -> 0L
+                }
+
                 val targetList = defaultFilterProvider.getList(task)
                 val currentLocation = locationDao.getLocation(task,preferences)
                 val currentTags = tagDataDao.getTags(task)
                 val currentAlarms = alarmDao.getAlarms(task)
+
 
                 taskEditDrawerState.setTask(task, targetList, currentLocation, currentTags, currentAlarms)
             }
