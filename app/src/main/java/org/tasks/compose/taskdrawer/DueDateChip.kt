@@ -12,6 +12,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.runBlocking
 import org.tasks.compose.pickers.DatePickerDialog
 import org.tasks.date.DateTimeUtils.newDateTime
+import org.tasks.kmp.org.tasks.time.DateStyle
 import org.tasks.kmp.org.tasks.time.getRelativeDay
 import org.tasks.time.DateTime
 
@@ -46,7 +47,12 @@ private fun DueDateChip(
 ) {
     if (current != 0L) {
         Chip(
-            title = runBlocking { getRelativeDay(current) },
+            title = runBlocking {
+                getRelativeDay(
+                    date = current,
+                    style = DateStyle.SHORT
+                )
+            },
             leading = dueDateIcon,
             action = action,
             delete = delete
