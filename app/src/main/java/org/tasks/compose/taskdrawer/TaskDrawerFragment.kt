@@ -1,6 +1,7 @@
 package org.tasks.compose.taskdrawer
 
 import android.app.Activity
+import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -18,16 +19,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.todoroo.astrid.activity.TaskListFragment
 import com.todoroo.astrid.alarms.AlarmService
 import com.todoroo.astrid.dao.TaskDao
 import com.todoroo.astrid.gcal.GCalHelper
 import com.todoroo.astrid.service.TaskCreator
 import com.todoroo.astrid.service.TaskMover
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.tasks.R
 import org.tasks.compose.FilterSelectionActivity.Companion.launch
@@ -55,6 +54,8 @@ import org.tasks.dialogs.StartDatePicker
 import org.tasks.dialogs.StartDatePicker.Companion.DAY_BEFORE_DUE
 import org.tasks.dialogs.StartDatePicker.Companion.DUE_DATE
 import org.tasks.dialogs.StartDatePicker.Companion.DUE_TIME
+import org.tasks.dialogs.StartDatePicker.Companion.EXTRA_DAY
+import org.tasks.dialogs.StartDatePicker.Companion.EXTRA_TIME
 import org.tasks.dialogs.StartDatePicker.Companion.WEEK_BEFORE_DUE
 import org.tasks.filters.CaldavFilter
 import org.tasks.filters.Filter
@@ -92,7 +93,7 @@ class TaskDrawerFragment: DialogFragment() {
     @Inject lateinit var taskAttachmentDao: TaskAttachmentDao
     @Inject lateinit var taskListEvents: TaskListEventBus
 
-    private lateinit var target: FragmentManager
+    private lateinit var target: Fragment
     private lateinit var filter: Filter
     private lateinit var taskEditDrawerState: TaskEditDrawerState
     private lateinit var filterPickerLauncher: ActivityResultLauncher<Intent>
@@ -105,17 +106,34 @@ class TaskDrawerFragment: DialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         val composeView = ComposeView(context)
-        composeView.setContent {
-            TaskEditDrawerContent() // тут как раз интересно все
-        }
+        composeView.setContent { TaskEditDrawerContent() }
         initLaunchers()
         return composeView
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        savedInstanceState?.getParcelable<Filter>(EXTRA_FILTER)?.let { filter = it }
+        @Suppress("DEPRECATION")
+        arguments?.getParcelable<Filter>(EXTRA_FILTER)?.let { filter = it }
         taskEditDrawerState = TaskEditDrawerState(filter)
+        showTaskInputDrawer(true)
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when (requestCode) {
+            REQUEST_START_DATE -> if (resultCode == RESULT_OK) {
+                data?.let { intent ->
+                    taskEditDrawerState.startDay = intent.getLongExtra(EXTRA_DAY, 0L)
+                    taskEditDrawerState.startTime = intent.getIntExtra(EXTRA_TIME, 0)
+                }
+            }
+
+            else -> {
+                @Suppress("DEPRECATION")
+                super.onActivityResult(requestCode, resultCode, data)
+            }
+        }
     }
 
     private fun initLaunchers() // must be called from onCreateView
@@ -139,6 +157,7 @@ class TaskDrawerFragment: DialogFragment() {
         }
         tagsPickerLauncher = registerForActivityResult<Intent,ActivityResult>(ActivityResultContracts.StartActivityForResult()) {
             it.data?.let { intent ->
+                @Suppress("DEPRECATION")
                 (intent.getParcelableArrayListExtra<TagData>(TagPickerActivity.EXTRA_SELECTED)
                     ?: ArrayList<TagData>())
                     .let {
@@ -160,7 +179,7 @@ class TaskDrawerFragment: DialogFragment() {
     private val REQUEST_START_DATE = 11011 // StartDateControlSet.REQUEST_START_DATE
     private val FRAG_TAG_DATE_PICKER = "frag_tag_date_picker" // StartDateControlSet.FRAG_TAG_DATE_PICKER
 
-    private fun launchStartDateTimePicker(context: Context, date: Long, time: Int)
+    private fun launchStartDateTimePicker(date: Long, time: Int)
     {
         val fragmentManager = parentFragmentManager
         if (fragmentManager.findFragmentByTag(FRAG_TAG_DATE_PICKER) == null) {
@@ -198,9 +217,9 @@ class TaskDrawerFragment: DialogFragment() {
 
 
                 taskEditDrawerState.setTask(task, targetList, currentLocation, currentTags, currentAlarms)
-            }
+            } else dismiss()
             taskEditDrawerState.visible.value = on
-            if (!on) delay(100)  /* to prevent Fab flicker before soft keyboard disappear */
+//            if (!on) delay(100)  /* to prevent Fab flicker before soft keyboard disappear */
 /*
             binding.fab.isVisible = !on
             if ( !preferences.isTopAppBar ) binding.bottomAppBar.isVisible = !on
@@ -209,7 +228,11 @@ class TaskDrawerFragment: DialogFragment() {
     }
 
     private fun sendTaskToEdit(task: Task) {
-        target.setFragmentResult(REQUEST_EDIT_TASK, Bundle().apply { putParcelable(EXTRA_TASK, task) })
+        Timber.d("**** sendTaskToEdit($task)")
+        val intent = Intent()
+        intent.putExtra(EXTRA_TASK,task)
+        targetFragment?.onActivityResult(targetRequestCode, RESULT_OK, intent)
+        //target.setFragmentResult(FRAG_TAG_TASK_DRAWER, Bundle().apply { putParcelable(EXTRA_TASK, task) } )
     }
 
     private fun close() { dismiss() }
@@ -344,7 +367,7 @@ class TaskDrawerFragment: DialogFragment() {
                 hide = { showTaskInputDrawer(false) },
                 onDismissRequest = {
                     if (taskEditDrawerState.isChanged()) promptDiscard = true
-                    else showTaskInputDrawer(false) //close()
+                    else showTaskInputDrawer(false); close()
                 },
                 hideConfirmation = {
                     if (taskEditDrawerState.isChanged()) {
@@ -386,7 +409,7 @@ class TaskDrawerFragment: DialogFragment() {
                         )
                     },
                     pickStartDateTime = {
-                        launchStartDateTimePicker(requireContext(), taskEditDrawerState.startDay, taskEditDrawerState.startTime)
+                        launchStartDateTimePicker(taskEditDrawerState.startDay, taskEditDrawerState.startTime)
                     }
                 )
             }
@@ -394,16 +417,18 @@ class TaskDrawerFragment: DialogFragment() {
     }
 
     companion object {
+        const val FRAG_TAG_TASK_DRAWER = "frag_tag_task_drawer"
         const val EXTRA_FILTER = "extra_filter"
         const val EXTRA_TASK = "extra_task"
-        const val REQUEST_EDIT_TASK = "REQUEST_EDIT_TASK"
+        const val REQUEST_EDIT_TASK = 11100
 
-        fun open(filter: Filter, manager: FragmentManager, key: String) {
-            val dialog = TaskDrawerFragment().apply { target = manager }
+        fun newTaskDrawer(target: Fragment, rc: Int, filter: Filter): DialogFragment {
+            val dialog = TaskDrawerFragment().apply { this.target = target }
             val bundle = Bundle()
             bundle.putParcelable(EXTRA_FILTER, filter)
             dialog.arguments = bundle
-            dialog.show(manager, key)
+            dialog.setTargetFragment(target, rc)
+            return dialog
         }
     }
 }

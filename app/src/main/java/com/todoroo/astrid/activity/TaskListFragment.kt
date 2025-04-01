@@ -106,6 +106,7 @@ import org.tasks.compose.edit.TaskEditDrawerState
 import org.tasks.compose.rememberReminderPermissionState
 import org.tasks.compose.taskdrawer.BottomSheet
 import org.tasks.compose.taskdrawer.PromptDiscard
+import org.tasks.compose.taskdrawer.TaskDrawerFragment
 import org.tasks.data.Location
 import org.tasks.data.TaskContainer
 import org.tasks.data.createGeofence
@@ -784,6 +785,13 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 }
                 finishActionMode()
             }
+            TaskDrawerFragment.REQUEST_EDIT_TASK -> if (resultCode == RESULT_OK) {
+                val task = data?.getParcelableExtra<Task>(TaskDrawerFragment.EXTRA_TASK)
+                Timber.d("**** Task Edit requested for $task")
+                task?.let {
+                    createNewTask(task)
+                }
+            }
             else -> if (!taskDrawerDialogReceiver(requestCode, resultCode, data))
                 super.onActivityResult(requestCode, resultCode, data)
         }
@@ -1348,9 +1356,28 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         }
     }
 
+    private fun launchTaskDrawer () {
+        val fragmentManager = parentFragmentManager
+        if (fragmentManager.findFragmentByTag(TaskDrawerFragment.FRAG_TAG_TASK_DRAWER) == null) {
+            TaskDrawerFragment
+                .newTaskDrawer(
+                    this@TaskListFragment,
+                    TaskDrawerFragment.REQUEST_EDIT_TASK,
+                    filter
+                )
+                .show(fragmentManager, TaskDrawerFragment.FRAG_TAG_TASK_DRAWER)
+        }
+/*
+        TaskDrawerFragment.open(
+            filter, parentFragmentManager, FRAG_TAG_TASK_DRAWER
+        )
+*/
+    }
 
     private fun showTaskInputDrawer(on: Boolean)
     {
+        launchTaskDrawer()
+        return
         lifecycleScope.launch {
             if (on) {
                 val task = taskCreator.createWithValues(filter, "")
@@ -1371,6 +1398,8 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 taskEditDrawerState.setTask(task, targetList, currentLocation, currentTags, currentAlarms)
             }
             taskEditDrawerState.visible.value = on
+
+
             if (!on) delay(100)  /* to prevent Fab flicker before soft keyboard disappear */
             binding.fab.isVisible = !on
             if ( !preferences.isTopAppBar ) binding.bottomAppBar.isVisible = !on
