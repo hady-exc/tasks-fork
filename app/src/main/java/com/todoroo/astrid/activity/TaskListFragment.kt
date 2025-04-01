@@ -787,7 +787,6 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             }
             TaskDrawerFragment.REQUEST_EDIT_TASK -> if (resultCode == RESULT_OK) {
                 val task = data?.getParcelableExtra<Task>(TaskDrawerFragment.EXTRA_TASK)
-                Timber.d("**** Task Edit requested for $task")
                 task?.let {
                     createNewTask(task)
                 }

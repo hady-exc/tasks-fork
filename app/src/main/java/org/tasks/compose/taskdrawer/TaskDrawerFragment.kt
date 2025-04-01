@@ -27,7 +27,9 @@ import com.todoroo.astrid.gcal.GCalHelper
 import com.todoroo.astrid.service.TaskCreator
 import com.todoroo.astrid.service.TaskMover
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.tasks.R
 import org.tasks.compose.FilterSelectionActivity.Companion.launch
 import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPickerResult
@@ -116,7 +118,33 @@ class TaskDrawerFragment: DialogFragment() {
         @Suppress("DEPRECATION")
         arguments?.getParcelable<Filter>(EXTRA_FILTER)?.let { filter = it }
         taskEditDrawerState = TaskEditDrawerState(filter)
-        showTaskInputDrawer(true)
+        lifecycleScope.launch {
+            val task = taskCreator.createWithValues(filter, "")
+            task.hideUntil = when (preferences.getIntegerFromString(
+                R.string.p_default_hideUntil_key,
+                Task.HIDE_UNTIL_NONE
+            )) {
+                Task.HIDE_UNTIL_DUE -> DUE_DATE
+                Task.HIDE_UNTIL_DUE_TIME -> DUE_TIME
+                Task.HIDE_UNTIL_DAY_BEFORE -> DAY_BEFORE_DUE
+                Task.HIDE_UNTIL_WEEK_BEFORE -> WEEK_BEFORE_DUE
+                else -> 0L
+            }
+
+            val targetList = defaultFilterProvider.getList(task)
+            val currentLocation = locationDao.getLocation(task, preferences)
+            val currentTags = tagDataDao.getTags(task)
+            val currentAlarms = alarmDao.getAlarms(task)
+
+
+            taskEditDrawerState.setTask(
+                task,
+                targetList,
+                currentLocation,
+                currentTags,
+                currentAlarms
+            )
+        }
     }
 
     @Deprecated("Deprecated in Java")
@@ -197,42 +225,10 @@ class TaskDrawerFragment: DialogFragment() {
         }
     }
 
-    private fun showTaskInputDrawer(on: Boolean)
-    {
-        lifecycleScope.launch {
-            if (on) {
-                val task = taskCreator.createWithValues(filter, "")
-                task.hideUntil = when (preferences.getIntegerFromString(R.string.p_default_hideUntil_key, Task.HIDE_UNTIL_NONE)) {
-                    Task.HIDE_UNTIL_DUE -> DUE_DATE
-                    Task.HIDE_UNTIL_DUE_TIME -> DUE_TIME
-                    Task.HIDE_UNTIL_DAY_BEFORE -> DAY_BEFORE_DUE
-                    Task.HIDE_UNTIL_WEEK_BEFORE -> WEEK_BEFORE_DUE
-                    else -> 0L
-                }
-
-                val targetList = defaultFilterProvider.getList(task)
-                val currentLocation = locationDao.getLocation(task,preferences)
-                val currentTags = tagDataDao.getTags(task)
-                val currentAlarms = alarmDao.getAlarms(task)
-
-
-                taskEditDrawerState.setTask(task, targetList, currentLocation, currentTags, currentAlarms)
-            } else dismiss()
-            taskEditDrawerState.visible.value = on
-//            if (!on) delay(100)  /* to prevent Fab flicker before soft keyboard disappear */
-/*
-            binding.fab.isVisible = !on
-            if ( !preferences.isTopAppBar ) binding.bottomAppBar.isVisible = !on
-*/
-        }
-    }
-
     private fun sendTaskToEdit(task: Task) {
-        Timber.d("**** sendTaskToEdit($task)")
         val intent = Intent()
         intent.putExtra(EXTRA_TASK,task)
         targetFragment?.onActivityResult(targetRequestCode, RESULT_OK, intent)
-        //target.setFragmentResult(FRAG_TAG_TASK_DRAWER, Bundle().apply { putParcelable(EXTRA_TASK, task) } )
     }
 
     private fun close() { dismiss() }
@@ -245,7 +241,7 @@ class TaskDrawerFragment: DialogFragment() {
         selectedCalendar: String? = null,
         selectedAlarms: List<Alarm> = emptyList<Alarm>(),
         selectedAttachments: List<TaskAttachment> = emptyList<TaskAttachment>()
-    ) /*= withContext(NonCancellable)*/ {
+    ) = withContext(NonCancellable) {
 /*
         TODO: Get sure that all tasks came here have changes, e.g. UI calls this fun only when user changed something
 */
@@ -359,15 +355,15 @@ class TaskDrawerFragment: DialogFragment() {
             PromptDiscard(
                 show = promptDiscard,
                 cancel = { promptDiscard = false },
-                discard = { showTaskInputDrawer(false) }
+                discard = { close() }
             )
 
             BottomSheet(
-                show = taskEditDrawerState.visible.value,
-                hide = { showTaskInputDrawer(false) },
+                show = true,
+                hide = { close() },
                 onDismissRequest = {
                     if (taskEditDrawerState.isChanged()) promptDiscard = true
-                    else showTaskInputDrawer(false); close()
+                    else close()
                 },
                 hideConfirmation = {
                     if (taskEditDrawerState.isChanged()) {
@@ -391,7 +387,7 @@ class TaskDrawerFragment: DialogFragment() {
                     },
                     edit = {
                         sendTaskToEdit(taskEditDrawerState.retrieveTask())
-                        showTaskInputDrawer(false)
+                        close()
                     },
                     close = close,
                     pickList = {
