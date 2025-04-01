@@ -58,11 +58,9 @@ import com.google.android.material.snackbar.Snackbar
 import com.todoroo.andlib.utility.AndroidUtilities
 import com.todoroo.astrid.adapter.TaskAdapter
 import com.todoroo.astrid.adapter.TaskAdapterProvider
-import com.todoroo.astrid.alarms.AlarmService
 import com.todoroo.astrid.api.AstridApiConstants.EXTRAS_OLD_DUE_DATE
 import com.todoroo.astrid.api.AstridApiConstants.EXTRAS_TASK_ID
 import com.todoroo.astrid.dao.TaskDao
-import com.todoroo.astrid.gcal.GCalHelper
 import com.todoroo.astrid.repeats.RepeatTaskHelper
 import com.todoroo.astrid.service.TaskCompleter
 import com.todoroo.astrid.service.TaskCreator
@@ -71,7 +69,6 @@ import com.todoroo.astrid.service.TaskMover
 import com.todoroo.astrid.timers.TimerPlugin
 import com.todoroo.astrid.utility.Flags
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -96,12 +93,8 @@ import org.tasks.compose.SubscriptionNagBanner
 import org.tasks.compose.rememberReminderPermissionState
 import org.tasks.compose.taskdrawer.TaskDrawerFragment
 import org.tasks.data.TaskContainer
-import org.tasks.data.dao.AlarmDao
 import org.tasks.data.dao.CaldavDao
-import org.tasks.data.dao.LocationDao
-import org.tasks.data.dao.TagDao
 import org.tasks.data.dao.TagDataDao
-import org.tasks.data.dao.TaskAttachmentDao
 import org.tasks.data.db.Database
 import org.tasks.data.db.SuspendDbUtils.chunkedMap
 import org.tasks.data.entity.Task
@@ -134,12 +127,8 @@ import org.tasks.filters.PlaceFilter
 import org.tasks.filters.TagFilter
 import org.tasks.kmp.org.tasks.time.DateStyle
 import org.tasks.kmp.org.tasks.time.getRelativeDateTime
-import org.tasks.location.GeofenceApi
 import org.tasks.markdown.MarkdownProvider
-import org.tasks.notifications.NotificationManager
-import org.tasks.preferences.DefaultFilterProvider
 import org.tasks.preferences.Device
-import org.tasks.preferences.PermissionChecker
 import org.tasks.preferences.Preferences
 import org.tasks.scheduling.NotificationSchedulerIntentService
 import org.tasks.sync.SyncAdapters
@@ -181,12 +170,10 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     @Inject lateinit var taskAdapterProvider: TaskAdapterProvider
     @Inject lateinit var taskDao: TaskDao
     @Inject lateinit var taskDuplicator: TaskDuplicator
-    @Inject lateinit var tagDao: TagDao
     @Inject lateinit var tagDataDao: TagDataDao
     @Inject lateinit var caldavDao: CaldavDao
     @Inject lateinit var defaultThemeColor: ThemeColor
     @Inject lateinit var colorProvider: ColorProvider
-    @Inject lateinit var notificationManager: NotificationManager
     @Inject lateinit var shortcutManager: ShortcutManager
     @Inject lateinit var taskCompleter: TaskCompleter
     @Inject lateinit var firebase: Firebase
@@ -195,25 +182,13 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     @Inject lateinit var taskEditEventBus: TaskEditEventBus
     @Inject lateinit var database: Database
     @Inject lateinit var markdown: MarkdownProvider
-    @Inject lateinit var defaultFilterProvider: DefaultFilterProvider
-
-    @Inject lateinit var permissionChecker: PermissionChecker
-    @Inject lateinit var taskListEvents: TaskListEventBus
-    @Inject lateinit var taskAttachmentDao: TaskAttachmentDao
-    @Inject lateinit var alarmService: AlarmService
-    @Inject lateinit var geofenceApi: GeofenceApi
-    @Inject lateinit var locationDao: LocationDao
-    @Inject lateinit var gCalHelper: GCalHelper
-    @Inject lateinit var alarmDao: AlarmDao
 
     private val listViewModel: TaskListViewModel by viewModels()
     private val mainViewModel: MainActivityViewModel by activityViewModels()
     private lateinit var taskAdapter: TaskAdapter
     private var recyclerAdapter: DragAndDropRecyclerAdapter? = null
     private lateinit var filter: Filter
-    private var searchJob: Job? = null
     private lateinit var search: MenuItem
-    private var searchQuery: String? = null
     private var mode: ActionMode? = null
     lateinit var themeColor: ThemeColor
     private lateinit var binding: FragmentTaskListBinding
@@ -317,7 +292,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             swipeRefreshLayout = bodyStandard.swipeLayout
             emptyRefreshLayout = bodyEmpty.swipeLayoutEmpty
             recyclerView = bodyStandard.recyclerView
-            fab.setOnClickListener { launchTaskDrawer() }
+            fab.setOnClickListener { launchTaskDrawer() }  // *** TaskDrawer
             fab.isVisible = filter.isWritable
         }
 
@@ -744,6 +719,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 }
                 finishActionMode()
             }
+            // *** TaskDrawer
             TaskDrawerFragment.REQUEST_EDIT_TASK -> if (resultCode == RESULT_OK) {
                 val task = data?.getParcelableExtra<Task>(TaskDrawerFragment.EXTRA_TASK)
                 task?.let {
@@ -1097,7 +1073,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             }
         }
     }
-
+    // *** TaskDrawer
     private fun createNewTask(task: Task) {
         lifecycleScope.launch {
             shortcutManager.reportShortcutUsed(ShortcutManager.SHORTCUT_NEW_TASK)
@@ -1106,6 +1082,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         }
     }
 
+    // *** TaskDrawer
     private fun launchTaskDrawer () {
         val fragmentManager = parentFragmentManager
         if (fragmentManager.findFragmentByTag(TaskDrawerFragment.FRAG_TAG_TASK_DRAWER) == null) {
