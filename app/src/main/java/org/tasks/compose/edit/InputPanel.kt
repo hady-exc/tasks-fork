@@ -63,7 +63,6 @@ import org.tasks.kmp.org.tasks.time.DateStyle
 import org.tasks.kmp.org.tasks.time.getRelativeDateTime
 import org.tasks.time.millisOfDay
 import org.tasks.time.startOfDay
-import timber.log.Timber
 
 class TaskEditDrawerState (
     val originalFilter: Filter
@@ -152,7 +151,6 @@ class TaskEditDrawerState (
     }
 
     fun isChanged(): Boolean {
-        Timber.d("**** hideUntil = ${initialTask!!.hideUntil}, startDay = $startDay, sum = ${startDay+startTime}")
         return title.trim() != initialTitle.trim()
                 || description.trim() != initialDescription.trim()
                 || dueDate != initialTask!!.dueDate

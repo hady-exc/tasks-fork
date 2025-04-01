@@ -95,7 +95,6 @@ class TaskDrawerFragment: DialogFragment() {
     @Inject lateinit var taskAttachmentDao: TaskAttachmentDao
     @Inject lateinit var taskListEvents: TaskListEventBus
 
-    private lateinit var target: Fragment
     private lateinit var filter: Filter
     private lateinit var taskEditDrawerState: TaskEditDrawerState
     private lateinit var filterPickerLauncher: ActivityResultLauncher<Intent>
@@ -135,7 +134,6 @@ class TaskDrawerFragment: DialogFragment() {
             val currentLocation = locationDao.getLocation(task, preferences)
             val currentTags = tagDataDao.getTags(task)
             val currentAlarms = alarmDao.getAlarms(task)
-
 
             taskEditDrawerState.setTask(
                 task,
@@ -231,9 +229,9 @@ class TaskDrawerFragment: DialogFragment() {
         targetFragment?.onActivityResult(targetRequestCode, RESULT_OK, intent)
     }
 
-    private fun close() { dismiss() }
+    private fun close() = dismiss()
 
-    /** This is generally a copy of the TaskEditViewModel.save(), specialized with Task.isNew == true */
+    /** This is technically a copy of the TaskEditViewModel.save(), specialized with Task.isNew == true */
     suspend fun saveNewTask(
         filter: Filter,
         task: Task,
@@ -247,24 +245,7 @@ class TaskDrawerFragment: DialogFragment() {
 */
         if (task.title.isNullOrBlank()) task.title = resources.getString(R.string.no_title)
 
-        /*
-                It is supposed that the task object already have all its properties set to edited values
-
-                task.dueDate = dueDate.value
-                task.priority = priority.value
-                task.notes = description
-                task.hideUntil = startDate.value
-                task.recurrence = recurrence.value
-                task.repeatFrom = if (repeatAfterCompletion.value) {
-                    Task.RepeatFrom.COMPLETION_DATE
-                } else {
-                    Task.RepeatFrom.DUE_DATE
-                }
-                task.elapsedSeconds = elapsedSeconds.value
-                task.estimatedSeconds = estimatedSeconds.value
-                task.ringFlags = getRingFlags()
-        */
-        val currentLocation = location //locationDao.getLocation(task,preferences)
+        val currentLocation = location
         val tags = task.tags.mapNotNull { tagDataDao.getTagByName(it) }
 
         /* applyCalendarChanges() -- inlined below */
@@ -307,7 +288,6 @@ class TaskDrawerFragment: DialogFragment() {
         if (!task.hasDueDate()) {
             _selectedAlarms = selectedAlarms.filterNot { a -> a.type == TYPE_REL_END }
         }
-
         if (_selectedAlarms.isNotEmpty()) {
             alarmService.synchronizeAlarms(task.id, _selectedAlarms.toMutableSet())
             task.putTransitory(FORCE_CALDAV_SYNC, true)
@@ -320,12 +300,7 @@ class TaskDrawerFragment: DialogFragment() {
         task.parent = 0
         taskMover.move(listOf(task.id), filter)
 
-        /*
-                Subtasks are not supposed to be created or edited before this save
-                for (subtask in newSubtasks.value) {
-                    . . .
-                }
-        */
+        /* Subtasks are not supposed to be created or edited before this save */
 
         if (selectedAttachments.isNotEmpty()) {
             selectedAttachments
@@ -359,8 +334,7 @@ class TaskDrawerFragment: DialogFragment() {
             )
 
             BottomSheet(
-                show = true,
-                hide = { close() },
+                dismiss = { close() },
                 onDismissRequest = {
                     if (taskEditDrawerState.isChanged()) promptDiscard = true
                     else close()
@@ -373,7 +347,7 @@ class TaskDrawerFragment: DialogFragment() {
                         true
                     }
                 }
-            ) { close ->
+            ) { hide ->
                 TaskEditDrawer(
                     state = taskEditDrawerState,
                     save = {
@@ -387,9 +361,9 @@ class TaskDrawerFragment: DialogFragment() {
                     },
                     edit = {
                         sendTaskToEdit(taskEditDrawerState.retrieveTask())
-                        close()
+                        hide()
                     },
-                    close = close,
+                    close = hide,
                     pickList = {
                         filterPickerLauncher.launch(
                             context = requireContext(),
@@ -419,12 +393,10 @@ class TaskDrawerFragment: DialogFragment() {
         const val REQUEST_EDIT_TASK = 11100
 
         fun newTaskDrawer(target: Fragment, rc: Int, filter: Filter): DialogFragment {
-            val dialog = TaskDrawerFragment().apply { this.target = target }
-            val bundle = Bundle()
-            bundle.putParcelable(EXTRA_FILTER, filter)
-            dialog.arguments = bundle
-            dialog.setTargetFragment(target, rc)
-            return dialog
+            return TaskDrawerFragment().apply {
+                arguments = Bundle().apply { putParcelable(EXTRA_FILTER, filter) }
+                setTargetFragment(target, rc)
+            }
         }
     }
 }
