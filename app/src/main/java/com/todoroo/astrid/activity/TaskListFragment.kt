@@ -21,8 +21,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.addCallback
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
@@ -30,12 +28,7 @@ import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
@@ -80,7 +73,6 @@ import com.todoroo.astrid.utility.Flags
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -101,15 +93,9 @@ import org.tasks.compose.FilterSelectionActivity.Companion.launch
 import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPickerResult
 import org.tasks.compose.NotificationsDisabledBanner
 import org.tasks.compose.SubscriptionNagBanner
-import org.tasks.compose.edit.TaskEditDrawer
-import org.tasks.compose.edit.TaskEditDrawerState
 import org.tasks.compose.rememberReminderPermissionState
-import org.tasks.compose.taskdrawer.BottomSheet
-import org.tasks.compose.taskdrawer.PromptDiscard
 import org.tasks.compose.taskdrawer.TaskDrawerFragment
-import org.tasks.data.Location
 import org.tasks.data.TaskContainer
-import org.tasks.data.createGeofence
 import org.tasks.data.dao.AlarmDao
 import org.tasks.data.dao.CaldavDao
 import org.tasks.data.dao.LocationDao
@@ -118,16 +104,7 @@ import org.tasks.data.dao.TagDataDao
 import org.tasks.data.dao.TaskAttachmentDao
 import org.tasks.data.db.Database
 import org.tasks.data.db.SuspendDbUtils.chunkedMap
-import org.tasks.data.entity.Alarm
-import org.tasks.data.entity.Alarm.Companion.TYPE_REL_END
-import org.tasks.data.entity.Alarm.Companion.TYPE_REL_START
-import org.tasks.data.entity.Attachment
-import org.tasks.data.entity.FORCE_CALDAV_SYNC
-import org.tasks.data.entity.Geofence
-import org.tasks.data.entity.TagData
 import org.tasks.data.entity.Task
-import org.tasks.data.entity.TaskAttachment
-import org.tasks.data.getLocation
 import org.tasks.data.listSettingsClass
 import org.tasks.data.open
 import org.tasks.data.sql.QueryTemplate
@@ -137,15 +114,6 @@ import org.tasks.dialogs.DateTimePicker.Companion.newDateTimePicker
 import org.tasks.dialogs.DialogBuilder
 import org.tasks.dialogs.PriorityPicker.Companion.newPriorityPicker
 import org.tasks.dialogs.SortSettingsActivity
-import org.tasks.dialogs.StartDatePicker
-import org.tasks.dialogs.StartDatePicker.Companion.DAY_BEFORE_DUE
-import org.tasks.dialogs.StartDatePicker.Companion.DUE_DATE
-import org.tasks.dialogs.StartDatePicker.Companion.DUE_TIME
-import org.tasks.dialogs.StartDatePicker.Companion.EXTRA_DAY
-import org.tasks.dialogs.StartDatePicker.Companion.EXTRA_TIME
-import org.tasks.dialogs.StartDatePicker.Companion.NO_DAY
-import org.tasks.dialogs.StartDatePicker.Companion.NO_TIME
-import org.tasks.dialogs.StartDatePicker.Companion.WEEK_BEFORE_DUE
 import org.tasks.extensions.Context.canScheduleExactAlarms
 import org.tasks.extensions.Context.is24HourFormat
 import org.tasks.extensions.Context.openAppNotificationSettings
@@ -167,8 +135,6 @@ import org.tasks.filters.TagFilter
 import org.tasks.kmp.org.tasks.time.DateStyle
 import org.tasks.kmp.org.tasks.time.getRelativeDateTime
 import org.tasks.location.GeofenceApi
-import org.tasks.location.LocationPickerActivity.Companion.launch
-import org.tasks.location.LocationPickerActivity.Companion.registerForLocationPickerResult
 import org.tasks.markdown.MarkdownProvider
 import org.tasks.notifications.NotificationManager
 import org.tasks.preferences.DefaultFilterProvider
@@ -193,7 +159,6 @@ import org.tasks.ui.TaskListEvent
 import org.tasks.ui.TaskListEventBus
 import org.tasks.ui.TaskListViewModel
 import org.tasks.ui.TaskListViewModel.Companion.createSearchQuery
-import timber.log.Timber
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.max
@@ -352,15 +317,9 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             swipeRefreshLayout = bodyStandard.swipeLayout
             emptyRefreshLayout = bodyEmpty.swipeLayoutEmpty
             recyclerView = bodyStandard.recyclerView
-            taskEditDrawerState = TaskEditDrawerState(filter)
-            fab.setOnClickListener {
-                showTaskInputDrawer(true)
-            }
+            fab.setOnClickListener { launchTaskDrawer() }
             fab.isVisible = filter.isWritable
-
         }
-        binding.inputHost.setContent { TaskEditDrawerContent() }
-        initLaunchers()
 
         themeColor = if (filter.tint != 0) colorProvider.getThemeColor(filter.tint, true) else defaultThemeColor
         (filter as? AstridOrderingFilter)?.filterOverride = null
@@ -791,8 +750,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                     createNewTask(task)
                 }
             }
-            else -> if (!taskDrawerDialogReceiver(requestCode, resultCode, data))
-                super.onActivityResult(requestCode, resultCode, data)
+            else -> super.onActivityResult(requestCode, resultCode, data)
         }
     }
 
@@ -1140,218 +1098,11 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         }
     }
 
-    private lateinit var taskEditDrawerState: TaskEditDrawerState
-    private lateinit var filterPickerLauncher: ActivityResultLauncher<Intent>
-    private lateinit var locationPickerLauncher: ActivityResultLauncher<Intent>
-    private lateinit var tagsPickerLauncher: ActivityResultLauncher<Intent>
-
-    private fun initLaunchers() // must be called from onCreateView
-    {
-        filterPickerLauncher = registerForListPickerResult { list ->
-            taskEditDrawerState.filter.value = list
-        }
-        locationPickerLauncher = registerForLocationPickerResult { place ->
-            val location = taskEditDrawerState.location
-            val geofence = if (location == null) {
-                createGeofence(place.uid, preferences)
-            } else {
-                val existing = location.geofence
-                Geofence(
-                    place = place.uid,
-                    isArrival = existing.isArrival,
-                    isDeparture = existing.isDeparture,
-                )
-            }
-            taskEditDrawerState.location = Location(geofence, place)
-        }
-        tagsPickerLauncher = registerForActivityResult<Intent,ActivityResult>(ActivityResultContracts.StartActivityForResult()) {
-            it.data?.let { intent ->
-                (intent.getParcelableArrayListExtra<TagData>(TagPickerActivity.EXTRA_SELECTED)
-                    ?: ArrayList<TagData>())
-                        .let {
-                            taskEditDrawerState.selectedTags = it
-                        }
-            }
-        }
-    }
-
-    private fun launchTagPicker(context: Context, current: ArrayList<TagData>)
-    {
-        tagsPickerLauncher.launch(
-            Intent(context, TagPickerActivity::class.java)
-                .putParcelableArrayListExtra(TagPickerActivity.EXTRA_SELECTED, current)
-        )
-    }
-
-    /* Dialog fragments launching and listening. Hack. TODO(replace by a regular solution)  */
-    private val REQUEST_START_DATE = 11011 // StartDateControlSet.REQUEST_START_DATE
-    private val FRAG_TAG_DATE_PICKER = "frag_tag_date_picker" // StartDateControlSet.FRAG_TAG_DATE_PICKER
-
-    private fun launchStartDateTimePicker(context: Context, date: Long, time: Int)
-    {
-        val fragmentManager = parentFragmentManager
-        if (fragmentManager.findFragmentByTag(FRAG_TAG_DATE_PICKER) == null) {
-            StartDatePicker.newDateTimePicker(
-                this@TaskListFragment,
-                REQUEST_START_DATE,
-                date,
-                time,
-                preferences.getBoolean(
-                    R.string.p_auto_dismiss_datetime_edit_screen,
-                    false
-                )
-            )
-                .show(fragmentManager, FRAG_TAG_DATE_PICKER)
-        }
-    }
-
-    private fun taskDrawerDialogReceiver(requestCode: Int, resultCode: Int, data: Intent?): Boolean
-    {
-        when (requestCode) {
-            REQUEST_START_DATE -> if (resultCode == RESULT_OK) {
-                Timber.d("**** DateTimePicker results arived")
-                data?.let { intent ->
-                    val selectedDate = intent.getLongExtra(EXTRA_DAY, 0L) ?: NO_DAY
-                    val selectedTime = intent.getIntExtra(EXTRA_TIME, 0) ?: NO_TIME
-                    taskEditDrawerState.startDay = selectedDate
-                    taskEditDrawerState.startTime = selectedTime
-                    Timber.d("**** date $selectedDate and time $selectedTime arived")
-                }
-            }
-            else -> return false
-        }
-        return true
-    }
-
     private fun createNewTask(task: Task) {
         lifecycleScope.launch {
             shortcutManager.reportShortcutUsed(ShortcutManager.SHORTCUT_NEW_TASK)
             onTaskListItemClicked(task)
             firebase.addTask("fab")
-        }
-    }
-
-    private suspend fun saveTask(filter: Filter, task: Task) {
-        if (task.title.isNullOrBlank()) task.title = resources.getString(R.string.no_title)
-        assert(Task.isUuidEmpty(task.remoteId))
-        taskDao.createNew(task)
-        taskDao.save(task)
-        assert(filter is CaldavFilter || filter is GtasksFilter)
-        taskMover.move( listOf(task.id), filter )
-        val tags = task.tags.mapNotNull { tagDataDao.getTagByName(it) }
-        tagDao.insert(task, tags)
-    }
-
-    /** This is generally a copy of the TaskEditViewModel.save(), specialized with Task.isNew == true */
-    suspend fun saveNewTask(
-        filter: Filter,
-        task: Task,
-        location: Location? = null,
-        selectedCalendar: String? = null,
-        selectedAlarms: List<Alarm> = emptyList<Alarm>(),
-        selectedAttachments: List<TaskAttachment> = emptyList<TaskAttachment>()
-    ) = withContext(NonCancellable) {
-/*
-        TODO: Get sure that all tasks came here have changes, e.g. UI calls this fun only when user changed something
-*/
-        if (task.title.isNullOrBlank()) task.title = resources.getString(R.string.no_title)
-
-/*
-        It is supposed that the task object already have all its properties set to edited values
-
-        task.dueDate = dueDate.value
-        task.priority = priority.value
-        task.notes = description
-        task.hideUntil = startDate.value
-        task.recurrence = recurrence.value
-        task.repeatFrom = if (repeatAfterCompletion.value) {
-            Task.RepeatFrom.COMPLETION_DATE
-        } else {
-            Task.RepeatFrom.DUE_DATE
-        }
-        task.elapsedSeconds = elapsedSeconds.value
-        task.estimatedSeconds = estimatedSeconds.value
-        task.ringFlags = getRingFlags()
-*/
-        val currentLocation = location //locationDao.getLocation(task,preferences)
-        val tags = task.tags.mapNotNull { tagDataDao.getTagByName(it) }
-
-        /* applyCalendarChanges() -- inlined below */
-        if (permissionChecker.canAccessCalendars()) {
-            if (task.hasDueDate()) {
-                selectedCalendar?.let {
-                    try {
-                        task.calendarURI = gCalHelper.createTaskEvent(task, it)?.toString()
-                    } catch (e: Exception) {
-                        Timber.e(e)
-                    }
-                }
-            }
-        }
-
-        taskDao.createNew(task)
-
-        currentLocation?.let { location ->
-            val place = location.place
-            locationDao.insert(
-                location.geofence.copy(
-                    task = task.id,
-                    place = place.uid,
-                )
-            )
-            geofenceApi.update(place)
-            task.putTransitory(FORCE_CALDAV_SYNC, true)
-            task.modificationDate = currentTimeMillis()
-        }
-
-        if (tags.isNotEmpty()) {
-            tagDao.applyTags(task, tagDataDao, tags)
-            task.modificationDate = currentTimeMillis()
-        }
-
-        var _selectedAlarms = selectedAlarms
-        if (!task.hasStartDate()) {
-            _selectedAlarms = _selectedAlarms.filterNot { a -> a.type == TYPE_REL_START }
-        }
-        if (!task.hasDueDate()) {
-            _selectedAlarms = selectedAlarms.filterNot { a -> a.type == TYPE_REL_END }
-        }
-
-        if (_selectedAlarms.isNotEmpty()) {
-            alarmService.synchronizeAlarms(task.id, _selectedAlarms.toMutableSet())
-            task.putTransitory(FORCE_CALDAV_SYNC, true)
-            task.modificationDate = currentTimeMillis()
-        }
-
-        taskDao.save(task, null)
-
-        assert(filter is CaldavFilter || filter is GtasksFilter)
-        task.parent = 0
-        taskMover.move(listOf(task.id), filter)
-
-/*
-        Subtasks are not supposed to be created or edited before this save
-        for (subtask in newSubtasks.value) {
-            . . .
-        }
-*/
-
-        if (selectedAttachments.isNotEmpty()) {
-            selectedAttachments
-                .map {
-                    Attachment(
-                        task = task.id,
-                        fileId = it.id!!,
-                        attachmentUid = it.remoteId,
-                    )
-                }
-                .let { taskAttachmentDao.insert(it) }
-        }
-
-        val model = task
-        taskListEvents.emit(TaskListEvent.TaskCreated(model.uuid))
-        model.calendarURI?.takeIf { it.isNotBlank() }?.let {
-            taskListEvents.emit(TaskListEvent.CalendarEventCreated(model.title, it))
         }
     }
 
@@ -1365,109 +1116,6 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                     filter
                 )
                 .show(fragmentManager, TaskDrawerFragment.FRAG_TAG_TASK_DRAWER)
-        }
-/*
-        TaskDrawerFragment.open(
-            filter, parentFragmentManager, FRAG_TAG_TASK_DRAWER
-        )
-*/
-    }
-
-    private fun showTaskInputDrawer(on: Boolean)
-    {
-        launchTaskDrawer()
-        return
-        lifecycleScope.launch {
-            if (on) {
-                val task = taskCreator.createWithValues(filter, "")
-                task.hideUntil = when (preferences.getIntegerFromString(R.string.p_default_hideUntil_key, Task.HIDE_UNTIL_NONE)) {
-                    Task.HIDE_UNTIL_DUE -> DUE_DATE
-                    Task.HIDE_UNTIL_DUE_TIME -> DUE_TIME
-                    Task.HIDE_UNTIL_DAY_BEFORE -> DAY_BEFORE_DUE
-                    Task.HIDE_UNTIL_WEEK_BEFORE -> WEEK_BEFORE_DUE
-                    else -> 0L
-                }
-
-                val targetList = defaultFilterProvider.getList(task)
-                val currentLocation = locationDao.getLocation(task,preferences)
-                val currentTags = tagDataDao.getTags(task)
-                val currentAlarms = alarmDao.getAlarms(task)
-
-
-                taskEditDrawerState.setTask(task, targetList, currentLocation, currentTags, currentAlarms)
-            }
-            taskEditDrawerState.visible.value = on
-
-
-            if (!on) delay(100)  /* to prevent Fab flicker before soft keyboard disappear */
-            binding.fab.isVisible = !on
-            if ( !preferences.isTopAppBar ) binding.bottomAppBar.isVisible = !on
-        }
-    }
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    private fun TaskEditDrawerContent()
-    {
-        TasksTheme {
-            var promptDiscard by remember { mutableStateOf(false) }
-            PromptDiscard(
-                show = promptDiscard,
-                cancel = { promptDiscard = false },
-                discard = { showTaskInputDrawer(false) }
-            )
-
-            BottomSheet(
-                show = taskEditDrawerState.visible.value,
-                hide = { showTaskInputDrawer(false) },
-                onDismissRequest = {
-                    if (taskEditDrawerState.isChanged()) promptDiscard = true
-                    else showTaskInputDrawer(false) //close()
-                },
-                hideConfirmation = {
-                    if (taskEditDrawerState.isChanged()) {
-                        promptDiscard = true
-                        false
-                    } else {
-                        true
-                    }
-                }
-            ) { close ->
-                TaskEditDrawer(
-                    state = taskEditDrawerState,
-                    save = {
-                        lifecycleScope.launch {
-                            saveNewTask(
-                                filter = taskEditDrawerState.filter.value,
-                                task = taskEditDrawerState.retrieveTask(),
-                                location = taskEditDrawerState.location
-                            )
-                        }
-                    },
-                    edit = {
-                        createNewTask(taskEditDrawerState.retrieveTask())
-                        showTaskInputDrawer(false)
-                    },
-                    close = close,
-                    pickList = {
-                        filterPickerLauncher.launch(
-                            context = requireContext(),
-                            selectedFilter = taskEditDrawerState.filter.value,
-                            listsOnly = true
-                        )
-                    },
-                    pickTags = { launchTagPicker(requireContext(),taskEditDrawerState.selectedTags) },
-                    pickLocation = {
-                        locationPickerLauncher.launch(
-                            context = requireContext(),
-                            selectedLocation = taskEditDrawerState.location
-                        )
-                    },
-                    pickStartDateTime = {
-                        launchStartDateTimePicker(requireContext(), taskEditDrawerState.startDay, taskEditDrawerState.startTime)
-                    }
-                )
-            }
         }
     }
 
