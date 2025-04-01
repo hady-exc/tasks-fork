@@ -91,14 +91,14 @@ class TaskEditDrawerState (
         get() {
             if (dueDate == 0L && startDay < 0) return 0L
             val due = dueDate.takeIf { it > 0 }?.toDateTime()
-                return when (startDay) {
-                    DUE_DATE -> due?.withMillisOfDay(startTime)?.millis ?: 0
-                    DUE_TIME -> due?.millis ?: 0
-                    DAY_BEFORE_DUE -> due?.minusDays(1)?.withMillisOfDay(startTime)?.millis ?: 0
-                    WEEK_BEFORE_DUE -> due?.minusDays(7)?.withMillisOfDay(startTime)?.millis ?: 0
-                    else -> startDay + startTime
-                }
+            return when (startDay) {
+                DUE_DATE -> due?.withMillisOfDay(startTime)?.millis ?: 0
+                DUE_TIME -> due?.millis ?: 0
+                DAY_BEFORE_DUE -> due?.minusDays(1)?.withMillisOfDay(startTime)?.millis ?: 0
+                WEEK_BEFORE_DUE -> due?.minusDays(7)?.withMillisOfDay(startTime)?.millis ?: 0
+                else -> startDay + startTime
             }
+        }
 
     private fun setStartDate(dueDate: Long, startDate: Long)
     {
