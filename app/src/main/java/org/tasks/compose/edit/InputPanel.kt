@@ -122,6 +122,8 @@ class TaskEditDrawerState (
                     WEEK_BEFORE_DUE
                 else -> startDay
             }
+        } else {
+            startDay = 0L; startTime = 0
         }
     }
 
@@ -179,7 +181,7 @@ class TaskEditDrawerState (
             notes = description,
             dueDate = dueDate,
             priority = priority,
-            hideUntil = startDate,
+            hideUntil = startDate + startTime,
             remoteId = Task.NO_UUID )
             .also { task ->
                 location?.let { location ->
