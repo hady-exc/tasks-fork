@@ -77,7 +77,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class TaskDrawerFragment: DialogFragment() {
+class TaskDrawerFragment(val filter: Filter): DialogFragment() {
     @Inject lateinit var context: Activity
     @Inject lateinit var taskCreator: TaskCreator
     @Inject lateinit var preferences: Preferences
@@ -95,7 +95,6 @@ class TaskDrawerFragment: DialogFragment() {
     @Inject lateinit var taskAttachmentDao: TaskAttachmentDao
     @Inject lateinit var taskListEvents: TaskListEventBus
 
-    private lateinit var filter: Filter
     private lateinit var taskEditDrawerState: TaskEditDrawerState
     private lateinit var filterPickerLauncher: ActivityResultLauncher<Intent>
     private lateinit var locationPickerLauncher: ActivityResultLauncher<Intent>
@@ -114,8 +113,6 @@ class TaskDrawerFragment: DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        @Suppress("DEPRECATION")
-        arguments?.getParcelable<Filter>(EXTRA_FILTER)?.let { filter = it }
         taskEditDrawerState = TaskEditDrawerState(filter)
         lifecycleScope.launch {
             val task = taskCreator.createWithValues(filter, "")
@@ -393,8 +390,7 @@ class TaskDrawerFragment: DialogFragment() {
         const val REQUEST_EDIT_TASK = 11100
 
         fun newTaskDrawer(target: Fragment, rc: Int, filter: Filter): DialogFragment {
-            return TaskDrawerFragment().apply {
-                arguments = Bundle().apply { putParcelable(EXTRA_FILTER, filter) }
+            return TaskDrawerFragment(filter).apply {
                 setTargetFragment(target, rc)
             }
         }
