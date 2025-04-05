@@ -102,9 +102,10 @@ class TaskEditDrawerState (
 
     private fun setStartDate(dueDate: Long, startDate: Long)
     {
-        if (startDate < 0) {
+        if (startDate <= 0L) {
             startDay = startDate
-        } else if (startDate > 0) {
+            startTime = 0
+        } else {
             val dateTime = startDate.toDateTime()
             val dueDay = dueDate.startOfDay()
             startDay = dateTime.startOfDay().millis
@@ -122,8 +123,6 @@ class TaskEditDrawerState (
                     WEEK_BEFORE_DUE
                 else -> startDay
             }
-        } else {
-            startDay = 0L; startTime = 0
         }
     }
 
@@ -160,7 +159,7 @@ class TaskEditDrawerState (
                 || initialLocation != location
                 || initialTask!!.priority != priority
                 || initialTags.toHashSet() != selectedTags.toHashSet()
-                || initialTask!!.hideUntil != startDay + startTime
+                || initialTask!!.hideUntil != if (startDay<=0) startDay else startDay + startTime
 
     }
 
