@@ -40,6 +40,7 @@ import org.tasks.compose.taskdrawer.LocationChip
 import org.tasks.compose.taskdrawer.PriorityChip
 import org.tasks.compose.taskdrawer.StartDateTimeChip
 import org.tasks.compose.taskdrawer.TagsChip
+import org.tasks.compose.taskdrawer.TaskDrawerViewModel
 import org.tasks.compose.taskdrawer.TitleRow
 import org.tasks.data.GoogleTask
 import org.tasks.data.Location
@@ -64,142 +65,10 @@ import org.tasks.kmp.org.tasks.time.getRelativeDateTime
 import org.tasks.time.millisOfDay
 import org.tasks.time.startOfDay
 
-class TaskEditDrawerState (
-    val originalFilter: Filter
-) {
-    private var initialTask: Task? = null
-    val task get() = initialTask!!
-
-    private val initialTitle get() = task.title ?: ""
-    private val initialDescription get() = task.notes ?: ""
-    private var initialLocation: Location? = null
-    internal var initialFilter = originalFilter
-    private var _initialTags = ArrayList<TagData>()
-    val initialTags get() = _initialTags
-
-    var title by mutableStateOf("")
-    var description by mutableStateOf("")
-    var dueDate by mutableLongStateOf(0L)
-    var priority by mutableIntStateOf(0)
-    var selectedTags by mutableStateOf<ArrayList<TagData>>( ArrayList() )
-    var location by mutableStateOf<Location?>(null)
-    val filter = mutableStateOf(initialFilter)
-    var startDay by mutableLongStateOf(0L)
-    var startTime by mutableIntStateOf(0)
-
-    val startDate: Long
-        get() {
-            if (dueDate == 0L && startDay < 0) return 0L
-            val due = dueDate.takeIf { it > 0 }?.toDateTime()
-            return when (startDay) {
-                DUE_DATE -> due?.withMillisOfDay(startTime)?.millis ?: 0
-                DUE_TIME -> due?.millis ?: 0
-                DAY_BEFORE_DUE -> due?.minusDays(1)?.withMillisOfDay(startTime)?.millis ?: 0
-                WEEK_BEFORE_DUE -> due?.minusDays(7)?.withMillisOfDay(startTime)?.millis ?: 0
-                else -> startDay + startTime
-            }
-        }
-
-    private fun setStartDate(dueDate: Long, startDate: Long)
-    {
-        if (startDate <= 0L) {
-            startDay = startDate
-            startTime = 0
-        } else {
-            val dateTime = startDate.toDateTime()
-            val dueDay = dueDate.startOfDay()
-            startDay = dateTime.startOfDay().millis
-            startTime = dateTime.millisOfDay
-            startDay = when (startDay) {
-                dueDay -> if (startTime == dueDate.millisOfDay) {
-                    startTime = StartDatePicker.NO_TIME
-                    DUE_TIME
-                } else {
-                    DUE_DATE
-                }
-                dueDay.toDateTime().minusDays(1).millis ->
-                    DAY_BEFORE_DUE
-                dueDay.toDateTime().minusDays(7).millis ->
-                    WEEK_BEFORE_DUE
-                else -> startDay
-            }
-        }
-    }
-
-    internal val visible = mutableStateOf(false)
-
-    fun tagsChanged(): Boolean = (initialTags.toHashSet() != selectedTags.toHashSet())
-
-    fun setTask(
-        newTask: Task,
-        targetFilter: Filter,
-        currentLocation: Location?,
-        currentTags: ArrayList<TagData>,
-        currentAlarms: ArrayList<Alarm>
-    ) {
-        initialTask = newTask
-        if (initialFilter == originalFilter) initialFilter = targetFilter
-        filter.value = targetFilter
-        title = initialTitle
-        description = initialDescription
-        dueDate = newTask.dueDate
-        initialLocation = currentLocation
-        location = currentLocation
-        priority = newTask.priority
-        _initialTags = currentTags
-        selectedTags = currentTags
-        setStartDate(newTask.dueDate, newTask.hideUntil)
-    }
-
-    fun isChanged(): Boolean {
-        return title.trim() != initialTitle.trim()
-                || description.trim() != initialDescription.trim()
-                || dueDate != initialTask!!.dueDate
-                || filter.value != initialFilter
-                || initialLocation != location
-                || initialTask!!.priority != priority
-                || initialTags.toHashSet() != selectedTags.toHashSet()
-                || initialTask!!.hideUntil != if (startDay<=0) startDay else startDay + startTime
-
-    }
-
-    fun clear() {
-        title = initialTitle
-        description = ""
-        dueDate = task.dueDate
-        filter.value = initialFilter
-        location = initialLocation
-        priority = task.priority
-        selectedTags = initialTags
-        setStartDate(task.dueDate, task.hideUntil)
-    }
-
-    fun retrieveTask(): Task =
-        initialTask!!.copy(
-            title = title,
-            notes = description,
-            dueDate = dueDate,
-            priority = priority,
-            hideUntil = startDate + startTime,
-            remoteId = Task.NO_UUID )
-            .also { task ->
-                location?.let { location ->
-                    task.putTransitory(Place.KEY, location.place.uid!!)
-                }
-                when (filter.value) {
-                    is GtasksFilter -> task.putTransitory(GoogleTask.KEY, (filter.value as GtasksFilter).remoteId)
-                    is CaldavFilter -> task.putTransitory(CaldavTask.KEY, (filter.value as CaldavFilter).uuid)
-                    else -> {}
-                }
-                task.putTransitory(Tag.KEY, selectedTags.mapNotNull{ it.name })
-                if (isChanged()) task.putTransitory(Task.TRANS_IS_CHANGED, "")
-            }
-}
-
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun TaskEditDrawer(
-    state: TaskEditDrawerState,
+    state: TaskDrawerViewModel,
     save: () -> Unit = {},
     edit: () -> Unit = {},
     close: () -> Unit = {},
@@ -234,7 +103,7 @@ fun TaskEditDrawer(
             current = state.title,
             onValueChange = { state.title = it },
             changed = state.isChanged(),
-            save = { save(); state.clear() },
+            save = { save(); state.resetTask() },
             close = close
         )
 
@@ -284,7 +153,7 @@ fun TaskEditDrawer(
                     originalFilter = state.originalFilter,
                     initialFilter = state.initialFilter,
                     currentFiler = state.filter.value,
-                    setFilter = { filter -> state.filter.value = filter},
+                    setFilter = { filter -> state.setFilter(filter) },
                     pickList = pickList
                 )
                 /* Tags */
@@ -305,25 +174,10 @@ fun TaskEditDrawer(
                     setValue = { value -> state.priority = value }
                 )
                 /* Main TaskEditFragment launch - must be the last */
-                IconChip(icon = Icons.Outlined.MoreHoriz, action = { edit(); state.clear() })
+                IconChip(icon = Icons.Outlined.MoreHoriz, action = { edit(); state.resetTask() })
             }
         }
     }
 }
-
-/*
-@Preview(showBackground = true, widthDp = 320)
-@Composable
-fun TaskEditDrawerPreview() {
-    TaskEditDrawer (
-        state = remember {
-            TaskEditDrawerState(
-                originalFilter = Filter()
-            )
-        },
-        getList = {}
-    )
-}
-*/
 
 

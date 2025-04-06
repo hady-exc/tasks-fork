@@ -20,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.todoroo.astrid.alarms.AlarmService
 import com.todoroo.astrid.dao.TaskDao
@@ -34,7 +35,6 @@ import org.tasks.R
 import org.tasks.compose.FilterSelectionActivity.Companion.launch
 import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPickerResult
 import org.tasks.compose.edit.TaskEditDrawer
-import org.tasks.compose.edit.TaskEditDrawerState
 import org.tasks.data.Location
 import org.tasks.data.createGeofence
 import org.tasks.data.dao.AlarmDao
@@ -95,16 +95,18 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
     @Inject lateinit var taskAttachmentDao: TaskAttachmentDao
     @Inject lateinit var taskListEvents: TaskListEventBus
 
-    private lateinit var taskEditDrawerState: TaskEditDrawerState
     private lateinit var filterPickerLauncher: ActivityResultLauncher<Intent>
     private lateinit var locationPickerLauncher: ActivityResultLauncher<Intent>
     private lateinit var tagsPickerLauncher: ActivityResultLauncher<Intent>
+
+    val vm: TaskDrawerViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        vm.initFilter(filter)
         val composeView = ComposeView(context)
         composeView.setContent { TaskEditDrawerContent() }
         initLaunchers()
@@ -113,33 +115,7 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        taskEditDrawerState = TaskEditDrawerState(filter)
-        lifecycleScope.launch {
-            val task = taskCreator.createWithValues(filter, "")
-            task.hideUntil = when (preferences.getIntegerFromString(
-                R.string.p_default_hideUntil_key,
-                Task.HIDE_UNTIL_NONE
-            )) {
-                Task.HIDE_UNTIL_DUE -> DUE_DATE
-                Task.HIDE_UNTIL_DUE_TIME -> DUE_TIME
-                Task.HIDE_UNTIL_DAY_BEFORE -> DAY_BEFORE_DUE
-                Task.HIDE_UNTIL_WEEK_BEFORE -> WEEK_BEFORE_DUE
-                else -> 0L
-            }
-
-            val targetList = defaultFilterProvider.getList(task)
-            val currentLocation = locationDao.getLocation(task, preferences)
-            val currentTags = tagDataDao.getTags(task)
-            val currentAlarms = alarmDao.getAlarms(task)
-
-            taskEditDrawerState.setTask(
-                task,
-                targetList,
-                currentLocation,
-                currentTags,
-                currentAlarms
-            )
-        }
+        vm.resetTask()
     }
 
     @Deprecated("Deprecated in Java")
@@ -147,8 +123,8 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
         when (requestCode) {
             REQUEST_START_DATE -> if (resultCode == RESULT_OK) {
                 data?.let { intent ->
-                    taskEditDrawerState.startDay = intent.getLongExtra(EXTRA_DAY, 0L)
-                    taskEditDrawerState.startTime = intent.getIntExtra(EXTRA_TIME, 0)
+                    vm.startDay = intent.getLongExtra(EXTRA_DAY, 0L)
+                    vm.startTime = intent.getIntExtra(EXTRA_TIME, 0)
                 }
             }
 
@@ -161,11 +137,9 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
 
     private fun initLaunchers() // must be called from onCreateView
     {
-        filterPickerLauncher = registerForListPickerResult { list ->
-            taskEditDrawerState.filter.value = list
-        }
+        filterPickerLauncher = registerForListPickerResult { list -> vm.setFilter(list) }
         locationPickerLauncher = registerForLocationPickerResult { place ->
-            val location = taskEditDrawerState.location
+            val location = vm.location
             val geofence = if (location == null) {
                 createGeofence(place.uid, preferences)
             } else {
@@ -176,7 +150,7 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
                     isDeparture = existing.isDeparture,
                 )
             }
-            taskEditDrawerState.location = Location(geofence, place)
+            vm.location = Location(geofence, place)
         }
         tagsPickerLauncher = registerForActivityResult<Intent,ActivityResult>(ActivityResultContracts.StartActivityForResult()) {
             it.data?.let { intent ->
@@ -184,7 +158,7 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
                 (intent.getParcelableArrayListExtra<TagData>(TagPickerActivity.EXTRA_SELECTED)
                     ?: ArrayList<TagData>())
                     .let {
-                        taskEditDrawerState.selectedTags = it
+                        vm.selectedTags = it
                     }
             }
         }
@@ -333,11 +307,11 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
             BottomSheet(
                 dismiss = { close() },
                 onDismissRequest = {
-                    if (taskEditDrawerState.isChanged()) promptDiscard = true
+                    if (vm.isChanged()) promptDiscard = true
                     else close()
                 },
                 hideConfirmation = {
-                    if (taskEditDrawerState.isChanged()) {
+                    if (vm.isChanged()) {
                         promptDiscard = true
                         false
                     } else {
@@ -346,37 +320,37 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
                 }
             ) { hide ->
                 TaskEditDrawer(
-                    state = taskEditDrawerState,
+                    state = vm,
                     save = {
                         lifecycleScope.launch {
                             saveNewTask(
-                                filter = taskEditDrawerState.filter.value,
-                                task = taskEditDrawerState.retrieveTask(),
-                                location = taskEditDrawerState.location
+                                filter = vm.filter.value,
+                                task = vm.retrieveTask(),
+                                location = vm.location
                             )
                         }
                     },
                     edit = {
-                        sendTaskToEdit(taskEditDrawerState.retrieveTask())
+                        sendTaskToEdit(vm.retrieveTask())
                         hide()
                     },
                     close = hide,
                     pickList = {
                         filterPickerLauncher.launch(
                             context = requireContext(),
-                            selectedFilter = taskEditDrawerState.filter.value,
+                            selectedFilter = vm.filter.value,
                             listsOnly = true
                         )
                     },
-                    pickTags = { launchTagPicker(requireContext(),taskEditDrawerState.selectedTags) },
+                    pickTags = { launchTagPicker(requireContext(),vm.selectedTags) },
                     pickLocation = {
                         locationPickerLauncher.launch(
                             context = requireContext(),
-                            selectedLocation = taskEditDrawerState.location
+                            selectedLocation = vm.location
                         )
                     },
                     pickStartDateTime = {
-                        launchStartDateTimePicker(taskEditDrawerState.startDay, taskEditDrawerState.startTime)
+                        launchStartDateTimePicker(vm.startDay, vm.startTime)
                     }
                 )
             }
@@ -385,12 +359,13 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
 
     companion object {
         const val FRAG_TAG_TASK_DRAWER = "frag_tag_task_drawer"
-        const val EXTRA_FILTER = "extra_filter"
+        const val EXTRA_FILTER = TaskDrawerViewModel.EXTRA_FILTER
         const val EXTRA_TASK = "extra_task"
         const val REQUEST_EDIT_TASK = 11100
 
         fun newTaskDrawer(target: Fragment, rc: Int, filter: Filter): DialogFragment {
             return TaskDrawerFragment(filter).apply {
+                arguments = Bundle().apply { putParcelable(EXTRA_FILTER,filter) }
                 setTargetFragment(target, rc)
             }
         }
