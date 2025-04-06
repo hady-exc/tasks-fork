@@ -20,8 +20,6 @@ import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -42,28 +40,9 @@ import org.tasks.compose.taskdrawer.StartDateTimeChip
 import org.tasks.compose.taskdrawer.TagsChip
 import org.tasks.compose.taskdrawer.TaskDrawerViewModel
 import org.tasks.compose.taskdrawer.TitleRow
-import org.tasks.data.GoogleTask
-import org.tasks.data.Location
-import org.tasks.data.entity.Alarm
-import org.tasks.data.entity.CaldavTask
-import org.tasks.data.entity.Place
-import org.tasks.data.entity.Tag
-import org.tasks.data.entity.TagData
-import org.tasks.data.entity.Task
-import org.tasks.date.DateTimeUtils.toDateTime
-import org.tasks.dialogs.StartDatePicker
-import org.tasks.dialogs.StartDatePicker.Companion.DAY_BEFORE_DUE
-import org.tasks.dialogs.StartDatePicker.Companion.DUE_DATE
-import org.tasks.dialogs.StartDatePicker.Companion.DUE_TIME
-import org.tasks.dialogs.StartDatePicker.Companion.WEEK_BEFORE_DUE
 import org.tasks.extensions.Context.is24HourFormat
-import org.tasks.filters.CaldavFilter
-import org.tasks.filters.Filter
-import org.tasks.filters.GtasksFilter
 import org.tasks.kmp.org.tasks.time.DateStyle
 import org.tasks.kmp.org.tasks.time.getRelativeDateTime
-import org.tasks.time.millisOfDay
-import org.tasks.time.startOfDay
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class)
 @Composable

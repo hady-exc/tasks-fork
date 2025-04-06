@@ -8,7 +8,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.todoroo.astrid.alarms.AlarmService
@@ -22,7 +21,9 @@ import com.todoroo.astrid.timers.TimerPlugin
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.tasks.R
 import org.tasks.analytics.Firebase
 import org.tasks.calendars.CalendarEventProvider
@@ -37,11 +38,16 @@ import org.tasks.data.dao.TagDataDao
 import org.tasks.data.dao.TaskAttachmentDao
 import org.tasks.data.dao.UserActivityDao
 import org.tasks.data.entity.Alarm
+import org.tasks.data.entity.Alarm.Companion.TYPE_REL_END
+import org.tasks.data.entity.Alarm.Companion.TYPE_REL_START
+import org.tasks.data.entity.Attachment
 import org.tasks.data.entity.CaldavTask
+import org.tasks.data.entity.FORCE_CALDAV_SYNC
 import org.tasks.data.entity.Place
 import org.tasks.data.entity.Tag
 import org.tasks.data.entity.TagData
 import org.tasks.data.entity.Task
+import org.tasks.data.entity.TaskAttachment
 import org.tasks.data.getLocation
 import org.tasks.date.DateTimeUtils.toDateTime
 import org.tasks.dialogs.StartDatePicker
@@ -56,17 +62,19 @@ import org.tasks.location.GeofenceApi
 import org.tasks.preferences.DefaultFilterProvider
 import org.tasks.preferences.PermissionChecker
 import org.tasks.preferences.Preferences
+import org.tasks.time.DateTimeUtils2.currentTimeMillis
 import org.tasks.time.millisOfDay
 import org.tasks.time.startOfDay
 import org.tasks.ui.MainActivityEventBus
+import org.tasks.ui.TaskListEvent
 import org.tasks.ui.TaskListEventBus
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class TaskDrawerViewModel
 @Inject constructor(
     @ApplicationContext private val context: Context,
-    savedStateHandle: SavedStateHandle,
     private val taskDao: TaskDao,
     private val taskDeleter: TaskDeleter,
     private val timerPlugin: TimerPlugin,
@@ -131,6 +139,7 @@ class TaskDrawerViewModel
         }
     }
 
+    /** State for @composable components */
     lateinit var task: Task
     private val initialTitle get() = initialTask.title ?: ""
     private val initialDescription get() = initialTask.notes ?: ""
@@ -247,7 +256,92 @@ class TaskDrawerViewModel
         return task
     }
 
-    companion object {
-        const val EXTRA_FILTER = "extra_filter"
+    /** This is technically a copy of the TaskEditViewModel.save(), specialized with Task.isNew == true */
+    suspend fun saveTask(
+        filter: Filter,
+        task: Task,
+
+        location: Location? = null,
+        selectedCalendar: String? = null,
+        selectedAlarms: List<Alarm> = emptyList<Alarm>(),
+        selectedAttachments: List<TaskAttachment> = emptyList<TaskAttachment>()
+    ) = withContext(NonCancellable) {
+        /* TODO: Get sure that all tasks came here have changes, e.g. UI calls this fun only when user changed something */
+        if (task.title.isNullOrBlank()) task.title = context.getString(R.string.no_title)
+
+        val currentLocation = location
+        val tags = task.tags.mapNotNull { tagDataDao.getTagByName(it) }
+
+        /* applyCalendarChanges() -- inlined below */
+        if (permissionChecker.canAccessCalendars()) {
+            if (task.hasDueDate()) {
+                selectedCalendar?.let {
+                    try {
+                        task.calendarURI = gCalHelper.createTaskEvent(task, it)?.toString()
+                    } catch (e: Exception) {
+                        Timber.e(e)
+                    }
+                }
+            }
+        }
+
+        taskDao.createNew(task)
+
+        currentLocation?.let { location ->
+            val place = location.place
+            locationDao.insert(
+                location.geofence.copy(
+                    task = task.id,
+                    place = place.uid,
+                )
+            )
+            geofenceApi.update(place)
+            task.putTransitory(FORCE_CALDAV_SYNC, true)
+            task.modificationDate = currentTimeMillis()
+        }
+
+        if (tags.isNotEmpty()) {
+            tagDao.applyTags(task, tagDataDao, tags)
+            task.modificationDate = currentTimeMillis()
+        }
+
+        var _selectedAlarms = selectedAlarms
+        if (!task.hasStartDate()) {
+            _selectedAlarms = _selectedAlarms.filterNot { a -> a.type == TYPE_REL_START }
+        }
+        if (!task.hasDueDate()) {
+            _selectedAlarms = selectedAlarms.filterNot { a -> a.type == TYPE_REL_END }
+        }
+        if (_selectedAlarms.isNotEmpty()) {
+            alarmService.synchronizeAlarms(task.id, _selectedAlarms.toMutableSet())
+            task.putTransitory(FORCE_CALDAV_SYNC, true)
+            task.modificationDate = currentTimeMillis()
+        }
+
+        taskDao.save(task, null)
+
+        assert(filter is CaldavFilter || filter is GtasksFilter)  // already helped one time
+        task.parent = 0
+        taskMover.move(listOf(task.id), filter)
+
+        /* Subtasks are not supposed to be created or edited before this save */
+
+        if (selectedAttachments.isNotEmpty()) {
+            selectedAttachments
+                .map {
+                    Attachment(
+                        task = task.id,
+                        fileId = it.id!!,
+                        attachmentUid = it.remoteId,
+                    )
+                }
+                .let { taskAttachmentDao.insert(it) }
+        }
+
+        val model = task
+        taskListEvents.emit(TaskListEvent.TaskCreated(model.uuid))
+        model.calendarURI?.takeIf { it.isNotBlank() }?.let {
+            taskListEvents.emit(TaskListEvent.CalendarEventCreated(model.title, it))
+        }
     }
 }

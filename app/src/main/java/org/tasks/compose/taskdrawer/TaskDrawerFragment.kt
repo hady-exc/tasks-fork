@@ -28,9 +28,7 @@ import com.todoroo.astrid.gcal.GCalHelper
 import com.todoroo.astrid.service.TaskCreator
 import com.todoroo.astrid.service.TaskMover
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.tasks.R
 import org.tasks.compose.FilterSelectionActivity.Companion.launch
 import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPickerResult
@@ -42,26 +40,13 @@ import org.tasks.data.dao.LocationDao
 import org.tasks.data.dao.TagDao
 import org.tasks.data.dao.TagDataDao
 import org.tasks.data.dao.TaskAttachmentDao
-import org.tasks.data.entity.Alarm
-import org.tasks.data.entity.Alarm.Companion.TYPE_REL_END
-import org.tasks.data.entity.Alarm.Companion.TYPE_REL_START
-import org.tasks.data.entity.Attachment
-import org.tasks.data.entity.FORCE_CALDAV_SYNC
 import org.tasks.data.entity.Geofence
 import org.tasks.data.entity.TagData
 import org.tasks.data.entity.Task
-import org.tasks.data.entity.TaskAttachment
-import org.tasks.data.getLocation
 import org.tasks.dialogs.StartDatePicker
-import org.tasks.dialogs.StartDatePicker.Companion.DAY_BEFORE_DUE
-import org.tasks.dialogs.StartDatePicker.Companion.DUE_DATE
-import org.tasks.dialogs.StartDatePicker.Companion.DUE_TIME
 import org.tasks.dialogs.StartDatePicker.Companion.EXTRA_DAY
 import org.tasks.dialogs.StartDatePicker.Companion.EXTRA_TIME
-import org.tasks.dialogs.StartDatePicker.Companion.WEEK_BEFORE_DUE
-import org.tasks.filters.CaldavFilter
 import org.tasks.filters.Filter
-import org.tasks.filters.GtasksFilter
 import org.tasks.location.GeofenceApi
 import org.tasks.location.LocationPickerActivity.Companion.launch
 import org.tasks.location.LocationPickerActivity.Companion.registerForLocationPickerResult
@@ -70,10 +55,7 @@ import org.tasks.preferences.PermissionChecker
 import org.tasks.preferences.Preferences
 import org.tasks.tags.TagPickerActivity
 import org.tasks.themes.TasksTheme
-import org.tasks.time.DateTimeUtils2.currentTimeMillis
-import org.tasks.ui.TaskListEvent
 import org.tasks.ui.TaskListEventBus
-import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -200,98 +182,6 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
         targetFragment?.onActivityResult(targetRequestCode, RESULT_OK, intent)
     }
 
-    private fun close() = dismiss()
-
-    /** This is technically a copy of the TaskEditViewModel.save(), specialized with Task.isNew == true */
-    suspend fun saveNewTask(
-        filter: Filter,
-        task: Task,
-        location: Location? = null,
-        selectedCalendar: String? = null,
-        selectedAlarms: List<Alarm> = emptyList<Alarm>(),
-        selectedAttachments: List<TaskAttachment> = emptyList<TaskAttachment>()
-    ) = withContext(NonCancellable) {
-/*
-        TODO: Get sure that all tasks came here have changes, e.g. UI calls this fun only when user changed something
-*/
-        if (task.title.isNullOrBlank()) task.title = resources.getString(R.string.no_title)
-
-        val currentLocation = location
-        val tags = task.tags.mapNotNull { tagDataDao.getTagByName(it) }
-
-        /* applyCalendarChanges() -- inlined below */
-        if (permissionChecker.canAccessCalendars()) {
-            if (task.hasDueDate()) {
-                selectedCalendar?.let {
-                    try {
-                        task.calendarURI = gCalHelper.createTaskEvent(task, it)?.toString()
-                    } catch (e: Exception) {
-                        Timber.e(e)
-                    }
-                }
-            }
-        }
-
-        taskDao.createNew(task)
-
-        currentLocation?.let { location ->
-            val place = location.place
-            locationDao.insert(
-                location.geofence.copy(
-                    task = task.id,
-                    place = place.uid,
-                )
-            )
-            geofenceApi.update(place)
-            task.putTransitory(FORCE_CALDAV_SYNC, true)
-            task.modificationDate = currentTimeMillis()
-        }
-
-        if (tags.isNotEmpty()) {
-            tagDao.applyTags(task, tagDataDao, tags)
-            task.modificationDate = currentTimeMillis()
-        }
-
-        var _selectedAlarms = selectedAlarms
-        if (!task.hasStartDate()) {
-            _selectedAlarms = _selectedAlarms.filterNot { a -> a.type == TYPE_REL_START }
-        }
-        if (!task.hasDueDate()) {
-            _selectedAlarms = selectedAlarms.filterNot { a -> a.type == TYPE_REL_END }
-        }
-        if (_selectedAlarms.isNotEmpty()) {
-            alarmService.synchronizeAlarms(task.id, _selectedAlarms.toMutableSet())
-            task.putTransitory(FORCE_CALDAV_SYNC, true)
-            task.modificationDate = currentTimeMillis()
-        }
-
-        taskDao.save(task, null)
-
-        assert(filter is CaldavFilter || filter is GtasksFilter)
-        task.parent = 0
-        taskMover.move(listOf(task.id), filter)
-
-        /* Subtasks are not supposed to be created or edited before this save */
-
-        if (selectedAttachments.isNotEmpty()) {
-            selectedAttachments
-                .map {
-                    Attachment(
-                        task = task.id,
-                        fileId = it.id!!,
-                        attachmentUid = it.remoteId,
-                    )
-                }
-                .let { taskAttachmentDao.insert(it) }
-        }
-
-        val model = task
-        taskListEvents.emit(TaskListEvent.TaskCreated(model.uuid))
-        model.calendarURI?.takeIf { it.isNotBlank() }?.let {
-            taskListEvents.emit(TaskListEvent.CalendarEventCreated(model.title, it))
-        }
-    }
-
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun TaskEditDrawerContent()
@@ -301,14 +191,14 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
             PromptDiscard(
                 show = promptDiscard,
                 cancel = { promptDiscard = false },
-                discard = { close() }
+                discard = { dismiss() }
             )
 
             BottomSheet(
-                dismiss = { close() },
+                dismiss = { dismiss() },
                 onDismissRequest = {
                     if (vm.isChanged()) promptDiscard = true
-                    else close()
+                    else dismiss()
                 },
                 hideConfirmation = {
                     if (vm.isChanged()) {
@@ -323,7 +213,7 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
                     state = vm,
                     save = {
                         lifecycleScope.launch {
-                            saveNewTask(
+                            vm.saveTask(
                                 filter = vm.filter.value,
                                 task = vm.retrieveTask(),
                                 location = vm.location
@@ -359,13 +249,11 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
 
     companion object {
         const val FRAG_TAG_TASK_DRAWER = "frag_tag_task_drawer"
-        const val EXTRA_FILTER = TaskDrawerViewModel.EXTRA_FILTER
         const val EXTRA_TASK = "extra_task"
         const val REQUEST_EDIT_TASK = 11100
 
         fun newTaskDrawer(target: Fragment, rc: Int, filter: Filter): DialogFragment {
             return TaskDrawerFragment(filter).apply {
-                arguments = Bundle().apply { putParcelable(EXTRA_FILTER,filter) }
                 setTargetFragment(target, rc)
             }
         }
