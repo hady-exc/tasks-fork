@@ -102,8 +102,6 @@ class TaskDrawerViewModel
     ) : ViewModel()
 {
     /* "Static" state */
-    private lateinit var _originalFilter: Filter  // TODO: rethink, try to avoid originalFilter
-    val originalFilter get() = _originalFilter
     private lateinit var _initialFilter: Filter
     val initialFilter get() = _initialFilter
     private lateinit var initialTask: Task
@@ -116,7 +114,6 @@ class TaskDrawerViewModel
 
     private var initializer: Job? = null
     fun initFilter(filter: Filter) {
-        _originalFilter = filter
         _initialFilter = filter
         this._filter = mutableStateOf(filter)
         initializer = viewModelScope.launch {
@@ -133,6 +130,7 @@ class TaskDrawerViewModel
             }
 
             initialList = defaultFilterProvider.getList(initialTask)
+            _filter.value = initialList
             initialLocation = locationDao.getLocation(initialTask, preferences)
             _initialTags = tagDataDao.getTags(initialTask)
             initialAlarms = alarmDao.getAlarms(initialTask) // TODO: rethink, may be just an empty list?

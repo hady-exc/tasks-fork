@@ -129,7 +129,6 @@ fun TaskEditDrawer(
                 )
                 /* Target List */
                 ListChip(
-                    originalFilter = state.originalFilter,
                     initialFilter = state.initialFilter,
                     currentFiler = state.filter.value,
                     setFilter = { filter -> state.setFilter(filter) },
