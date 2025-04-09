@@ -36,6 +36,8 @@ import org.tasks.compose.taskdrawer.IconChip
 import org.tasks.compose.taskdrawer.ListChip
 import org.tasks.compose.taskdrawer.LocationChip
 import org.tasks.compose.taskdrawer.PriorityChip
+import org.tasks.compose.taskdrawer.RecurrenceChip
+import org.tasks.compose.taskdrawer.RecurrenceDialog
 import org.tasks.compose.taskdrawer.StartDateTimeChip
 import org.tasks.compose.taskdrawer.TagsChip
 import org.tasks.compose.taskdrawer.TaskDrawerViewModel
@@ -43,6 +45,7 @@ import org.tasks.compose.taskdrawer.TitleRow
 import org.tasks.extensions.Context.is24HourFormat
 import org.tasks.kmp.org.tasks.time.DateStyle
 import org.tasks.kmp.org.tasks.time.getRelativeDateTime
+import org.tasks.repeats.RepeatRuleToString
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class)
 @Composable
@@ -54,7 +57,9 @@ fun TaskEditDrawer(
     pickList: () -> Unit,
     pickTags: () -> Unit,
     pickLocation: () -> Unit,
-    pickStartDateTime: () -> Unit
+    pickStartDateTime: () -> Unit,
+    repeatRuleToString: RepeatRuleToString,
+    peekCustomRecurrence: (String?) -> Unit
 )
 {
     Column(
@@ -65,7 +70,9 @@ fun TaskEditDrawer(
     ) {
         /* Custom drag handle, because the standard one is too high and so looks ugly */
         Box(
-            modifier = Modifier.height(24.dp).fillMaxWidth(),
+            modifier = Modifier
+                .height(24.dp)
+                .fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
             Box(
@@ -112,6 +119,20 @@ fun TaskEditDrawer(
                     current = state.dueDate,
                     setValue = { value -> state.dueDate = value }
                 )
+                /* Recurrence */
+                val showRecurrenceDialog = remember { mutableStateOf(false) }
+                if (showRecurrenceDialog.value) {
+                    RecurrenceDialog(
+                        dismiss = { showRecurrenceDialog.value = false },
+                        recurrence = state.recurrence,
+                        setRecurrence = { state.recurrence = it },
+                        repeatFromCompletion = state.repeatAfterCompletion,
+                        onRepeatFromChanged = { state.repeatAfterCompletion = it },
+                        repeatRuleToString = repeatRuleToString,
+                        peekCustomRecurrence = peekCustomRecurrence
+                    )
+                }
+                RecurrenceChip(state.recurrence) { showRecurrenceDialog.value = true }
                 /* Start Date */
                 StartDateTimeChip(
                     state.startDay,

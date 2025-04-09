@@ -36,25 +36,33 @@ import org.tasks.compose.edit.TaskEditDrawer
 import org.tasks.data.Location
 import org.tasks.data.createGeofence
 import org.tasks.data.dao.AlarmDao
+import org.tasks.data.dao.CaldavDao
 import org.tasks.data.dao.LocationDao
 import org.tasks.data.dao.TagDao
 import org.tasks.data.dao.TagDataDao
 import org.tasks.data.dao.TaskAttachmentDao
+import org.tasks.data.entity.CaldavAccount
 import org.tasks.data.entity.Geofence
 import org.tasks.data.entity.TagData
 import org.tasks.data.entity.Task
 import org.tasks.dialogs.StartDatePicker
 import org.tasks.dialogs.StartDatePicker.Companion.EXTRA_DAY
 import org.tasks.dialogs.StartDatePicker.Companion.EXTRA_TIME
+import org.tasks.filters.CaldavFilter
 import org.tasks.filters.Filter
+import org.tasks.filters.GtasksFilter
 import org.tasks.location.GeofenceApi
 import org.tasks.location.LocationPickerActivity.Companion.launch
 import org.tasks.location.LocationPickerActivity.Companion.registerForLocationPickerResult
 import org.tasks.preferences.DefaultFilterProvider
 import org.tasks.preferences.PermissionChecker
 import org.tasks.preferences.Preferences
+import org.tasks.repeats.CustomRecurrenceActivity
+import org.tasks.repeats.RepeatRuleToString
 import org.tasks.tags.TagPickerActivity
 import org.tasks.themes.TasksTheme
+import org.tasks.time.DateTimeUtils2.currentTimeMillis
+import org.tasks.time.startOfDay
 import org.tasks.ui.TaskListEventBus
 import javax.inject.Inject
 
@@ -76,10 +84,13 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
     @Inject lateinit var taskMover: TaskMover
     @Inject lateinit var taskAttachmentDao: TaskAttachmentDao
     @Inject lateinit var taskListEvents: TaskListEventBus
+    @Inject lateinit var repeatRuleToString: RepeatRuleToString
+    @Inject lateinit var caldavDao: CaldavDao
 
     private lateinit var filterPickerLauncher: ActivityResultLauncher<Intent>
     private lateinit var locationPickerLauncher: ActivityResultLauncher<Intent>
     private lateinit var tagsPickerLauncher: ActivityResultLauncher<Intent>
+    private lateinit var customRecurrencePickerLauncher: ActivityResultLauncher<Intent>
 
     val vm: TaskDrawerViewModel by viewModels()
 
@@ -109,7 +120,6 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
                     vm.startTime = intent.getIntExtra(EXTRA_TIME, 0)
                 }
             }
-
             else -> {
                 @Suppress("DEPRECATION")
                 super.onActivityResult(requestCode, resultCode, data)
@@ -144,6 +154,17 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
                     }
             }
         }
+        customRecurrencePickerLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == RESULT_OK) {
+                    val result = result.data?.getStringExtra(CustomRecurrenceActivity.EXTRA_RRULE)
+                    vm.recurrence = result
+                    if (result?.isNotBlank() == true && vm.dueDate == 0L ) {
+                        vm.dueDate = (currentTimeMillis().startOfDay())
+                    }
+                }
+            }
+
     }
 
     private fun launchTagPicker(context: Context, current: ArrayList<TagData>)
@@ -241,6 +262,32 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
                     },
                     pickStartDateTime = {
                         launchStartDateTimePicker(vm.startDay, vm.startTime)
+                    },
+                    repeatRuleToString = repeatRuleToString,
+                    peekCustomRecurrence = {
+                        lifecycleScope.launch {
+                            val accountType = vm.filter.value
+                                .let {
+                                    when (it) {
+                                        is CaldavFilter -> it.account
+                                        is GtasksFilter -> it.account
+                                        else -> null
+                                    }
+                                }
+                                ?.let { caldavDao.getAccountByUuid(it) }
+                                ?.accountType
+                                ?: CaldavAccount.TYPE_LOCAL
+
+                            customRecurrencePickerLauncher.launch(
+                                CustomRecurrenceActivity.newIntent(
+                                    context = requireContext(),
+                                    rrule = vm.recurrence,
+                                    dueDate = vm.dueDate,
+                                    accountType = accountType
+                                )
+                            )
+                        }
+
                     }
                 )
             }
@@ -251,6 +298,7 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
         const val FRAG_TAG_TASK_DRAWER = "frag_tag_task_drawer"
         const val EXTRA_TASK = "extra_task"
         const val REQUEST_EDIT_TASK = 11100
+        const val REQUEST_RECURRENCE = 11101
 
         fun newTaskDrawer(target: Fragment, rc: Int, filter: Filter): DialogFragment {
             return TaskDrawerFragment(filter).apply {

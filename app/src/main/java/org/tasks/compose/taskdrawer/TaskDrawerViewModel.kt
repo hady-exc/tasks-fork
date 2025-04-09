@@ -73,6 +73,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TaskDrawerViewModel
+// TODO: delete unused parameters after implementation completed
 @Inject constructor(
     @ApplicationContext private val context: Context,
     private val taskDao: TaskDao,
@@ -111,6 +112,7 @@ class TaskDrawerViewModel
     val initialTags get() = _initialTags
     private lateinit var initialAlarms: ArrayList<Alarm>
     private lateinit var _filter: MutableState<Filter>
+    val initialRecurrence get() = initialTask.recurrence
 
     private var initializer: Job? = null
     fun initFilter(filter: Filter) {
@@ -161,6 +163,8 @@ class TaskDrawerViewModel
             else -> startDay + startTime
         }
     }
+    var recurrence by mutableStateOf<String?>(null)
+    var repeatAfterCompletion by mutableStateOf(false)
 
     fun setFilter(value: Filter) { _filter.value = value }
 
@@ -188,6 +192,8 @@ class TaskDrawerViewModel
             setStartDate(task.dueDate, task.hideUntil)
             _initialFilter = defaultFilterProvider.getList(task)
             setFilter(_initialFilter)
+            recurrence = task.recurrence
+            repeatAfterCompletion = task.repeatAfterCompletion()
         }
     }
 
@@ -228,6 +234,8 @@ class TaskDrawerViewModel
             || initialTask.priority != priority
             || tagsChanged()
             || initialTask.hideUntil != startDate
+            || initialRecurrence != recurrence
+            || initialTask.repeatAfterCompletion() != repeatAfterCompletion
 
     fun retrieveTask(): Task {
         task.title = title
@@ -248,6 +256,12 @@ class TaskDrawerViewModel
                 (filter.value as CaldavFilter).uuid
             )
             else -> {}
+        }
+        task.recurrence = recurrence
+        task.repeatFrom = if (repeatAfterCompletion) {
+            Task.RepeatFrom.COMPLETION_DATE
+        } else {
+            Task.RepeatFrom.DUE_DATE
         }
         task.putTransitory(Tag.KEY, selectedTags.mapNotNull { it.name })
         if (isChanged()) task.putTransitory(Task.TRANS_IS_CHANGED, "")
