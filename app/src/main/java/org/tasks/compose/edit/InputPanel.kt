@@ -26,9 +26,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.runBlocking
+import org.tasks.analytics.Firebase
 import org.tasks.compose.taskdrawer.Description
 import org.tasks.compose.taskdrawer.DescriptionChip
 import org.tasks.compose.taskdrawer.DueDateChip
@@ -59,10 +61,8 @@ fun TaskEditDrawer(
     pickTags: () -> Unit,
     pickLocation: () -> Unit,
     pickStartDateTime: () -> Unit,
-    repeatRuleToString: RepeatRuleToString,
     peekCustomRecurrence: (String?) -> Unit
-)
-{
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -121,6 +121,7 @@ fun TaskEditDrawer(
                     setValue = { value -> state.dueDate = value }
                 )
                 /* Recurrence */
+                val repeatRuleToString = rememberRepeatRuleToString()
                 val showRecurrenceDialog = remember { mutableStateOf(false) }
                 if (showRecurrenceDialog.value) {
                     RecurrenceDialog(
@@ -182,4 +183,10 @@ fun TaskEditDrawer(
     }
 }
 
-
+@Composable
+private fun rememberRepeatRuleToString(): RepeatRuleToString {
+    val context = LocalContext.current
+    val config = LocalConfiguration.current
+    val locale = config.locales.get(0)
+    return remember { RepeatRuleToString(context,locale,Firebase()) }
+}

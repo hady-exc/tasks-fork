@@ -22,7 +22,6 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.google.common.collect.Lists
 import com.todoroo.astrid.alarms.AlarmService
 import com.todoroo.astrid.dao.TaskDao
 import com.todoroo.astrid.gcal.GCalHelper
@@ -30,7 +29,6 @@ import com.todoroo.astrid.service.TaskCreator
 import com.todoroo.astrid.service.TaskMover
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import net.fortuna.ical4j.model.Recur
 import org.tasks.R
 import org.tasks.compose.FilterSelectionActivity.Companion.launch
 import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPickerResult
@@ -60,8 +58,6 @@ import org.tasks.preferences.DefaultFilterProvider
 import org.tasks.preferences.PermissionChecker
 import org.tasks.preferences.Preferences
 import org.tasks.repeats.CustomRecurrenceActivity
-import org.tasks.repeats.RepeatRuleToString
-import org.tasks.sync.microsoft.Tasks
 import org.tasks.tags.TagPickerActivity
 import org.tasks.themes.TasksTheme
 import org.tasks.time.DateTimeUtils2.currentTimeMillis
@@ -87,7 +83,6 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
     @Inject lateinit var taskMover: TaskMover
     @Inject lateinit var taskAttachmentDao: TaskAttachmentDao
     @Inject lateinit var taskListEvents: TaskListEventBus
-    @Inject lateinit var repeatRuleToString: RepeatRuleToString
     @Inject lateinit var caldavDao: CaldavDao
 
     private lateinit var filterPickerLauncher: ActivityResultLauncher<Intent>
@@ -167,7 +162,6 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
                     }
                 }
             }
-
     }
 
     private fun launchTagPicker(context: Context, current: ArrayList<TagData>)
@@ -266,7 +260,6 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
                     pickStartDateTime = {
                         launchStartDateTimePicker(vm.startDay, vm.startTime)
                     },
-                    repeatRuleToString = repeatRuleToString,
                     peekCustomRecurrence = {
                         lifecycleScope.launch {
                             val accountType = vm.filter.value
