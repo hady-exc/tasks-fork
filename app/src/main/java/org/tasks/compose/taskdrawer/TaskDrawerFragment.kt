@@ -22,6 +22,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.google.common.collect.Lists
 import com.todoroo.astrid.alarms.AlarmService
 import com.todoroo.astrid.dao.TaskDao
 import com.todoroo.astrid.gcal.GCalHelper
@@ -29,6 +30,7 @@ import com.todoroo.astrid.service.TaskCreator
 import com.todoroo.astrid.service.TaskMover
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import net.fortuna.ical4j.model.Recur
 import org.tasks.R
 import org.tasks.compose.FilterSelectionActivity.Companion.launch
 import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPickerResult
@@ -59,6 +61,7 @@ import org.tasks.preferences.PermissionChecker
 import org.tasks.preferences.Preferences
 import org.tasks.repeats.CustomRecurrenceActivity
 import org.tasks.repeats.RepeatRuleToString
+import org.tasks.sync.microsoft.Tasks
 import org.tasks.tags.TagPickerActivity
 import org.tasks.themes.TasksTheme
 import org.tasks.time.DateTimeUtils2.currentTimeMillis
@@ -287,7 +290,6 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
                                 )
                             )
                         }
-
                     }
                 )
             }
@@ -298,7 +300,6 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
         const val FRAG_TAG_TASK_DRAWER = "frag_tag_task_drawer"
         const val EXTRA_TASK = "extra_task"
         const val REQUEST_EDIT_TASK = 11100
-        const val REQUEST_RECURRENCE = 11101
 
         fun newTaskDrawer(target: Fragment, rc: Int, filter: Filter): DialogFragment {
             return TaskDrawerFragment(filter).apply {

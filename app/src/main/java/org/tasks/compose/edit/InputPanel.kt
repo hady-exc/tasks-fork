@@ -38,6 +38,7 @@ import org.tasks.compose.taskdrawer.LocationChip
 import org.tasks.compose.taskdrawer.PriorityChip
 import org.tasks.compose.taskdrawer.RecurrenceChip
 import org.tasks.compose.taskdrawer.RecurrenceDialog
+import org.tasks.compose.taskdrawer.RecurrenceHelper
 import org.tasks.compose.taskdrawer.StartDateTimeChip
 import org.tasks.compose.taskdrawer.TagsChip
 import org.tasks.compose.taskdrawer.TaskDrawerViewModel
@@ -124,15 +125,17 @@ fun TaskEditDrawer(
                 if (showRecurrenceDialog.value) {
                     RecurrenceDialog(
                         dismiss = { showRecurrenceDialog.value = false },
-                        recurrence = state.recurrence,
+                        recurrence = RecurrenceHelper(LocalContext.current, repeatRuleToString, state.recurrence),
                         setRecurrence = { state.recurrence = it },
                         repeatFromCompletion = state.repeatAfterCompletion,
                         onRepeatFromChanged = { state.repeatAfterCompletion = it },
-                        repeatRuleToString = repeatRuleToString,
                         peekCustomRecurrence = peekCustomRecurrence
                     )
                 }
-                RecurrenceChip(state.recurrence) { showRecurrenceDialog.value = true }
+                RecurrenceChip(
+                    recurrence = RecurrenceHelper(LocalContext.current, repeatRuleToString, state.recurrence),
+                    onClick = { showRecurrenceDialog.value = true }
+                )
                 /* Start Date */
                 StartDateTimeChip(
                     state.startDay,

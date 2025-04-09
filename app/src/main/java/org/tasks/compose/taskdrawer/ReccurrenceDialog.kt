@@ -21,88 +21,35 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import com.google.common.collect.Lists
-import net.fortuna.ical4j.model.Recur
 import org.tasks.R
 import org.tasks.repeats.RecurrenceUtils.newRecur
-import org.tasks.repeats.RepeatRuleToString
-import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecurrenceDialog (
     dismiss: () -> Unit,
-    recurrence: String?,
+    recurrence: RecurrenceHelper,
     setRecurrence: (String?) -> Unit,
     repeatFromCompletion: Boolean,
     onRepeatFromChanged: (Boolean) -> Unit,
-    repeatRuleToString: RepeatRuleToString,
     peekCustomRecurrence: (String?) -> Unit
 ) {
 
-    fun isCustomValue(rrule: Recur?): Boolean {
-        if (rrule == null) {
-            return false
-        }
-        val frequency = rrule.frequency
-        return (frequency == Recur.Frequency.WEEKLY
-                || frequency == Recur.Frequency.MONTHLY) && !rrule.dayList.isEmpty()
-                || frequency == Recur.Frequency.HOURLY
-                || frequency == Recur.Frequency.MINUTELY
-                || rrule.until != null
-                || rrule.interval > 1
-                || rrule.count > 0
-    }
-    val context = LocalContext.current
-    val rrule  = recurrence
-        .takeIf { !it.isNullOrBlank() }
-        ?.let {
-            try {
-                newRecur(it)
-            } catch (e: Exception) {
-                Timber.e(e)
-                null
-            }
-        }
+    val selected = recurrence.selectionIndex()
 
-    val selected = when  {
-        rrule == null  -> 0
-        rrule.frequency == Recur.Frequency.DAILY -> 1
-        rrule.frequency == Recur.Frequency.WEEKLY -> 2
-        rrule.frequency == Recur.Frequency.MONTHLY -> 3
-        rrule.frequency == Recur.Frequency.YEARLY -> 4
-        isCustomValue(rrule) -> 5
-        else -> 0
-    }
-    val repeatOptions: MutableList<String> =
-        Lists.newArrayList(*context.resources.getStringArray(R.array.repeat_options))
-    if (isCustomValue(rrule)) {
-        repeatOptions[5] = repeatRuleToString.toString(recurrence)!!
-    }
-
-    //val selection = remember { mutableIntStateOf(selected) }
     fun setSelection(i: Int) {
         if (i == 0) {
             setRecurrence(null)
         } else if (i == 5) {
-            peekCustomRecurrence(rrule.toString())
+            peekCustomRecurrence(recurrence.recurrence)
         } else {
-            val frequency: Recur.Frequency =
-                when (i) {
-                    1 -> Recur.Frequency.DAILY
-                    2 -> Recur.Frequency.WEEKLY
-                    3 -> Recur.Frequency.MONTHLY
-                    4 -> Recur.Frequency.YEARLY
-                    else -> throw IllegalArgumentException()
-                }
             setRecurrence(
                 newRecur().apply {
                     interval = 1
-                    setFrequency(frequency.name)
+                    setFrequency(recurrence.selectedFrequency(i).name)
                 }.toString()
             )
         }
@@ -163,7 +110,7 @@ fun RecurrenceDialog (
                 }
                 for (i in 0..5) {
                     SelectableText(
-                        text = repeatOptions[i],
+                        text = recurrence.title(i),
                         index = i,
                         selected = selected,
                         setSelection = { setSelection(i) }
@@ -181,12 +128,16 @@ fun SelectableText (
     selected: Int,
     setSelection: (Int) -> Unit
 ) {
-    Row (verticalAlignment = Alignment.CenterVertically) {
+    Row (
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.clickable{ setSelection(index) }
+    ) {
         RadioButton(
             selected = index == selected,
             onClick = { setSelection(index) }
         )
         Spacer(modifier = Modifier.width(4.dp))
-        Text(text)
+        Text(text = text, textDecoration = TextDecoration.Underline)
     }
 }
+
