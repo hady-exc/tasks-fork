@@ -27,6 +27,7 @@ import kotlinx.coroutines.withContext
 import org.tasks.R
 import org.tasks.analytics.Firebase
 import org.tasks.calendars.CalendarEventProvider
+import org.tasks.calendars.CalendarProvider
 import org.tasks.data.GoogleTask
 import org.tasks.data.Location
 import org.tasks.data.dao.AlarmDao
@@ -81,6 +82,7 @@ class TaskDrawerViewModel
     private val timerPlugin: TimerPlugin,
     private val permissionChecker: PermissionChecker,
     private val calendarEventProvider: CalendarEventProvider,
+    private val calendarProvider: CalendarProvider,
     private val gCalHelper: GCalHelper,
     private val taskMover: TaskMover,
     private val locationDao: LocationDao,
@@ -113,6 +115,9 @@ class TaskDrawerViewModel
     private lateinit var initialAlarms: ArrayList<Alarm>
     private lateinit var _filter: MutableState<Filter>
     val initialRecurrence get() = initialTask.recurrence
+    val originalCalendar: String? = if (permissionChecker.canAccessCalendars()) {
+        preferences.defaultCalendar
+    } else { null }
 
     private var initializer: Job? = null
     fun initFilter(filter: Filter) {
@@ -165,6 +170,8 @@ class TaskDrawerViewModel
     }
     var recurrence by mutableStateOf<String?>(null)
     var repeatAfterCompletion by mutableStateOf(false)
+    var selectedCalendar by mutableStateOf(originalCalendar)
+    val selectedCalendarName get() = selectedCalendar?.let { calendarProvider.getCalendar(it)?.name }
 
     fun setFilter(value: Filter) { _filter.value = value }
 
@@ -194,6 +201,7 @@ class TaskDrawerViewModel
             setFilter(_initialFilter)
             recurrence = task.recurrence
             repeatAfterCompletion = task.repeatAfterCompletion()
+            selectedCalendar = originalCalendar
         }
     }
 
@@ -236,6 +244,8 @@ class TaskDrawerViewModel
             || initialTask.hideUntil != startDate
             || initialRecurrence != recurrence
             || initialTask.repeatAfterCompletion() != repeatAfterCompletion
+            || originalCalendar != selectedCalendar
+
 
     fun retrieveTask(): Task {
         task.title = title
@@ -264,6 +274,9 @@ class TaskDrawerViewModel
             Task.RepeatFrom.DUE_DATE
         }
         task.putTransitory(Tag.KEY, selectedTags.mapNotNull { it.name })
+        selectedCalendar?.let {
+            task.putTransitory(Task.TRANS_CALENDAR,it)
+        }
         if (isChanged()) task.putTransitory(Task.TRANS_IS_CHANGED, "")
         return task
     }

@@ -341,6 +341,7 @@ data class Task @OptIn(ExperimentalSerializationApi::class) constructor(
         const val TRANS_REMINDERS = "reminders"
         const val TRANS_RANDOM = "random"
         const val TRANS_IS_CHANGED = "task-is-changed"
+        const val TRANS_CALENDAR = "calendar"
 
         private val INVALID_COUNT = ";?COUNT=(-1|0)".toRegex()
 

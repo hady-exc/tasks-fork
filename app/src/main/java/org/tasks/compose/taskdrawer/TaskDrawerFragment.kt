@@ -22,6 +22,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.todoroo.astrid.activity.TaskEditFragment
 import com.todoroo.astrid.alarms.AlarmService
 import com.todoroo.astrid.dao.TaskDao
 import com.todoroo.astrid.gcal.GCalHelper
@@ -30,6 +31,7 @@ import com.todoroo.astrid.service.TaskMover
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.tasks.R
+import org.tasks.calendars.CalendarPicker
 import org.tasks.compose.FilterSelectionActivity.Companion.launch
 import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPickerResult
 import org.tasks.compose.edit.TaskEditDrawer
@@ -118,6 +120,12 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
                     vm.startTime = intent.getIntExtra(EXTRA_TIME, 0)
                 }
             }
+            TaskEditFragment.REQUEST_CODE_PICK_CALENDAR -> {
+                if (resultCode == RESULT_OK) {
+                    vm.selectedCalendar =
+                        data!!.getStringExtra(CalendarPicker.EXTRA_CALENDAR_ID)
+                }
+            }
             else -> {
                 @Suppress("DEPRECATION")
                 super.onActivityResult(requestCode, resultCode, data)
@@ -170,6 +178,20 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
             Intent(context, TagPickerActivity::class.java)
                 .putParcelableArrayListExtra(TagPickerActivity.EXTRA_SELECTED, current)
         )
+    }
+
+    private fun launchCalendarPicker() {
+        CalendarPicker
+            .newCalendarPicker(
+                this,
+                TaskEditFragment.REQUEST_CODE_PICK_CALENDAR,
+                vm.selectedCalendar,
+            )
+            .show(
+                this.parentFragmentManager,
+                TaskEditFragment.FRAG_TAG_CALENDAR_PICKER
+            )
+
     }
 
     /* Dialog fragments launching and listening. Hack. TODO(replace by a regular solution)  */
@@ -260,7 +282,7 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
                     pickStartDateTime = {
                         launchStartDateTimePicker(vm.startDay, vm.startTime)
                     },
-                    peekCustomRecurrence = {
+                    pickCustomRecurrence = {
                         lifecycleScope.launch {
                             val accountType = vm.filter.value
                                 .let {
@@ -283,7 +305,8 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
                                 )
                             )
                         }
-                    }
+                    },
+                    pickCalendar = { launchCalendarPicker() }
                 )
             }
         }

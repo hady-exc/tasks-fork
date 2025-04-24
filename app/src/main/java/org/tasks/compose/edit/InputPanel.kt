@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.runBlocking
 import org.tasks.analytics.Firebase
+import org.tasks.compose.taskdrawer.CalendarChip
 import org.tasks.compose.taskdrawer.Description
 import org.tasks.compose.taskdrawer.DescriptionChip
 import org.tasks.compose.taskdrawer.DueDateChip
@@ -61,7 +62,8 @@ fun TaskEditDrawer(
     pickTags: () -> Unit,
     pickLocation: () -> Unit,
     pickStartDateTime: () -> Unit,
-    peekCustomRecurrence: (String?) -> Unit
+    pickCustomRecurrence: (String?) -> Unit,
+    pickCalendar: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -130,7 +132,7 @@ fun TaskEditDrawer(
                         setRecurrence = { state.recurrence = it },
                         repeatFromCompletion = state.repeatAfterCompletion,
                         onRepeatFromChanged = { state.repeatAfterCompletion = it },
-                        peekCustomRecurrence = peekCustomRecurrence
+                        peekCustomRecurrence = pickCustomRecurrence
                     )
                 }
                 RecurrenceChip(
@@ -163,7 +165,7 @@ fun TaskEditDrawer(
                 TagsChip(
                     current = state.selectedTags,
                     action = pickTags,
-                    delete = if (state.tagsChanged()) { { state.selectedTags = state.initialTags } } else null
+                    //delete = if (state.tagsChanged()) { { state.selectedTags = state.initialTags } } else null  // TODO(debug)
                 )
                 /* location */
                 LocationChip(
@@ -175,6 +177,12 @@ fun TaskEditDrawer(
                 PriorityChip(
                     current = state.priority,
                     setValue = { value -> state.priority = value }
+                )
+                /* Calendar */
+                CalendarChip(
+                    selected = state.selectedCalendarName,
+                    select = pickCalendar,
+                    clear = { state.selectedCalendar = null }
                 )
                 /* Main TaskEditFragment launch - must be the last */
                 IconChip(icon = Icons.Outlined.MoreHoriz, action = { edit(); state.resetTask() })
