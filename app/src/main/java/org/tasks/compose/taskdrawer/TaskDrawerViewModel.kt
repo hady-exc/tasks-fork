@@ -101,8 +101,8 @@ class TaskDrawerViewModel
     private val alarmDao: AlarmDao,
     private val taskAttachmentDao: TaskAttachmentDao,
     private val taskCreator: TaskCreator,
-    private val defaultFilterProvider: DefaultFilterProvider,
-    ) : ViewModel()
+    private val defaultFilterProvider: DefaultFilterProvider
+) : ViewModel()
 {
     /* "Static" state */
     private lateinit var _initialFilter: Filter
@@ -118,10 +118,13 @@ class TaskDrawerViewModel
     val originalCalendar: String? = if (permissionChecker.canAccessCalendars()) {
         preferences.defaultCalendar
     } else { null }
+    private lateinit var _chipsOrder: List<Int>
+    val chipsOrder get() = _chipsOrder
 
     private var initializer: Job? = null
-    fun initFilter(filter: Filter) {
+    fun initViewModel(filter: Filter, order: List<Int>) {
         _initialFilter = filter
+        _chipsOrder = order
         this._filter = mutableStateOf(filter)
         initializer = viewModelScope.launch {
             initialTask = taskCreator.createWithValues(filter, "")

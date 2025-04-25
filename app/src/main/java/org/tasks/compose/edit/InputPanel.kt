@@ -29,6 +29,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.todoroo.astrid.repeats.RepeatControlSet
+import com.todoroo.astrid.tags.TagsControlSet
+import com.todoroo.astrid.ui.StartDateControlSet
 import kotlinx.coroutines.runBlocking
 import org.tasks.analytics.Firebase
 import org.tasks.compose.taskdrawer.CalendarChip
@@ -47,9 +50,15 @@ import org.tasks.compose.taskdrawer.TagsChip
 import org.tasks.compose.taskdrawer.TaskDrawerViewModel
 import org.tasks.compose.taskdrawer.TitleRow
 import org.tasks.extensions.Context.is24HourFormat
+import org.tasks.fragments.TaskEditControlSetFragmentManager.Companion.TAG_DESCRIPTION
+import org.tasks.fragments.TaskEditControlSetFragmentManager.Companion.TAG_DUE_DATE
+import org.tasks.fragments.TaskEditControlSetFragmentManager.Companion.TAG_LIST
+import org.tasks.fragments.TaskEditControlSetFragmentManager.Companion.TAG_PRIORITY
 import org.tasks.kmp.org.tasks.time.DateStyle
 import org.tasks.kmp.org.tasks.time.getRelativeDateTime
 import org.tasks.repeats.RepeatRuleToString
+import org.tasks.ui.CalendarControlSet
+import org.tasks.ui.LocationControlSet
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class)
 @Composable
@@ -112,16 +121,7 @@ fun TaskEditDrawer(
                 verticalArrangement = Arrangement.Center,
                 overflow = FlowRowOverflow.Clip
             ) {
-                /* description */
-                DescriptionChip(
-                    show = !(state.description != "" || showDescription),
-                    action = { showDescription = true }
-                )
-                /* Due Date */
-                DueDateChip(
-                    current = state.dueDate,
-                    setValue = { value -> state.dueDate = value }
-                )
+
                 /* Recurrence */
                 val repeatRuleToString = rememberRepeatRuleToString()
                 val showRecurrenceDialog = remember { mutableStateOf(false) }
@@ -135,55 +135,92 @@ fun TaskEditDrawer(
                         peekCustomRecurrence = pickCustomRecurrence
                     )
                 }
-                RecurrenceChip(
-                    recurrence = RecurrenceHelper(LocalContext.current, repeatRuleToString, state.recurrence),
-                    onClick = { showRecurrenceDialog.value = true }
-                )
-                /* Start Date */
-                StartDateTimeChip(
-                    state.startDay,
-                    state.startTime,
-                    { runBlocking {
-                        getRelativeDateTime(
-                            state.startDay + state.startTime,
-                            context.is24HourFormat,
-                            DateStyle.SHORT,
-                            alwaysDisplayFullDate = false //preferences.alwaysDisplayFullDate
-                        )
-                    }},
-                    pickStartDateTime,
-                    delete = { state.startDay = 0L; state.startDay = 0}
-                )
-                /* Target List */
-                ListChip(
-                    initialFilter = state.initialFilter,
-                    currentFiler = state.filter.value,
-                    setFilter = { filter -> state.setFilter(filter) },
-                    pickList = pickList
-                )
-                /* Tags */
-                TagsChip(
-                    current = state.selectedTags,
-                    action = pickTags,
-                    //delete = if (state.tagsChanged()) { { state.selectedTags = state.initialTags } } else null  // TODO(debug)
-                )
-                /* location */
-                LocationChip(
-                    current = state.location,
-                    setLocation = { location -> state.location = location },
-                    pickLocation = pickLocation
-                )
-                /* priority */
-                PriorityChip(
-                    current = state.priority,
-                    setValue = { value -> state.priority = value }
-                )
-                /* Calendar */
-                CalendarChip(
-                    selected = state.selectedCalendarName,
-                    select = pickCalendar,
-                    clear = { state.selectedCalendar = null }
-                )
+
+                var total = 0
+                var index = 0
+                while (total < 5 && index < state.chipsOrder.size) {
+                    when (state.chipsOrder[index++]) {
+                        TAG_DESCRIPTION -> {
+                            DescriptionChip(
+                                show = !(state.description != "" || showDescription),
+                                action = { showDescription = true }
+                            )
+                            total++
+                        }
+                        TAG_DUE_DATE -> {
+                            DueDateChip(
+                                current = state.dueDate,
+                                setValue = { value -> state.dueDate = value }
+                            )
+                            total++
+                        }
+                        TAG_LIST -> {
+                            ListChip(
+                                initialFilter = state.initialFilter,
+                                currentFiler = state.filter.value,
+                                setFilter = { filter -> state.setFilter(filter) },
+                                pickList = pickList
+                            )
+                            total++
+                        }
+                        TAG_PRIORITY -> {
+                            PriorityChip(
+                                current = state.priority,
+                                setValue = { value -> state.priority = value }
+                            )
+                            total++
+                        }
+                        RepeatControlSet.TAG -> {
+                            RecurrenceChip(
+                                recurrence = RecurrenceHelper(LocalContext.current, repeatRuleToString, state.recurrence),
+                                onClick = { showRecurrenceDialog.value = true }
+                            )
+                            total++
+                        }
+                        StartDateControlSet.TAG -> {
+                            StartDateTimeChip(
+                                state.startDay,
+                                state.startTime,
+                                { runBlocking {
+                                    getRelativeDateTime(
+                                        state.startDay + state.startTime,
+                                        context.is24HourFormat,
+                                        DateStyle.SHORT,
+                                        alwaysDisplayFullDate = false //preferences.alwaysDisplayFullDate
+                                    )
+                                }},
+                                pickStartDateTime,
+                                delete = { state.startDay = 0L; state.startDay = 0}
+                            )
+                            total++
+                        }
+                        TagsControlSet.TAG -> {
+                            TagsChip(
+                                current = state.selectedTags,
+                                action = pickTags,
+                                //delete = if (state.tagsChanged()) { { state.selectedTags = state.initialTags } } else null  // TODO(debug)
+                            )
+                            total++
+                        }
+                        LocationControlSet.TAG -> {
+                            LocationChip(
+                                current = state.location,
+                                setLocation = { location -> state.location = location },
+                                pickLocation = pickLocation
+                            )
+                            total++
+                        }
+                        CalendarControlSet.TAG -> {
+                            CalendarChip(
+                                selected = state.selectedCalendarName,
+                                select = pickCalendar,
+                                clear = { state.selectedCalendar = null }
+                            )
+                            total++
+                        }
+                        else -> Unit
+                    }
+                }
                 /* Main TaskEditFragment launch - must be the last */
                 IconChip(icon = Icons.Outlined.MoreHoriz, action = { edit(); state.resetTask() })
             }

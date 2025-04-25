@@ -53,6 +53,7 @@ import org.tasks.dialogs.StartDatePicker.Companion.EXTRA_TIME
 import org.tasks.filters.CaldavFilter
 import org.tasks.filters.Filter
 import org.tasks.filters.GtasksFilter
+import org.tasks.fragments.TaskEditControlSetFragmentManager
 import org.tasks.location.GeofenceApi
 import org.tasks.location.LocationPickerActivity.Companion.launch
 import org.tasks.location.LocationPickerActivity.Companion.registerForLocationPickerResult
@@ -86,6 +87,7 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
     @Inject lateinit var taskAttachmentDao: TaskAttachmentDao
     @Inject lateinit var taskListEvents: TaskListEventBus
     @Inject lateinit var caldavDao: CaldavDao
+    @Inject lateinit var orderManager: TaskEditControlSetFragmentManager
 
     private lateinit var filterPickerLauncher: ActivityResultLauncher<Intent>
     private lateinit var locationPickerLauncher: ActivityResultLauncher<Intent>
@@ -99,12 +101,17 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        vm.initFilter(filter)
+        vm.initViewModel(filter, getOrder())
         val composeView = ComposeView(context)
         composeView.setContent { TaskEditDrawerContent() }
         initLaunchers()
         return composeView
     }
+
+    private fun getOrder(): List<Int> =
+        orderManager.displayOrder.subList(0, orderManager.visibleSize-1).map { tag ->
+            orderManager.controlSetFragments[tag]!!
+        }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
