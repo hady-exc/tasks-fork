@@ -1,6 +1,7 @@
 package org.tasks.compose.taskdrawer
 
 import android.content.res.Configuration
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,9 +11,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,34 +22,35 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.tasks.R
 import org.tasks.compose.DisabledText
+import org.tasks.time.DateTimeUtils2.currentTimeMillis
 
 @Composable
 fun TimerDialog(
+    helper: TimerHelper,
     started: Long,
-    estimated: Int,
-    elapsed: Int,
-
+    setTimer: (Boolean) -> Unit,
+    onDone: () -> Unit
 ) {
-    val started = remember { mutableStateOf(started) }
-    val estimated = remember { mutableStateOf(estimated) }
-    val elapsed = remember { mutableStateOf(elapsed) }
-    AlertDialog(
-        onDismissRequest = {},
-        confirmButton = { Text("OK") },
-        dismissButton = { Text("CANCEL") },
-        text = { TimerDialogContent(started.value, estimated.value, elapsed.value) }
-    )
+    if (helper.showDialog.value) {
+        AlertDialog(
+            onDismissRequest = { helper.showDialog.value = false },
+            confirmButton = {
+                Text("OK", modifier = Modifier.clickable{ onDone(); helper.showDialog.value = false })
+                            },
+            dismissButton = {
+                Text("CANCEL", modifier = Modifier.clickable { helper.showDialog.value = false })
+                            },
+            text = { TimerDialogContent(helper, started, setTimer) }
+        )
+    }
 }
 
 @Composable
 private fun TimerDialogContent(
+    helper: TimerHelper,
     started: Long,
-    estimated: Int,
-    elapsed: Int,
+    setTimer: (Boolean) -> Unit
 ) {
-    val started = remember { mutableSetOf(started) }
-    val estimated = remember { mutableStateOf(estimated) }
-    val elapsed = remember { mutableStateOf(elapsed) }
     Column {
         Text(stringResource(R.string.TEA_estimatedDuration_label))
         Box (
@@ -56,8 +58,8 @@ private fun TimerDialogContent(
             contentAlignment = Alignment.Center
         ) {
             DurationPicker(
-                current = estimated.value,
-                setValue = { estimated.value = it }
+                current = helper.estimated.intValue,
+                setValue = { helper.estimated.intValue = it }
             )
         }
         Text(stringResource(R.string.TEA_elapsedDuration_label))
@@ -66,15 +68,18 @@ private fun TimerDialogContent(
             contentAlignment = Alignment.Center
         ) {
             DurationPicker(
-                current = elapsed.value,
-                setValue = { elapsed.value = it }
+                current = helper.elapsed.intValue,
+                setValue = { helper.elapsed.intValue = it }
             )
         }
         Row (modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)){
             DisabledText(
-                text = stringResource(R.string.TEA_timer_controls),
+                text = if (started > 0L) helper.elapsedText(started) else stringResource(R.string.TEA_timer_controls),
                 modifier = Modifier.weight(1f)
             )
+            IconButton(
+                onClick = { setTimer(started == 0L) }
+            ) { }
             Icon(Icons.Outlined.PlayArrow, null)
         }
     }
@@ -83,7 +88,39 @@ private fun TimerDialogContent(
 @Composable
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+private fun TimerDialogPreviewTimerStarted()
+{
+    TimerDialog(
+        helper = remember {
+            TimerHelper().apply {
+                showDialog.value = true
+                elapsed.intValue = 315
+                estimated.intValue = 980
+                now.longValue = currentTimeMillis()
+            }
+        },
+        started = currentTimeMillis()+12345678,
+        setTimer = {},
+        onDone = {}
+    )
+}
+
+@Composable
+@Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 private fun TimerDialogPreview()
 {
-    TimerDialog(0, 65*60, 315)
+    TimerDialog(
+        helper = remember {
+            TimerHelper().apply {
+                showDialog.value = true
+                elapsed.intValue = 315
+                estimated.intValue = 980
+            }
+        },
+        started = 0L,
+        setTimer = {},
+        onDone = {}
+    )
 }
+

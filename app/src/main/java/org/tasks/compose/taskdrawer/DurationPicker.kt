@@ -54,7 +54,7 @@ fun DurationPicker(
     ) {
         TColumn {
             TCell (onClick = { change(3600) }) { Icon(upIcon,null) }
-            TCell (height = 36.dp) { TText(String.format("%02d", hours)) }
+            TCell (height = 36.dp) { TText(String.format("%d", hours)) }
             TCell (onClick = { change(-3600) }) { Icon(downIcon,null) }
         }
         TColumn {
