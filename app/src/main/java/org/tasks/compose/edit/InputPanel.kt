@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.todoroo.astrid.repeats.RepeatControlSet
 import com.todoroo.astrid.tags.TagsControlSet
+import com.todoroo.astrid.timers.TimerControlSet
 import com.todoroo.astrid.ui.StartDateControlSet
 import kotlinx.coroutines.runBlocking
 import org.tasks.analytics.Firebase
@@ -48,6 +49,7 @@ import org.tasks.compose.taskdrawer.RecurrenceHelper
 import org.tasks.compose.taskdrawer.StartDateTimeChip
 import org.tasks.compose.taskdrawer.TagsChip
 import org.tasks.compose.taskdrawer.TaskDrawerViewModel
+import org.tasks.compose.taskdrawer.TimerChip
 import org.tasks.compose.taskdrawer.TitleRow
 import org.tasks.extensions.Context.is24HourFormat
 import org.tasks.fragments.TaskEditControlSetFragmentManager.Companion.TAG_DESCRIPTION
@@ -72,7 +74,8 @@ fun TaskEditDrawer(
     pickLocation: () -> Unit,
     pickStartDateTime: () -> Unit,
     pickCustomRecurrence: (String?) -> Unit,
-    pickCalendar: () -> Unit
+    pickCalendar: () -> Unit,
+    setTimer: (Boolean) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -217,6 +220,18 @@ fun TaskEditDrawer(
                                 clear = { state.selectedCalendar = null }
                             )
                             total++
+                        }
+                        TimerControlSet.TAG -> {
+                            TimerChip(
+                                started = state.timerStarted,
+                                estimated = state.timerEstimated,
+                                elapsed = state.timerElapsed,
+                                setTimer = setTimer,
+                                setValues = { estimated, elapsed ->
+                                    state.timerEstimated = estimated
+                                    state.timerElapsed = elapsed
+                                }
+                            )
                         }
                         else -> Unit
                     }

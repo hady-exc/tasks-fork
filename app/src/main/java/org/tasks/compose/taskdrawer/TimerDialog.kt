@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Pause
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
@@ -26,28 +27,34 @@ import org.tasks.time.DateTimeUtils2.currentTimeMillis
 
 @Composable
 fun TimerDialog(
-    helper: TimerHelper,
+    state: TimerChipState,
     started: Long,
     setTimer: (Boolean) -> Unit,
     onDone: () -> Unit
 ) {
-    if (helper.showDialog.value) {
+    if (state.showDialog.value) {
         AlertDialog(
-            onDismissRequest = { helper.showDialog.value = false },
+            onDismissRequest = { state.showDialog.value = false },
             confirmButton = {
-                Text("OK", modifier = Modifier.clickable{ onDone(); helper.showDialog.value = false })
-                            },
+                Text(
+                    text = stringResource(R.string.ok),
+                    modifier = Modifier.clickable{ onDone(); state.showDialog.value = false }
+                )
+            },
             dismissButton = {
-                Text("CANCEL", modifier = Modifier.clickable { helper.showDialog.value = false })
-                            },
-            text = { TimerDialogContent(helper, started, setTimer) }
+                Text(
+                    text = stringResource(R.string.cancel),
+                    modifier = Modifier.clickable { state.showDialog.value = false }
+                )
+            },
+            text = { TimerDialogContent(state, started, setTimer) }
         )
     }
 }
 
 @Composable
 private fun TimerDialogContent(
-    helper: TimerHelper,
+    state: TimerChipState,
     started: Long,
     setTimer: (Boolean) -> Unit
 ) {
@@ -58,8 +65,10 @@ private fun TimerDialogContent(
             contentAlignment = Alignment.Center
         ) {
             DurationPicker(
-                current = helper.estimated.intValue,
-                setValue = { helper.estimated.intValue = it }
+                current = state.estimated.intValue,
+                setValue = {
+                    state.estimated.intValue = it
+                }
             )
         }
         Text(stringResource(R.string.TEA_elapsedDuration_label))
@@ -68,19 +77,44 @@ private fun TimerDialogContent(
             contentAlignment = Alignment.Center
         ) {
             DurationPicker(
-                current = helper.elapsed.intValue,
-                setValue = { helper.elapsed.intValue = it }
+                current = state.elapsed.intValue,
+                setValue = {
+                    state.elapsed.intValue = it
+                }
             )
         }
-        Row (modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)){
+        Row (
+            modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            val text = if ( started == 0L) {
+                stringResource(R.string.TEA_timer_controls)
+            } else {
+                state.elapsedText(started)
+            }
+
             DisabledText(
-                text = if (started > 0L) helper.elapsedText(started) else stringResource(R.string.TEA_timer_controls),
+                text = text,
                 modifier = Modifier.weight(1f)
             )
             IconButton(
-                onClick = { setTimer(started == 0L) }
-            ) { }
-            Icon(Icons.Outlined.PlayArrow, null)
+                onClick = {
+                    if  (started == 0L) {
+                        state.now.longValue = currentTimeMillis()
+                        setTimer(true)
+                    } else {
+                        state.elapsed.intValue =
+                            state.elapsed.intValue + ((currentTimeMillis() - started) / 1000L).toInt()
+                        setTimer(false)
+                    }
+                }
+            ) {
+                if (started == 0L) {
+                    Icon(Icons.Outlined.PlayArrow, null)
+                } else {
+                    Icon(Icons.Outlined.Pause, null)
+                }
+            }
         }
     }
 }
@@ -91,8 +125,8 @@ private fun TimerDialogContent(
 private fun TimerDialogPreviewTimerStarted()
 {
     TimerDialog(
-        helper = remember {
-            TimerHelper().apply {
+        state = remember {
+            TimerChipState().apply {
                 showDialog.value = true
                 elapsed.intValue = 315
                 estimated.intValue = 980
@@ -111,8 +145,8 @@ private fun TimerDialogPreviewTimerStarted()
 private fun TimerDialogPreview()
 {
     TimerDialog(
-        helper = remember {
-            TimerHelper().apply {
+        state = remember {
+            TimerChipState().apply {
                 showDialog.value = true
                 elapsed.intValue = 315
                 estimated.intValue = 980

@@ -4,9 +4,12 @@ import android.content.res.Configuration
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
+import kotlinx.coroutines.delay
 import org.tasks.time.DateTimeUtils2.currentTimeMillis
+import kotlin.time.Duration.Companion.seconds
 
 private val timerIcon = Icons.Outlined.Timer
 
@@ -18,37 +21,43 @@ fun TimerChip(
     setTimer: (Boolean) -> Unit,
     setValues: (estimated: Int, elapsed: Int) -> Unit
 ) {
-    val helper = remember { TimerHelper() }
-    helper.estimated.intValue = estimated
-    helper.elapsed.intValue = elapsed
-
-    val text = when {
-        started > 0 && helper.estimated.intValue > 0 -> helper.elapsedText(started) + " / " + helper.estimatedText()
-        helper.elapsed.intValue > 0 -> helper.elapsedText(started)
-        helper.estimated.intValue > 0 -> "00:00 / " + helper.estimatedText()
-        else -> null
+    val state = remember(estimated, elapsed) {
+        TimerChipState(estimated, elapsed)
     }
+
+    val text = 
+        if (started == 0L && state.estimated.intValue == 0 && state.elapsed.intValue == 0)
+            null
+        else
+            state.elapsedText(started) + "/" + state.estimatedText()
 
     if (text != null) {
         Chip(
             title = text,
             leading = timerIcon,
-            action = { helper.showDialog.value = true }
+            action = { state.showDialog.value = true }
         )
     } else {
         IconChip(
             icon = timerIcon,
-            action = { helper.showDialog.value = true }
+            action = { state.showDialog.value = true }
         )
     }
 
-    helper.Launch(started)
+    LaunchedEffect(started > 0, state) {
+        while (true) {
+            delay(1.seconds)
+            state.now.longValue = currentTimeMillis()
+        }
+    }
 
     TimerDialog(
-        helper = helper,
+        state = state,
         started = started,
         setTimer = setTimer,
-        onDone = { setValues(helper.estimated.intValue, helper.elapsed.intValue) }
+        onDone = {
+            setValues(state.estimated.intValue, state.elapsed.intValue)
+        }
     )
 }
 

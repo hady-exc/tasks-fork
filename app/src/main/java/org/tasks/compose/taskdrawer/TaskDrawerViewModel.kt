@@ -175,6 +175,9 @@ class TaskDrawerViewModel
     var repeatAfterCompletion by mutableStateOf(false)
     var selectedCalendar by mutableStateOf(originalCalendar)
     val selectedCalendarName get() = selectedCalendar?.let { calendarProvider.getCalendar(it)?.name }
+    var timerStarted by mutableLongStateOf(0L)
+    var timerEstimated by mutableIntStateOf(0)
+    var timerElapsed by mutableIntStateOf(0)
 
     fun setFilter(value: Filter) { _filter.value = value }
 
@@ -205,6 +208,9 @@ class TaskDrawerViewModel
             recurrence = task.recurrence
             repeatAfterCompletion = task.repeatAfterCompletion()
             selectedCalendar = originalCalendar
+            timerStarted = task.timerStart
+            timerEstimated = task.estimatedSeconds
+            timerElapsed = task.elapsedSeconds
         }
     }
 

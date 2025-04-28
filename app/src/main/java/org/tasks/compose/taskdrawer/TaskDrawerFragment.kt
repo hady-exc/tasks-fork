@@ -28,6 +28,7 @@ import com.todoroo.astrid.dao.TaskDao
 import com.todoroo.astrid.gcal.GCalHelper
 import com.todoroo.astrid.service.TaskCreator
 import com.todoroo.astrid.service.TaskMover
+import com.todoroo.astrid.timers.TimerPlugin
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.tasks.R
@@ -88,6 +89,7 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
     @Inject lateinit var taskListEvents: TaskListEventBus
     @Inject lateinit var caldavDao: CaldavDao
     @Inject lateinit var orderManager: TaskEditControlSetFragmentManager
+    @Inject lateinit var timerPlugin: TimerPlugin
 
     private lateinit var filterPickerLauncher: ActivityResultLauncher<Intent>
     private lateinit var locationPickerLauncher: ActivityResultLauncher<Intent>
@@ -313,8 +315,21 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
                             )
                         }
                     },
-                    pickCalendar = { launchCalendarPicker() }
+                    pickCalendar = { launchCalendarPicker() },
+                    setTimer = { setTimer(it) }
                 )
+            }
+        }
+    }
+
+    private fun setTimer(on: Boolean) {
+        if (on) {
+            if (vm.timerStarted == 0L) {
+                vm.timerStarted = currentTimeMillis()
+            }
+        } else {
+            if (vm.timerStarted != 0L) {
+                vm.timerStarted = 0L
             }
         }
     }
