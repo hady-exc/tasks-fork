@@ -1,14 +1,18 @@
 package org.tasks.compose.taskdrawer
 
 import android.content.res.Configuration
+import android.text.format.DateUtils
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.delay
 import org.tasks.time.DateTimeUtils2.currentTimeMillis
+import timber.log.Timber
 import kotlin.time.Duration.Companion.seconds
 
 private val timerIcon = Icons.Outlined.Timer
@@ -21,43 +25,51 @@ fun TimerChip(
     setTimer: (Boolean) -> Unit,
     setValues: (estimated: Int, elapsed: Int) -> Unit
 ) {
-    val state = remember(estimated, elapsed) {
-        TimerChipState(estimated, elapsed)
-    }
+    val showDialog = remember { mutableStateOf(false) }
+    val now = remember { mutableLongStateOf(started) }
 
     val text = 
-        if (started == 0L && state.estimated.intValue == 0 && state.elapsed.intValue == 0)
+        if (started == 0L && estimated == 0 && elapsed == 0)
             null
-        else
-            state.elapsedText(started) + "/" + state.estimatedText()
+        else {
+            val elapsed = elapsed +
+                    if (started > 0L) ((now.longValue - started) / 1000).toInt() else 0
+            DateUtils.formatElapsedTime(elapsed.toLong()) +
+            "/" +
+            DateUtils.formatElapsedTime(estimated.toLong())
+        }
 
     if (text != null) {
         Chip(
             title = text,
             leading = timerIcon,
-            action = { state.showDialog.value = true }
+            action = { showDialog.value = true }
         )
     } else {
         IconChip(
             icon = timerIcon,
-            action = { state.showDialog.value = true }
+            action = { showDialog.value = true }
         )
     }
 
-    LaunchedEffect(started > 0, state) {
-        while (true) {
+    LaunchedEffect(started) {
+        while (started > 0L) {
             delay(1.seconds)
-            state.now.longValue = currentTimeMillis()
+            now.longValue = currentTimeMillis()
         }
     }
 
     TimerDialog(
-        state = state,
+        show = showDialog.value,
         started = started,
-        setTimer = setTimer,
-        onDone = {
-            setValues(state.estimated.intValue, state.elapsed.intValue)
-        }
+        estimated = estimated,
+        elapsed = elapsed,
+        setResult = { started, estimated, elapsed ->
+            setValues(estimated, elapsed)
+            setTimer(started > 0L)
+            now.longValue = started
+        },
+        close = { showDialog.value = false }
     )
 }
 

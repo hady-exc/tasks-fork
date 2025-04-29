@@ -316,7 +316,7 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
                         }
                     },
                     pickCalendar = { launchCalendarPicker() },
-                    setTimer = { setTimer(it) }
+                    setTimer = this@TaskDrawerFragment::setTimer
                 )
             }
         }
@@ -328,9 +328,9 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
                 vm.timerStarted = currentTimeMillis()
             }
         } else {
-            if (vm.timerStarted != 0L) {
+            //if (vm.timerStarted != 0L) {
                 vm.timerStarted = 0L
-            }
+            //}
         }
     }
 

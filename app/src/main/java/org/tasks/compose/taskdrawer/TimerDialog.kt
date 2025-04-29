@@ -1,6 +1,7 @@
 package org.tasks.compose.taskdrawer
 
 import android.content.res.Configuration
+import android.text.format.DateUtils
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,48 +16,71 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableIntState
+import androidx.compose.runtime.MutableLongState
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 import org.tasks.R
 import org.tasks.compose.DisabledText
 import org.tasks.time.DateTimeUtils2.currentTimeMillis
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun TimerDialog(
-    state: TimerChipState,
+    show: Boolean,
     started: Long,
-    setTimer: (Boolean) -> Unit,
-    onDone: () -> Unit
+    estimated: Int,
+    elapsed: Int,
+    setResult: (started: Long, estimated: Int, elapsed: Int) -> Unit,
+    close: () -> Unit
 ) {
-    if (state.showDialog.value) {
+    if (show) {
+        val now = remember { mutableLongStateOf(started+elapsed)}
+        val started = remember { mutableLongStateOf(started)}
+        val estimated = remember { mutableIntStateOf(estimated)}
+        val elapsed = remember { mutableIntStateOf(elapsed)}
+
         AlertDialog(
-            onDismissRequest = { state.showDialog.value = false },
+            onDismissRequest = close,
             confirmButton = {
                 Text(
                     text = stringResource(R.string.ok),
-                    modifier = Modifier.clickable{ onDone(); state.showDialog.value = false }
+                    modifier = Modifier.clickable{
+                        setResult(
+                            started.longValue,
+                            estimated.intValue,
+                            elapsed.intValue
+                        )
+                        now.longValue = started.longValue
+                        close()
+                    }
                 )
             },
             dismissButton = {
                 Text(
                     text = stringResource(R.string.cancel),
-                    modifier = Modifier.clickable { state.showDialog.value = false }
+                    modifier = Modifier.clickable(onClick = close)
                 )
             },
-            text = { TimerDialogContent(state, started, setTimer) }
+            text = { TimerDialogContent(started, estimated, elapsed, now) }
         )
     }
 }
 
 @Composable
 private fun TimerDialogContent(
-    state: TimerChipState,
-    started: Long,
-    setTimer: (Boolean) -> Unit
+    started: MutableLongState,
+    estimated: MutableIntState,
+    elapsed: MutableIntState,
+    now: MutableLongState,
 ) {
     Column {
         Text(stringResource(R.string.TEA_estimatedDuration_label))
@@ -65,10 +89,8 @@ private fun TimerDialogContent(
             contentAlignment = Alignment.Center
         ) {
             DurationPicker(
-                current = state.estimated.intValue,
-                setValue = {
-                    state.estimated.intValue = it
-                }
+                current = estimated.intValue,
+                setValue = { estimated.intValue = it }
             )
         }
         Text(stringResource(R.string.TEA_elapsedDuration_label))
@@ -77,44 +99,48 @@ private fun TimerDialogContent(
             contentAlignment = Alignment.Center
         ) {
             DurationPicker(
-                current = state.elapsed.intValue,
-                setValue = {
-                    state.elapsed.intValue = it
-                }
+                current = elapsed.intValue,
+                setValue = { elapsed.intValue = it }
             )
         }
         Row (
             modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val text = if ( started == 0L) {
+            val text = if ( started.longValue == 0L) {
                 stringResource(R.string.TEA_timer_controls)
             } else {
-                state.elapsedText(started)
+                val current = elapsed.intValue + ((now.longValue - started.longValue) / 1000).toInt()
+                DateUtils.formatElapsedTime(current.toLong())
             }
 
-            DisabledText(
-                text = text,
-                modifier = Modifier.weight(1f)
-            )
+            DisabledText( text = text, modifier = Modifier.weight(1f) )
             IconButton(
                 onClick = {
-                    if  (started == 0L) {
-                        state.now.longValue = currentTimeMillis()
-                        setTimer(true)
+                    if  (started.longValue == 0L) {
+                        now.longValue = currentTimeMillis()
+                        started.longValue = now.longValue
                     } else {
-                        state.elapsed.intValue =
-                            state.elapsed.intValue + ((currentTimeMillis() - started) / 1000L).toInt()
-                        setTimer(false)
+                        elapsed.intValue =
+                            elapsed.intValue + ((currentTimeMillis() - started.longValue) / 1000L).toInt()
+                        started.longValue = 0L
+                        now.longValue = 0L
                     }
                 }
             ) {
-                if (started == 0L) {
+                if (started.longValue == 0L) {
                     Icon(Icons.Outlined.PlayArrow, null)
                 } else {
                     Icon(Icons.Outlined.Pause, null)
                 }
             }
+        }
+    }
+
+    LaunchedEffect(started.longValue) {
+        while (started.longValue > 0L) {
+            delay(1.seconds)
+            now.longValue = currentTimeMillis()
         }
     }
 }
@@ -125,17 +151,12 @@ private fun TimerDialogContent(
 private fun TimerDialogPreviewTimerStarted()
 {
     TimerDialog(
-        state = remember {
-            TimerChipState().apply {
-                showDialog.value = true
-                elapsed.intValue = 315
-                estimated.intValue = 980
-                now.longValue = currentTimeMillis()
-            }
-        },
+        show = true,
         started = currentTimeMillis()+12345678,
-        setTimer = {},
-        onDone = {}
+        estimated = 980,
+        elapsed = 315,
+        setResult = { a,b,c -> },
+        close = {}
     )
 }
 
@@ -145,16 +166,12 @@ private fun TimerDialogPreviewTimerStarted()
 private fun TimerDialogPreview()
 {
     TimerDialog(
-        state = remember {
-            TimerChipState().apply {
-                showDialog.value = true
-                elapsed.intValue = 315
-                estimated.intValue = 980
-            }
-        },
+        show = true,
         started = 0L,
-        setTimer = {},
-        onDone = {}
+        estimated = 980,
+        elapsed = 315,
+        setResult = { a,b,c -> },
+        close = {}
     )
 }
 
