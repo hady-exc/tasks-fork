@@ -108,7 +108,8 @@ class TaskDrawerViewModel
     private lateinit var _initialFilter: Filter
     val initialFilter get() = _initialFilter
     private lateinit var initialTask: Task
-    private lateinit var initialList: Filter
+    private lateinit var _defaultFilter: Filter
+    val defaultFilter get() = _defaultFilter
     private var initialLocation: Location? = null
     private lateinit var _initialTags: ArrayList<TagData>
     val initialTags get() = _initialTags
@@ -139,8 +140,8 @@ class TaskDrawerViewModel
                 else -> 0L
             }
 
-            initialList = defaultFilterProvider.getList(initialTask)
-            _filter.value = initialList
+            _defaultFilter = defaultFilterProvider.getList(initialTask)
+            _filter.value = _defaultFilter
             initialLocation = locationDao.getLocation(initialTask, preferences)
             _initialTags = tagDataDao.getTags(initialTask)
             initialAlarms = alarmDao.getAlarms(initialTask) // TODO: rethink, may be just an empty list?
@@ -203,8 +204,8 @@ class TaskDrawerViewModel
                 else -> 0L
             }
             setStartDate(task.dueDate, task.hideUntil)
-            _initialFilter = defaultFilterProvider.getList(task)
-            setFilter(_initialFilter)
+            _defaultFilter = defaultFilterProvider.getList(task)
+            setFilter(defaultFilter)
             recurrence = task.recurrence
             repeatAfterCompletion = task.repeatAfterCompletion()
             selectedCalendar = originalCalendar
@@ -246,7 +247,7 @@ class TaskDrawerViewModel
         title.trim() != initialTitle.trim()
             || description.trim() != initialDescription.trim()
             || dueDate != initialTask.dueDate
-            || filter.value != initialFilter
+            || filter.value != defaultFilter
             || initialLocation != location
             || initialTask.priority != priority
             || tagsChanged()

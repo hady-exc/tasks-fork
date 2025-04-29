@@ -160,6 +160,7 @@ fun TaskEditDrawer(
                         TAG_LIST -> {
                             ListChip(
                                 initialFilter = state.initialFilter,
+                                defaultFilter = state.defaultFilter,
                                 currentFiler = state.filter.value,
                                 setFilter = { filter -> state.setFilter(filter) },
                                 pickList = pickList
