@@ -64,7 +64,7 @@ fun RecurrenceDialog (
     ) {
         Card {
             Column (modifier = Modifier.padding(16.dp)) {
-                Row (modifier = Modifier.padding(vertical = 12.dp)){
+                Row (modifier = Modifier.padding(start = 12.dp, top = 12.dp, bottom = 12.dp)){
                     Text(
                         text = stringResource(id = R.string.repeats_from),
                         color = MaterialTheme.colorScheme.onSurface,
@@ -120,7 +120,7 @@ fun RecurrenceDialog (
                     )
                 }
                 Row (
-                    modifier = Modifier.padding(vertical = 16.dp).fillMaxWidth(),
+                    modifier = Modifier.padding(bottom = 12.dp).fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(R.string.ok, dismiss)

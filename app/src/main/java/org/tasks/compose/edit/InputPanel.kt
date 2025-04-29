@@ -26,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.todoroo.astrid.repeats.RepeatControlSet
@@ -34,7 +33,6 @@ import com.todoroo.astrid.tags.TagsControlSet
 import com.todoroo.astrid.timers.TimerControlSet
 import com.todoroo.astrid.ui.StartDateControlSet
 import kotlinx.coroutines.runBlocking
-import org.tasks.analytics.Firebase
 import org.tasks.compose.taskdrawer.CalendarChip
 import org.tasks.compose.taskdrawer.Description
 import org.tasks.compose.taskdrawer.DescriptionChip
@@ -44,13 +42,13 @@ import org.tasks.compose.taskdrawer.ListChip
 import org.tasks.compose.taskdrawer.LocationChip
 import org.tasks.compose.taskdrawer.PriorityChip
 import org.tasks.compose.taskdrawer.RecurrenceChip
-import org.tasks.compose.taskdrawer.RecurrenceDialog
 import org.tasks.compose.taskdrawer.RecurrenceHelper
 import org.tasks.compose.taskdrawer.StartDateTimeChip
 import org.tasks.compose.taskdrawer.TagsChip
 import org.tasks.compose.taskdrawer.TaskDrawerViewModel
 import org.tasks.compose.taskdrawer.TimerChip
 import org.tasks.compose.taskdrawer.TitleRow
+import org.tasks.compose.taskdrawer.rememberRepeatRuleToString
 import org.tasks.extensions.Context.is24HourFormat
 import org.tasks.fragments.TaskEditControlSetFragmentManager.Companion.TAG_DESCRIPTION
 import org.tasks.fragments.TaskEditControlSetFragmentManager.Companion.TAG_DUE_DATE
@@ -58,7 +56,6 @@ import org.tasks.fragments.TaskEditControlSetFragmentManager.Companion.TAG_LIST
 import org.tasks.fragments.TaskEditControlSetFragmentManager.Companion.TAG_PRIORITY
 import org.tasks.kmp.org.tasks.time.DateStyle
 import org.tasks.kmp.org.tasks.time.getRelativeDateTime
-import org.tasks.repeats.RepeatRuleToString
 import org.tasks.ui.CalendarControlSet
 import org.tasks.ui.LocationControlSet
 
@@ -125,20 +122,6 @@ fun TaskEditDrawer(
                 overflow = FlowRowOverflow.Clip
             ) {
 
-                /* Recurrence */
-                val repeatRuleToString = rememberRepeatRuleToString()
-                val showRecurrenceDialog = remember { mutableStateOf(false) }
-                if (showRecurrenceDialog.value) {
-                    RecurrenceDialog(
-                        dismiss = { showRecurrenceDialog.value = false },
-                        recurrence = RecurrenceHelper(LocalContext.current, repeatRuleToString, state.recurrence),
-                        setRecurrence = { state.recurrence = it },
-                        repeatFromCompletion = state.repeatAfterCompletion,
-                        onRepeatFromChanged = { state.repeatAfterCompletion = it },
-                        peekCustomRecurrence = pickCustomRecurrence
-                    )
-                }
-
                 var total = 0
                 var index = 0
                 while (total < 4 && index < state.chipsOrder.size) {
@@ -176,8 +159,14 @@ fun TaskEditDrawer(
                         }
                         RepeatControlSet.TAG -> {
                             RecurrenceChip(
-                                recurrence = RecurrenceHelper(LocalContext.current, repeatRuleToString, state.recurrence),
-                                onClick = { showRecurrenceDialog.value = true }
+                                recurrence = RecurrenceHelper (
+                                    LocalContext.current,
+                                    rememberRepeatRuleToString(),
+                                    state.recurrence ),
+                                setRecurrence = { state.recurrence = it },
+                                repeatAfterCompletion = state.repeatAfterCompletion,
+                                onRepeatFromChanged = { state.repeatAfterCompletion = it },
+                                pickCustomRecurrence = pickCustomRecurrence
                             )
                             total++
                         }
@@ -243,12 +232,4 @@ fun TaskEditDrawer(
             }
         }
     }
-}
-
-@Composable
-private fun rememberRepeatRuleToString(): RepeatRuleToString {
-    val context = LocalContext.current
-    val config = LocalConfiguration.current
-    val locale = config.locales.get(0)
-    return remember { RepeatRuleToString(context,locale,Firebase()) }
 }
