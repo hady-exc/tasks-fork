@@ -247,7 +247,7 @@ class TaskDrawerViewModel
         title.trim() != initialTitle.trim()
             || description.trim() != initialDescription.trim()
             || dueDate != initialTask.dueDate
-            || filter.value != defaultFilter
+            || !filter.value.areItemsTheSame(defaultFilter)
             || initialLocation != location
             || initialTask.priority != priority
             || tagsChanged()

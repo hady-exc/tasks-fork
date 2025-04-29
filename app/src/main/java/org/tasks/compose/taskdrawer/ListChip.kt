@@ -15,7 +15,7 @@ fun ListChip(
     setFilter: (Filter) -> Unit,
     pickList: () -> Unit
 ) {
-    if (initialFilter == defaultFilter && defaultFilter == currentFiler) {
+    if (initialFilter.areItemsTheSame(defaultFilter) && defaultFilter.areItemsTheSame(currentFiler)) {
         IconChip(icon = listIcon, action = pickList)
     } else {
         Chip(
@@ -23,7 +23,7 @@ fun ListChip(
             leading = listIcon,
             action = pickList,
             delete =
-            if (currentFiler == defaultFilter) {
+            if (currentFiler.areItemsTheSame(defaultFilter)) {
                 null
             } else {
                 {

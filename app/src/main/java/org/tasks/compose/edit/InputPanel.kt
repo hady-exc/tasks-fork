@@ -141,7 +141,7 @@ fun TaskEditDrawer(
 
                 var total = 0
                 var index = 0
-                while (total < 5 && index < state.chipsOrder.size) {
+                while (total < 4 && index < state.chipsOrder.size) {
                     when (state.chipsOrder[index++]) {
                         TAG_DESCRIPTION -> {
                             DescriptionChip(
@@ -233,6 +233,7 @@ fun TaskEditDrawer(
                                     state.timerElapsed = elapsed
                                 }
                             )
+                            total++
                         }
                         else -> Unit
                     }
