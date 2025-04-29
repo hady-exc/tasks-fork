@@ -1,9 +1,11 @@
 package org.tasks.compose.taskdrawer
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.BasicAlertDialog
@@ -25,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import org.tasks.R
+import org.tasks.compose.Constants.TextButton
 import org.tasks.repeats.RecurrenceUtils.newRecur
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,7 +64,7 @@ fun RecurrenceDialog (
     ) {
         Card {
             Column (modifier = Modifier.padding(16.dp)) {
-                Row {
+                Row (modifier = Modifier.padding(vertical = 12.dp)){
                     Text(
                         text = stringResource(id = R.string.repeats_from),
                         color = MaterialTheme.colorScheme.onSurface,
@@ -115,6 +118,12 @@ fun RecurrenceDialog (
                         selected = selected,
                         setSelection = { setSelection(i) }
                     )
+                }
+                Row (
+                    modifier = Modifier.padding(vertical = 16.dp).fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(R.string.ok, dismiss)
                 }
             }
         }
