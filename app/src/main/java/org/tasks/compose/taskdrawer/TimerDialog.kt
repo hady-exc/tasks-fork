@@ -6,8 +6,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Pause
 import androidx.compose.material.icons.outlined.PlayArrow
@@ -83,9 +86,13 @@ private fun TimerDialogContent(
     now: MutableLongState,
 ) {
     Column {
-        Text(stringResource(R.string.TEA_estimatedDuration_label))
+        Spacer(Modifier.height(12.dp))
+        Text(
+            text = stringResource(R.string.TEA_estimatedDuration_label),
+            style = MaterialTheme.typography.headlineSmall
+        )
         Box (
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
             contentAlignment = Alignment.Center
         ) {
             DurationPicker(
@@ -93,7 +100,10 @@ private fun TimerDialogContent(
                 setValue = { estimated.intValue = it }
             )
         }
-        Text(stringResource(R.string.TEA_elapsedDuration_label))
+        Text(
+            text = stringResource(R.string.TEA_elapsedDuration_label),
+            style = MaterialTheme.typography.headlineSmall
+        )
         Box (
             modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center

@@ -254,6 +254,9 @@ class TaskDrawerViewModel
             || initialRecurrence != recurrence
             || initialTask.repeatAfterCompletion() != repeatAfterCompletion
             || originalCalendar != selectedCalendar
+            || timerStarted != task.timerStart
+            || timerEstimated != task.estimatedSeconds
+            || timerElapsed != task.elapsedSeconds
 
 
     fun retrieveTask(): Task {
@@ -262,6 +265,9 @@ class TaskDrawerViewModel
         task.dueDate = dueDate
         task.priority = priority
         task.hideUntil = startDate
+        task.timerStart = timerStarted
+        task.estimatedSeconds = timerEstimated
+        task.elapsedSeconds = timerElapsed
         location?.let { location ->
             task.putTransitory(Place.KEY, location.place.uid!!)
         }
