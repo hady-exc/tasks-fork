@@ -9,13 +9,13 @@ private val listIcon = Icons.AutoMirrored.Outlined.List
 
 @Composable
 fun ListChip(
-    originalFilter: Filter,
     initialFilter: Filter,
+    defaultFilter: Filter,
     currentFiler: Filter,
     setFilter: (Filter) -> Unit,
     pickList: () -> Unit
 ) {
-    if (initialFilter == originalFilter && currentFiler == initialFilter) {
+    if (initialFilter.areItemsTheSame(defaultFilter) && defaultFilter.areItemsTheSame(currentFiler)) {
         IconChip(icon = listIcon, action = pickList)
     } else {
         Chip(
@@ -23,8 +23,13 @@ fun ListChip(
             leading = listIcon,
             action = pickList,
             delete =
-                if (initialFilter == originalFilter || currentFiler == initialFilter) { null }
-                else { { setFilter(initialFilter) } }
+            if (currentFiler.areItemsTheSame(defaultFilter)) {
+                null
+            } else {
+                {
+                    setFilter(defaultFilter)
+                }
+            }
         )
     }
 }

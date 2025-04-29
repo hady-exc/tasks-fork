@@ -16,8 +16,7 @@ import org.tasks.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomSheet (
-    show: Boolean,
-    hide: () -> Unit,
+    dismiss: () -> Unit,
     onDismissRequest: () -> Unit,
     hideConfirmation: () -> Boolean,
     content: @Composable (close: () -> Unit) -> Unit
@@ -32,19 +31,16 @@ fun BottomSheet (
         }
     )
 
-    if (show) {
-        ModalBottomSheet(
-            onDismissRequest = onDismissRequest,
-            sheetState = state,
-            containerColor = colorResource(id = R.color.input_popup_background),
-            shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
-            dragHandle = null
-        ) {
-            content {
-                scope.launch { state.hide() }
-                    .invokeOnCompletion { hide() }
-            }
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        sheetState = state,
+        containerColor = colorResource(id = R.color.input_popup_background),
+        shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
+        dragHandle = null
+    ) {
+        content {
+            scope.launch { state.hide() }
+                .invokeOnCompletion { dismiss() }
         }
     }
-
 }

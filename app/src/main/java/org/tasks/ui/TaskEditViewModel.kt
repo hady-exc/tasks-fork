@@ -160,7 +160,7 @@ class TaskEditViewModel @Inject constructor(
     } else {
         null
     }
-    var selectedCalendar = MutableStateFlow(originalCalendar)
+    var selectedCalendar = MutableStateFlow( task.getTransitory(Task.TRANS_CALENDAR) ?: originalCalendar)
 
     val originalList: Filter = savedStateHandle[TaskEditFragment.EXTRA_LIST]!!
     var selectedList = MutableStateFlow(originalList)

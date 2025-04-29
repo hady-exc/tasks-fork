@@ -20,15 +20,20 @@ import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.todoroo.astrid.repeats.RepeatControlSet
+import com.todoroo.astrid.tags.TagsControlSet
+import com.todoroo.astrid.timers.TimerControlSet
+import com.todoroo.astrid.ui.StartDateControlSet
+import kotlinx.coroutines.runBlocking
+import org.tasks.compose.taskdrawer.CalendarChip
 import org.tasks.compose.taskdrawer.Description
 import org.tasks.compose.taskdrawer.DescriptionChip
 import org.tasks.compose.taskdrawer.DueDateChip
@@ -36,104 +41,39 @@ import org.tasks.compose.taskdrawer.IconChip
 import org.tasks.compose.taskdrawer.ListChip
 import org.tasks.compose.taskdrawer.LocationChip
 import org.tasks.compose.taskdrawer.PriorityChip
+import org.tasks.compose.taskdrawer.RecurrenceChip
+import org.tasks.compose.taskdrawer.RecurrenceHelper
+import org.tasks.compose.taskdrawer.StartDateTimeChip
+import org.tasks.compose.taskdrawer.TagsChip
+import org.tasks.compose.taskdrawer.TaskDrawerViewModel
+import org.tasks.compose.taskdrawer.TimerChip
 import org.tasks.compose.taskdrawer.TitleRow
-import org.tasks.data.GoogleTask
-import org.tasks.data.Location
-import org.tasks.data.entity.Alarm
-import org.tasks.data.entity.CaldavTask
-import org.tasks.data.entity.Place
-import org.tasks.data.entity.TagData
-import org.tasks.data.entity.Task
-import org.tasks.filters.CaldavFilter
-import org.tasks.filters.Filter
-import org.tasks.filters.GtasksFilter
-
-class TaskEditDrawerState (
-    val originalFilter: Filter
-) {
-    var title by mutableStateOf("")
-    var description by mutableStateOf("")
-    var dueDate by mutableLongStateOf(0L)
-    var priority by mutableIntStateOf(0)
-
-    private var originalLocation: Location? = null
-    var location by mutableStateOf<Location?>(null)
-    internal var initialFilter = originalFilter
-    val filter = mutableStateOf(initialFilter)
-
-    internal val visible = mutableStateOf(false)
-
-    private var _task: Task? = null
-    val task get() = _task!!
-    private val initialTitle get() = _task?.title ?: ""
-
-    fun setTask(
-        newTask: Task,
-        targetFilter: Filter,
-        currentLocation: Location?,
-        currentTags: ArrayList<TagData>,
-        currentAlarms: ArrayList<Alarm>
-    ) {
-        _task = newTask
-        if (initialFilter == originalFilter) initialFilter = targetFilter
-        filter.value = targetFilter
-        title = initialTitle
-        description = task.notes ?: ""
-        dueDate = _task!!.dueDate
-        originalLocation = currentLocation
-        location = currentLocation
-        priority = _task!!.priority
-    }
-
-    fun isChanged(): Boolean =
-        (title.trim() != initialTitle.trim()
-                || description.trim() != (task.notes ?: "").trim()
-                || dueDate != _task!!.dueDate
-                || filter.value != initialFilter
-                || originalLocation != location
-                || _task!!.priority != priority
-                )
-
-    fun clear() {
-        title = initialTitle
-        description = ""
-        dueDate = _task!!.dueDate
-        filter.value = initialFilter
-        location = originalLocation
-        priority = _task!!.priority
-    }
-
-    fun retrieveTask(): Task =
-        _task!!.copy(
-            title = title,
-            notes = description,
-            dueDate = dueDate,
-            priority = priority,
-            remoteId = Task.NO_UUID )
-            .also { task ->
-                location?.let { location ->
-                    task.putTransitory(Place.KEY, location.place.uid!!)
-                }
-                when (filter.value) {
-                    is GtasksFilter -> task.putTransitory(GoogleTask.KEY, (filter.value as GtasksFilter).remoteId)
-                    is CaldavFilter -> task.putTransitory(CaldavTask.KEY, (filter.value as CaldavFilter).uuid)
-                    else -> {}
-                }
-                if (isChanged()) task.putTransitory(Task.TRANS_IS_CHANGED, "")
-            }
-
-}
+import org.tasks.compose.taskdrawer.rememberRepeatRuleToString
+import org.tasks.extensions.Context.is24HourFormat
+import org.tasks.fragments.TaskEditControlSetFragmentManager.Companion.TAG_DESCRIPTION
+import org.tasks.fragments.TaskEditControlSetFragmentManager.Companion.TAG_DUE_DATE
+import org.tasks.fragments.TaskEditControlSetFragmentManager.Companion.TAG_LIST
+import org.tasks.fragments.TaskEditControlSetFragmentManager.Companion.TAG_PRIORITY
+import org.tasks.kmp.org.tasks.time.DateStyle
+import org.tasks.kmp.org.tasks.time.getRelativeDateTime
+import org.tasks.ui.CalendarControlSet
+import org.tasks.ui.LocationControlSet
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun TaskEditDrawer(
-    state: TaskEditDrawerState,
+    state: TaskDrawerViewModel,
     save: () -> Unit = {},
     edit: () -> Unit = {},
     close: () -> Unit = {},
     pickList: () -> Unit,
-    pickLocation: () -> Unit)
-{
+    pickTags: () -> Unit,
+    pickLocation: () -> Unit,
+    pickStartDateTime: () -> Unit,
+    pickCustomRecurrence: (String?) -> Unit,
+    pickCalendar: () -> Unit,
+    setTimer: (Boolean) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -142,7 +82,9 @@ fun TaskEditDrawer(
     ) {
         /* Custom drag handle, because the standard one is too high and so looks ugly */
         Box(
-            modifier = Modifier.height(24.dp).fillMaxWidth(),
+            modifier = Modifier
+                .height(24.dp)
+                .fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
             Box(
@@ -159,7 +101,7 @@ fun TaskEditDrawer(
             current = state.title,
             onValueChange = { state.title = it },
             changed = state.isChanged(),
-            save = { save(); state.clear() },
+            save = { save(); state.resetTask() },
             close = close
         )
 
@@ -172,61 +114,122 @@ fun TaskEditDrawer(
         )
 
         Row (modifier = Modifier.padding(8.dp)) {
+            val context = LocalContext.current
             FlowRow (
                 Modifier.wrapContentHeight(),
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalArrangement = Arrangement.Center,
                 overflow = FlowRowOverflow.Clip
             ) {
-                /* description */
-                DescriptionChip(
-                    show = !(state.description != "" || showDescription),
-                    action = { showDescription = true }
-                )
-                /* Due Date */
-                DueDateChip(
-                    current = state.dueDate,
-                    setValue = { value -> state.dueDate = value }
-                )
-                /* Target List */
-                ListChip(
-                    originalFilter = state.originalFilter,
-                    initialFilter = state.initialFilter,
-                    currentFiler = state.filter.value,
-                    setFilter = { filter -> state.filter.value = filter},
-                    pickList = pickList
-                )
-                /* location */
-                LocationChip(
-                    current = state.location,
-                    setLocation = { location -> state.location = location},
-                    pickLocation = pickLocation
-                )
-                /* priority */
-                PriorityChip(
-                    current = state.priority,
-                    setValue = { value -> state.priority = value }
-                )
+
+                var total = 0
+                var index = 0
+                while (total < 4 && index < state.chipsOrder.size) {
+                    when (state.chipsOrder[index++]) {
+                        TAG_DESCRIPTION -> {
+                            DescriptionChip(
+                                show = !(state.description != "" || showDescription),
+                                action = { showDescription = true }
+                            )
+                            total++
+                        }
+                        TAG_DUE_DATE -> {
+                            DueDateChip(
+                                current = state.dueDate,
+                                setValue = { value -> state.dueDate = value }
+                            )
+                            total++
+                        }
+                        TAG_LIST -> {
+                            ListChip(
+                                initialFilter = state.initialFilter,
+                                defaultFilter = state.defaultFilter,
+                                currentFiler = state.filter.value,
+                                setFilter = { filter -> state.setFilter(filter) },
+                                pickList = pickList
+                            )
+                            total++
+                        }
+                        TAG_PRIORITY -> {
+                            PriorityChip(
+                                current = state.priority,
+                                setValue = { value -> state.priority = value }
+                            )
+                            total++
+                        }
+                        RepeatControlSet.TAG -> {
+                            RecurrenceChip(
+                                recurrence = RecurrenceHelper (
+                                    LocalContext.current,
+                                    rememberRepeatRuleToString(),
+                                    state.recurrence ),
+                                setRecurrence = { state.recurrence = it },
+                                repeatAfterCompletion = state.repeatAfterCompletion,
+                                onRepeatFromChanged = { state.repeatAfterCompletion = it },
+                                pickCustomRecurrence = pickCustomRecurrence
+                            )
+                            total++
+                        }
+                        StartDateControlSet.TAG -> {
+                            StartDateTimeChip(
+                                state.startDay,
+                                state.startTime,
+                                { runBlocking {
+                                    getRelativeDateTime(
+                                        state.startDay + state.startTime,
+                                        context.is24HourFormat,
+                                        DateStyle.SHORT,
+                                        alwaysDisplayFullDate = false //preferences.alwaysDisplayFullDate
+                                    )
+                                }},
+                                pickStartDateTime,
+                                delete = { state.startDay = 0L; state.startDay = 0}
+                            )
+                            total++
+                        }
+                        TagsControlSet.TAG -> {
+                            TagsChip(
+                                current = state.selectedTags,
+                                action = pickTags,
+                                //delete = if (state.tagsChanged()) { { state.selectedTags = state.initialTags } } else null  // TODO(debug)
+                            )
+                            total++
+                        }
+                        LocationControlSet.TAG -> {
+                            LocationChip(
+                                current = state.location,
+                                setLocation = { location -> state.location = location },
+                                pickLocation = pickLocation
+                            )
+                            total++
+                        }
+                        CalendarControlSet.TAG -> {
+                            CalendarChip(
+                                selected = state.selectedCalendarName,
+                                select = pickCalendar,
+                                clear = { state.selectedCalendar = null }
+                            )
+                            total++
+                        }
+                        TimerControlSet.TAG -> {
+                            TimerChip(
+                                started = state.timerStarted,
+                                estimated = state.timerEstimated,
+                                elapsed = state.timerElapsed,
+                                setTimer = setTimer,
+                                setValues = { estimated, elapsed ->
+                                    state.timerEstimated = estimated
+                                    state.timerElapsed = elapsed
+                                }
+                            )
+                            total++
+                        }
+                        else -> Unit
+                    }
+                }
                 /* Main TaskEditFragment launch - must be the last */
-                IconChip(icon = Icons.Outlined.MoreHoriz, action = { edit(); state.clear() })
+                IconChip(icon = Icons.Outlined.MoreHoriz, action = { edit(); state.resetTask() })
             }
         }
     }
 }
-
-/*
-@Preview(showBackground = true, widthDp = 320)
-@Composable
-fun TaskEditDrawerPreview() {
-    TaskEditDrawer (
-        state = remember {
-            TaskEditDrawerState(
-                originalFilter = Filter()
-            )
-        },
-        getList = {}
-    )
-}
-*/
-
-

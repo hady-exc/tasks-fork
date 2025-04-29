@@ -21,7 +21,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.addCallback
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
@@ -29,12 +28,7 @@ import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
@@ -64,11 +58,9 @@ import com.google.android.material.snackbar.Snackbar
 import com.todoroo.andlib.utility.AndroidUtilities
 import com.todoroo.astrid.adapter.TaskAdapter
 import com.todoroo.astrid.adapter.TaskAdapterProvider
-import com.todoroo.astrid.alarms.AlarmService
 import com.todoroo.astrid.api.AstridApiConstants.EXTRAS_OLD_DUE_DATE
 import com.todoroo.astrid.api.AstridApiConstants.EXTRAS_TASK_ID
 import com.todoroo.astrid.dao.TaskDao
-import com.todoroo.astrid.gcal.GCalHelper
 import com.todoroo.astrid.repeats.RepeatTaskHelper
 import com.todoroo.astrid.service.TaskCompleter
 import com.todoroo.astrid.service.TaskCreator
@@ -77,9 +69,7 @@ import com.todoroo.astrid.service.TaskMover
 import com.todoroo.astrid.timers.TimerPlugin
 import com.todoroo.astrid.utility.Flags
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -102,31 +92,14 @@ import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPicker
 import org.tasks.compose.NotificationsDisabledBanner
 import org.tasks.compose.QuietHoursBanner
 import org.tasks.compose.SubscriptionNagBanner
-import org.tasks.compose.edit.TaskEditDrawer
-import org.tasks.compose.edit.TaskEditDrawerState
 import org.tasks.compose.rememberReminderPermissionState
-import org.tasks.compose.taskdrawer.BottomSheet
-import org.tasks.compose.taskdrawer.PromptDiscard
-import org.tasks.data.Location
+import org.tasks.compose.taskdrawer.TaskDrawerFragment
 import org.tasks.data.TaskContainer
-import org.tasks.data.createGeofence
-import org.tasks.data.dao.AlarmDao
 import org.tasks.data.dao.CaldavDao
-import org.tasks.data.dao.LocationDao
-import org.tasks.data.dao.TagDao
 import org.tasks.data.dao.TagDataDao
-import org.tasks.data.dao.TaskAttachmentDao
 import org.tasks.data.db.Database
 import org.tasks.data.db.SuspendDbUtils.chunkedMap
-import org.tasks.data.entity.Alarm
-import org.tasks.data.entity.Alarm.Companion.TYPE_REL_END
-import org.tasks.data.entity.Alarm.Companion.TYPE_REL_START
-import org.tasks.data.entity.Attachment
-import org.tasks.data.entity.FORCE_CALDAV_SYNC
-import org.tasks.data.entity.Geofence
 import org.tasks.data.entity.Task
-import org.tasks.data.entity.TaskAttachment
-import org.tasks.data.getLocation
 import org.tasks.data.listSettingsClass
 import org.tasks.data.open
 import org.tasks.data.sql.QueryTemplate
@@ -155,15 +128,9 @@ import org.tasks.filters.PlaceFilter
 import org.tasks.filters.TagFilter
 import org.tasks.kmp.org.tasks.time.DateStyle
 import org.tasks.kmp.org.tasks.time.getRelativeDateTime
-import org.tasks.location.GeofenceApi
-import org.tasks.location.LocationPickerActivity.Companion.launch
-import org.tasks.location.LocationPickerActivity.Companion.registerForLocationPickerResult
 import org.tasks.markdown.MarkdownProvider
-import org.tasks.notifications.NotificationManager
-import org.tasks.preferences.DefaultFilterProvider
 import org.tasks.preferences.Device
 import org.tasks.preferences.PermissionChecker
-import org.tasks.preferences.MainPreferences
 import org.tasks.preferences.Preferences
 import org.tasks.scheduling.NotificationSchedulerIntentService
 import org.tasks.sync.SyncAdapters
@@ -184,7 +151,6 @@ import org.tasks.ui.TaskListEvent
 import org.tasks.ui.TaskListEventBus
 import org.tasks.ui.TaskListViewModel
 import org.tasks.ui.TaskListViewModel.Companion.createSearchQuery
-import timber.log.Timber
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.max
@@ -207,12 +173,10 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     @Inject lateinit var taskAdapterProvider: TaskAdapterProvider
     @Inject lateinit var taskDao: TaskDao
     @Inject lateinit var taskDuplicator: TaskDuplicator
-    @Inject lateinit var tagDao: TagDao
     @Inject lateinit var tagDataDao: TagDataDao
     @Inject lateinit var caldavDao: CaldavDao
     @Inject lateinit var defaultThemeColor: ThemeColor
     @Inject lateinit var colorProvider: ColorProvider
-    @Inject lateinit var notificationManager: NotificationManager
     @Inject lateinit var shortcutManager: ShortcutManager
     @Inject lateinit var taskCompleter: TaskCompleter
     @Inject lateinit var firebase: Firebase
@@ -221,26 +185,13 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     @Inject lateinit var taskEditEventBus: TaskEditEventBus
     @Inject lateinit var database: Database
     @Inject lateinit var markdown: MarkdownProvider
-    @Inject lateinit var defaultFilterProvider: DefaultFilterProvider
-    @Inject lateinit var theme: Theme
-
-    @Inject lateinit var permissionChecker: PermissionChecker
-    @Inject lateinit var taskListEvents: TaskListEventBus
-    @Inject lateinit var taskAttachmentDao: TaskAttachmentDao
-    @Inject lateinit var alarmService: AlarmService
-    @Inject lateinit var geofenceApi: GeofenceApi
-    @Inject lateinit var locationDao: LocationDao
-    @Inject lateinit var gCalHelper: GCalHelper
-    @Inject lateinit var alarmDao: AlarmDao
 
     private val listViewModel: TaskListViewModel by viewModels()
     private val mainViewModel: MainActivityViewModel by activityViewModels()
     private lateinit var taskAdapter: TaskAdapter
     private var recyclerAdapter: DragAndDropRecyclerAdapter? = null
     private lateinit var filter: Filter
-    private var searchJob: Job? = null
     private lateinit var search: MenuItem
-    private var searchQuery: String? = null
     private var mode: ActionMode? = null
     lateinit var themeColor: ThemeColor
     private lateinit var binding: FragmentTaskListBinding
@@ -344,31 +295,10 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             swipeRefreshLayout = bodyStandard.swipeLayout
             emptyRefreshLayout = bodyEmpty.swipeLayoutEmpty
             recyclerView = bodyStandard.recyclerView
-            taskEditDrawerState = TaskEditDrawerState(filter)
-            fab.setOnClickListener {
-                showTaskInputDrawer(true)
-            }
+            fab.setOnClickListener { launchTaskDrawer() }  // *** TaskDrawer
             fab.isVisible = filter.isWritable
-
-            inputHost.setContent { TaskEditDrawerContent() }
-            filterPickerLauncher = registerForListPickerResult { list ->
-                taskEditDrawerState.filter.value = list
-            }
-            locationPickerLauncher = registerForLocationPickerResult { place ->
-                val location = taskEditDrawerState.location
-                val geofence = if (location == null) {
-                    createGeofence(place.uid, preferences)
-                } else {
-                    val existing = location.geofence
-                    Geofence(
-                        place = place.uid,
-                        isArrival = existing.isArrival,
-                        isDeparture = existing.isDeparture,
-                    )
-                }
-                taskEditDrawerState.location = Location(geofence, place)
-            }
         }
+
         themeColor = if (filter.tint != 0) colorProvider.getThemeColor(filter.tint, true) else defaultThemeColor
         (filter as? AstridOrderingFilter)?.filterOverride = null
 
@@ -807,6 +737,13 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 }
                 finishActionMode()
             }
+            // *** TaskDrawer
+            TaskDrawerFragment.REQUEST_EDIT_TASK -> if (resultCode == RESULT_OK) {
+                val task = data?.getParcelableExtra<Task>(TaskDrawerFragment.EXTRA_TASK)
+                task?.let {
+                    createNewTask(task)
+                }
+            }
             else -> super.onActivityResult(requestCode, resultCode, data)
         }
     }
@@ -1154,12 +1091,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             }
         }
     }
-
-    private lateinit var taskEditDrawerState: TaskEditDrawerState
-
-    private lateinit var filterPickerLauncher: ActivityResultLauncher<Intent>
-    private lateinit var locationPickerLauncher: ActivityResultLauncher<Intent>
-
+    // *** TaskDrawer
     private fun createNewTask(task: Task) {
         lifecycleScope.launch {
             shortcutManager.reportShortcutUsed(ShortcutManager.SHORTCUT_NEW_TASK)
@@ -1168,211 +1100,17 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         }
     }
 
-    private suspend fun saveTask(filter: Filter, task: Task) {
-        if (task.title.isNullOrBlank()) task.title = resources.getString(R.string.no_title)
-        assert(Task.isUuidEmpty(task.remoteId))
-        taskDao.createNew(task)
-        taskDao.save(task)
-        assert(filter is CaldavFilter || filter is GtasksFilter)
-        taskMover.move( listOf(task.id), filter )
-        val tags = task.tags.mapNotNull { tagDataDao.getTagByName(it) }
-        tagDao.insert(task, tags)
-    }
-
-    /** This is generally a copy of the TaskEditViewModel.save(), specialized with Task.isNew == true */
-    suspend fun saveNewTask(
-        filter: Filter,
-        task: Task,
-        location: Location? = null,
-        selectedCalendar: String? = null,
-        selectedAlarms: List<Alarm> = emptyList<Alarm>(),
-        selectedAttachments: List<TaskAttachment> = emptyList<TaskAttachment>()
-    ) = withContext(NonCancellable) {
-/*
-        TODO: Get sure that all tasks came here have changes, e.g. UI calls this fun only when user changed something
-*/
-        if (task.title.isNullOrBlank()) task.title = resources.getString(R.string.no_title)
-
-/*
-        It is supposed that the task object already have all its properties set to edited values
-
-        task.dueDate = dueDate.value
-        task.priority = priority.value
-        task.notes = description
-        task.hideUntil = startDate.value
-        task.recurrence = recurrence.value
-        task.repeatFrom = if (repeatAfterCompletion.value) {
-            Task.RepeatFrom.COMPLETION_DATE
-        } else {
-            Task.RepeatFrom.DUE_DATE
-        }
-        task.elapsedSeconds = elapsedSeconds.value
-        task.estimatedSeconds = estimatedSeconds.value
-        task.ringFlags = getRingFlags()
-*/
-        val currentLocation = location //locationDao.getLocation(task,preferences)
-        val tags = task.tags.mapNotNull { tagDataDao.getTagByName(it) }
-
-        /* applyCalendarChanges() -- inlined below */
-        if (permissionChecker.canAccessCalendars()) {
-            if (task.hasDueDate()) {
-                selectedCalendar?.let {
-                    try {
-                        task.calendarURI = gCalHelper.createTaskEvent(task, it)?.toString()
-                    } catch (e: Exception) {
-                        Timber.e(e)
-                    }
-                }
-            }
-        }
-
-        taskDao.createNew(task)
-
-        currentLocation?.let { location ->
-            val place = location.place
-            locationDao.insert(
-                location.geofence.copy(
-                    task = task.id,
-                    place = place.uid,
+    // *** TaskDrawer
+    private fun launchTaskDrawer () {
+        val fragmentManager = parentFragmentManager
+        if (fragmentManager.findFragmentByTag(TaskDrawerFragment.FRAG_TAG_TASK_DRAWER) == null) {
+            TaskDrawerFragment
+                .newTaskDrawer(
+                    this@TaskListFragment,
+                    TaskDrawerFragment.REQUEST_EDIT_TASK,
+                    filter
                 )
-            )
-            geofenceApi.update(place)
-            task.putTransitory(FORCE_CALDAV_SYNC, true)
-            task.modificationDate = currentTimeMillis()
-        }
-
-        if (tags.isNotEmpty()) {
-            tagDao.applyTags(task, tagDataDao, tags)
-            task.modificationDate = currentTimeMillis()
-        }
-
-        var _selectedAlarms = selectedAlarms
-        if (!task.hasStartDate()) {
-            _selectedAlarms = _selectedAlarms.filterNot { a -> a.type == TYPE_REL_START }
-        }
-        if (!task.hasDueDate()) {
-            _selectedAlarms = selectedAlarms.filterNot { a -> a.type == TYPE_REL_END }
-        }
-
-        if (_selectedAlarms.isNotEmpty()) {
-            alarmService.synchronizeAlarms(task.id, _selectedAlarms.toMutableSet())
-            task.putTransitory(FORCE_CALDAV_SYNC, true)
-            task.modificationDate = currentTimeMillis()
-        }
-
-        taskDao.save(task, null)
-
-        assert(filter is CaldavFilter || filter is GtasksFilter)
-        task.parent = 0
-        taskMover.move(listOf(task.id), filter)
-
-/*
-        Subtasks are not supposed to be created or edited before this save
-        for (subtask in newSubtasks.value) {
-            . . .
-        }
-*/
-
-        if (selectedAttachments.isNotEmpty()) {
-            selectedAttachments
-                .map {
-                    Attachment(
-                        task = task.id,
-                        fileId = it.id!!,
-                        attachmentUid = it.remoteId,
-                    )
-                }
-                .let { taskAttachmentDao.insert(it) }
-        }
-
-            val model = task
-            taskListEvents.emit(TaskListEvent.TaskCreated(model.uuid))
-            model.calendarURI?.takeIf { it.isNotBlank() }?.let {
-                taskListEvents.emit(TaskListEvent.CalendarEventCreated(model.title, it))
-            }
-
-    }
-
-
-    private fun showTaskInputDrawer(on: Boolean)
-    {
-        lifecycleScope.launch {
-            //Timber.d("*** showTaskInputDrawer($on)")
-            if (on) {
-                val task = taskCreator.createWithValues(filter, "")
-                val targetList = defaultFilterProvider.getList(task)
-                val currentLocation = locationDao.getLocation(task,preferences)
-                val currentTags = tagDataDao.getTags(task)
-                val currentAlarms = alarmDao.getAlarms(task)
-
-                taskEditDrawerState.setTask(task, targetList, currentLocation, currentTags, currentAlarms)
-            }
-            taskEditDrawerState.visible.value = on
-            if (!on) delay(100)  /* to prevent Fab flicker before soft keyboard disappear */
-            binding.fab.isVisible = !on
-            if ( !preferences.isTopAppBar ) binding.bottomAppBar.isVisible = !on
-        }
-    }
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    private fun TaskEditDrawerContent()
-    {
-        TasksTheme {
-            var promptDiscard by remember { mutableStateOf(false) }
-            PromptDiscard(
-                show = promptDiscard,
-                cancel = { promptDiscard = false },
-                discard = { showTaskInputDrawer(false) }
-            )
-
-            BottomSheet(
-                show = taskEditDrawerState.visible.value,
-                hide = { showTaskInputDrawer(false) },
-                onDismissRequest = {
-                    if (taskEditDrawerState.isChanged()) promptDiscard = true
-                    else showTaskInputDrawer(false) //close()
-                },
-                hideConfirmation = {
-                    if (taskEditDrawerState.isChanged()) {
-                        promptDiscard = true
-                        false
-                    } else {
-                        true
-                    }
-                }
-            ) { close ->
-                TaskEditDrawer(
-                    state = taskEditDrawerState,
-                    save = {
-                        lifecycleScope.launch {
-                            saveNewTask(
-                                filter = taskEditDrawerState.filter.value,
-                                task = taskEditDrawerState.retrieveTask(),
-                                location = taskEditDrawerState.location
-                            )
-                        }
-                    },
-                    edit = {
-                        createNewTask(taskEditDrawerState.retrieveTask())
-                        showTaskInputDrawer(false)
-                    },
-                    close = close,
-                    pickList = {
-                        filterPickerLauncher.launch(
-                            context = requireContext(),
-                            selectedFilter = taskEditDrawerState.filter.value,
-                            listsOnly = true
-                        )
-                    },
-                    pickLocation = {
-                        locationPickerLauncher.launch(
-                            context = requireContext(),
-                            selectedLocation = taskEditDrawerState.location
-                        )
-                    },
-                )
-            }
+                .show(fragmentManager, TaskDrawerFragment.FRAG_TAG_TASK_DRAWER)
         }
     }
 
