@@ -130,6 +130,7 @@ import org.tasks.kmp.org.tasks.time.DateStyle
 import org.tasks.kmp.org.tasks.time.getRelativeDateTime
 import org.tasks.markdown.MarkdownProvider
 import org.tasks.preferences.Device
+import org.tasks.preferences.MainPreferences
 import org.tasks.preferences.PermissionChecker
 import org.tasks.preferences.Preferences
 import org.tasks.scheduling.NotificationSchedulerIntentService
@@ -364,7 +365,8 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         binding.banner.setContent {
             val context = LocalContext.current
             val state = listViewModel.state.collectAsStateWithLifecycle().value
-            TasksTheme(theme = theme.themeBase.index) {
+//            TasksTheme(theme = theme.themeBase.index) { // TODO: debug!!!
+            TasksTheme {
                 val hasRemindersPermission by rememberReminderPermissionState()
                 val notificationPermissions = if (AndroidUtilities.atLeastTiramisu()) {
                     rememberPermissionState(
