@@ -3,7 +3,6 @@ package org.tasks.compose.pickers
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,7 +14,6 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -58,6 +56,7 @@ fun DatePickerDialog(
         val datePickerState = rememberDatePickerState(
             initialSelectedDateMillis = initialDateUTC,
         )
+
         androidx.compose.material3.DatePickerDialog(
             modifier = Modifier.wrapContentSize(),
             onDismissRequest = { dismiss() },
@@ -83,15 +82,7 @@ fun DatePickerDialog(
             DatePicker(
                 state = datePickerState,
                 dateFormatter = dateFormatter,
-                title = {
-                    Column {
-                        DatePickerDefaults.DatePickerTitle(
-                            displayMode = datePickerState.displayMode,
-                            modifier = Modifier.padding(PaddingValues(start = 24.dp, end = 12.dp, top= 12.dp, bottom = 12.dp))
-                        )
-                        TitleMenu()
-                    }
-                }
+                title = { TitleMenu() }
             )
         }
     }
@@ -102,15 +93,13 @@ fun TitleMenu() {
     Row (
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 24.dp, bottom = 12.dp, end = 24.dp),
+            .padding(start = 24.dp, bottom = 12.dp, end = 24.dp, top = 20.dp),
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.Bottom
     ) {
         Column (modifier = Modifier.weight(1f)) {
             Label(stringResource(R.string.today))
             Label(stringResource(R.string.tomorrow))
-        //    Label("Third Line")
-        //    Label("Fourth Line")
         }
         Column (modifier = Modifier.weight(1f)) {
             Label(
@@ -128,9 +117,6 @@ fun TitleMenu() {
                 )
             )
             Label(stringResource(R.string.no_date))
-        //    Label("Third Line")
-        //    Label("Fourth Line")
-        //    Label("Fifth Line")
         }
         Column (
             modifier = Modifier.padding(start = 4.dp),
@@ -152,7 +138,7 @@ fun Label(
         modifier = Modifier.padding(top = 8.dp),
         verticalAlignment = Alignment.Bottom
     ){
-        Icon(icon,null, modifier = Modifier.padding(end = 4.dp))
+        Icon(icon, null, modifier = Modifier.padding(end = 4.dp))
         Text(
             text = text,
             maxLines = 1,
