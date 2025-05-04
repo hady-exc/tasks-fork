@@ -1,4 +1,4 @@
-package org.tasks.compose.edit
+package org.tasks.compose.taskdrawer
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
