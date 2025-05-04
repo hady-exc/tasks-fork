@@ -35,7 +35,6 @@ import org.tasks.R
 import org.tasks.calendars.CalendarPicker
 import org.tasks.compose.FilterSelectionActivity.Companion.launch
 import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPickerResult
-import org.tasks.compose.edit.TaskEditDrawer
 import org.tasks.data.Location
 import org.tasks.data.createGeofence
 import org.tasks.data.dao.AlarmDao
