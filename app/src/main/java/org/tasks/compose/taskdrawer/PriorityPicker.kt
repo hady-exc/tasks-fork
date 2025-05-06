@@ -27,14 +27,13 @@ import org.tasks.themes.TasksTheme
 fun PriorityPickerDialog (
     selected: Int,
     onClick: (Int) -> Unit = {},
-    desaturate: Boolean = false,
     onDismissRequest: () -> Unit = {}
 ) {
     TasksTheme {
         BasicAlertDialog(
             onDismissRequest = onDismissRequest,
         ) {
-            PriorityPicker(selected, onClick, desaturate)
+            PriorityPicker(selected, onClick)
         }
     }
 }
@@ -43,7 +42,6 @@ fun PriorityPickerDialog (
 fun PriorityPicker(
     selected: Int,
     onClick: (Int) -> Unit = {},
-    desaturate: Boolean = false
 ) {
     Card () {
         Column(
@@ -60,7 +58,7 @@ fun PriorityPicker(
                 modifier = Modifier.padding(start = dimensionResource(id = R.dimen.keyline_first))
             )
             Spacer(modifier = Modifier.weight(1f))
-            Priority(selected = selected, onClick = onClick, desaturate = desaturate)
+            Priority(selected = selected, onClick = onClick)
         }
     }
 }
@@ -70,7 +68,7 @@ fun PriorityPicker(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 fun PriorityPickerDialogPreview()
 {
-    PriorityPickerDialog(selected = Task.Priority.MEDIUM, desaturate = false)
+    PriorityPickerDialog(selected = Task.Priority.MEDIUM)
 }
 
 @Composable
@@ -78,5 +76,5 @@ fun PriorityPickerDialogPreview()
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 fun PriorityPickerDialogDesaturetePreview()
 {
-    PriorityPickerDialog(selected = Task.Priority.MEDIUM, desaturate = true)
+    PriorityPickerDialog(selected = Task.Priority.MEDIUM)
 }

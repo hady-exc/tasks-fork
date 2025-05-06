@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.MoreHoriz
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,16 +35,18 @@ import com.todoroo.astrid.timers.TimerControlSet
 import com.todoroo.astrid.ui.StartDateControlSet
 import kotlinx.coroutines.runBlocking
 import org.tasks.extensions.Context.is24HourFormat
-import org.tasks.fragments.TaskEditControlSetFragmentManager.Companion.TAG_DESCRIPTION
-import org.tasks.fragments.TaskEditControlSetFragmentManager.Companion.TAG_DUE_DATE
-import org.tasks.fragments.TaskEditControlSetFragmentManager.Companion.TAG_LIST
-import org.tasks.fragments.TaskEditControlSetFragmentManager.Companion.TAG_PRIORITY
+import org.tasks.ui.TaskEditViewModel.Companion.TAG_DESCRIPTION
+import org.tasks.ui.TaskEditViewModel.Companion.TAG_DUE_DATE
+import org.tasks.ui.TaskEditViewModel.Companion.TAG_LIST
+import org.tasks.ui.TaskEditViewModel.Companion.TAG_PRIORITY
 import org.tasks.kmp.org.tasks.time.DateStyle
 import org.tasks.kmp.org.tasks.time.getRelativeDateTime
 import org.tasks.ui.CalendarControlSet
 import org.tasks.ui.LocationControlSet
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class,
+    ExperimentalMaterial3Api::class
+)
 @Composable
 fun TaskEditDrawer(
     state: TaskDrawerViewModel,
@@ -148,8 +151,8 @@ fun TaskEditDrawer(
                                     rememberRepeatRuleToString(),
                                     state.recurrence ),
                                 setRecurrence = { state.recurrence = it },
-                                repeatAfterCompletion = state.repeatAfterCompletion,
-                                onRepeatFromChanged = { state.repeatAfterCompletion = it },
+                                repeatFrom = state.repeatFrom,
+                                onRepeatFromChanged = { state.repeatFrom = it },
                                 pickCustomRecurrence = pickCustomRecurrence
                             )
                             total++

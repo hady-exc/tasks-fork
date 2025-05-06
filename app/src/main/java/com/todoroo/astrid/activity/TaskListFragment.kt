@@ -99,6 +99,7 @@ import org.tasks.compose.QuietHoursBanner
 import org.tasks.compose.SubscriptionNagBanner
 import org.tasks.compose.SyncWarningGoogleTasks
 import org.tasks.compose.SyncWarningMicrosoft
+import org.tasks.compose.taskdrawer.TaskDrawerFragment
 import org.tasks.data.TaskContainer
 import org.tasks.data.dao.CaldavDao
 import org.tasks.data.dao.TagDataDao
@@ -354,7 +355,8 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             swipeRefreshLayout = bodyStandard.swipeLayout
             emptyRefreshLayout = bodyEmpty.swipeLayoutEmpty
             recyclerView = bodyStandard.recyclerView
-            fab.setOnClickListener { createNewTask() }
+            //fab.setOnClickListener { createNewTask() }
+            fab.setOnClickListener { launchTaskDrawer() }  // *** TaskDrawer
             fab.isVisible = filter.isWritable
         }
         themeColor = if (filter.tint != 0) colorProvider.getThemeColor(filter.tint, true) else defaultThemeColor
@@ -849,6 +851,13 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 }
                 finishActionMode()
             }
+            // *** TaskDrawer
+            TaskDrawerFragment.REQUEST_EDIT_TASK -> if (resultCode == RESULT_OK) {
+                val task = data?.getParcelableExtra<Task>(TaskDrawerFragment.EXTRA_TASK)
+                task?.let {
+                    createNewTask(task)
+                }
+            }
             else -> super.onActivityResult(requestCode, resultCode, data)
         }
     }
@@ -1194,6 +1203,29 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                     makeSnackbar(text)?.setAction(R.string.DLG_undo, undoCompletion)?.show()
                 }
             }
+        }
+    }
+
+    // *** TaskDrawer
+    private fun createNewTask(task: Task) {
+        lifecycleScope.launch {
+            shortcutManager.reportShortcutUsed(ShortcutManager.SHORTCUT_NEW_TASK)
+            onTaskListItemClicked(task)
+            firebase.addTask("fab")
+        }
+    }
+
+    // *** TaskDrawer
+    private fun launchTaskDrawer () {
+        val fragmentManager = parentFragmentManager
+        if (fragmentManager.findFragmentByTag(TaskDrawerFragment.FRAG_TAG_TASK_DRAWER) == null) {
+            TaskDrawerFragment
+                .newTaskDrawer(
+                    this@TaskListFragment,
+                    TaskDrawerFragment.REQUEST_EDIT_TASK,
+                    filter
+                )
+                .show(fragmentManager, TaskDrawerFragment.FRAG_TAG_TASK_DRAWER)
         }
     }
 

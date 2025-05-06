@@ -22,6 +22,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.todoroo.astrid.activity.BeastModePreferences
 import com.todoroo.astrid.activity.TaskEditFragment
 import com.todoroo.astrid.alarms.AlarmService
 import com.todoroo.astrid.dao.TaskDao
@@ -30,6 +31,7 @@ import com.todoroo.astrid.service.TaskCreator
 import com.todoroo.astrid.service.TaskMover
 import com.todoroo.astrid.timers.TimerPlugin
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.launch
 import org.tasks.R
 import org.tasks.calendars.CalendarPicker
@@ -52,8 +54,8 @@ import org.tasks.dialogs.StartDatePicker.Companion.EXTRA_DAY
 import org.tasks.dialogs.StartDatePicker.Companion.EXTRA_TIME
 import org.tasks.filters.CaldavFilter
 import org.tasks.filters.Filter
-import org.tasks.filters.GtasksFilter
-import org.tasks.fragments.TaskEditControlSetFragmentManager
+//import org.tasks.filters.GtasksFilter
+//import org.tasks.fragments.TaskEditControlSetFragmentManager
 import org.tasks.location.GeofenceApi
 import org.tasks.location.LocationPickerActivity.Companion.launch
 import org.tasks.location.LocationPickerActivity.Companion.registerForLocationPickerResult
@@ -65,6 +67,7 @@ import org.tasks.tags.TagPickerActivity
 import org.tasks.themes.TasksTheme
 import org.tasks.time.DateTimeUtils2.currentTimeMillis
 import org.tasks.time.startOfDay
+import org.tasks.ui.TaskEditViewModel.Companion.TASK_EDIT_CONTROL_SET_FRAGMENTS
 import org.tasks.ui.TaskListEventBus
 import javax.inject.Inject
 
@@ -87,7 +90,7 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
     @Inject lateinit var taskAttachmentDao: TaskAttachmentDao
     @Inject lateinit var taskListEvents: TaskListEventBus
     @Inject lateinit var caldavDao: CaldavDao
-    @Inject lateinit var orderManager: TaskEditControlSetFragmentManager
+    //@Inject lateinit var orderManager: TaskEditControlSetFragmentManager
     @Inject lateinit var timerPlugin: TimerPlugin
 
     private lateinit var filterPickerLauncher: ActivityResultLauncher<Intent>
@@ -109,10 +112,29 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
         return composeView
     }
 
-    private fun getOrder(): List<Int> =
-        orderManager.displayOrder.subList(0, orderManager.visibleSize-1).map { tag ->
+    private fun getOrder(): List<Int> {
+        return TASK_EDIT_CONTROL_SET_FRAGMENTS
+            .associateBy { context.getString(it) }
+            .let { controlSetStrings ->
+                BeastModePreferences
+                    .constructOrderedControlList(preferences, context)
+                    .let { items ->
+                        items
+                            .subList(
+                                0,
+                                items.indexOf(context.getString(R.string.TEA_ctrl_hide_section_pref))
+                            )
+                            .also { it.add(0, context.getString(R.string.TEA_ctrl_title)) }
+                    }
+                    .mapNotNull { controlSetStrings[it] }
+                    .toPersistentList()
+            }
+/*
+        return orderManager.displayOrder.subList(0, orderManager.visibleSize - 1).map { tag ->
             orderManager.controlSetFragments[tag]!!
         }
+*/
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -218,7 +240,8 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
                 preferences.getBoolean(
                     R.string.p_auto_dismiss_datetime_edit_screen,
                     false
-                )
+                ),
+                false // TODO(): showDueDate = !viewModel.viewState.value.list.account.isOpenTasks,
             )
                 .show(fragmentManager, FRAG_TAG_DATE_PICKER)
         }
@@ -296,11 +319,11 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
                                 .let {
                                     when (it) {
                                         is CaldavFilter -> it.account
-                                        is GtasksFilter -> it.account
+                                        //is GtasksFilter -> it.account
                                         else -> null
                                     }
                                 }
-                                ?.let { caldavDao.getAccountByUuid(it) }
+                                ?.let { caldavDao.getAccountByUuid(it.uuid!!) }
                                 ?.accountType
                                 ?: CaldavAccount.TYPE_LOCAL
 

@@ -8,6 +8,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import org.tasks.analytics.Firebase
+import org.tasks.data.entity.Task
+import org.tasks.preferences.Preferences
 import org.tasks.repeats.RepeatRuleToString
 
 private val repeatIcon = Icons.Outlined.Repeat
@@ -16,8 +18,8 @@ private val repeatIcon = Icons.Outlined.Repeat
 fun RecurrenceChip (
     recurrence: RecurrenceHelper,
     setRecurrence: (String?) -> Unit,
-    repeatAfterCompletion: Boolean,
-    onRepeatFromChanged: (Boolean) -> Unit,
+    repeatFrom: @Task.RepeatFrom Int,
+    onRepeatFromChanged: (@Task.RepeatFrom Int) -> Unit,
     pickCustomRecurrence: (String?) -> Unit,
 ) {
     val showRecurrenceDialog = remember { mutableStateOf(false) }
@@ -38,7 +40,7 @@ fun RecurrenceChip (
             dismiss = { showRecurrenceDialog.value = false },
             recurrence = recurrence,
             setRecurrence = setRecurrence,
-            repeatFromCompletion = repeatAfterCompletion,
+            repeatFrom = repeatFrom,
             onRepeatFromChanged = onRepeatFromChanged,
             peekCustomRecurrence = pickCustomRecurrence
         )
@@ -50,5 +52,5 @@ fun rememberRepeatRuleToString(): RepeatRuleToString {
     val context = LocalContext.current
     val config = LocalConfiguration.current
     val locale = config.locales.get(0)
-    return remember { RepeatRuleToString(context,locale,Firebase()) }
+    return remember { RepeatRuleToString(context,locale,Firebase(context, Preferences(context))) }
 }

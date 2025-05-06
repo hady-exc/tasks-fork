@@ -3,6 +3,8 @@ package org.tasks.compose.taskdrawer
 import android.content.res.Configuration
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material3.DisplayMode
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,6 +20,8 @@ import org.tasks.time.DateTime
 
 private val dueDateIcon = Icons.Outlined.Schedule
 
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DueDateChip(
     current: Long,
@@ -27,6 +31,8 @@ fun DueDateChip(
     if (datePicker) {
         DatePickerDialog(
             initialDate = if (current != 0L) current else newDateTime().startOfDay().millis,
+            displayMode = DisplayMode.Picker,
+            setDisplayMode = {},
             selected = { setValue(it); datePicker = false },
             dismiss = { datePicker = false } )
     }

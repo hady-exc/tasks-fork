@@ -358,6 +358,8 @@ data class Task @OptIn(ExperimentalSerializationApi::class) constructor(
         private const val TRANS_SUPPRESS_REFRESH = "suppress-refresh"
         const val TRANS_REMINDERS = "reminders"
         const val TRANS_RANDOM = "random"
+        const val TRANS_CALENDAR = "calendar"           // TODO: remove after TaskEditDrawer uses TaskEditViewModel
+        const val TRANS_IS_CHANGED = "task_is_changed"  // TODO: remove after TaskEditDrawer uses TaskEditViewModel
 
         private val INVALID_COUNT = ";?COUNT=(-1|0)".toRegex()
 
