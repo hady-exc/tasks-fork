@@ -406,27 +406,5 @@ class LocationPickerActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListe
         private const val EXTRA_MAP_POSITION = "extra_map_position"
         private const val EXTRA_APPBAR_OFFSET = "extra_appbar_offset"
         private const val SEARCH_DEBOUNCE_TIMEOUT = 300L
-
-        // TODO() Move to TaskEditFragment and delete
-        fun Fragment.registerForLocationPickerResult(callback: (Place) -> Unit): ActivityResultLauncher<Intent> {
-            return registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                it.data?.let { intent ->
-                    IntentCompat
-                        .getParcelableExtra(intent, EXTRA_PLACE, Place::class.java)
-                        ?.let(callback)
-                }
-            }
-        }
-
-        fun ActivityResultLauncher<Intent>.launch(
-            context: Context,
-            selectedLocation: Location? = null
-        ) {
-            launch(
-                Intent(context, LocationPickerActivity::class.java)
-                    .putExtra(EXTRA_PLACE, selectedLocation?.place as Parcelable?)
-            )
-        }
-
     }
 }

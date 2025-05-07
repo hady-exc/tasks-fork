@@ -2,9 +2,9 @@ package org.tasks.compose.taskdrawer
 
 import android.app.Activity
 import android.app.Activity.RESULT_OK
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,6 +18,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
+import androidx.core.content.IntentCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -47,6 +48,7 @@ import org.tasks.data.dao.TagDataDao
 import org.tasks.data.dao.TaskAttachmentDao
 import org.tasks.data.entity.CaldavAccount
 import org.tasks.data.entity.Geofence
+import org.tasks.data.entity.Place
 import org.tasks.data.entity.TagData
 import org.tasks.data.entity.Task
 import org.tasks.dialogs.StartDatePicker
@@ -54,11 +56,9 @@ import org.tasks.dialogs.StartDatePicker.Companion.EXTRA_DAY
 import org.tasks.dialogs.StartDatePicker.Companion.EXTRA_TIME
 import org.tasks.filters.CaldavFilter
 import org.tasks.filters.Filter
-//import org.tasks.filters.GtasksFilter
-//import org.tasks.fragments.TaskEditControlSetFragmentManager
 import org.tasks.location.GeofenceApi
-import org.tasks.location.LocationPickerActivity.Companion.launch
-import org.tasks.location.LocationPickerActivity.Companion.registerForLocationPickerResult
+import org.tasks.location.LocationPickerActivity
+import org.tasks.location.LocationPickerActivity.Companion.EXTRA_PLACE
 import org.tasks.preferences.DefaultFilterProvider
 import org.tasks.preferences.PermissionChecker
 import org.tasks.preferences.Preferences
@@ -90,7 +90,6 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
     @Inject lateinit var taskAttachmentDao: TaskAttachmentDao
     @Inject lateinit var taskListEvents: TaskListEventBus
     @Inject lateinit var caldavDao: CaldavDao
-    //@Inject lateinit var orderManager: TaskEditControlSetFragmentManager
     @Inject lateinit var timerPlugin: TimerPlugin
 
     private lateinit var filterPickerLauncher: ActivityResultLauncher<Intent>
@@ -129,11 +128,6 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
                     .mapNotNull { controlSetStrings[it] }
                     .toPersistentList()
             }
-/*
-        return orderManager.displayOrder.subList(0, orderManager.visibleSize - 1).map { tag ->
-            orderManager.controlSetFragments[tag]!!
-        }
-*/
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -166,20 +160,6 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
     private fun initLaunchers() // must be called from onCreateView
     {
         filterPickerLauncher = registerForListPickerResult { list -> vm.setFilter(list) }
-        locationPickerLauncher = registerForLocationPickerResult { place ->
-            val location = vm.location
-            val geofence = if (location == null) {
-                createGeofence(place.uid, preferences)
-            } else {
-                val existing = location.geofence
-                Geofence(
-                    place = place.uid,
-                    isArrival = existing.isArrival,
-                    isDeparture = existing.isDeparture,
-                )
-            }
-            vm.location = Location(geofence, place)
-        }
         tagsPickerLauncher = registerForActivityResult<Intent,ActivityResult>(ActivityResultContracts.StartActivityForResult()) {
             it.data?.let { intent ->
                 @Suppress("DEPRECATION")
@@ -193,24 +173,47 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
         customRecurrencePickerLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode == RESULT_OK) {
-                    val result = result.data?.getStringExtra(CustomRecurrenceActivity.EXTRA_RRULE)
-                    vm.recurrence = result
-                    if (result?.isNotBlank() == true && vm.dueDate == 0L ) {
+                    val rrule = result.data?.getStringExtra(CustomRecurrenceActivity.EXTRA_RRULE)
+                    vm.recurrence = rrule
+                    if (rrule?.isNotBlank() == true && vm.dueDate == 0L ) {
                         vm.dueDate = (currentTimeMillis().startOfDay())
                     }
                 }
             }
+        locationPickerLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult())
+            { result ->
+                if (result.resultCode == RESULT_OK)
+                    result.data?.let { intent ->
+                        IntentCompat
+                            .getParcelableExtra(intent, EXTRA_PLACE, Place::class.java)
+                            ?.let { place ->
+                                val location = vm.location
+                                val geofence = if (location == null) {
+                                    createGeofence(place.uid, preferences)
+                                } else {
+                                    val existing = location.geofence
+                                    Geofence(
+                                        place = place.uid,
+                                        isArrival = existing.isArrival,
+                                        isDeparture = existing.isDeparture,
+                                    )
+                                }
+                                vm.location = Location(geofence, place)
+                            }
+                    }
+                }
     }
 
-    private fun launchTagPicker(context: Context, current: ArrayList<TagData>)
+    private fun pickTags()
     {
         tagsPickerLauncher.launch(
             Intent(context, TagPickerActivity::class.java)
-                .putParcelableArrayListExtra(TagPickerActivity.EXTRA_SELECTED, current)
+                .putParcelableArrayListExtra(TagPickerActivity.EXTRA_SELECTED, vm.selectedTags)
         )
     }
 
-    private fun launchCalendarPicker() {
+    private fun pickCalendar() {
         CalendarPicker
             .newCalendarPicker(
                 this,
@@ -245,6 +248,14 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
             )
                 .show(fragmentManager, FRAG_TAG_DATE_PICKER)
         }
+    }
+
+    private fun pickLocation() {
+        locationPickerLauncher.launch(
+            Intent(context, LocationPickerActivity::class.java)
+                .putExtra(EXTRA_PLACE, vm.location?.place as Parcelable?)
+        )
+
     }
 
     private fun sendTaskToEdit(task: Task) {
@@ -303,13 +314,8 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
                             listsOnly = true
                         )
                     },
-                    pickTags = { launchTagPicker(requireContext(),vm.selectedTags) },
-                    pickLocation = {
-                        locationPickerLauncher.launch(
-                            context = requireContext(),
-                            selectedLocation = vm.location
-                        )
-                    },
+                    pickTags = this@TaskDrawerFragment::pickTags,
+                    pickLocation = this@TaskDrawerFragment::pickLocation,
                     pickStartDateTime = {
                         launchStartDateTimePicker(vm.startDay, vm.startTime)
                     },
@@ -317,11 +323,7 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
                         lifecycleScope.launch {
                             val accountType = vm.filter.value
                                 .let {
-                                    when (it) {
-                                        is CaldavFilter -> it.account
-                                        //is GtasksFilter -> it.account
-                                        else -> null
-                                    }
+                                    if (it is CaldavFilter) it.account else null
                                 }
                                 ?.let { caldavDao.getAccountByUuid(it.uuid!!) }
                                 ?.accountType
@@ -337,7 +339,7 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
                             )
                         }
                     },
-                    pickCalendar = { launchCalendarPicker() },
+                    pickCalendar = this@TaskDrawerFragment::pickCalendar,
                     setTimer = this@TaskDrawerFragment::setTimer
                 )
             }
