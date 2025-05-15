@@ -25,6 +25,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.todoroo.astrid.activity.BeastModePreferences
 import com.todoroo.astrid.activity.TaskEditFragment
+import com.todoroo.astrid.activity.TaskListFragment.Companion.EXTRA_FILTER
 import com.todoroo.astrid.alarms.AlarmService
 import com.todoroo.astrid.dao.TaskDao
 import com.todoroo.astrid.gcal.GCalHelper
@@ -72,7 +73,7 @@ import org.tasks.ui.TaskListEventBus
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class TaskDrawerFragment(val filter: Filter): DialogFragment() {
+class TaskDrawerFragment: DialogFragment() {
     @Inject lateinit var context: Activity
     @Inject lateinit var taskCreator: TaskCreator
     @Inject lateinit var preferences: Preferences
@@ -104,7 +105,10 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        vm.initViewModel(filter, getOrder())
+        val arguments = requireArguments()
+        val filter = arguments.getParcelable<Filter>(EXTRA_FILTER)!!
+        val task = arguments.getParcelable<Task>(EXTRA_TASK)!!
+        vm.initViewModel(filter, task, getOrder())
         val composeView = ComposeView(context)
         composeView.setContent { TaskEditDrawerContent() }
         initLaunchers()
@@ -361,9 +365,17 @@ class TaskDrawerFragment(val filter: Filter): DialogFragment() {
         const val EXTRA_TASK = "extra_task"
         const val REQUEST_EDIT_TASK = 11100
 
-        fun newTaskDrawer(target: Fragment, rc: Int, filter: Filter): DialogFragment {
-            return TaskDrawerFragment(filter).apply {
+        fun newTaskDrawer(
+            target: Fragment,
+            rc: Int,
+            filter: Filter,
+            task: Task): DialogFragment {
+            return TaskDrawerFragment().apply {
                 setTargetFragment(target, rc)
+                arguments = Bundle().apply {
+                    putParcelable(EXTRA_TASK, task)
+                    putParcelable(EXTRA_FILTER, filter)
+                }
             }
         }
     }

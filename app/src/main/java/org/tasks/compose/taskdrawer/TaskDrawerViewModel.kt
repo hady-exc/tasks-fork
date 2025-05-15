@@ -12,7 +12,6 @@ import androidx.lifecycle.ViewModel
 import com.todoroo.astrid.alarms.AlarmService
 import com.todoroo.astrid.dao.TaskDao
 import com.todoroo.astrid.gcal.GCalHelper
-import com.todoroo.astrid.service.TaskCreator
 import com.todoroo.astrid.service.TaskMover
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -79,7 +78,6 @@ class TaskDrawerViewModel
     private val taskListEvents: TaskListEventBus,
     private val alarmDao: AlarmDao,
     private val taskAttachmentDao: TaskAttachmentDao,
-    private val taskCreator: TaskCreator,
     private val defaultFilterProvider: DefaultFilterProvider
 ) : ViewModel()
 {
@@ -101,12 +99,12 @@ class TaskDrawerViewModel
     private lateinit var _chipsOrder: List<Int>
     val chipsOrder get() = _chipsOrder
 
-    fun initViewModel(filter: Filter, order: List<Int>) {
+    fun initViewModel(filter: Filter, task: Task, order: List<Int>) {
         _initialFilter = filter
+        initialTask = task
         _chipsOrder = order
         this._filter = mutableStateOf(filter)
         runBlocking {
-            initialTask = taskCreator.createWithValues(filter, "")
             initialTask.hideUntil = when (preferences.getIntegerFromString(
                 R.string.p_default_hideUntil_key,
                 Task.HIDE_UNTIL_NONE

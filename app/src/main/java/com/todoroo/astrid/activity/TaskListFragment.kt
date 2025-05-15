@@ -356,7 +356,9 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             emptyRefreshLayout = bodyEmpty.swipeLayoutEmpty
             recyclerView = bodyStandard.recyclerView
             //fab.setOnClickListener { createNewTask() }
-            fab.setOnClickListener { launchTaskDrawer() }  // *** TaskDrawer
+            fab.setOnClickListener {     // *** TaskDrawer
+                lifecycleScope.launch { launchTaskDrawer(addTask("")) }
+            }
             fab.isVisible = filter.isWritable
         }
         themeColor = if (filter.tint != 0) colorProvider.getThemeColor(filter.tint, true) else defaultThemeColor
@@ -1216,14 +1218,15 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     }
 
     // *** TaskDrawer
-    private fun launchTaskDrawer () {
+    private fun launchTaskDrawer (task: Task) {
         val fragmentManager = parentFragmentManager
         if (fragmentManager.findFragmentByTag(TaskDrawerFragment.FRAG_TAG_TASK_DRAWER) == null) {
             TaskDrawerFragment
                 .newTaskDrawer(
                     this@TaskListFragment,
                     TaskDrawerFragment.REQUEST_EDIT_TASK,
-                    filter
+                    filter,
+                    task
                 )
                 .show(fragmentManager, TaskDrawerFragment.FRAG_TAG_TASK_DRAWER)
         }
