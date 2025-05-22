@@ -3,6 +3,7 @@ package org.tasks.ui
 import android.content.Context
 import android.net.Uri
 import androidx.annotation.MainThread
+import androidx.compose.runtime.mutableStateOf
 import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -628,6 +629,8 @@ class TaskEditViewModel @Inject constructor(
             }
         }
     }
+
+    val rowView = mutableStateOf(false)
 
     companion object {
         // one spark tasks for windows adds these

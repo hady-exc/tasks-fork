@@ -20,6 +20,7 @@ import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,12 +30,15 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.fragment.compose.AndroidFragment
 import com.todoroo.astrid.repeats.RepeatControlSet
 import com.todoroo.astrid.tags.TagsControlSet
 import com.todoroo.astrid.timers.TimerControlSet
 import com.todoroo.astrid.ui.StartDateControlSet
 import kotlinx.coroutines.runBlocking
 import org.tasks.extensions.Context.is24HourFormat
+import org.tasks.kmp.org.tasks.taskedit.TaskEditViewState
 import org.tasks.ui.TaskEditViewModel.Companion.TAG_DESCRIPTION
 import org.tasks.ui.TaskEditViewModel.Companion.TAG_DUE_DATE
 import org.tasks.ui.TaskEditViewModel.Companion.TAG_LIST
@@ -43,13 +47,15 @@ import org.tasks.kmp.org.tasks.time.DateStyle
 import org.tasks.kmp.org.tasks.time.getRelativeDateTime
 import org.tasks.ui.CalendarControlSet
 import org.tasks.ui.LocationControlSet
+import org.tasks.ui.TaskEditViewModel
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class,
     ExperimentalMaterial3Api::class
 )
 @Composable
 fun TaskEditDrawer(
-    state: TaskDrawerViewModel,
+    state: TaskEditViewModel,
+    viewState: TaskEditViewState,
     save: () -> Unit = {},
     edit: () -> Unit = {},
     close: () -> Unit = {},
@@ -85,18 +91,18 @@ fun TaskEditDrawer(
         }
 
         TitleRow(
-            current = state.title,
-            onValueChange = { state.title = it },
-            changed = state.isChanged(),
-            save = { save(); state.resetTask() },
+            current = viewState.task.title ?: "",
+            onValueChange = { state.setTitle(it.trim { it <= ' ' }) },
+            changed = state.hasChanges(),
+            save = { save(); /*state.resetTask()*/ },
             close = close
         )
 
         var showDescription by remember { mutableStateOf(false) }
         Description(
             show = showDescription,
-            current = state.description,
-            onValueChange = { state.description = it },
+            current = viewState.task.notes ?: "",
+            onValueChange = { state.setDescription(it.trim{ it <= ' ' }) },
             onFocusChange = { showDescription = it }
         )
 
@@ -108,14 +114,19 @@ fun TaskEditDrawer(
                 verticalArrangement = Arrangement.Center,
                 overflow = FlowRowOverflow.Clip
             ) {
+                DescriptionChip(
+                    show = !((viewState.task.notes?:"") != "" || showDescription),
+                    action = { showDescription = true }
+                )
 
                 var total = 0
                 var index = 0
+                /*
                 while (total < 4 && index < state.chipsOrder.size) {
                     when (state.chipsOrder[index++]) {
                         TAG_DESCRIPTION -> {
                             DescriptionChip(
-                                show = !(state.description != "" || showDescription),
+                                show = !((viewState.task.notes?:"") != "" || showDescription),
                                 action = { showDescription = true }
                             )
                             total++
@@ -174,14 +185,17 @@ fun TaskEditDrawer(
                             )
                             total++
                         }
-                        TagsControlSet.TAG -> {
+                        TagsControlSet.TAG -> AndroidFragment<TagsControlSet>()
+                        /*
+                            {
                             TagsChip(
                                 current = state.selectedTags,
                                 action = pickTags,
                                 //delete = if (state.tagsChanged()) { { state.selectedTags = state.initialTags } } else null  // TODO(debug)
                             )
                             total++
-                        }
+                       }
+                         */
                         LocationControlSet.TAG -> {
                             LocationChip(
                                 current = state.location,
@@ -214,8 +228,9 @@ fun TaskEditDrawer(
                         else -> Unit
                     }
                 }
+                */
                 /* Main TaskEditFragment launch - must be the last */
-                IconChip(icon = Icons.Outlined.MoreHoriz, action = { edit(); state.resetTask() })
+                IconChip(icon = Icons.Outlined.MoreHoriz, action = { edit(); /*state.resetTask()*/ })
             }
         }
     }

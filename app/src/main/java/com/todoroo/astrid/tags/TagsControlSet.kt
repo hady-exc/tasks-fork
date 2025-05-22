@@ -6,10 +6,12 @@ import androidx.compose.runtime.Composable
 import androidx.core.content.IntentCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toPersistentSet
 import org.tasks.R
 import org.tasks.compose.edit.TagsRow
+import org.tasks.compose.taskdrawer.TagsChip
 import org.tasks.data.entity.TagData
 import org.tasks.tags.TagPickerActivity
 import org.tasks.ui.ChipProvider
@@ -23,19 +25,39 @@ class TagsControlSet : TaskEditControlFragment() {
     @Composable
     override fun Content() {
         val viewState = viewModel.viewState.collectAsStateWithLifecycle().value
-        TagsRow(
-            tags = viewState.tags,
-            colorProvider = { chipProvider.getColor(it) },
-            onClick = {
-                val intent = Intent(context, TagPickerActivity::class.java)
-                intent.putParcelableArrayListExtra(
-                    TagPickerActivity.EXTRA_SELECTED,
-                    ArrayList(viewState.tags)
-                )
-                startActivityForResult(intent, REQUEST_TAG_PICKER_ACTIVITY)
-            },
-            onClear = { viewModel.setTags(viewState.tags.minus(it)) },
+
+        if (viewModel.rowView.value) {
+            TagsRow(
+                tags = viewState.tags,
+                colorProvider = { chipProvider.getColor(it) },
+                onClick = { onClick(viewState.tags) },
+/*
+                {
+                    val intent = Intent(context, TagPickerActivity::class.java)
+                    intent.putParcelableArrayListExtra(
+                        TagPickerActivity.EXTRA_SELECTED,
+                        ArrayList(viewState.tags)
+                    )
+                    startActivityForResult(intent, REQUEST_TAG_PICKER_ACTIVITY)
+                },
+*/
+                onClear = { viewModel.setTags(viewState.tags.minus(it)) },
+            )
+        } else {
+            TagsChip(
+                viewState.tags.toList(),
+                action = { onClick(viewState.tags) }
+            )
+        }
+    }
+
+    private fun onClick(tags: ImmutableSet<TagData>) {
+        val intent = Intent(context, TagPickerActivity::class.java)
+        intent.putParcelableArrayListExtra(
+            TagPickerActivity.EXTRA_SELECTED,
+            ArrayList(tags)
         )
+        startActivityForResult(intent, REQUEST_TAG_PICKER_ACTIVITY)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

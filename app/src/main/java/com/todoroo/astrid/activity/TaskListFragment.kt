@@ -99,7 +99,7 @@ import org.tasks.compose.QuietHoursBanner
 import org.tasks.compose.SubscriptionNagBanner
 import org.tasks.compose.SyncWarningGoogleTasks
 import org.tasks.compose.SyncWarningMicrosoft
-import org.tasks.compose.taskdrawer.TaskDrawerFragment
+//import org.tasks.compose.taskdrawer.TaskDrawerFragment
 import org.tasks.data.TaskContainer
 import org.tasks.data.dao.CaldavDao
 import org.tasks.data.dao.TagDataDao
@@ -355,10 +355,12 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             swipeRefreshLayout = bodyStandard.swipeLayout
             emptyRefreshLayout = bodyEmpty.swipeLayoutEmpty
             recyclerView = bodyStandard.recyclerView
-            //fab.setOnClickListener { createNewTask() }
+            fab.setOnClickListener { createNewTask() }
+/*
             fab.setOnClickListener {     // *** TaskDrawer
                 lifecycleScope.launch { launchTaskDrawer(addTask("")) }
             }
+*/
             fab.isVisible = filter.isWritable
         }
         themeColor = if (filter.tint != 0) colorProvider.getThemeColor(filter.tint, true) else defaultThemeColor
@@ -854,12 +856,14 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 finishActionMode()
             }
             // *** TaskDrawer
+/*
             TaskDrawerFragment.REQUEST_EDIT_TASK -> if (resultCode == RESULT_OK) {
                 val task = data?.getParcelableExtra<Task>(TaskDrawerFragment.EXTRA_TASK)
                 task?.let {
                     createNewTask(task)
                 }
             }
+*/
             else -> super.onActivityResult(requestCode, resultCode, data)
         }
     }
@@ -1220,6 +1224,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     // *** TaskDrawer
     private fun launchTaskDrawer (task: Task) {
         val fragmentManager = parentFragmentManager
+/*
         if (fragmentManager.findFragmentByTag(TaskDrawerFragment.FRAG_TAG_TASK_DRAWER) == null) {
             TaskDrawerFragment
                 .newTaskDrawer(
@@ -1230,6 +1235,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 )
                 .show(fragmentManager, TaskDrawerFragment.FRAG_TAG_TASK_DRAWER)
         }
+*/
     }
 
     companion object {
