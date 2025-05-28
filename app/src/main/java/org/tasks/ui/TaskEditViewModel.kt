@@ -26,6 +26,7 @@ import com.todoroo.astrid.ui.StartDateControlSet
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.collections.immutable.toPersistentSet
@@ -119,6 +120,14 @@ class TaskEditViewModel @Inject constructor(
     private val task: Task = savedStateHandle.get<Task>(TaskEditFragment.EXTRA_TASK)
         ?.apply { notes = notes?.stripCarriageReturns() } // copying here broke tests 🙄
         ?: throw IllegalArgumentException("task is null")
+    private val changes = object {
+        val changedTask = task.getTransitory<Task>(Task.CHANGED_TASK)
+        val attachments = changedTask?.getTransitory<PersistentSet<TaskAttachment>>(Task.CHANGED_ATTACHMENTS)
+        val alarms = changedTask?.getTransitory<ImmutableSet<Alarm>>(Task.CHANGED_ALARMS)
+        val list = changedTask?.getTransitory<CaldavFilter>(Task.CHANGED_LIST)
+        val location = changedTask?.getTransitory<Location>(Task.CHANGED_LOCATION)
+        val tags = changedTask?.getTransitory<PersistentSet<TagData>>(Task.CHANGED_TAGS)
+    }
 
     private val _originalState = MutableStateFlow(
         TaskEditViewState(
@@ -261,6 +270,18 @@ class TaskEditViewModel @Inject constructor(
             task.isNotifyModeNonstop -> NOTIFY_MODE_NONSTOP
             else -> 0
         }
+    }
+
+    fun resetToOriginal() {
+        _viewState.value = originalState.value
+        dueDate.value = task.dueDate
+        startDate.value = task.hideUntil
+        eventUri.value = task.calendarURI // TODO() - double check
+        elapsedSeconds.value = task.elapsedSeconds
+        estimatedSeconds.value = task.estimatedSeconds
+        ringNonstop = task.isNotifyModeNonstop
+        ringFiveTimes = task.isNotifyModeFive
+        assert(!hasChanges())
     }
 
     @MainThread
@@ -619,14 +640,34 @@ class TaskEditViewModel @Inject constructor(
             }
             _viewState.update {
                 it.copy(
-                    attachments = originalState.value.attachments,
-                    alarms = originalState.value.alarms,
-                    list = originalState.value.list,
-                    location = originalState.value.location,
-                    tags = originalState.value.tags,
+                    task = changes.changedTask ?: it.task,
+                    attachments = changes.attachments ?: originalState.value.attachments,
+                    alarms = changes.alarms ?: originalState.value.alarms,
+                    list = changes.list ?: originalState.value.list,
+                    location = changes.location ?: originalState.value.location,
+                    tags = changes.tags ?: originalState.value.tags,
                 )
             }
         }
+    }
+
+    fun getTask(): Task {
+        val task = task.copy()
+        if (hasChanges()) {
+            val newTask = viewState.value.task.copy()
+            viewState.value.attachments.takeIf { it != originalState.value.attachments }
+                ?.let { newTask.putTransitory(Task.CHANGED_ATTACHMENTS, it) }
+            viewState.value.alarms.takeIf { it != originalState.value.alarms }
+                ?.let { newTask.putTransitory(Task.CHANGED_ALARMS, it) }
+            viewState.value.list.takeIf { it != originalState.value.list }
+                ?.let { newTask.putTransitory(Task.CHANGED_LIST, it) }
+            viewState.value.location.takeIf { it != originalState.value.location }
+                ?.let { newTask.putTransitory(Task.CHANGED_LOCATION, it) }
+            viewState.value.tags.takeIf { it != originalState.value.tags }
+                ?.let { newTask.putTransitory(Task.CHANGED_TAGS, it) }
+            task.putTransitory(Task.CHANGED_TASK,newTask)
+        }
+        return task
     }
 
     companion object {

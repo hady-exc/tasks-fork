@@ -358,6 +358,12 @@ data class Task @OptIn(ExperimentalSerializationApi::class) constructor(
         private const val TRANS_SUPPRESS_REFRESH = "suppress-refresh"
         const val TRANS_REMINDERS = "reminders"
         const val TRANS_RANDOM = "random"
+        const val CHANGED_TASK = "changedTask"
+        const val CHANGED_ALARMS = "changedAlarms"
+        const val CHANGED_ATTACHMENTS = "changedAttachments"
+        const val CHANGED_LIST = "changedList"
+        const val CHANGED_LOCATION = "changedLocation"
+        const val CHANGED_TAGS = "changedTags"
         const val TRANS_CALENDAR = "calendar"           // TODO: remove after TaskEditDrawer uses TaskEditViewModel
         const val TRANS_IS_CHANGED = "task_is_changed"  // TODO: remove after TaskEditDrawer uses TaskEditViewModel
 
