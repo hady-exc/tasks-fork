@@ -17,6 +17,7 @@ import org.tasks.date.DateTimeUtils.newDateTime
 import org.tasks.kmp.org.tasks.time.DateStyle
 import org.tasks.kmp.org.tasks.time.getRelativeDay
 import org.tasks.time.DateTime
+import timber.log.Timber
 
 private val dueDateIcon = Icons.Outlined.Schedule
 
@@ -27,6 +28,8 @@ fun DueDateChip(
     current: Long,
     setValue: (Long) -> Unit
 ) {
+    Timber.d("**** RECOMPOSE DueDateChip")
+
     var datePicker by remember { mutableStateOf(false) }
     if (datePicker) {
         DatePickerDialog(

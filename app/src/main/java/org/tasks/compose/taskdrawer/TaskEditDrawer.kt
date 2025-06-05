@@ -24,17 +24,22 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.todoroo.astrid.repeats.RepeatControlSet
 import com.todoroo.astrid.tags.TagsControlSet
 import com.todoroo.astrid.timers.TimerControlSet
 import com.todoroo.astrid.ui.StartDateControlSet
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.runBlocking
 import org.tasks.extensions.Context.is24HourFormat
+import org.tasks.kmp.org.tasks.taskedit.TaskEditViewState
 import org.tasks.ui.TaskEditViewModel.Companion.TAG_DESCRIPTION
 import org.tasks.ui.TaskEditViewModel.Companion.TAG_DUE_DATE
 import org.tasks.ui.TaskEditViewModel.Companion.TAG_LIST
@@ -43,13 +48,15 @@ import org.tasks.kmp.org.tasks.time.DateStyle
 import org.tasks.kmp.org.tasks.time.getRelativeDateTime
 import org.tasks.ui.CalendarControlSet
 import org.tasks.ui.LocationControlSet
+import org.tasks.ui.TaskEditViewModel
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class,
     ExperimentalMaterial3Api::class
 )
 @Composable
 fun TaskEditDrawer(
-    state: TaskDrawerViewModel,
+    vm: TaskEditViewModel,
+    state: State<TaskEditViewState>,
     save: () -> Unit = {},
     edit: () -> Unit = {},
     close: () -> Unit = {},
@@ -61,6 +68,7 @@ fun TaskEditDrawer(
     pickCalendar: () -> Unit,
     setTimer: (Boolean) -> Unit
 ) {
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -85,18 +93,18 @@ fun TaskEditDrawer(
         }
 
         TitleRow(
-            current = state.title,
-            onValueChange = { state.title = it },
-            changed = state.isChanged(),
-            save = { save(); state.resetTask() },
+            current = vm.viewState.collectAsStateWithLifecycle().value.task.title ?: "",
+            onValueChange = { vm.setTitle(it) },
+            changed = vm.hasChanges(),
+            save = save,
             close = close
         )
 
         var showDescription by remember { mutableStateOf(false) }
         Description(
             show = showDescription,
-            current = state.description,
-            onValueChange = { state.description = it },
+            current = vm.viewState.collectAsStateWithLifecycle().value.task.notes ?: "",
+            onValueChange = { vm.setDescription(it) },
             onFocusChange = { showDescription = it }
         )
 
@@ -111,36 +119,37 @@ fun TaskEditDrawer(
 
                 var total = 0
                 var index = 0
-                while (total < 4 && index < state.chipsOrder.size) {
-                    when (state.chipsOrder[index++]) {
+                val chipsOrder = remember { vm.viewState.value.displayOrder }
+                while (total < 4 && index < chipsOrder.size) {
+                    when (chipsOrder[index++]) {
                         TAG_DESCRIPTION -> {
                             DescriptionChip(
-                                show = !(state.description != "" || showDescription),
+                                show = !((vm.viewState.value.task.notes?: "") != "" || showDescription),
                                 action = { showDescription = true }
                             )
                             total++
                         }
                         TAG_DUE_DATE -> {
                             DueDateChip(
-                                current = state.dueDate,
-                                setValue = { value -> state.dueDate = value }
+                                current = vm.dueDate.collectAsStateWithLifecycle().value,
+                                setValue = { vm.setDueDate(it) }
                             )
                             total++
                         }
                         TAG_LIST -> {
                             ListChip(
-                                initialFilter = state.initialFilter,
-                                defaultFilter = state.defaultFilter,
-                                currentFiler = state.filter.value,
-                                setFilter = { filter -> state.setFilter(filter) },
+                                //initialFilter = state.initialFilter,
+                                defaultFilter = vm.originalState.collectAsStateWithLifecycle().value.list,
+                                currentFiler = state.value.list,
+                                setFilter = { vm.setList(it) },
                                 pickList = pickList
                             )
                             total++
                         }
                         TAG_PRIORITY -> {
                             PriorityChip(
-                                current = state.priority,
-                                setValue = { value -> state.priority = value }
+                                current = vm.viewState.collectAsStateWithLifecycle().value.task.priority,
+                                setValue = { value -> vm.setPriority(value) }
                             )
                             total++
                         }
@@ -149,34 +158,34 @@ fun TaskEditDrawer(
                                 recurrence = RecurrenceHelper (
                                     LocalContext.current,
                                     rememberRepeatRuleToString(),
-                                    state.recurrence ),
-                                setRecurrence = { state.recurrence = it },
-                                repeatFrom = state.repeatFrom,
-                                onRepeatFromChanged = { state.repeatFrom = it },
+                                    state.value.task.recurrence ),
+                                setRecurrence = { vm.setRecurrence(it) },
+                                repeatFrom = state.value.task.repeatFrom,
+                                onRepeatFromChanged = { vm.setRepeatFrom(it) },
                                 pickCustomRecurrence = pickCustomRecurrence
                             )
                             total++
                         }
                         StartDateControlSet.TAG -> {
                             StartDateTimeChip(
-                                state.startDay,
-                                state.startTime,
+                                state.value.task.hideUntil,
+                                //state.startTime,
                                 { runBlocking {
                                     getRelativeDateTime(
-                                        state.startDay + state.startTime,
+                                        state.value.task.hideUntil,
                                         context.is24HourFormat,
                                         DateStyle.SHORT,
                                         alwaysDisplayFullDate = false //preferences.alwaysDisplayFullDate
                                     )
                                 }},
                                 pickStartDateTime,
-                                delete = { state.startDay = 0L; state.startDay = 0}
+                                delete = { vm.setStartDate(0L) }
                             )
                             total++
                         }
                         TagsControlSet.TAG -> {
                             TagsChip(
-                                current = state.selectedTags,
+                                current = state.value.tags.toImmutableList(),
                                 action = pickTags,
                                 //delete = if (state.tagsChanged()) { { state.selectedTags = state.initialTags } } else null  // TODO(debug)
                             )
@@ -184,29 +193,29 @@ fun TaskEditDrawer(
                         }
                         LocationControlSet.TAG -> {
                             LocationChip(
-                                current = state.location,
-                                setLocation = { location -> state.location = location },
+                                current = state.value.location,
+                                setLocation = { vm.setLocation(it) },
                                 pickLocation = pickLocation
                             )
                             total++
                         }
                         CalendarControlSet.TAG -> {
                             CalendarChip(
-                                selected = state.selectedCalendarName,
+                                selected = state.value.calendar,
                                 select = pickCalendar,
-                                clear = { state.selectedCalendar = null }
+                                clear = { vm.setCalendar(null) }
                             )
                             total++
                         }
                         TimerControlSet.TAG -> {
                             TimerChip(
-                                started = state.timerStarted,
-                                estimated = state.timerEstimated,
-                                elapsed = state.timerElapsed,
+                                started = state.value.task.timerStart,
+                                estimated = state.value.task.estimatedSeconds,
+                                elapsed = state.value.task.elapsedSeconds,
                                 setTimer = setTimer,
                                 setValues = { estimated, elapsed ->
-                                    state.timerEstimated = estimated
-                                    state.timerElapsed = elapsed
+                                    vm.estimatedSeconds.update { estimated }
+                                    vm.elapsedSeconds.update { elapsed }
                                 }
                             )
                             total++
@@ -215,7 +224,7 @@ fun TaskEditDrawer(
                     }
                 }
                 /* Main TaskEditFragment launch - must be the last */
-                IconChip(icon = Icons.Outlined.MoreHoriz, action = { edit(); state.resetTask() })
+                IconChip(icon = Icons.Outlined.MoreHoriz, action = { edit(); vm.resetToOriginal() /* TODO(): is it necessary?? */})
             }
         }
     }

@@ -131,7 +131,7 @@ class TaskEditViewModel @Inject constructor(
 
     private val _originalState = MutableStateFlow(
         TaskEditViewState(
-            task = task,
+            task = task.copy(),
             showBeastModeHint = !preferences.shownBeastModeHint,
             showComments = preferences.getBoolean(R.string.p_show_task_edit_comments, false),
             showKeyboard = task.isNew && task.title.isNullOrBlank(),
@@ -281,11 +281,12 @@ class TaskEditViewModel @Inject constructor(
         estimatedSeconds.value = task.estimatedSeconds
         ringNonstop = task.isNotifyModeNonstop
         ringFiveTimes = task.isNotifyModeFive
-        assert(!hasChanges())
+        //assert(!hasChanges())
     }
 
     @MainThread
     suspend fun save(): Boolean = withContext(NonCancellable) {
+        val task = task.copy()
         if (cleared) {
             return@withContext false
         }
@@ -612,6 +613,7 @@ class TaskEditViewModel @Inject constructor(
     }
 
     init {
+        Timber.d("******** TaskEditViewModel.init **********")
         runBlocking {
             val attachments = async {
                 taskAttachmentDao
@@ -638,6 +640,16 @@ class TaskEditViewModel @Inject constructor(
                     tags = tags.await(),
                 )
             }
+            changes.changedTask?.let { task ->
+                dueDate.value = task.dueDate
+                startDate.value = task.hideUntil
+                elapsedSeconds.value = task.elapsedSeconds
+                estimatedSeconds.value = task.estimatedSeconds
+                timerStarted.value = task.timerStart
+                eventUri.value = task.calendarURI
+                ringNonstop = task.isNotifyModeNonstop
+                ringFiveTimes = task.isNotifyModeFive
+            }
             _viewState.update {
                 it.copy(
                     task = changes.changedTask ?: it.task,
@@ -654,7 +666,14 @@ class TaskEditViewModel @Inject constructor(
     fun getTask(): Task {
         val task = task.copy()
         if (hasChanges()) {
-            val newTask = viewState.value.task.copy()
+            val newTask = viewState.value.task.copy(transitoryData = null) // otherwise Task.toString crashes with stack overflow
+            newTask.dueDate = dueDate.value
+            newTask.hideUntil = startDate.value
+            newTask.elapsedSeconds = elapsedSeconds.value
+            newTask.estimatedSeconds = estimatedSeconds.value
+            newTask.timerStart = timerStarted.value
+            newTask.calendarURI = eventUri.value
+            newTask.ringFlags = getRingFlags()
             viewState.value.attachments.takeIf { it != originalState.value.attachments }
                 ?.let { newTask.putTransitory(Task.CHANGED_ATTACHMENTS, it) }
             viewState.value.alarms.takeIf { it != originalState.value.alarms }
