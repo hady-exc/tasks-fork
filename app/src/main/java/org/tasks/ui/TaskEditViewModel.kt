@@ -310,6 +310,7 @@ class TaskEditViewModel @Inject constructor(
         task.repeatFrom = viewState.task.repeatFrom
         task.elapsedSeconds = elapsedSeconds.value
         task.estimatedSeconds = estimatedSeconds.value
+        task.timerStart = timerStarted.value  // Hady: hope this is a bug fix
         task.ringFlags = getRingFlags()
 
         applyCalendarChanges()

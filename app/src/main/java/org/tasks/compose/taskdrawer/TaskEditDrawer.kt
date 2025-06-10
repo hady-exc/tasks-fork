@@ -168,11 +168,10 @@ fun TaskEditDrawer(
                         }
                         StartDateControlSet.TAG -> {
                             StartDateTimeChip(
-                                state.value.task.hideUntil,
-                                //state.startTime,
+                                vm.startDate.collectAsStateWithLifecycle().value,
                                 { runBlocking {
                                     getRelativeDateTime(
-                                        state.value.task.hideUntil,
+                                        vm.startDate.value,
                                         context.is24HourFormat,
                                         DateStyle.SHORT,
                                         alwaysDisplayFullDate = false //preferences.alwaysDisplayFullDate
@@ -209,9 +208,9 @@ fun TaskEditDrawer(
                         }
                         TimerControlSet.TAG -> {
                             TimerChip(
-                                started = state.value.task.timerStart,
-                                estimated = state.value.task.estimatedSeconds,
-                                elapsed = state.value.task.elapsedSeconds,
+                                started = vm.timerStarted.collectAsStateWithLifecycle().value,
+                                estimated = vm.estimatedSeconds.collectAsStateWithLifecycle().value,
+                                elapsed = vm.elapsedSeconds.collectAsStateWithLifecycle().value,
                                 setTimer = setTimer,
                                 setValues = { estimated, elapsed ->
                                     vm.estimatedSeconds.update { estimated }

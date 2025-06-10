@@ -159,7 +159,7 @@ class TaskDrawerFragment: DialogFragment() {
                 data?.let { intent ->
                     val date = intent.getLongExtra(EXTRA_DAY, 0L)
                     val time = intent.getIntExtra(EXTRA_TIME, 0)
-                    val due = vm.viewState.value.task.dueDate.takeIf { it > 0 }?.toDateTime()
+                    val due = vm.dueDate.value.takeIf { it > 0 }?.toDateTime()
                     vm.setStartDate(
                         when (date) {
                             DUE_DATE -> due?.withMillisOfDay(time)?.millis ?: 0
@@ -303,7 +303,7 @@ class TaskDrawerFragment: DialogFragment() {
                     R.string.p_auto_dismiss_datetime_edit_screen,
                     false
                 ),
-                false // TODO(): showDueDate = !viewModel.viewState.value.list.account.isOpenTasks,
+                showDueDate = !vm.viewState.value.list.account.isOpenTasks,
             )
                 .show(fragmentManager, FRAG_TAG_DATE_PICKER)
         }
@@ -382,8 +382,8 @@ class TaskDrawerFragment: DialogFragment() {
                     pickLocation = this@TaskDrawerFragment::pickLocation,
                     pickStartDateTime = {
                         launchStartDateTimePicker(
-                            startDate = vm.viewState.value.task.hideUntil,
-                            dueDate = vm.viewState.value.task.dueDate
+                            startDate = vm.startDate.value,
+                            dueDate = vm.dueDate.value
                         )
                     },
                     pickCustomRecurrence = {
