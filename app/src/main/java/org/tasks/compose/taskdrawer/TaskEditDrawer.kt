@@ -38,6 +38,7 @@ import com.todoroo.astrid.ui.StartDateControlSet
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.runBlocking
+import org.tasks.R
 import org.tasks.extensions.Context.is24HourFormat
 import org.tasks.kmp.org.tasks.taskedit.TaskEditViewState
 import org.tasks.ui.TaskEditViewModel.Companion.TAG_DESCRIPTION
@@ -46,6 +47,7 @@ import org.tasks.ui.TaskEditViewModel.Companion.TAG_LIST
 import org.tasks.ui.TaskEditViewModel.Companion.TAG_PRIORITY
 import org.tasks.kmp.org.tasks.time.DateStyle
 import org.tasks.kmp.org.tasks.time.getRelativeDateTime
+import org.tasks.preferences.Preferences
 import org.tasks.ui.CalendarControlSet
 import org.tasks.ui.LocationControlSet
 import org.tasks.ui.TaskEditViewModel
@@ -110,6 +112,7 @@ fun TaskEditDrawer(
 
         Row (modifier = Modifier.padding(8.dp)) {
             val context = LocalContext.current
+            val preferences = remember { Preferences(context) }
             FlowRow (
                 Modifier.wrapContentHeight(),
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -169,6 +172,8 @@ fun TaskEditDrawer(
                         StartDateControlSet.TAG -> {
                             StartDateTimeChip(
                                 vm.startDate.collectAsStateWithLifecycle().value,
+                                vm.dueDate.collectAsStateWithLifecycle().value,
+                                { vm.setStartDate(it) },
                                 { runBlocking {
                                     getRelativeDateTime(
                                         vm.startDate.value,
@@ -177,7 +182,11 @@ fun TaskEditDrawer(
                                         alwaysDisplayFullDate = false //preferences.alwaysDisplayFullDate
                                     )
                                 }},
-                                pickStartDateTime,
+                                autoclose = preferences.getBoolean(
+                                    R.string.p_auto_dismiss_datetime_edit_screen,
+                                    false
+                                ),
+                                showDueDate = !vm.viewState.collectAsStateWithLifecycle().value.list.account.isOpenTasks,
                                 delete = { vm.setStartDate(0L) }
                             )
                             total++
