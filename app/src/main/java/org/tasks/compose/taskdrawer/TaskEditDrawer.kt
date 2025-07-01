@@ -135,6 +135,7 @@ fun TaskEditDrawer(
                         TAG_DUE_DATE -> {
                             DueDateChip(
                                 current = vm.dueDate.collectAsStateWithLifecycle().value,
+                                startDate = vm.startDate.collectAsStateWithLifecycle().value,
                                 setValue = { vm.setDueDate(it) }
                             )
                             total++

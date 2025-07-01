@@ -34,6 +34,7 @@ fun Chip (
         title?.let {
             Text(
                 text = title,
+                color = iconColor,
                 style = MaterialTheme.typography.bodySmall,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -45,7 +46,7 @@ fun Chip (
         leading?.let { Icon(leading, null, tint = if (iconColor == Color.Unspecified) LocalContentColor.current else iconColor) }
     },
     trailingIcon = {
-        delete?.let { Icon(clearIcon, null, Modifier.clickable(onClick = delete)) }
+        delete?.let { Icon(clearIcon, null, Modifier.clickable(onClick = delete), tint = if (iconColor == Color.Unspecified) LocalContentColor.current else iconColor) }
     }
 )
 

@@ -2,6 +2,7 @@ package org.tasks.compose.taskdrawer
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.PendingActions
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -10,6 +11,7 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.todoroo.astrid.ui.StartDateControlSet.Companion.getRelativeDateString
@@ -99,7 +101,8 @@ fun StartDateTimeChip(
                 selectedDay = 0L
                 selectedTime = 0
                 delete?.invoke()
-            }
+            },
+            iconColor = if (dueDate == 0L) MaterialTheme.colorScheme.error else Color.Unspecified
         )
     }
 

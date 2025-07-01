@@ -76,5 +76,6 @@ private fun DueDateChip(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 private fun DueDateChipPreview()
 {
-    DueDateChip(current = DateTime().millis, setValue = {})
+    DueDateChip(current = 345678912345L, action = {}, delete = { })
 }
+
