@@ -24,7 +24,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import com.todoroo.astrid.activity.BeastModePreferences
 import com.todoroo.astrid.activity.TaskEditFragment
 import com.todoroo.astrid.activity.TaskListFragment.Companion.EXTRA_FILTER
 import com.todoroo.astrid.alarms.AlarmService
@@ -34,11 +33,9 @@ import com.todoroo.astrid.service.TaskCreator
 import com.todoroo.astrid.service.TaskMover
 import com.todoroo.astrid.timers.TimerPlugin
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.collections.immutable.toPersistentList
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.tasks.R
 import org.tasks.calendars.CalendarPicker
 import org.tasks.compose.FilterSelectionActivity.Companion.launch
 import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPickerResult
@@ -55,14 +52,6 @@ import org.tasks.data.entity.Geofence
 import org.tasks.data.entity.Place
 import org.tasks.data.entity.TagData
 import org.tasks.data.entity.Task
-import org.tasks.date.DateTimeUtils.toDateTime
-import org.tasks.dialogs.StartDatePicker
-import org.tasks.dialogs.StartDatePicker.Companion.DAY_BEFORE_DUE
-import org.tasks.dialogs.StartDatePicker.Companion.DUE_DATE
-import org.tasks.dialogs.StartDatePicker.Companion.DUE_TIME
-import org.tasks.dialogs.StartDatePicker.Companion.EXTRA_DAY
-import org.tasks.dialogs.StartDatePicker.Companion.EXTRA_TIME
-import org.tasks.dialogs.StartDatePicker.Companion.WEEK_BEFORE_DUE
 import org.tasks.filters.CaldavFilter
 import org.tasks.filters.Filter
 import org.tasks.location.GeofenceApi
@@ -75,10 +64,7 @@ import org.tasks.repeats.CustomRecurrenceActivity
 import org.tasks.tags.TagPickerActivity
 import org.tasks.themes.TasksTheme
 import org.tasks.time.DateTimeUtils2.currentTimeMillis
-import org.tasks.time.millisOfDay
-import org.tasks.time.startOfDay
 import org.tasks.ui.TaskEditViewModel
-import org.tasks.ui.TaskEditViewModel.Companion.TASK_EDIT_CONTROL_SET_FRAGMENTS
 import org.tasks.ui.TaskListEventBus
 import javax.inject.Inject
 
@@ -128,25 +114,6 @@ class TaskDrawerFragment: DialogFragment() {
         return composeView
     }
 
-    private fun getOrder(): List<Int> {
-        return TASK_EDIT_CONTROL_SET_FRAGMENTS
-            .associateBy { context.getString(it) }
-            .let { controlSetStrings ->
-                BeastModePreferences
-                    .constructOrderedControlList(preferences, context)
-                    .let { items ->
-                        items
-                            .subList(
-                                0,
-                                items.indexOf(context.getString(R.string.TEA_ctrl_hide_section_pref))
-                            )
-                            .also { it.add(0, context.getString(R.string.TEA_ctrl_title)) }
-                    }
-                    .mapNotNull { controlSetStrings[it] }
-                    .toPersistentList()
-            }
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         //vm.resetTask()
@@ -155,22 +122,6 @@ class TaskDrawerFragment: DialogFragment() {
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
-            REQUEST_START_DATE -> if (resultCode == RESULT_OK) {
-                data?.let { intent ->
-                    val date = intent.getLongExtra(EXTRA_DAY, 0L)
-                    val time = intent.getIntExtra(EXTRA_TIME, 0)
-                    val due = vm.dueDate.value.takeIf { it > 0 }?.toDateTime()
-                    vm.setStartDate(
-                        when (date) {
-                            DUE_DATE -> due?.withMillisOfDay(time)?.millis ?: 0
-                            DUE_TIME -> due?.millis ?: 0
-                            DAY_BEFORE_DUE -> due?.minusDays(1)?.withMillisOfDay(time)?.millis ?: 0
-                            WEEK_BEFORE_DUE -> due?.minusDays(7)?.withMillisOfDay(time)?.millis ?: 0
-                            else -> date + time
-                        }
-                    )
-                }
-            }
             TaskEditFragment.REQUEST_CODE_PICK_CALENDAR -> {
                 if (resultCode == RESULT_OK) {
                     vm.setCalendar(data!!.getStringExtra(CalendarPicker.EXTRA_CALENDAR_ID))
@@ -255,60 +206,6 @@ class TaskDrawerFragment: DialogFragment() {
 
     }
 
-    /* Dialog fragments launching and listening. Hack. TODO(replace by a regular solution)  */
-    private val REQUEST_START_DATE = 11011 // StartDateControlSet.REQUEST_START_DATE
-    private val FRAG_TAG_DATE_PICKER = "frag_tag_date_picker" // StartDateControlSet.FRAG_TAG_DATE_PICKER
-
-    private fun launchStartDateTimePicker(startDate: Long, dueDate: Long)
-    {
-        var day = 0L
-        var time = 0
-        val dueDay = dueDate.startOfDay()
-        val dueTime = dueDate.millisOfDay
-        if (startDate <= 0) {
-            day = when (preferences.getIntegerFromString(R.string.p_default_hideUntil_key, Task.HIDE_UNTIL_NONE)) {
-                Task.HIDE_UNTIL_DUE -> DUE_DATE
-                Task.HIDE_UNTIL_DUE_TIME -> DUE_TIME
-                Task.HIDE_UNTIL_DAY_BEFORE -> DAY_BEFORE_DUE
-                Task.HIDE_UNTIL_WEEK_BEFORE -> WEEK_BEFORE_DUE
-                else -> 0L
-            }
-        } else {
-            val hideUntil = startDate.toDateTime()
-            day = hideUntil.startOfDay().millis
-            time = hideUntil.millisOfDay
-            day = when (day) {
-                dueDay -> if (time == dueTime) {
-                    time = StartDatePicker.NO_TIME
-                    DUE_TIME
-                } else {
-                    DUE_DATE
-                }
-                dueDay.toDateTime().minusDays(1).millis ->
-                    DAY_BEFORE_DUE
-                dueDay.toDateTime().minusDays(7).millis ->
-                    WEEK_BEFORE_DUE
-                else -> day
-            }
-        }
-
-        val fragmentManager = parentFragmentManager
-        if (fragmentManager.findFragmentByTag(FRAG_TAG_DATE_PICKER) == null) {
-            StartDatePicker.newDateTimePicker(
-                this,
-                REQUEST_START_DATE,
-                day,
-                time,
-                preferences.getBoolean(
-                    R.string.p_auto_dismiss_datetime_edit_screen,
-                    false
-                ),
-                showDueDate = !vm.viewState.value.list.account.isOpenTasks,
-            )
-                .show(fragmentManager, FRAG_TAG_DATE_PICKER)
-        }
-    }
-
     private fun pickLocation() {
         locationPickerLauncher.launch(
             Intent(context, LocationPickerActivity::class.java)
@@ -380,12 +277,6 @@ class TaskDrawerFragment: DialogFragment() {
                     },
                     pickTags = this@TaskDrawerFragment::pickTags,
                     pickLocation = this@TaskDrawerFragment::pickLocation,
-                    pickStartDateTime = {
-                        launchStartDateTimePicker(
-                            startDate = vm.startDate.value,
-                            dueDate = vm.dueDate.value
-                        )
-                    },
                     pickCustomRecurrence = {
                         lifecycleScope.launch {
                             val accountType = vm.viewState.value.list

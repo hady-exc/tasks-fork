@@ -24,11 +24,11 @@ import org.tasks.time.DateTime
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StartDateTimePicker (
-    accept: () -> Unit,
-    dismiss: () -> Unit,
     selectedDay: Long,
     selectedTime: Int,
     updateValues: (Long, Int) -> Unit,
+    accept: () -> Unit,
+    dismiss: () -> Unit,
     autoclose: Boolean,
     showDueDate: Boolean
 ) {

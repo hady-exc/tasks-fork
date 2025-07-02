@@ -17,16 +17,16 @@ import androidx.compose.ui.text.style.TextOverflow
 private val clearIcon = Icons.Outlined.Close
 
 @Composable
-fun IconChip(icon: ImageVector, iconColor: Color = Color.Unspecified, action: (() -> Unit)) = Chip(null, null, null, icon, iconColor, action)
+fun IconChip(icon: ImageVector, contentColor: Color = Color.Unspecified, action: (() -> Unit)) = Chip(null, null, action, null, icon, contentColor)
 
 @Composable
 fun Chip (
     title: String?,
     leading: ImageVector?,
+    action: () -> Unit,
     delete: (() -> Unit)? = null,
     titleIcon: ImageVector? = null,
-    iconColor: Color = Color.Unspecified,
-    action: () -> Unit,
+    contentColor: Color = Color.Unspecified,
 ) = InputChip (
     selected = false,
     onClick = action,
@@ -34,19 +34,19 @@ fun Chip (
         title?.let {
             Text(
                 text = title,
-                color = iconColor,
+                color = contentColor,
                 style = MaterialTheme.typography.bodySmall,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
         }
-        titleIcon?.let { Icon(titleIcon, null, tint = if (iconColor == Color.Unspecified) LocalContentColor.current else iconColor) }
+        titleIcon?.let { Icon(titleIcon, null, tint = if (contentColor == Color.Unspecified) LocalContentColor.current else contentColor) }
     },
     leadingIcon = {
-        leading?.let { Icon(leading, null, tint = if (iconColor == Color.Unspecified) LocalContentColor.current else iconColor) }
+        leading?.let { Icon(leading, null, tint = if (contentColor == Color.Unspecified) LocalContentColor.current else contentColor) }
     },
     trailingIcon = {
-        delete?.let { Icon(clearIcon, null, Modifier.clickable(onClick = delete), tint = if (iconColor == Color.Unspecified) LocalContentColor.current else iconColor) }
+        delete?.let { Icon(clearIcon, null, Modifier.clickable(onClick = delete), tint = if (contentColor == Color.Unspecified) LocalContentColor.current else contentColor) }
     }
 )
 

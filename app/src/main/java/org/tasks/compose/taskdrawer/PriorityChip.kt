@@ -40,7 +40,7 @@ private fun PriorityChip(current: Int, action: () -> Unit)
         )
     )
 
-    IconChip(icon = priorityIcon, iconColor = color, action = action)
+    IconChip(icon = priorityIcon, contentColor = color, action = action)
 
 }
 

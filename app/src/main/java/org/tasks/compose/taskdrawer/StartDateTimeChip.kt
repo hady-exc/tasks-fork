@@ -94,7 +94,7 @@ fun StartDateTimeChip(
         }
 
         Chip(
-            title = text,
+            title = if (text.length > 16) text.substring(0..12)+"..." else text,
             leading = startDateIcon,
             action = { showPicker = true },
             delete = {
@@ -102,7 +102,7 @@ fun StartDateTimeChip(
                 selectedTime = 0
                 delete?.invoke()
             },
-            iconColor = if (dueDate == 0L) MaterialTheme.colorScheme.error else Color.Unspecified
+            contentColor = if (dueDate == 0L) MaterialTheme.colorScheme.error else Color.Unspecified
         )
     }
 

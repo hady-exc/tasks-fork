@@ -65,7 +65,6 @@ fun TaskEditDrawer(
     pickList: () -> Unit,
     pickTags: () -> Unit,
     pickLocation: () -> Unit,
-    pickStartDateTime: () -> Unit,
     pickCustomRecurrence: (String?) -> Unit,
     pickCalendar: () -> Unit,
     setTimer: (Boolean) -> Unit
