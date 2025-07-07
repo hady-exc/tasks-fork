@@ -760,7 +760,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     }
 
     private suspend fun addTask(title: String): Task {
-        return taskCreator.createWithValues(filter, title)
+        return taskCreator.createWithValues(filter, title).copy(remoteId = null)
     }
 
     private fun setupRefresh(layout: SwipeRefreshLayout) {
