@@ -134,6 +134,11 @@ class TaskDrawerFragment: DialogFragment() {
         }
     }
 
+    override fun dismiss() {
+        vm.clear()
+        super.dismiss()
+    }
+
     private fun initLaunchers() // must be called from onCreateView
     {
         filterPickerLauncher = registerForListPickerResult { list -> vm.setList(list) }
