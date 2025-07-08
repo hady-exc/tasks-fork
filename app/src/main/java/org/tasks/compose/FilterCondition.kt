@@ -41,11 +41,9 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableIntState
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -66,7 +64,6 @@ import androidx.core.os.ConfigurationCompat
 import com.todoroo.astrid.core.CriterionInstance
 import kotlinx.collections.immutable.ImmutableList
 import org.tasks.R
-import org.tasks.compose.ListSettings.SettingRow
 import org.tasks.compose.SwipeOut.SwipeOut
 import org.tasks.extensions.formatNumber
 import org.tasks.kmp.org.tasks.compose.settings.SettingRow
@@ -128,10 +125,8 @@ object FilterCondition {
         items: ImmutableList<CriterionInstance>,
         onDelete: (Int) -> Unit,
         doSwap: (Int, Int) -> Unit,
-        onComplete: () -> Unit,
         onClick: (String) -> Unit
     ) {
-
         val getIcon: (CriterionInstance) -> Int = { criterion ->
             when (criterion.type) {
                 CriterionInstance.TYPE_ADD -> R.drawable.ic_call_split_24px
@@ -290,7 +285,6 @@ object FilterCondition {
         isExtended: Boolean,
         onClick: () -> Unit
     ) {
-
         Box( // lays out over main content as a space to layout FAB
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.BottomEnd
@@ -302,8 +296,6 @@ object FilterCondition {
                 containerColor = MaterialTheme.colorScheme.secondary,
                 contentColor = Color.White,
             ) {
-                val extended = isExtended.value
-
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Outlined.Add,
