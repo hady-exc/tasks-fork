@@ -14,15 +14,22 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.tasks.LocalBroadcastManager
-import org.tasks.Tasks.Companion.IS_GENERIC
+import org.tasks.TasksApplication.Companion.IS_GENERIC
 import org.tasks.billing.Inventory
 import org.tasks.compose.drawer.DrawerItem
+import org.tasks.compose.throttleLatest
 import org.tasks.data.NO_COUNT
 import org.tasks.data.count
 import org.tasks.data.dao.CaldavDao
@@ -33,9 +40,10 @@ import org.tasks.filters.Filter
 import org.tasks.filters.FilterProvider
 import org.tasks.filters.NavigationDrawerSubheader
 import org.tasks.filters.getIcon
-import org.tasks.preferences.TasksPreferences
 import org.tasks.preferences.DefaultFilterProvider
+import org.tasks.preferences.TasksPreferences
 import org.tasks.themes.ColorProvider
+import org.tasks.time.DateTimeUtils2.currentTimeMillis
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -62,7 +70,7 @@ class MainActivityViewModel @Inject constructor(
     )
 
     private val _drawerOpen = MutableStateFlow(false)
-    val drawerOpen = _drawerOpen.asStateFlow()
+    private val _updateFilters = MutableStateFlow(0L)
 
     private val _state = MutableStateFlow(
         State(
@@ -76,11 +84,14 @@ class MainActivityViewModel @Inject constructor(
     )
     val state = _state.asStateFlow()
 
+    val accountExists: Flow<Boolean>
+        get() = caldavDao.watchAccountExists()
+
     private val refreshReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 LocalBroadcastManager.REFRESH,
-                LocalBroadcastManager.REFRESH_LIST -> updateFilters()
+                LocalBroadcastManager.REFRESH_LIST -> _updateFilters.update { currentTimeMillis() }
             }
         }
     }
@@ -111,20 +122,32 @@ class MainActivityViewModel @Inject constructor(
         _state.update { it.copy(menuQuery = "") }
     }
 
-    fun openDrawer() {
-        _drawerOpen.update { true }
+    fun setDrawerState(opened: Boolean) {
+        _drawerOpen.update { opened }
+        if (!opened) {
+            _state.update { it.copy(menuQuery = "") }
+        }
     }
 
     init {
         localBroadcastManager.registerRefreshListReceiver(refreshReceiver)
-        updateFilters()
+
+        _updateFilters
+            .onStart { updateFilters() }
+            .combine(_drawerOpen) { timestamp, drawerOpen ->
+                if (drawerOpen) timestamp else null
+            }
+            .filterNotNull()
+            .throttleLatest(1000)
+            .onEach { updateFilters() }
+            .launchIn(viewModelScope)
     }
 
     override fun onCleared() {
         localBroadcastManager.unregisterReceiver(refreshReceiver)
     }
 
-    fun updateFilters() = viewModelScope.launch(Dispatchers.Default) {
+    private fun updateFilters() = viewModelScope.launch(Dispatchers.IO) {
         val selected = state.value.filter
         filterProvider
             .drawerItems()
@@ -197,7 +220,6 @@ class MainActivityViewModel @Inject constructor(
                 tasksPreferences.set(booleanPreferencesKey(subheader.id), collapsed)
                 localBroadcastManager.broadcastRefreshList()
             }
-            NavigationDrawerSubheader.SubheaderType.GOOGLE_TASKS,
             NavigationDrawerSubheader.SubheaderType.CALDAV,
             NavigationDrawerSubheader.SubheaderType.TASKS -> {
                 caldavDao.setCollapsed(subheader.id, collapsed)
@@ -214,4 +236,6 @@ class MainActivityViewModel @Inject constructor(
         _state.update { it.copy(menuQuery = query) }
         updateFilters()
     }
+
+    suspend fun getAccount(id: Long) = caldavDao.getAccount(id)
 }

@@ -8,10 +8,8 @@ class Debouncer(private val tag: String, private val block: suspend (Boolean) ->
 
     suspend fun sync(immediate: Boolean) {
         val thisCount = ++count
-
         delay(1000)
-
-        if (immediate || thisCount == count) {
+        if (thisCount == count) {
             block(immediate)
         } else {
             Timber.v("debouncing $tag")

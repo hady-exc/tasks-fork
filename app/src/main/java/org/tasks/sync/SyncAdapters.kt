@@ -7,15 +7,17 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.tasks.LocalBroadcastManager
 import org.tasks.R
+import org.tasks.data.OpenTaskDao
+import org.tasks.data.dao.CaldavDao
+import org.tasks.data.dao.GoogleTaskDao
 import org.tasks.data.entity.CaldavAccount.Companion.TYPE_CALDAV
 import org.tasks.data.entity.CaldavAccount.Companion.TYPE_ETEBASE
 import org.tasks.data.entity.CaldavAccount.Companion.TYPE_GOOGLE_TASKS
+import org.tasks.data.entity.CaldavAccount.Companion.TYPE_MICROSOFT
 import org.tasks.data.entity.CaldavAccount.Companion.TYPE_OPENTASKS
 import org.tasks.data.entity.CaldavAccount.Companion.TYPE_TASKS
-import org.tasks.data.dao.CaldavDao
 import org.tasks.data.entity.FORCE_CALDAV_SYNC
-import org.tasks.data.dao.GoogleTaskDao
-import org.tasks.data.OpenTaskDao
+import org.tasks.data.entity.FORCE_MICROSOFT_SYNC
 import org.tasks.data.entity.SUPPRESS_SYNC
 import org.tasks.data.entity.Task
 import org.tasks.jobs.WorkManager
@@ -50,9 +52,11 @@ class SyncAdapters @Inject constructor(
         }
         val needsGoogleTaskSync = !task.googleTaskUpToDate(original)
                 && googleTaskDao.getAllByTaskId(task.id).isNotEmpty()
+        val needsMicrosoftSync = (task.checkTransitory(FORCE_MICROSOFT_SYNC) || !task.microsoftUpToDate(original))
+            && caldavDao.isAccountType(task.id, listOf(TYPE_MICROSOFT))
         val needsIcalendarSync = (task.checkTransitory(FORCE_CALDAV_SYNC) || !task.caldavUpToDate(original))
             && caldavDao.isAccountType(task.id, TYPE_ICALENDAR)
-        if (needsGoogleTaskSync || needsIcalendarSync) {
+        if (needsGoogleTaskSync || needsMicrosoftSync || needsIcalendarSync) {
             sync.sync(false)
         }
     }
@@ -61,15 +65,7 @@ class SyncAdapters @Inject constructor(
         syncStatus.sync(active)
     }
 
-    fun syncOpenTasks() = scope.launch {
-        sync.sync(true)
-    }
-
-    fun sync() {
-        sync(false)
-    }
-
-    fun sync(immediate: Boolean) = scope.launch {
+    fun sync(immediate: Boolean = false) = scope.launch {
         val caldavEnabled = async { isSyncEnabled() }
         val opentasksEnabled = async { isOpenTaskSyncEnabled() }
 
@@ -85,6 +81,7 @@ class SyncAdapters @Inject constructor(
                     TYPE_CALDAV,
                     TYPE_TASKS,
                     TYPE_ETEBASE,
+                    TYPE_MICROSOFT
                 )
                 .isNotEmpty()
 

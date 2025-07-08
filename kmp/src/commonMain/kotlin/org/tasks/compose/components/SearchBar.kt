@@ -14,9 +14,18 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
+
+val SEARCH_BAR_HEIGHT = 56.dp
 
 @Composable
 fun SearchBar(
@@ -27,9 +36,14 @@ fun SearchBar(
     onCloseClicked: () -> Unit,
     onSearchClicked: (String) -> Unit,
 ) {
+    var canFocus by remember { mutableStateOf(false) }
     OutlinedTextField(
         shape = MaterialTheme.shapes.medium,
-        modifier = modifier.height(56.dp),
+        modifier = modifier
+            .height(SEARCH_BAR_HEIGHT)
+            .focusProperties {
+                this.canFocus = canFocus
+            },
         value = text,
         onValueChange = {
             onTextChange(it)
@@ -69,11 +83,16 @@ fun SearchBar(
             }
         ),
         singleLine = true,
-        textStyle = MaterialTheme.typography.bodyLarge,
+        textStyle = MaterialTheme.typography.bodyLarge.copy(
+            textDirection = TextDirection.Content
+        ),
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = MaterialTheme.colorScheme.onSurface,
             unfocusedBorderColor = MaterialTheme.colorScheme.onSurface,
             cursorColor = MaterialTheme.colorScheme.onSurface,
         ),
     )
+    LaunchedEffect(Unit) {
+        canFocus = true
+    }
 }

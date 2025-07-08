@@ -3,6 +3,8 @@ package org.tasks.compose.taskdrawer
 import android.content.res.Configuration
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material3.DisplayMode
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,18 +17,25 @@ import org.tasks.date.DateTimeUtils.newDateTime
 import org.tasks.kmp.org.tasks.time.DateStyle
 import org.tasks.kmp.org.tasks.time.getRelativeDay
 import org.tasks.time.DateTime
+import timber.log.Timber
 
 private val dueDateIcon = Icons.Outlined.Schedule
 
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DueDateChip(
     current: Long,
     setValue: (Long) -> Unit
 ) {
+    Timber.d("**** RECOMPOSE DueDateChip")
+
     var datePicker by remember { mutableStateOf(false) }
     if (datePicker) {
         DatePickerDialog(
             initialDate = if (current != 0L) current else newDateTime().startOfDay().millis,
+            displayMode = DisplayMode.Picker,
+            setDisplayMode = {},
             selected = { setValue(it); datePicker = false },
             dismiss = { datePicker = false } )
     }
@@ -67,5 +76,6 @@ private fun DueDateChip(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 private fun DueDateChipPreview()
 {
-    DueDateChip(current = DateTime().millis, setValue = {})
+    DueDateChip(current = 345678912345L, action = {}, delete = { })
 }
+

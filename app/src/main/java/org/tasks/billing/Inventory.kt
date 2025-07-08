@@ -7,8 +7,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import org.tasks.BuildConfig
 import org.tasks.LocalBroadcastManager
 import org.tasks.R
-import org.tasks.data.entity.CaldavAccount.Companion.TYPE_TASKS
 import org.tasks.data.dao.CaldavDao
+import org.tasks.data.entity.CaldavAccount.Companion.TYPE_CALDAV
+import org.tasks.data.entity.CaldavAccount.Companion.TYPE_TASKS
 import org.tasks.data.isTasksSubscription
 import org.tasks.extensions.Context.openUri
 import org.tasks.preferences.Preferences
@@ -53,8 +54,6 @@ class Inventory @Inject constructor(
         updateSubscription()
     }
 
-    fun purchasedTasker() = hasPro || purchases.containsKey(SKU_TASKER)
-
     fun purchasedThemes() = hasPro || purchases.containsKey(SKU_THEMES)
 
     var hasPro = false
@@ -68,7 +67,7 @@ class Inventory @Inject constructor(
         private set
 
     suspend fun updateTasksAccount() {
-        hasTasksAccount = caldavDao.getAccounts(TYPE_TASKS).any {
+        hasTasksAccount = caldavDao.getAccounts(TYPE_TASKS, TYPE_CALDAV).any {
             it.isTasksSubscription(context)
         }
     }
@@ -98,7 +97,6 @@ class Inventory @Inject constructor(
 
     companion object {
         private const val SKU_VIP = "vip"
-        const val SKU_TASKER = "tasker"
         const val SKU_THEMES = "themes"
     }
 

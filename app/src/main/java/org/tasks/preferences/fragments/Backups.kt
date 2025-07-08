@@ -12,11 +12,11 @@ import org.tasks.R
 import org.tasks.dialogs.ExportTasksDialog
 import org.tasks.dialogs.ImportTasksDialog
 import org.tasks.drive.DriveLoginActivity
+import org.tasks.extensions.Context.takePersistableUriPermission
 import org.tasks.extensions.Context.toast
 import org.tasks.files.FileHelper
 import org.tasks.injection.InjectingPreferenceFragment
 import org.tasks.kmp.org.tasks.time.getFullDateTime
-import org.tasks.preferences.FragmentPermissionRequestor
 import org.tasks.preferences.PermissionRequestor
 import org.tasks.preferences.Preferences
 import org.tasks.preferences.PreferencesViewModel
@@ -27,13 +27,12 @@ const val REQUEST_DRIVE_BACKUP = 12002
 private const val REQUEST_PICKER = 10003
 private const val REQUEST_BACKUP_NOW = 10004
 private const val FRAG_TAG_EXPORT_TASKS = "frag_tag_export_tasks"
-private const val FRAG_TAG_IMPORT_TASKS = "frag_tag_import_tasks"
+const val FRAG_TAG_IMPORT_TASKS = "frag_tag_import_tasks"
 
 @AndroidEntryPoint
 class Backups : InjectingPreferenceFragment() {
 
     @Inject lateinit var preferences: Preferences
-    @Inject lateinit var permissionRequestor: FragmentPermissionRequestor
 
     private val viewModel: PreferencesViewModel by activityViewModels()
 
@@ -176,11 +175,7 @@ class Backups : InjectingPreferenceFragment() {
         if (requestCode == REQUEST_CODE_BACKUP_DIR) {
             if (resultCode == RESULT_OK && data != null) {
                 val uri = data.data!!
-                context?.contentResolver
-                    ?.takePersistableUriPermission(
-                        uri,
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                    )
+                context?.takePersistableUriPermission(uri)
                 preferences.setUri(R.string.p_backup_dir, uri)
                 updateBackupDirectory()
                 viewModel.updateLocalBackup()
@@ -189,14 +184,10 @@ class Backups : InjectingPreferenceFragment() {
             if (resultCode == RESULT_OK) {
                 val uri = data!!.data
                 val extension = FileHelper.getExtension(requireContext(), uri!!)
-                if (!("json".equals(extension, ignoreCase = true) || "xml".equals(
-                        extension,
-                        ignoreCase = true
-                    ))
-                ) {
+                if (!"json".equals(extension, ignoreCase = true)) {
                     context?.toast(R.string.invalid_backup_file)
                 } else {
-                    ImportTasksDialog.newImportTasksDialog(uri, extension)
+                    ImportTasksDialog.newImportTasksDialog(uri)
                         .show(parentFragmentManager, FRAG_TAG_IMPORT_TASKS)
                 }
             }
@@ -250,12 +241,10 @@ class Backups : InjectingPreferenceFragment() {
     }
 
     private fun requestGoogleDriveLogin() {
-        if (permissionRequestor.requestAccountPermissions()) {
-            startActivityForResult(
-                    Intent(context, DriveLoginActivity::class.java),
-                    REQUEST_DRIVE_BACKUP
-            )
-        }
+        startActivityForResult(
+                Intent(context, DriveLoginActivity::class.java),
+                REQUEST_DRIVE_BACKUP
+        )
     }
 
     private fun updateBackupDirectory() {

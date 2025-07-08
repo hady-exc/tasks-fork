@@ -4,10 +4,9 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.provider.CalendarContract
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast.LENGTH_SHORT
-import androidx.compose.ui.platform.ComposeView
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.todoroo.astrid.activity.TaskEditFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -37,43 +36,40 @@ class CalendarControlSet : TaskEditControlFragment() {
             }
         }
         if (!canAccessCalendars) {
-            viewModel.selectedCalendar.value = null
+            viewModel.setCalendar(null)
         }
     }
 
-    override fun bind(parent: ViewGroup?): View =
-        (parent as ComposeView).apply {
-            setContent {
-                CalendarRow(
-                    eventUri = viewModel.eventUri.collectAsStateWithLifecycle().value,
-                    selectedCalendar = viewModel.selectedCalendar.collectAsStateWithLifecycle().value?.let {
-                        calendarProvider.getCalendar(it)?.name
-                    },
-                    onClick = {
-                        if (viewModel.eventUri.value.isNullOrBlank()) {
-                            CalendarPicker
-                                .newCalendarPicker(
-                                    requireParentFragment(),
-                                    TaskEditFragment.REQUEST_CODE_PICK_CALENDAR,
-                                    viewModel.selectedCalendar.value,
-                                )
-                                .show(
-                                    requireParentFragment().parentFragmentManager,
-                                    TaskEditFragment.FRAG_TAG_CALENDAR_PICKER
-                                )
-                        } else {
-                            openCalendarEvent()
-                        }
-                    },
-                    clear = {
-                        viewModel.selectedCalendar.value = null
-                        viewModel.eventUri.value = null
-                    }
-                )
+    @Composable
+    override fun Content() {
+        val viewState = viewModel.viewState.collectAsStateWithLifecycle().value
+        CalendarRow(
+            eventUri = viewModel.eventUri.collectAsStateWithLifecycle().value,
+            selectedCalendar = remember(viewState.calendar) {
+                calendarProvider.getCalendar(viewState.calendar)?.name
+            },
+            onClick = {
+                if (viewModel.eventUri.value.isNullOrBlank()) {
+                    CalendarPicker
+                        .newCalendarPicker(
+                            requireParentFragment(),
+                            TaskEditFragment.REQUEST_CODE_PICK_CALENDAR,
+                            viewState.calendar,
+                        )
+                        .show(
+                            requireParentFragment().parentFragmentManager,
+                            TaskEditFragment.FRAG_TAG_CALENDAR_PICKER
+                        )
+                } else {
+                    openCalendarEvent()
+                }
+            },
+            clear = {
+                viewModel.setCalendar(null)
+                viewModel.eventUri.value = null
             }
-        }
-
-    override fun controlId() = TAG
+        )
+    }
 
     private fun openCalendarEvent() {
         val cr = activity.contentResolver

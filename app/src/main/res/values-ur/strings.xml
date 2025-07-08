@@ -123,7 +123,6 @@
     <string name="gtasks_GLA_authenticating">تصدیق ہو رہی…</string>
     <string name="gtasks_GTA_clear_completed">کلئیر مکمل ہو گیا</string>
     <string name="CFC_list_name">لسٹ میں…</string>
-    <string name="CFC_gtasks_list_name">جی ٹاسک لسٹ میں…</string>
     <string name="CFC_gtasks_list_text">لسٹ میں:?</string>
     <string name="gcal_completed_title">%s مکمل ہو گیا</string>
     <string name="calendar_event_not_found">کیلنڈر ایونٹ نہیں مل سکا</string>
@@ -234,11 +233,7 @@
         <item quantity="one">%d ٹاسک</item>
         <item quantity="other">%d ٹاسکس</item>
     </plurals>
-    <string name="yesterday_lowercase">گزشتہ کل</string>
-    <string name="yesterday">گزشتہ کل</string>
-    <string name="tomorrow_lowercase">آنے والا کل</string>
     <string name="tomorrow">آنے والا کل</string>
-    <string name="today_lowercase">آج</string>
     <string name="today">آج</string>
     <plurals name="Ntasks">
         <item quantity="one">ایک ٹاسک</item>
@@ -275,7 +270,6 @@
     <string name="remove">ختم کریں</string>
     <string name="add_location">لوکیشن لگائیں</string>
     <string name="add_reminder">ہاد دہانی لگائیں</string>
-    <string name="TLA_menu_donate">عطیہ کریں</string>
     <string name="quiet_hours_summary">خاموش گھنٹوں کے دوران کوئی یاد دہانی نہیں</string>
     <string name="rate_tasks">ٹاسکس کو ریٹ کریں</string>
     <string name="contact_developer">ڈیویلپر سے رابطہ</string>
@@ -292,9 +286,6 @@
     <string name="backup_directory">بیک اپ فولڈر</string>
     <string name="attachment_directory">اٹیچ منٹ فولڈر</string>
     <string name="quiet_hours">خاموش گھنٹے</string>
-    <string name="vibrations">تھرتھراہٹ</string>
-    <string name="sound">آواز</string>
-    <string name="silent">خاموش</string>
     <string name="notifications">نوٹیفیکیشنز</string>
     <string name="widget_show_dividers">ڈیوائیڈر دکھائیں</string>
     <string name="widget_show_menu">مینیو دکھائیں</string>
@@ -302,10 +293,6 @@
     <string name="widget_show_settings">سیٹنگز دکھائیں</string>
     <string name="widget_show_header">ہیڈر دکھائیں</string>
     <string name="widget_show_checkboxes">چیک باکس دکھائیں</string>
-    <string name="yest">گزشتہ کل</string>
-    <string name="yesterday_abbrev_lowercase">گزشتہ کل</string>
-    <string name="tomorrow_abbrev_lowercase">کل</string>
-    <string name="tmrw">کل</string>
     <string name="pick_from_storage">اسٹوریج سے اٹھائیں</string>
     <string name="pick_from_gallery">گیلری سے اٹھائیں</string>
     <string name="take_a_picture">تصویر لیں</string>
@@ -328,8 +315,6 @@
     <string name="widget_row_settings">قطار کی سیٹنگ</string>
     <string name="widget_header_settings">ہیڈر کی سیٹنگ</string>
     <string name="widget_settings">ویجٹ سیٹنگ</string>
-    <string name="hardware_support_required">ہارڈ وئیر سپورٹ درکار ہے</string>
-    <string name="led_notification">ایل ای ڈی نوٹیفیکیشن</string>
     <string name="settings_localization">لوکلائزیشن</string>
     <string name="restart_later">بعد میں</string>
     <string name="restart_now">ابھی ری سٹارٹ کریں</string>
@@ -342,10 +327,8 @@
     <string name="theme_light">سفید</string>
     <string name="theme_black">سیاہ</string>
     <string name="launcher_icon">لانچر آئیکن</string>
-    <string name="accent">ایکسنٹ</string>
     <string name="icon">آئیکن</string>
     <string name="color">رنگ</string>
-    <string name="map_theme">میپ تھیم</string>
     <string name="theme">تھیم</string>
     <string name="opacity_footer">نچلے حصے کی شفافیت</string>
     <string name="opacity_row">قطار کی شفافیت</string>
@@ -374,8 +357,6 @@
     <string name="password">پاسورڈ</string>
     <string name="user">صارف</string>
     <string name="add_account">اکاؤنٹ داخل کریں</string>
-    <string name="use_locale_default">لوکل ڈیفالٹ استعمال کریں</string>
-    <string name="start_of_week">ہفتے کا آغاز</string>
     <string name="date_and_time">وقت اور تاریخ</string>
     <string name="copy_selected_tasks">منتخب ٹاسکس کاپی کریں؟</string>
     <string name="delete_selected_tasks">منتخب ٹاسکس ڈٰیلیٹ کریں؟</string>
@@ -479,7 +460,6 @@
     <string name="google_tasks_selection_description">بنیادی سروس جو آپ کے گوگل اکاؤنٹ کے ساتھ سنکرونائز ہوتی</string>
     <string name="tasks_org_description">اپنے ٹاسکس کو Tasks.org کے ساتھ سنکرونائز کریں</string>
     <string name="choose_synchronization_service">پلیٹ فارم منتخب کریں</string>
-    <string name="create_new_tag">\"%s\" بنائیں</string>
     <string name="enter_tag_name">ٹیگ کا نام درج کریں</string>
     <string name="missing_permissions">حذف شدہ اجازتیں</string>
 </resources>

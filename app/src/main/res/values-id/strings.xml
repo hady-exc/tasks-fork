@@ -78,7 +78,6 @@
     <string name="calendar_event_not_found">Acara kalender tidak ditemukan</string>
     <string name="gcal_completed_title">%s (selesai)</string>
     <string name="CFC_gtasks_list_text">Dalam Daftar: \?</string>
-    <string name="CFC_gtasks_list_name">Dalam Daftar GTasks…</string>
     <string name="gtasks_GLA_authenticating">Mengotentikasi…</string>
     <string name="gtasks_GLA_errorIOAuth">Maaf, terjadi kesalahan komunikasi dengan server Google. Silakan coba lagi nanti.</string>
     <string name="gtasks_GPr_header">Google Tasks</string>
@@ -156,14 +155,10 @@
     </plurals>
     <string name="today">Hari ini</string>
     <string name="tomorrow">Besok</string>
-    <string name="yesterday">Kemarin</string>
-    <string name="tmrw">Bsk</string>
-    <string name="yest">Kmrn</string>
     <string name="widget_show_checkboxes">Tampilkan kotak centang</string>
     <string name="widget_show_header">Tampilkan tajuk</string>
     <string name="widget_show_settings">Tampilkan pengaturan</string>
     <string name="notifications">Notifikasi</string>
-    <string name="vibrations">Getar</string>
     <string name="attachment_directory">Direktori isi lampiran</string>
     <string name="backup_directory">Direktori cadangan</string>
     <string name="google_drive_backup">Cadangan Google Drive</string>
@@ -176,7 +171,6 @@
     <string name="source_code">Kode sumber</string>
     <string name="translations">Kontribusi terjemahan</string>
     <string name="contact_developer">Hubungi pengembang</string>
-    <string name="TLA_menu_donate">Donasi</string>
     <string name="add_reminder">Tambah pengingat</string>
     <string name="add_location">Tambah lokasi</string>
     <string name="remove">Hapus</string>
@@ -224,7 +218,6 @@
     <string name="theme">Tema</string>
     <string name="color">Warna</string>
     <string name="icon">Ikon</string>
-    <string name="accent">Aksen</string>
     <string name="launcher_icon">Ikon peluncur</string>
     <string name="theme_black">Hitam</string>
     <string name="theme_light">Cerah</string>
@@ -235,8 +228,6 @@
     <string name="restart_now">Mulai ulang sekarang</string>
     <string name="restart_later">Nanti</string>
     <string name="settings_localization">Pelokalan bahasa</string>
-    <string name="led_notification">Notifikasi LED</string>
-    <string name="hardware_support_required">Dukungan perangkat keras diperlukan</string>
     <string name="widget_settings">Pengaturan wisaya</string>
     <string name="widget_header_settings">Pengaturan tajuk</string>
     <string name="widget_row_settings">Pengaturan baris</string>
@@ -246,8 +237,6 @@
     <string name="delete_selected_tasks">Hapus tugas yang dipilih\?</string>
     <string name="copy_selected_tasks">Salin tugas yang dipilih\?</string>
     <string name="date_and_time">Tanggal dan waktu</string>
-    <string name="start_of_week">Awal minggu</string>
-    <string name="use_locale_default">Gunakan bahasa bawaan</string>
     <string name="add_account">Tambah akun</string>
     <string name="user">Pengguna</string>
     <string name="password">Kata sandi</string>
@@ -334,7 +323,6 @@
     <string name="expand_subtasks">Lebarkan subtugas</string>
     <string name="subtasks_multilevel_google_task">Subtugas level-ganda tidak didukung oleh Google Tasks</string>
     <string name="enter_tag_name">Masukkan nama tag</string>
-    <string name="create_new_tag">Buat \"%s\"</string>
     <string name="this_feature_requires_a_subscription">Fitur ini membutuhkan Anda berlangganan versi pro</string>
     <string name="choose_synchronization_service">Pilih sebuah platform</string>
     <string name="google_tasks_selection_description">Layanan standar yang disinkronkan dengan akun Google Anda</string>
@@ -396,12 +384,7 @@
     <string name="rate_tasks">Nilai Tasks</string>
     <string name="header_spacing">Jarak spasi</string>
     <string name="quiet_hours">Jam Tenang</string>
-    <string name="sound">Suara</string>
-    <string name="silent">Diamkan</string>
     <string name="widget_show_menu">Tampilkan menu</string>
-    <string name="yesterday_lowercase">kemarin</string>
-    <string name="tomorrow_lowercase">besok</string>
-    <string name="today_lowercase">hari ini</string>
     <string name="voice_command_added_task">Menambahkan tugas</string>
     <string name="CFC_dueBefore_name">Jatuh tempo pada…</string>
     <string name="no_due_date">Tidak ada tanggal jatuh tempo</string>
@@ -458,7 +441,6 @@
     <string name="sign_in_with_google">Masuk dengan Google</string>
     <string name="github_sponsors">Sponsor GitHub</string>
     <string name="google_play_subscribers">Pelanggan Google Play</string>
-    <string name="not_signed_in">Tidak masuk</string>
     <string name="authorization_cancelled">Otorisasi dibatalkan</string>
     <string name="follow_reddit">Gabung r/tasks</string>
     <string name="current_subscription">Langganan saat ini: %s</string>
@@ -525,9 +507,6 @@
     <string name="hide_unused_places">Sembunyikan tempat yang tidak digunakan</string>
     <string name="place_settings">Pengaturan tempat</string>
     <string name="places">Tempat</string>
-    <string name="desaturate_colors_summary_off">Warna tidak akan dikurangi/desaturasi dalam tema gelap</string>
-    <string name="desaturate_colors_summary_on">Warna akan dikurangi/desaturasi dalam tema gelap</string>
-    <string name="desaturate_colors">Pengurangan/desaturasi warna</string>
     <string name="chips">Chip</string>
     <string name="color_wheel">Roda warna</string>
     <string name="wearable_notifications_summary">Tampilkan notifikasi pada alat wearable Anda</string>
@@ -554,8 +533,6 @@
     <string name="date_shortcut_must_come_after">%1$s harus datang setelah %2$s</string>
     <string name="geofence_radius">Radius</string>
     <string name="widget_show_dividers">Tunjukan Batas Waktu</string>
-    <string name="yesterday_abbrev_lowercase">kmrn</string>
-    <string name="tomorrow_abbrev_lowercase">bsk</string>
     <string name="TEA_timer_comment_spent">Waktu terpakai:</string>
     <string name="TEA_timer_controls">Pencatat Waktu</string>
     <string name="TPl_notification">Pencatat Waktu Aktif untuk %s!</string>
@@ -582,9 +559,7 @@
     <string name="default_start_date">Tanggal mulai bawaan</string>
     <string name="always_display_full_date">Tampilkan tanggal penuh</string>
     <string name="widget_show_title">Tampilkan judul</string>
-    <string name="map_theme_use_app_theme">Gunakan Tema Aplikasi</string>
     <string name="tasks_org_account_required">Akun Tasks.org Dibutuhkan</string>
-    <string name="map_theme">Tema Peta</string>
     <string name="privacy">Privasi</string>
     <string name="open_source">Sumber Terbuka</string>
     <string name="issue_tracker">Pelacak isu</string>
@@ -601,21 +576,13 @@
     <string name="email">Surel</string>
     <string name="share_list">Bagikan daftar</string>
     <string name="more_options">Opsi lebih banyak</string>
-    <string name="upgrade_automation_description">Plugin untuk Tasker, Automate, and Locale</string>
-    <string name="upgrade_automation">Automasi</string>
     <string name="upgrade_open_source_description">Langganan Anda mendukung kelanjutan pengembangan aplikasi ini</string>
     <string name="upgrade_desktop_access_description">Sinkronkan dengan klien pihak-ketiga seperti Outlook dan Apple Reminders</string>
     <string name="upgrade_desktop_access">Akses dekstop</string>
     <string name="upgrade_tasks_org_account_description">Sinkronkan dengan Tasks.org dan kolaborasi dengan pengguna lain</string>
-    <string name="upgrade_google_tasks">Sinkronisasikan berbagai akun secara bersamaan</string>
     <string name="upgrade_more_customization_description">Buka semua tema, warna, dan ikon</string>
     <string name="upgrade_more_customization">Lebih banyak kostumisasi</string>
     <string name="pro_free_trial">Pelanggan baru menerima percobaan aplikasi gratis selama 7-hari. Batalkan kapan saja</string>
-    <string name="picker_mode_text">Teks</string>
-    <string name="picker_mode_clock">Jam</string>
-    <string name="picker_mode_calendar">Kalender</string>
-    <string name="picker_mode_time">Mode pengambil waktu</string>
-    <string name="picker_mode_date">Mode pengambil tanggal</string>
     <string name="upgrade_blurb_2">Saya telah menghabiskan ribuan jam bekerja pada Tasks, dan saya mempublikasikan semua kode sumber online secara gratis. Untuk mendukung pekerjaan saya, beberapa fitur memerlukan berlangganan</string>
     <string name="upgrade_blurb_1">Hi. Nama saya Alex. Saya adalah pengembang independen dibelakang aplikasi Tasks</string>
     <string name="next_saturday">Sabtu Depan</string>
@@ -632,10 +599,7 @@
     <string name="when_started">Ketika dimulai</string>
     <string name="completed">Selesai</string>
     <string name="custom_filter_has_reminder">Berpengingat</string>
-    <string name="bottom">Bawah</string>
-    <string name="app_bar_position">Posisi bar aplikasi</string>
     <string name="completion_sound">Mainkan suara selesai</string>
-    <string name="top">Atas</string>
     <string name="caldav_server_unknown">Tidak diketahui</string>
     <string name="caldav_server_other">Lainnya</string>
     <string name="caldav_server_type">Tipe server</string>

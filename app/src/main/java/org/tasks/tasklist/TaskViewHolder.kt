@@ -32,7 +32,6 @@ import org.tasks.dialogs.Linkify
 import org.tasks.extensions.Context.is24HourFormat
 import org.tasks.filters.CaldavFilter
 import org.tasks.filters.Filter
-import org.tasks.filters.GtasksFilter
 import org.tasks.filters.PlaceFilter
 import org.tasks.filters.TagFilter
 import org.tasks.kmp.org.tasks.time.getRelativeDateTime
@@ -249,15 +248,16 @@ class TaskViewHolder internal constructor(
         val place = task.location?.place
         val list = task.caldav
         val tagsString = task.tagsString
-        val isSubtask = task.hasParent()
-        val isGoogleTask = task.isGoogleTask
         val appearance = preferences.getIntegerFromString(R.string.p_chip_appearance, 0)
         val showText = appearance != 2
         val showIcon = appearance != 1
         val toggleSubtasks = { task: Long, collapsed: Boolean -> callback.toggleSubtasks(task, collapsed) }
         val onClick = { it: Filter -> callback.onClick(it) }
         chipGroup.setContent {
-            TasksTheme(theme = theme.themeBase.index) {
+            TasksTheme(
+                theme = theme.themeBase.index,
+                primary = theme.themeColor.primaryColor,
+            ) {
                 ChipGroup(
                     modifier = Modifier.padding(
                         end = 16.dp,
@@ -272,7 +272,12 @@ class TaskViewHolder internal constructor(
                             onClick = { toggleSubtasks(id, !collapsed) }
                         )
                     }
-                    if (isHidden && remember { preferences.showStartDateChip }) {
+                    if (
+                        isHidden &&
+                        remember { preferences.showStartDateChip } &&
+                        startDate != task.dueDate &&
+                        startDate != task.dueDate.startOfDay()
+                    ) {
                         StartDateChip(
                             sortGroup = sortGroup,
                             startDate = startDate,
@@ -293,16 +298,13 @@ class TaskViewHolder internal constructor(
                     }
 
                     if (
-                        !isSubtask &&
+                        indent == 0 &&
                         !sortByList &&
                         preferences.showListChip &&
-                        filter !is CaldavFilter &&
-                        filter !is GtasksFilter
+                        filter !is CaldavFilter
                     ) {
-                        remember(list, isGoogleTask) {
-                            chipProvider.lists
-                                .getCaldavList(list)
-                                ?.let { if (isGoogleTask) GtasksFilter(it) else CaldavFilter(it) }
+                        remember(list) {
+                            chipProvider.lists.getCaldavList(list)
                         }?.let {
                             FilterChip(
                                 filter = it,

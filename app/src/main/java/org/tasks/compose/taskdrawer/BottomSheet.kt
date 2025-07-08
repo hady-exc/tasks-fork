@@ -34,7 +34,7 @@ fun BottomSheet (
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = state,
-        containerColor = colorResource(id = R.color.input_popup_background),
+        //containerColor = colorResource(id = R.color.input_popup_background), TODO: correct
         shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
         dragHandle = null
     ) {

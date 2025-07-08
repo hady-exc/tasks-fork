@@ -9,35 +9,23 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.todoroo.astrid.alarms.AlarmService
 import com.todoroo.astrid.dao.TaskDao
 import com.todoroo.astrid.gcal.GCalHelper
-import com.todoroo.astrid.service.TaskCompleter
-import com.todoroo.astrid.service.TaskCreator
-import com.todoroo.astrid.service.TaskDeleter
 import com.todoroo.astrid.service.TaskMover
-import com.todoroo.astrid.timers.TimerPlugin
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.tasks.R
-import org.tasks.analytics.Firebase
-import org.tasks.calendars.CalendarEventProvider
 import org.tasks.calendars.CalendarProvider
-import org.tasks.data.GoogleTask
 import org.tasks.data.Location
 import org.tasks.data.dao.AlarmDao
-import org.tasks.data.dao.CaldavDao
-import org.tasks.data.dao.GoogleTaskDao
 import org.tasks.data.dao.LocationDao
 import org.tasks.data.dao.TagDao
 import org.tasks.data.dao.TagDataDao
 import org.tasks.data.dao.TaskAttachmentDao
-import org.tasks.data.dao.UserActivityDao
 import org.tasks.data.entity.Alarm
 import org.tasks.data.entity.Alarm.Companion.TYPE_REL_END
 import org.tasks.data.entity.Alarm.Companion.TYPE_REL_START
@@ -48,6 +36,7 @@ import org.tasks.data.entity.Place
 import org.tasks.data.entity.Tag
 import org.tasks.data.entity.TagData
 import org.tasks.data.entity.Task
+import org.tasks.data.entity.Task.RepeatFrom
 import org.tasks.data.entity.TaskAttachment
 import org.tasks.data.getLocation
 import org.tasks.date.DateTimeUtils.toDateTime
@@ -58,7 +47,6 @@ import org.tasks.dialogs.StartDatePicker.Companion.DUE_TIME
 import org.tasks.dialogs.StartDatePicker.Companion.WEEK_BEFORE_DUE
 import org.tasks.filters.CaldavFilter
 import org.tasks.filters.Filter
-import org.tasks.filters.GtasksFilter
 import org.tasks.location.GeofenceApi
 import org.tasks.preferences.DefaultFilterProvider
 import org.tasks.preferences.PermissionChecker
@@ -66,7 +54,6 @@ import org.tasks.preferences.Preferences
 import org.tasks.time.DateTimeUtils2.currentTimeMillis
 import org.tasks.time.millisOfDay
 import org.tasks.time.startOfDay
-import org.tasks.ui.MainActivityEventBus
 import org.tasks.ui.TaskListEvent
 import org.tasks.ui.TaskListEventBus
 import timber.log.Timber
@@ -78,10 +65,7 @@ class TaskDrawerViewModel
 @Inject constructor(
     @ApplicationContext private val context: Context,
     private val taskDao: TaskDao,
-    private val taskDeleter: TaskDeleter,
-    private val timerPlugin: TimerPlugin,
     private val permissionChecker: PermissionChecker,
-    private val calendarEventProvider: CalendarEventProvider,
     private val calendarProvider: CalendarProvider,
     private val gCalHelper: GCalHelper,
     private val taskMover: TaskMover,
@@ -90,17 +74,10 @@ class TaskDrawerViewModel
     private val tagDao: TagDao,
     private val tagDataDao: TagDataDao,
     private val preferences: Preferences,
-    private val googleTaskDao: GoogleTaskDao,
-    private val caldavDao: CaldavDao,
-    private val taskCompleter: TaskCompleter,
     private val alarmService: AlarmService,
     private val taskListEvents: TaskListEventBus,
-    private val mainActivityEvents: MainActivityEventBus,
-    private val firebase: Firebase? = null,
-    private val userActivityDao: UserActivityDao,
     private val alarmDao: AlarmDao,
     private val taskAttachmentDao: TaskAttachmentDao,
-    private val taskCreator: TaskCreator,
     private val defaultFilterProvider: DefaultFilterProvider
 ) : ViewModel()
 {
@@ -122,13 +99,12 @@ class TaskDrawerViewModel
     private lateinit var _chipsOrder: List<Int>
     val chipsOrder get() = _chipsOrder
 
-    private var initializer: Job? = null
-    fun initViewModel(filter: Filter, order: List<Int>) {
+    fun initViewModel(filter: Filter, task: Task, order: List<Int>) {
         _initialFilter = filter
+        initialTask = task
         _chipsOrder = order
         this._filter = mutableStateOf(filter)
-        initializer = viewModelScope.launch {
-            initialTask = taskCreator.createWithValues(filter, "")
+        runBlocking {
             initialTask.hideUntil = when (preferences.getIntegerFromString(
                 R.string.p_default_hideUntil_key,
                 Task.HIDE_UNTIL_NONE
@@ -173,7 +149,7 @@ class TaskDrawerViewModel
         }
     }
     var recurrence by mutableStateOf<String?>(null)
-    var repeatAfterCompletion by mutableStateOf(false)
+    var repeatFrom by mutableIntStateOf(RepeatFrom.DUE_DATE)
     var selectedCalendar by mutableStateOf(originalCalendar)
     val selectedCalendarName get() = selectedCalendar?.let { calendarProvider.getCalendar(it)?.name }
     var timerStarted by mutableLongStateOf(0L)
@@ -183,36 +159,32 @@ class TaskDrawerViewModel
     fun setFilter(value: Filter) { _filter.value = value }
 
     fun resetTask() {
-        viewModelScope.launch {
-            initializer?.join()
-            task = initialTask.copy(remoteId = Task.NO_UUID)
+        task = initialTask.copy(remoteId = Task.NO_UUID)
 
-            title = initialTitle
-            description = initialDescription
-            dueDate = task.dueDate
-            location = initialLocation
-            priority = task.priority
-            selectedTags = initialTags
-            task.hideUntil = when (preferences.getIntegerFromString(
-                R.string.p_default_hideUntil_key,
-                Task.HIDE_UNTIL_NONE
-            )) {
-                Task.HIDE_UNTIL_DUE -> DUE_DATE
-                Task.HIDE_UNTIL_DUE_TIME -> DUE_TIME
-                Task.HIDE_UNTIL_DAY_BEFORE -> DAY_BEFORE_DUE
-                Task.HIDE_UNTIL_WEEK_BEFORE -> WEEK_BEFORE_DUE
-                else -> 0L
-            }
-            setStartDate(task.dueDate, task.hideUntil)
-            _defaultFilter = defaultFilterProvider.getList(task)
-            setFilter(defaultFilter)
-            recurrence = task.recurrence
-            repeatAfterCompletion = task.repeatAfterCompletion()
-            selectedCalendar = originalCalendar
-            timerStarted = task.timerStart
-            timerEstimated = task.estimatedSeconds
-            timerElapsed = task.elapsedSeconds
+        title = initialTitle
+        description = initialDescription
+        dueDate = task.dueDate
+        location = initialLocation
+        priority = task.priority
+        selectedTags = initialTags
+        task.hideUntil = when (preferences.getIntegerFromString(
+            R.string.p_default_hideUntil_key,
+            Task.HIDE_UNTIL_NONE
+        )) {
+            Task.HIDE_UNTIL_DUE -> DUE_DATE
+            Task.HIDE_UNTIL_DUE_TIME -> DUE_TIME
+            Task.HIDE_UNTIL_DAY_BEFORE -> DAY_BEFORE_DUE
+            Task.HIDE_UNTIL_WEEK_BEFORE -> WEEK_BEFORE_DUE
+            else -> 0L
         }
+        setStartDate(task.dueDate, task.hideUntil)
+        setFilter(defaultFilter)
+        recurrence = task.recurrence
+        repeatFrom = task.repeatFrom
+        selectedCalendar = originalCalendar
+        timerStarted = task.timerStart
+        timerEstimated = task.estimatedSeconds
+        timerElapsed = task.elapsedSeconds
     }
 
     private fun setStartDate(dueDate: Long, startDate: Long)
@@ -253,7 +225,7 @@ class TaskDrawerViewModel
             || tagsChanged()
             || initialTask.hideUntil != startDate
             || initialRecurrence != recurrence
-            || initialTask.repeatAfterCompletion() != repeatAfterCompletion
+            || initialTask.repeatFrom != repeatFrom
             || originalCalendar != selectedCalendar
             || timerStarted != task.timerStart
             || timerEstimated != task.estimatedSeconds
@@ -272,23 +244,14 @@ class TaskDrawerViewModel
         location?.let { location ->
             task.putTransitory(Place.KEY, location.place.uid!!)
         }
-        when (filter.value) {
-            is GtasksFilter -> task.putTransitory(
-                GoogleTask.KEY,
-                (filter.value as GtasksFilter).remoteId
-            )
-            is CaldavFilter -> task.putTransitory(
+        if (filter.value is CaldavFilter) {
+            task.putTransitory(
                 CaldavTask.KEY,
                 (filter.value as CaldavFilter).uuid
             )
-            else -> {}
         }
         task.recurrence = recurrence
-        task.repeatFrom = if (repeatAfterCompletion) {
-            Task.RepeatFrom.COMPLETION_DATE
-        } else {
-            Task.RepeatFrom.DUE_DATE
-        }
+        task.repeatFrom = repeatFrom
         task.putTransitory(Tag.KEY, selectedTags.mapNotNull { it.name })
         selectedCalendar?.let {
             task.putTransitory(Task.TRANS_CALENDAR,it)
@@ -361,9 +324,9 @@ class TaskDrawerViewModel
 
         taskDao.save(task, null)
 
-        assert(filter is CaldavFilter || filter is GtasksFilter)  // already helped one time
+        assert(filter is CaldavFilter /*|| filter is GtasksFilter*/)  // already helped one time
         task.parent = 0
-        taskMover.move(listOf(task.id), filter)
+        taskMover.move(listOf(task.id), filter as CaldavFilter)
 
         /* Subtasks are not supposed to be created or edited before this save */
 

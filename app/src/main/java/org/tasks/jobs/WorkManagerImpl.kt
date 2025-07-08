@@ -30,6 +30,7 @@ import org.tasks.data.entity.CaldavAccount
 import org.tasks.data.entity.CaldavAccount.Companion.TYPE_CALDAV
 import org.tasks.data.entity.CaldavAccount.Companion.TYPE_ETEBASE
 import org.tasks.data.entity.CaldavAccount.Companion.TYPE_GOOGLE_TASKS
+import org.tasks.data.entity.CaldavAccount.Companion.TYPE_MICROSOFT
 import org.tasks.data.entity.CaldavAccount.Companion.TYPE_TASKS
 import org.tasks.data.entity.Place
 import org.tasks.data.entity.Task
@@ -101,7 +102,7 @@ class WorkManagerImpl(
             builder.setInitialDelay(1, TimeUnit.MINUTES)
         }
         val append = getSyncJob().any { it.state == WorkInfo.State.RUNNING }
-        Timber.d("sync: immediate=$immediate, append=$append)")
+        Timber.d("sync immediate=$immediate append=$append")
         enqueue(workManager.beginUniqueWork(
                 TAG_SYNC,
                 if (append) APPEND_OR_REPLACE else REPLACE,
@@ -121,7 +122,13 @@ class WorkManagerImpl(
 
     override fun updateBackgroundSync() {
         throttle.run {
-            val enabled = caldavDao.getAccounts(TYPE_GOOGLE_TASKS, TYPE_CALDAV, TYPE_TASKS, TYPE_ETEBASE).isNotEmpty()
+            val enabled = caldavDao.getAccounts(
+                TYPE_GOOGLE_TASKS,
+                TYPE_CALDAV,
+                TYPE_TASKS,
+                TYPE_ETEBASE,
+                TYPE_MICROSOFT
+            ).isNotEmpty()
             if (enabled) {
                 Timber.d("Enabling background sync")
                 val builder = PeriodicWorkRequest.Builder(SyncWork::class.java, 1, TimeUnit.HOURS)

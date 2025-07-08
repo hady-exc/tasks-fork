@@ -23,6 +23,7 @@ import org.tasks.notifications.NotificationManager
 import org.tasks.preferences.Preferences
 import org.tasks.preferences.QueryPreferences
 import org.tasks.sync.SyncAdapters
+import timber.log.Timber
 import javax.inject.Inject
 
 class TaskDao @Inject constructor(
@@ -97,20 +98,19 @@ class TaskDao @Inject constructor(
      */
     suspend fun save(task: Task) = save(task, fetch(task.id))
 
-    suspend fun save(tasks: List<Task>, originals: List<Task>) {
-        taskDao.updateInternal(tasks)
-        tasks.forEach { task -> afterUpdate(task, originals.find { it.id == task.id }) }
-    }
-
     suspend fun save(task: Task, original: Task?) {
         if (taskDao.update(task, original)) {
+            Timber.d("Saved $task")
             afterUpdate(task, original)
+            if (!task.isSuppressRefresh()) {
+                localBroadcastManager.broadcastRefresh()
+            }
             workManager.triggerNotifications()
             workManager.scheduleRefresh()
         }
     }
 
-    private suspend fun afterUpdate(task: Task, original: Task?) {
+    suspend fun afterUpdate(task: Task, original: Task?) {
         val completionDateModified = task.completionDate != (original?.completionDate ?: 0)
         val deletionDateModified = task.deletionDate != (original?.deletionDate ?: 0)
         val justCompleted = completionDateModified && task.isCompleted
@@ -128,9 +128,6 @@ class TaskDao @Inject constructor(
         if (completionDateModified || deletionDateModified) {
             geofenceApi.update(task.id)
         }
-        if (!task.isSuppressRefresh()) {
-            localBroadcastManager.broadcastRefresh()
-        }
         syncAdapters.sync(task, original)
     }
 
@@ -141,8 +138,7 @@ class TaskDao @Inject constructor(
 
     internal suspend fun insert(task: Task): Long = taskDao.insert(task)
 
-    internal suspend fun fetchTasks(callback: suspend () -> List<String>): List<TaskContainer> =
-            taskDao.fetchTasks(callback)
+    internal suspend fun fetchTasks(query: String): List<TaskContainer> = taskDao.fetchTasks(query)
 
     internal suspend fun getAll(): List<Task> = taskDao.getAll()
 

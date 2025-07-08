@@ -3,9 +3,12 @@ package org.tasks.compose.edit
 import android.content.res.Configuration
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -49,8 +52,9 @@ import coil.decode.SvgDecoder
 import coil.decode.VideoFrameDecoder
 import coil.request.CachePolicy
 import coil.request.ImageRequest
-import com.google.accompanist.flowlayout.FlowRow
 import com.todoroo.andlib.utility.AndroidUtilities
+import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.persistentSetOf
 import org.tasks.R
 import org.tasks.compose.DisabledText
 import org.tasks.compose.TaskEditRow
@@ -60,9 +64,10 @@ import org.tasks.themes.TasksTheme
 
 private val SIZE = 128.dp
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun AttachmentRow(
-    attachments: List<TaskAttachment>,
+    attachments: ImmutableSet<TaskAttachment>,
     openAttachment: (TaskAttachment) -> Unit,
     deleteAttachment: (TaskAttachment) -> Unit,
     addAttachment: () -> Unit,
@@ -87,8 +92,8 @@ fun AttachmentRow(
         content = {
             if (attachments.isNotEmpty()) {
                 FlowRow(
-                    mainAxisSpacing = 8.dp,
-                    crossAxisSpacing = 8.dp,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.padding(top = 24.dp, bottom = 24.dp, end = 16.dp)
                 ) {
                     attachments.forEach {
@@ -257,7 +262,7 @@ fun BoxScope.DeleteAttachment(
 fun NoAttachments() {
     TasksTheme {
         AttachmentRow(
-            attachments = emptyList(),
+            attachments = persistentSetOf(),
             openAttachment = {},
             deleteAttachment = {},
             addAttachment = {},
@@ -271,7 +276,7 @@ fun NoAttachments() {
 fun AttachmentPreview() {
     TasksTheme {
         AttachmentRow(
-            attachments = listOf(
+            attachments = persistentSetOf(
                 TaskAttachment(
                     uri = "file://attachment.txt",
                     name = "attachment.txt",

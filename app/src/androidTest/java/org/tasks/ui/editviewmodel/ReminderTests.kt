@@ -3,7 +3,7 @@ package org.tasks.ui.editviewmodel
 import com.natpryce.makeiteasy.MakeItEasy.with
 import com.todoroo.astrid.service.TaskCreator.Companion.setDefaultReminders
 import dagger.hilt.android.testing.HiltAndroidTest
-import dagger.hilt.android.testing.UninstallModules
+import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -16,14 +16,12 @@ import org.tasks.data.entity.Alarm.Companion.whenDue
 import org.tasks.data.entity.Alarm.Companion.whenOverdue
 import org.tasks.data.entity.Alarm.Companion.whenStarted
 import org.tasks.data.entity.Task
-import org.tasks.injection.ProductionModule
 import org.tasks.makers.TaskMaker.DUE_TIME
 import org.tasks.makers.TaskMaker.START_DATE
 import org.tasks.makers.TaskMaker.newTask
 import org.tasks.time.DateTime
 import org.tasks.time.DateTimeUtils2.currentTimeMillis
 
-@UninstallModules(ProductionModule::class)
 @HiltAndroidTest
 class ReminderTests : BaseTaskEditViewModelTest() {
     @Test
@@ -38,8 +36,8 @@ class ReminderTests : BaseTaskEditViewModelTest() {
         setup(task)
 
         assertEquals(
-            listOf(Alarm(type = Alarm.TYPE_REL_START)),
-            viewModel.selectedAlarms.value
+            persistentSetOf(Alarm(type = Alarm.TYPE_REL_START)),
+            viewModel.viewState.value.alarms
         )
     }
 
@@ -55,8 +53,8 @@ class ReminderTests : BaseTaskEditViewModelTest() {
         setup(task)
 
         assertEquals(
-            listOf(Alarm(type = Alarm.TYPE_REL_END)),
-            viewModel.selectedAlarms.value
+            persistentSetOf(Alarm(type = Alarm.TYPE_REL_END)),
+            viewModel.viewState.value.alarms
         )
     }
 
@@ -72,8 +70,8 @@ class ReminderTests : BaseTaskEditViewModelTest() {
         setup(task)
 
         assertEquals(
-            listOf(whenOverdue(0)),
-            viewModel.selectedAlarms.value
+            persistentSetOf(whenOverdue(0)),
+            viewModel.viewState.value.alarms
         )
     }
 

@@ -136,6 +136,8 @@ class MainSettingsFragment : InjectingPreferenceFragment() {
                     )
                 Platform.DECSYNC_CC ->
                     context?.openUri(R.string.url_decsync)
+
+                Platform.LOCAL -> {}
             }
         }
     }
@@ -160,19 +162,15 @@ class MainSettingsFragment : InjectingPreferenceFragment() {
             })
         }
         preferenceScreen.removeAt(current, index - current)
-        if (caldavAccounts.isEmpty()) {
-            addAccount.setTitle(R.string.not_signed_in)
-            addAccount.setIcon(R.drawable.ic_outline_cloud_off_24px)
-        } else {
-            addAccount.setTitle(R.string.add_account)
-            addAccount.setIcon(R.drawable.ic_outline_add_24px)
-        }
         tintIcons(addAccount, requireContext().getColor(R.color.icon_tint_with_alpha))
     }
 
     private fun addAccount(): Boolean {
         lifecycleScope.launch {
-            newAccountDialog(hasTasksAccount = viewModel.tasksAccount() != null)
+            newAccountDialog(
+                hasTasksAccount = viewModel.tasksAccount() != null,
+                hasPro = inventory.hasPro,
+            )
                 .show(parentFragmentManager, FRAG_TAG_ADD_ACCOUNT)
         }
         return false
@@ -207,7 +205,7 @@ class MainSettingsFragment : InjectingPreferenceFragment() {
         pref.setTitle(account.prefTitle)
         pref.summary = account.name
         pref.setIcon(account.prefIcon)
-        if (account.isCaldavAccount) {
+        if (account.isCaldavAccount || account.isLocalList) {
             tintIcons(pref, requireContext().getColor(R.color.icon_tint_with_alpha))
         }
         pref.setOnPreferenceClickListener {

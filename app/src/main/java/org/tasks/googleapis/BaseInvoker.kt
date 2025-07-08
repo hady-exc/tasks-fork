@@ -8,16 +8,11 @@ import com.todoroo.astrid.gtasks.api.HttpNotFoundException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.tasks.BuildConfig
-import org.tasks.DebugNetworkInterceptor
-import org.tasks.preferences.Preferences
-import org.tasks.time.DateTimeUtils2.currentTimeMillis
 import timber.log.Timber
 import java.io.IOException
 
 abstract class BaseInvoker(
         private val credentialsAdapter: HttpCredentialsAdapter,
-        private val preferences: Preferences,
-        private val interceptor: DebugNetworkInterceptor
 ) {
     @Throws(IOException::class)
     protected suspend fun <T> execute(request: AbstractGoogleJsonClientRequest<T>): T? = execute(request, false)
@@ -26,17 +21,9 @@ abstract class BaseInvoker(
     private suspend fun <T> execute(request: AbstractGoogleJsonClientRequest<T>, retry: Boolean): T? =
             withContext(Dispatchers.IO) {
                 credentialsAdapter.checkToken()
-                Timber.d("%s request: %s", caller, request)
+                Timber.d(caller)
                 val response: T? = try {
-                    if (preferences.isFlipperEnabled) {
-                        val start = currentTimeMillis()
-                        val httpResponse = request.executeUnparsed()
-                        interceptor.report(httpResponse, request.responseClass, start,
-                            currentTimeMillis()
-                        )
-                    } else {
-                        request.execute()
-                    }
+                    request.execute()
                 } catch (e: HttpResponseException) {
                     return@withContext if (e.statusCode == 401 && !retry) {
                         credentialsAdapter.invalidateToken()
@@ -47,7 +34,7 @@ abstract class BaseInvoker(
                         throw e
                     }
                 }
-                Timber.d("%s response: %s", caller, prettyPrint(response))
+                Timber.d("%s -> %s", caller, if (BuildConfig.DEBUG) prettyPrint(response) else "<redacted>")
                 response
             }
 
@@ -62,15 +49,11 @@ abstract class BaseInvoker(
     }
 
     private val caller: String
-        get() {
-            if (BuildConfig.DEBUG) {
-                try {
-                    return Thread.currentThread().stackTrace[4].methodName
-                } catch (e: Exception) {
-                    Timber.e(e)
-                }
-            }
-            return ""
+        get() = try {
+            Thread.currentThread().stackTrace[12].methodName
+        } catch (e: Exception) {
+            Timber.e(e)
+            ""
         }
 
     companion object {

@@ -3,7 +3,6 @@ package org.tasks.data
 import com.natpryce.makeiteasy.MakeItEasy.with
 import com.todoroo.astrid.dao.TaskDao
 import dagger.hilt.android.testing.HiltAndroidTest
-import dagger.hilt.android.testing.UninstallModules
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -11,13 +10,11 @@ import org.junit.Before
 import org.junit.Test
 import org.tasks.data.dao.CaldavDao
 import org.tasks.data.dao.GoogleTaskDao
-import org.tasks.data.dao.GoogleTaskListDao
 import org.tasks.data.entity.CaldavAccount
 import org.tasks.data.entity.CaldavAccount.Companion.TYPE_GOOGLE_TASKS
 import org.tasks.data.entity.CaldavCalendar
 import org.tasks.data.entity.CaldavTask
 import org.tasks.injection.InjectingTestCase
-import org.tasks.injection.ProductionModule
 import org.tasks.makers.CaldavTaskMaker.CALENDAR
 import org.tasks.makers.CaldavTaskMaker.REMOTE_ID
 import org.tasks.makers.CaldavTaskMaker.REMOTE_PARENT
@@ -26,10 +23,8 @@ import org.tasks.makers.CaldavTaskMaker.newCaldavTask
 import org.tasks.makers.TaskMaker.newTask
 import javax.inject.Inject
 
-@UninstallModules(ProductionModule::class)
 @HiltAndroidTest
 class GoogleTaskDaoTests : InjectingTestCase() {
-    @Inject lateinit var googleTaskListDao: GoogleTaskListDao
     @Inject lateinit var googleTaskDao: GoogleTaskDao
     @Inject lateinit var taskDao: TaskDao
     @Inject lateinit var caldavDao: CaldavDao
@@ -183,6 +178,21 @@ class GoogleTaskDaoTests : InjectingTestCase() {
         googleTaskDao.updatePosition("1234", "abcd", "0")
 
         assertEquals("abcd", googleTaskDao.getByTaskId(1)!!.remoteParent)
+    }
+
+    @Test
+    fun ignoreSelfParent() = runBlocking {
+        insert(
+            newCaldavTask(
+                with(TASK, 1),
+                with(REMOTE_ID, "123"),
+                with(REMOTE_PARENT, "123")
+            )
+        )
+
+        caldavDao.updateParents()
+
+        assertEquals(0, taskDao.fetch(1)!!.parent)
     }
 
     @Test

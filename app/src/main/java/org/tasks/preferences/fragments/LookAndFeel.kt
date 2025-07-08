@@ -4,13 +4,18 @@ import android.app.Activity.RESULT_OK
 import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import android.provider.Settings
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
+import androidx.preference.SwitchPreferenceCompat
+import com.google.android.material.color.DynamicColors
+import com.todoroo.andlib.utility.AndroidUtilities.atLeastTiramisu
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.tasks.LocalBroadcastManager
@@ -18,19 +23,17 @@ import org.tasks.R
 import org.tasks.billing.Inventory
 import org.tasks.billing.PurchaseActivity
 import org.tasks.compose.FilterSelectionActivity.Companion.launch
-import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPickerResult
+import org.tasks.compose.FilterSelectionActivity.Companion.registerForFilterPickerResult
 import org.tasks.dialogs.ColorPalettePicker
 import org.tasks.dialogs.ColorPalettePicker.Companion.newColorPalette
 import org.tasks.dialogs.ColorPickerAdapter
 import org.tasks.dialogs.ColorWheelPicker
 import org.tasks.dialogs.ThemePickerDialog
 import org.tasks.dialogs.ThemePickerDialog.Companion.newThemePickerDialog
-import org.tasks.extensions.Context.isNightMode
 import org.tasks.injection.InjectingPreferenceFragment
 import org.tasks.locale.LocalePickerDialog
 import org.tasks.preferences.DefaultFilterProvider
 import org.tasks.preferences.Preferences
-import org.tasks.themes.ThemeAccent
 import org.tasks.themes.ThemeBase
 import org.tasks.themes.ThemeBase.DEFAULT_BASE_THEME
 import org.tasks.themes.ThemeBase.EXTRA_THEME_OVERRIDE
@@ -44,14 +47,13 @@ class LookAndFeel : InjectingPreferenceFragment() {
 
     @Inject lateinit var themeBase: ThemeBase
     @Inject lateinit var themeColor: ThemeColor
-    @Inject lateinit var themeAccent: ThemeAccent
     @Inject lateinit var preferences: Preferences
     @Inject lateinit var localBroadcastManager: LocalBroadcastManager
     @Inject lateinit var defaultFilterProvider: DefaultFilterProvider
     @Inject lateinit var inventory: Inventory
     @Inject lateinit var locale: Locale
 
-    private val listPickerLauncher = registerForListPickerResult {
+    private val listPickerLauncher = registerForFilterPickerResult {
         defaultFilterProvider.setDefaultOpenFilter(it)
         findPreference(R.string.p_default_open_filter).summary = it.title
         localBroadcastManager.broadcastRefresh()
@@ -67,13 +69,6 @@ class LookAndFeel : InjectingPreferenceFragment() {
             newThemePickerDialog(this, REQUEST_THEME_PICKER, themeBase.index)
                 .show(parentFragmentManager, FRAG_TAG_THEME_PICKER)
             false
-        }
-
-        findPreference(R.string.p_desaturate_colors).setOnPreferenceChangeListener { _, _ ->
-            if (context?.isNightMode == true) {
-                activity?.recreate()
-            }
-            true
         }
 
         val defaultList = findPreference(R.string.p_default_open_filter)
@@ -92,13 +87,28 @@ class LookAndFeel : InjectingPreferenceFragment() {
         val languagePreference = findPreference(R.string.p_language)
         languagePreference.summary = locale.getDisplayName(locale)
         languagePreference.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            val dialog = LocalePickerDialog.newLocalePickerDialog()
-            dialog.setTargetFragment(this, REQUEST_LOCALE)
-            dialog.show(parentFragmentManager, FRAG_TAG_LOCALE_PICKER)
+            if (atLeastTiramisu()) {
+                startActivity(
+                    Intent(Settings.ACTION_APP_LOCALE_SETTINGS)
+                        .setData(Uri.fromParts("package", requireContext().packageName, null))
+                )
+            } else {
+                val dialog = LocalePickerDialog.newLocalePickerDialog()
+                dialog.setTargetFragment(this, REQUEST_LOCALE)
+                dialog.show(parentFragmentManager, FRAG_TAG_LOCALE_PICKER)
+            }
             false
         }
 
         openUrl(R.string.translations, R.string.url_translations)
+        val themeColor = findPreference(R.string.p_theme_color)
+        val dynamicColor = findPreference(R.string.p_dynamic_color) as SwitchPreferenceCompat
+        themeColor.isVisible = !dynamicColor.isChecked
+        dynamicColor.setOnPreferenceChangeListener { _, newValue ->
+            themeColor.isVisible = !(newValue as Boolean)
+            true
+        }
+        requires(DynamicColors.isDynamicColorAvailable(), R.string.p_dynamic_color)
     }
 
     override fun onResume() {
@@ -110,13 +120,20 @@ class LookAndFeel : InjectingPreferenceFragment() {
             ColorPickerAdapter.Palette.COLORS,
             REQUEST_COLOR_PICKER
         )
-        setupColorPreference(
-            R.string.p_theme_accent,
-            themeAccent.pickerColor,
-            ColorPickerAdapter.Palette.ACCENTS,
-            REQUEST_ACCENT_PICKER
-        )
         updateLauncherPreference()
+
+        if (DynamicColors.isDynamicColorAvailable()) {
+            (findPreference(R.string.p_dynamic_color) as SwitchPreferenceCompat).apply {
+                if (inventory.hasPro) {
+                    summary = null
+                    isEnabled = true
+                } else {
+                    summary = getString(R.string.requires_pro_subscription)
+                    isEnabled = false
+                    isChecked = false
+                }
+            }
+        }
     }
 
     private fun updateLauncherPreference() {
@@ -178,15 +195,6 @@ class LookAndFeel : InjectingPreferenceFragment() {
                     }
                 }
             }
-            REQUEST_ACCENT_PICKER -> {
-                if (resultCode == RESULT_OK) {
-                    val index = data!!.getIntExtra(ColorPalettePicker.EXTRA_SELECTED, 0)
-                    if (preferences.getInt(R.string.p_theme_accent, -1) != index) {
-                        preferences.setInt(R.string.p_theme_accent, index)
-                        recreate()
-                    }
-                }
-            }
             REQUEST_LAUNCHER_PICKER -> {
                 if (resultCode == RESULT_OK) {
                     val index = data!!.getIntExtra(ColorPalettePicker.EXTRA_SELECTED, 0)
@@ -241,7 +249,6 @@ class LookAndFeel : InjectingPreferenceFragment() {
     companion object {
         private const val REQUEST_THEME_PICKER = 10001
         private const val REQUEST_COLOR_PICKER = 10002
-        private const val REQUEST_ACCENT_PICKER = 10003
         private const val REQUEST_LAUNCHER_PICKER = 10004
         private const val REQUEST_LOCALE = 10006
         private const val REQUEST_PURCHASE = 10007

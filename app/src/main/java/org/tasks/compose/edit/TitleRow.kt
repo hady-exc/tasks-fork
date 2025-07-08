@@ -25,12 +25,13 @@ fun TitleRow(
     onChanged: (CharSequence?) -> Unit,
     linkify: Linkify?,
     markdownProvider: MarkdownProvider?,
-    desaturate: Boolean,
     isCompleted: Boolean,
     isRecurring: Boolean,
     priority: Int,
     onComplete: () -> Unit,
     requestFocus: Boolean,
+    multiline: Boolean,
+    save: () -> Unit,
 ) {
     TaskEditRow(
         icon = {
@@ -39,7 +40,6 @@ fun TitleRow(
                 isRecurring = isRecurring,
                 priority = priority,
                 onCompleteClick = onComplete,
-                desaturate = desaturate,
                 modifier = Modifier.padding(
                     start = 4.dp,
                     end = 20.dp,
@@ -57,6 +57,8 @@ fun TitleRow(
                     markdownProvider = markdownProvider,
                     strikethrough = isCompleted,
                     requestFocus = requestFocus,
+                    multiline = multiline,
+                    onDone = save,
                 )
                 Spacer(modifier = Modifier.height(11.dp))
             }
@@ -75,12 +77,13 @@ fun EmptyTitlePreview() {
             onChanged = {},
             linkify = null,
             markdownProvider = null,
-            desaturate = true,
             isCompleted = false,
             isRecurring = false,
             priority = 0,
             onComplete = {},
             requestFocus = false,
+            multiline = false,
+            save = {},
         )
     }
 }
@@ -100,12 +103,13 @@ fun TitlePreview() {
             onChanged = {},
             linkify = null,
             markdownProvider = null,
-            desaturate = true,
             isCompleted = false,
             isRecurring = false,
             priority = 0,
             onComplete = {},
             requestFocus = false,
+            multiline = false,
+            save = {},
         )
     }
 }

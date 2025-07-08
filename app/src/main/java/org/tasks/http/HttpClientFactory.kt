@@ -3,30 +3,40 @@ package org.tasks.http
 import android.content.Context
 import at.bitfire.cert4android.CustomCertManager
 import at.bitfire.dav4jvm.BasicDigestAuthHandler
+import com.microsoft.identity.client.AcquireTokenSilentParameters
+import com.microsoft.identity.client.PublicClientApplication
 import dagger.hilt.android.qualifiers.ApplicationContext
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.android.Android
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.cookies.HttpCookies
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.request.header
+import io.ktor.http.HttpHeaders
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.openid.appauth.AuthState
-import okhttp3.MediaType.Companion.toMediaType
+import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.internal.tls.OkHostnameVerifier
-import org.tasks.DebugNetworkInterceptor
+import org.tasks.BuildConfig
+import org.tasks.R
 import org.tasks.caldav.TasksCookieJar
 import org.tasks.data.entity.CaldavAccount
 import org.tasks.extensions.Context.cookiePersistor
-import org.tasks.preferences.Preferences
 import org.tasks.security.KeyStoreEncryption
 import org.tasks.sync.microsoft.MicrosoftService
-import org.tasks.sync.microsoft.requestTokenRefresh
-import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
+import org.tasks.sync.microsoft.MicrosoftSignInViewModel
+import timber.log.Timber
 import javax.inject.Inject
 import javax.net.ssl.SSLContext
 
 class HttpClientFactory @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val preferences: Preferences,
-    private val interceptor: DebugNetworkInterceptor,
     private val encryption: KeyStoreEncryption,
 ) {
     suspend fun newClient(foreground: Boolean) = newClient(
@@ -73,44 +83,69 @@ class HttpClientFactory @Inject constructor(
 
         block(builder)
 
-        if (preferences.isFlipperEnabled) {
-            interceptor.apply(builder)
-        }
         return builder.build()
     }
 
-    suspend fun getMicrosoftService(account: CaldavAccount): MicrosoftService {
-        val authState = encryption.decrypt(account.password)?.let { AuthState.jsonDeserialize(it) }
-            ?: throw RuntimeException("Missing credentials")
-        if (authState.needsTokenRefresh) {
-            val (token, ex) = context.requestTokenRefresh(authState)
-            authState.update(token, ex)
-            if (authState.isAuthorized) {
-                account.password = encryption.encrypt(authState.jsonSerializeString())
-            }
+    suspend fun getMicrosoftService(account: CaldavAccount): MicrosoftService = withContext(Dispatchers.IO) {
+        val app = PublicClientApplication.createMultipleAccountPublicClientApplication(
+            context,
+            R.raw.microsoft_config
+        )
+        
+        val result = try {
+            val msalAccount = app.accounts.firstOrNull { it.username == account.username }
+                ?: throw RuntimeException("No matching account found")
+
+            val parameters = AcquireTokenSilentParameters.Builder()
+                .withScopes(MicrosoftSignInViewModel.scopes)
+                .forAccount(msalAccount)
+                .fromAuthority(msalAccount.authority)
+                .forceRefresh(true)
+                .build()
+            
+            app.acquireTokenSilent(parameters)
+        } catch (e: Exception) {
+            Timber.e(e)
+            throw RuntimeException("Authentication failed: ${e.message}")
         }
-        if (!authState.isAuthorized) {
-            throw RuntimeException("Needs authentication")
-        }
-        val client = newClient(cookieKey = account.username) {
-            it.addInterceptor { chain ->
-                chain.proceed(
-                    chain.request().newBuilder()
-                        .header("Authorization", "Bearer ${authState.accessToken}")
-                        .build()
+
+        val client = HttpClient(Android) {
+            expectSuccess = true
+
+            install(ContentNegotiation) {
+                json(
+                    Json {
+                        ignoreUnknownKeys = true
+                    }
                 )
             }
-        }
-        val retrofit = Retrofit.Builder()
-            .baseUrl(URL_MICROSOFT)
-            .addConverterFactory(MoshiConverterFactory.create())
-            .client(client)
-            .build()
-        return retrofit.create(MicrosoftService::class.java)
-    }
 
-    companion object {
-        const val URL_MICROSOFT = "https://graph.microsoft.com"
-        val MEDIA_TYPE_JSON = "application/json".toMediaType()
+            defaultRequest {
+                header("Authorization", "Bearer ${result.accessToken}")
+            }
+
+            install(HttpTimeout) {
+                requestTimeoutMillis = 30_000
+            }
+
+            install(HttpCookies) {
+                storage = AndroidCookieStorage(context = context, key = account.username)
+            }
+
+            install(HttpErrorHandler)
+
+            install(Logging) {
+                logger = object : Logger {
+                    override fun log(message: String) {
+                        Timber.d(message)
+                    }
+                }
+                level = if (BuildConfig.DEBUG) LogLevel.ALL else LogLevel.HEADERS
+                sanitizeHeader { header -> header == HttpHeaders.Authorization }
+            }
+        }
+        MicrosoftService(
+            client = client
+        )
     }
 }

@@ -18,6 +18,7 @@ import org.tasks.Strings.isNullOrEmpty
 import org.tasks.data.dao.TagDao
 import org.tasks.data.dao.TagDataDao
 import org.tasks.data.entity.TagData
+import org.tasks.filters.Filter
 import org.tasks.filters.TagFilter
 import org.tasks.themes.TasksIcons
 import org.tasks.themes.TasksTheme
@@ -38,31 +39,30 @@ class TagSettingsActivity : BaseListSettingsActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         tagData = intent.getParcelableExtra(EXTRA_TAG_DATA) ?: TagData()
 
-        if (!isNewTag) textState.value = tagData.name!!
+        if (!isNewTag) baseViewModel.setTitle(tagData.name!!)
 
         super.onCreate(savedInstanceState)
 
         if (savedInstanceState == null) {
-            selectedColor = tagData.color ?: 0
-            selectedIcon.value = tagData.icon ?: defaultIcon
+            baseViewModel.setColor(tagData.color ?: 0)
+            baseViewModel.setIcon(tagData.icon ?: defaultIcon)
         }
 
         setContent {
             TasksTheme {
-                baseSettingsContent()
+                BaseSettingsContent()
             }
         }
-        updateTheme()
     }
 
-    override val isNew: Boolean
-        get() = isNewTag
+    override val filter: Filter?
+        get() = if (isNewTag) null else TagFilter(tagData)
 
     override val toolbarTitle: String
         get() = if (isNew) getString(R.string.new_tag) else tagData.name!!
 
     private val newName: String
-        get() = textState.value.trim { it <= ' ' }
+        get() = baseViewModel.title.trim { it <= ' ' }
 
     private suspend fun clashes(newName: String): Boolean {
         return ((isNewTag || !newName.equals(tagData.name, ignoreCase = true))
@@ -72,19 +72,19 @@ class TagSettingsActivity : BaseListSettingsActivity() {
     override suspend fun save() {
         val newName = newName
         if (isNullOrEmpty(newName)) {
-            errorState.value = getString(R.string.name_cannot_be_empty)
+            baseViewModel.setError(getString(R.string.name_cannot_be_empty))
             return
         }
         if (clashes(newName)) {
-            errorState.value = getString(R.string.tag_already_exists)
+            baseViewModel.setError(getString(R.string.tag_already_exists))
             return
         }
         if (isNewTag) {
             tagData
                 .copy(
                     name = newName,
-                    color = selectedColor,
-                    icon = selectedIcon.value,
+                    color = baseViewModel.color,
+                    icon = baseViewModel.icon,
                 )
                 .let { it.copy(id = tagDataDao.insert(it)) }
                 .let {
@@ -98,8 +98,8 @@ class TagSettingsActivity : BaseListSettingsActivity() {
             tagData
                 .copy(
                     name = newName,
-                    color = selectedColor,
-                    icon = selectedIcon.value,
+                    color = baseViewModel.color,
+                    icon = baseViewModel.icon,
                 )
                 .let {
                     tagDataDao.update(it)
@@ -117,10 +117,10 @@ class TagSettingsActivity : BaseListSettingsActivity() {
 
     override fun hasChanges(): Boolean {
         return if (isNewTag) {
-            selectedColor >= 0 || selectedIcon.value?.isBlank() == false || !isNullOrEmpty(newName)
+            baseViewModel.color != 0 || baseViewModel.icon?.isBlank() == false || !isNullOrEmpty(newName)
         } else {
-            selectedColor != (tagData.color ?: 0)
-                    || selectedIcon.value != tagData.icon
+            baseViewModel.color != (tagData.color ?: 0)
+                    || baseViewModel.icon != (tagData.icon ?: TasksIcons.LABEL)
                     || newName != tagData.name
         }
     }

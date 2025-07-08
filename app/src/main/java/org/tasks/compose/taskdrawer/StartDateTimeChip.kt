@@ -2,11 +2,18 @@ package org.tasks.compose.taskdrawer
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.PendingActions
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.todoroo.astrid.ui.StartDateControlSet.Companion.getRelativeDateString
 import org.tasks.R
+import org.tasks.compose.pickers.StartDateTimePicker
 import org.tasks.dialogs.StartDatePicker
 
 val startDateIcon = Icons.Outlined.PendingActions
@@ -15,12 +22,32 @@ val startDateIcon = Icons.Outlined.PendingActions
 fun StartDateTimeChip(
     currentDate: Long,
     currentTime: Int,
+    dueDate: Long,
+    sendValues: (Long, Int) -> Unit,
     printDate: () -> String,
-    pickValues: () -> Unit,
-    delete: (() -> Unit)? = null
+    autoclose: Boolean,
+    showDueDate: Boolean
 ) {
-    if (currentDate == 0L) {
-        IconChip(icon = startDateIcon, action = pickValues)
+    var showPicker by remember { mutableStateOf(false) }
+    if (showPicker) {
+        StartDateTimePicker(
+            accept = {
+                sendValues(currentDate, currentTime)
+                showPicker = false
+            },
+            dismiss = { showPicker = false },
+            selectedDay = currentDate,
+            selectedTime = currentTime,
+            updateValues = { date, time ->
+                sendValues(date, time)
+            },
+            autoclose = autoclose,
+            showDueDate = showDueDate
+        )
+    }
+
+    if (currentDate == 0L && currentTime == 0) {
+        IconChip(icon = startDateIcon, action = { showPicker = true })
     } else {
         val context = LocalContext.current
         val text = when (currentDate) {
@@ -33,10 +60,11 @@ fun StartDateTimeChip(
         }
 
         Chip(
-            title = text,
+            title = if (text.length > 16) text.substring(0..12)+"..." else text,
             leading = startDateIcon,
-            action = pickValues,
-            delete = delete
+            action = { showPicker = true },
+            delete = { sendValues(0L,0) },
+            contentColor = if (dueDate == 0L) MaterialTheme.colorScheme.error else Color.Unspecified
         )
     }
 }

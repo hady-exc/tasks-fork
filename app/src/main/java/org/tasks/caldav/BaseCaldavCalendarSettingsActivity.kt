@@ -17,12 +17,13 @@ import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
 import org.tasks.activities.BaseListSettingsActivity
 import org.tasks.compose.DeleteButton
-import org.tasks.compose.ListSettings.Toaster
+import org.tasks.compose.settings.Toaster
 import org.tasks.data.UUIDHelper
 import org.tasks.data.dao.CaldavDao
 import org.tasks.data.entity.CaldavAccount
 import org.tasks.data.entity.CaldavCalendar
 import org.tasks.filters.CaldavFilter
+import org.tasks.filters.Filter
 import org.tasks.themes.TasksIcons
 import org.tasks.ui.DisplayableException
 import java.net.ConnectException
@@ -50,16 +51,15 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
         }
         if (savedInstanceState == null) {
             if (caldavCalendar != null) {
-                textState.value = caldavCalendar!!.name ?: ""
-                selectedColor = caldavCalendar!!.color
-                selectedIcon.value = caldavCalendar?.icon ?: defaultIcon
+                baseViewModel.setTitle(caldavCalendar!!.name ?: "")
+                baseViewModel.setColor(caldavCalendar!!.color)
+                baseViewModel.setIcon(caldavCalendar?.icon ?: defaultIcon)
             }
         }
-        updateTheme()
     }
 
-    override val isNew: Boolean
-        get() = caldavCalendar == null
+    override val filter: Filter?
+        get() = caldavCalendar?.let { CaldavFilter(calendar = it, account = caldavAccount) }
 
     override val toolbarTitle: String
         get() = if (isNew) getString(R.string.new_list) else caldavCalendar!!.name ?: ""
@@ -70,17 +70,17 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
         }
         val name = newName
         if (isNullOrEmpty(name)) {
-            errorState.value = getString(R.string.name_cannot_be_empty)
+            baseViewModel.setError(getString(R.string.name_cannot_be_empty))
             return
         }
         when {
             caldavCalendar == null -> {
                 showProgressIndicator()
-                createCalendar(caldavAccount, name, selectedColor)
+                createCalendar(caldavAccount, name, baseViewModel.color)
             }
             nameChanged() || colorChanged() -> {
                 showProgressIndicator()
-                updateNameAndColor(caldavAccount, caldavCalendar!!, name, selectedColor)
+                updateNameAndColor(caldavAccount, caldavCalendar!!, name, baseViewModel.color)
             }
             iconChanged() -> updateCalendar()
             else -> finish()
@@ -96,17 +96,17 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
         caldavAccount: CaldavAccount, caldavCalendar: CaldavCalendar
     )
 
-    private fun showProgressIndicator() { showProgress.value = true }
+    private fun showProgressIndicator() { baseViewModel.showProgress(true) }
 
-    private fun hideProgressIndicator() { showProgress.value = false }
+    private fun hideProgressIndicator() { baseViewModel.showProgress(false) }
 
-    protected fun requestInProgress(): Boolean = showProgress.value
+    protected fun requestInProgress(): Boolean = baseViewModel.viewState.value.showProgress
 
     protected fun requestFailed(t: Throwable) {
         hideProgressIndicator()
         when (t) {
             is HttpException -> showSnackbar(t.message)
-            is retrofit2.HttpException -> showSnackbar(t.message() ?: "HTTP ${t.code()}")
+            is org.tasks.http.HttpException -> showSnackbar(t.message ?: "HTTP ${t.code}")
             is DisplayableException -> showSnackbar(t.resId)
             is ConnectException -> showSnackbar(R.string.network_error)
             else -> showSnackbar(R.string.error_adding_account, t.message!!)
@@ -128,44 +128,52 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
             account = caldavAccount.uuid,
             url = url,
             name = newName,
-            color = selectedColor,
-            icon = selectedIcon.value,
+            color = baseViewModel.color,
+            icon = baseViewModel.icon,
         )
         caldavDao.insert(caldavCalendar)
         setResult(
                 Activity.RESULT_OK,
-                Intent().putExtra(MainActivity.OPEN_FILTER, CaldavFilter(caldavCalendar)))
+                Intent().putExtra(
+                    MainActivity.OPEN_FILTER,
+                    CaldavFilter(calendar = caldavCalendar, account = caldavAccount)
+                )
+        )
         finish()
     }
 
     protected suspend fun updateCalendar() {
         val result = caldavCalendar!!.copy(
             name = newName,
-            color = selectedColor,
-            icon = selectedIcon.value,
+            color = baseViewModel.color,
+            icon = baseViewModel.icon,
         )
         caldavDao.update(result)
         setResult(
                 Activity.RESULT_OK,
                 Intent(TaskListFragment.ACTION_RELOAD)
-                        .putExtra(MainActivity.OPEN_FILTER, CaldavFilter(result)))
+                        .putExtra(
+                            MainActivity.OPEN_FILTER,
+                            CaldavFilter(calendar = result, account = caldavAccount)
+                        )
+        )
         finish()
     }
 
     override fun hasChanges(): Boolean =
-            if (caldavCalendar == null)
-                !isNullOrEmpty(newName) || selectedColor != 0 || selectedIcon.value?.isBlank() == false
-            else
-                nameChanged() || iconChanged() || colorChanged()
+        if (caldavCalendar == null)
+            !isNullOrEmpty(newName) || baseViewModel.color != 0 || baseViewModel.icon?.isBlank() == false
+        else
+            nameChanged() || iconChanged() || colorChanged()
 
     private fun nameChanged(): Boolean = caldavCalendar!!.name != newName
 
-    private fun colorChanged(): Boolean = selectedColor != caldavCalendar!!.color
+    private fun colorChanged(): Boolean = baseViewModel.color != caldavCalendar!!.color
 
-    private fun iconChanged(): Boolean = selectedIcon.value != caldavCalendar!!.icon
+    private fun iconChanged(): Boolean = baseViewModel.icon != (caldavCalendar!!.icon ?: TasksIcons.LIST)
 
     private val newName: String
-        get() = textState.value.trim { it <= ' '}
+        get() = baseViewModel.title.trim { it <= ' '}
 
     override fun finish() {
         // hideKeyboard(name)
@@ -198,13 +206,15 @@ abstract class BaseCaldavCalendarSettingsActivity : BaseListSettingsActivity() {
     }
 
     @Composable
-    fun baseCaldavSettingsContent (
-        optionButton: @Composable () -> Unit = { if (!isNew) DeleteButton { promptDelete() } },
-        extensionContent: @Composable ColumnScope.() -> Unit = {}
+    fun BaseCaldavSettingsContent (
+        optionButton: @Composable () -> Unit = { if (!isNew) DeleteButton(caldavCalendar?.name ?: "") { delete() } },
+        fab: @Composable () -> Unit = {},
+        extensionContent: @Composable ColumnScope.() -> Unit = {},
     ) {
-        baseSettingsContent (
+        BaseSettingsContent (
             optionButton = optionButton,
-            extensionContent = extensionContent
+            extensionContent = extensionContent,
+            fab = fab,
         )
         Toaster(state = snackbar)
     }

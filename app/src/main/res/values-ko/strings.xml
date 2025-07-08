@@ -7,12 +7,7 @@
     <string name="backup_BAc_export">지금 백업하기</string>
     <string name="export_toast">%1$s 를 %2$s 로 백업함.</string>
     <string name="import_summary_title">간편 복원</string>
-    <string name="import_summary_message">파일 %1$s: %2$s 개의 할일 포함.
-\n
-\n %3$s 개 가져오기 성공,
-\n %4$s 개 이미 존재,
-\n %5$s 개 에러 발생
-\n</string>
+    <string name="import_summary_message">파일 %1$s: %2$s 개의 할일 포함.\n\n %3$s 개 가져오기 성공,\n %4$s 개 이미 존재,\n %5$s 개 에러 발생</string>
     <string name="import_progress_read">할일 %d 읽는 중…</string>
     <string name="read_permission_label">Tasks 권한</string>
     <string name="discard_confirmation">변경 사항을 폐기할까요\?</string>
@@ -108,12 +103,11 @@
     <string name="calendar_event_not_found">달력 일정이 발견되지 않음</string>
     <string name="gcal_completed_title">%s (완료)</string>
     <string name="CFC_gtasks_list_text">목록에: ?</string>
-    <string name="CFC_gtasks_list_name">GTasks 목록에…</string>
     <string name="gtasks_GTA_clear_completed">완료한 할일 지우기</string>
     <string name="gtasks_GLA_authenticating">인증 중…</string>
     <string name="gtasks_GLA_errorIOAuth">죄송합니다, 구글 서버와 통신하는 데 문제가 있습니다. 잠시 후 다시 시도하세요.</string>
-    <string name="gtasks_GPr_header">구글 할일 목록 (Google Tasks)</string>
-    <string name="gtasks_error_accountNotFound">%s 계정을 찾을 수 없습니다 - 로그아웃하고 구글 할일목록 (Google Tasks) 설정에서 다시 로그인해 보세요.</string>
+    <string name="gtasks_GPr_header">구글 태스크</string>
+    <string name="gtasks_error_accountNotFound">%s 계정을 찾을 수 없습니다 - 로그아웃하고 구글 태스크 설정에서 다시 로그인해 보세요.</string>
     <string name="premium_record_audio">노트 기록</string>
     <string name="ring_once">한번 울림</string>
     <string name="ring_five_times">다섯번 울림</string>
@@ -217,16 +211,10 @@
     </plurals>
     <string name="today">오늘</string>
     <string name="tomorrow">내일</string>
-    <string name="yesterday">어제</string>
-    <string name="tmrw">내일</string>
-    <string name="yest">어제</string>
     <string name="widget_show_checkboxes">체크박스 표시</string>
     <string name="widget_show_header">헤더 표시</string>
     <string name="widget_show_settings">설정버튼 표시</string>
     <string name="notifications">알림</string>
-    <string name="silent">무음</string>
-    <string name="sound">소리</string>
-    <string name="vibrations">진동</string>
     <string name="quiet_hours">무음 시간</string>
     <string name="attachment_directory">첨부파일 위치</string>
     <string name="backup_directory">백업 위치</string>
@@ -240,7 +228,6 @@
     <string name="contact_developer">개발자에게 연락</string>
     <string name="rate_tasks">Tasks 평가하기</string>
     <string name="quiet_hours_summary">무음 시간에는 알람 없음</string>
-    <string name="TLA_menu_donate">기부하기</string>
     <string name="add_reminder">알람 추가</string>
     <string name="add_location">위치 추가</string>
     <string name="remove">지우기</string>
@@ -290,7 +277,6 @@
     <string name="opacity">불투명도</string>
     <string name="theme">테마</string>
     <string name="color">색상</string>
-    <string name="accent">강조</string>
     <string name="launcher_icon">런처 아이콘</string>
     <string name="theme_black">검정</string>
     <string name="theme_light">밝게</string>
@@ -302,8 +288,6 @@
     <string name="restart_now">지금 재시작하기</string>
     <string name="restart_later">나중에</string>
     <string name="settings_localization">현지화</string>
-    <string name="led_notification">LED 알림</string>
-    <string name="hardware_support_required">하드웨어 지원을 필요로 합니다</string>
     <string name="widget_settings">위젯 설정</string>
     <string name="widget_header_settings">헤더 설정</string>
     <string name="widget_row_settings">줄 설정</string>
@@ -313,8 +297,6 @@
     <string name="delete_selected_tasks">선택한 할일을 삭제할까요?</string>
     <string name="copy_selected_tasks">선택한 할일을 복사할까요?</string>
     <string name="date_and_time">날짜와 시간</string>
-    <string name="start_of_week">한 주의 시작</string>
-    <string name="use_locale_default">기본으로 설정된 언어 사용하기</string>
     <string name="add_account">계정 추가</string>
     <string name="user">사용자</string>
     <string name="password">비밀번호</string>
@@ -326,21 +308,21 @@
     <string name="repeats_single">%s 반복</string>
     <string name="repeats_single_on">%1$s %2$s에 반복</string>
     <string name="repeats_single_until">%2$s에 끝날 때까지 %1$s 반복</string>
-    <string name="repeats_single_number_of_times">%1$s마다 %2$d %3$s 반복</string>
+    <string name="repeats_single_number_of_times">%1$s 주기로 %2$d %3$s 더 반복</string>
     <string name="repeats_single_on_until">%3$s에 끝날 때까지 %1$s %2$s에 반복</string>
-    <string name="repeats_single_on_number_of_times">%1$s 마다 %2$s에 %3$d %4$s 동안 반복</string>
+    <string name="repeats_single_on_number_of_times">%1$s 주기로 %2$s에 %3$d %4$s 더 반복</string>
     <string name="repeats_minutely">매분</string>
     <string name="repeats_hourly">매시간</string>
     <string name="repeats_daily">매일</string>
     <string name="repeats_weekly">매주</string>
     <string name="repeats_monthly">매월</string>
     <string name="repeats_yearly">매년</string>
-    <string name="repeats_plural">매%s 반복</string>
-    <string name="repeats_plural_on">매%1$s %2$s 에 반복</string>
-    <string name="repeats_plural_until">%2$s에 끝날 때까지 매 %1$s 반복</string>
-    <string name="repeats_plural_number_of_times">매 %1$s 마다 %2$d %3$s 동안 반복</string>
-    <string name="repeats_plural_on_until">%3$s에 끝날 때까지 매 %1$s %2$s 마다 반복</string>
-    <string name="repeats_plural_on_number_of_times">매 %1$s 마다 %2$s에 %3$d %4$s 반복</string>
+    <string name="repeats_plural">%s마다 반복</string>
+    <string name="repeats_plural_on">%1$s마다 %2$s에 반복</string>
+    <string name="repeats_plural_until">%2$s에 끝날 때까지 %1$s마다 반복</string>
+    <string name="repeats_plural_number_of_times">%1$s 주기로 %2$d %3$s 더 반복</string>
+    <string name="repeats_plural_on_until">%3$s에 끝날 때까지 %1$s마다 %2$s에 반복</string>
+    <string name="repeats_plural_on_number_of_times">%1$s 주기로 %2$s에 %3$d %4$s 더 반복</string>
     <string name="dont_add_to_calendar">달력에 일정 추가하지 않기</string>
     <string name="default_calendar">기본 달력</string>
     <string name="badges_description">Tasks 앱 아이콘 위에 할일 개수를 표시합니다. 모든 런처가 배지 기능을 지원하지는 않습니다. </string>
@@ -405,9 +387,8 @@
     <string name="collapse_subtasks">하위할일 접기</string>
     <string name="TEA_add_subtask">하위할일 추가</string>
     <string name="subtasks">하위할일</string>
-    <string name="subtasks_multilevel_google_task">Google Tasks는 다단계 하위할일을 지원하지 않습니다</string>
+    <string name="subtasks_multilevel_google_task">구글 태스크는 다단계 하위할일을 지원하지 않습니다</string>
     <string name="enter_tag_name">태그 이름 입력</string>
-    <string name="create_new_tag">\"%s\" 생성</string>
     <string name="this_feature_requires_a_subscription">이 기능을 사용하려면 구독해야 합니다</string>
     <string name="choose_synchronization_service">플랫폼 선택</string>
     <string name="google_tasks_selection_description">기본 서비스는 구글 계정과 동기화합니다</string>
@@ -430,9 +411,6 @@
     <string name="place_settings">장소 설정</string>
     <string name="places">장소</string>
     <string name="upgrade_blurb_1">안녕하세요! Tasks의 1인 개발자 알렉스입니다</string>
-    <string name="desaturate_colors_summary_on">다크 테마 사용 시 채도를 낮춥니다</string>
-    <string name="desaturate_colors_summary_off">다크 테마 사용 시 채도를 낮추지 않습니다</string>
-    <string name="desaturate_colors">저채도 색상</string>
     <string name="chip_appearance">칩 모양</string>
     <string name="chips">칩</string>
     <string name="upgrade_blurb_2">저는 Tasks 개발에 엄청나게 많은 시간을 쏟고 있으며, 모든 소스코드를 웹에 무상으로 공개하고 있습니다. 저의 작업을 후원하기 위해 일부 기능은 구독이 필요합니다</string>
@@ -499,9 +477,6 @@
     <string name="widget_show_dividers">할일 구분선 표시</string>
     <string name="widget_show_menu">메뉴 표시</string>
     <string name="sort_created">생성일시 기준</string>
-    <string name="yesterday_lowercase">어제</string>
-    <string name="tomorrow_lowercase">내일</string>
-    <string name="today_lowercase">오늘</string>
     <string name="default_recurrence">기본 반복</string>
     <string name="CFC_list_name">목록…</string>
     <string name="default_location">기본 위치</string>
@@ -546,11 +521,10 @@
     <string name="sign_in_with_google">구글을 이용해서 로그인</string>
     <string name="github_sponsors">깃허브 후원자</string>
     <string name="google_play_subscribers">구글 플레이 구독자</string>
-    <string name="not_signed_in">로그인 되어있지 않음</string>
     <string name="follow_reddit">r/tasks 구독</string>
     <string name="no_google_play_subscription">적합한 구글 플레이 구독을 찾을 수 없습니다</string>
     <string name="insufficient_sponsorship">적합한 깃허브 후원 자격을 찾을 수 없습니다</string>
-    <string name="insufficient_subscription">부족한 구독 단계. 서비스를 재개하려면 구독을 업그레이드하세요.</string>
+    <string name="insufficient_subscription">구독 수준이 적합하지 않습니다. 서비스를 재개하려면 구독을 업그레이드하세요.</string>
     <string name="custom_filter_is_subtask">하위할일</string>
     <string name="custom_filter_has_subtask">하위할일 있음</string>
     <string name="date_picker_multiple">각각 다양</string>
@@ -567,8 +541,6 @@
     <string name="default_start_date">기본 시작일</string>
     <string name="start_date">시작일</string>
     <string name="SSD_sort_start">시작일 기준</string>
-    <string name="yesterday_abbrev_lowercase">어제</string>
-    <string name="tomorrow_abbrev_lowercase">내일</string>
     <string name="filter_any_start_date">시작일 있음</string>
     <string name="no_start_date">시작일 없음</string>
     <string name="CFC_startBefore_name">시작일…</string>
@@ -582,22 +554,14 @@
     <string name="markdown_description">제목과 설명에 마크다운 방식 가능</string>
     <string name="markdown">마크 다운</string>
     <string name="more_options">더 많은 옵션</string>
-    <string name="upgrade_automation_description">Tasker, Automate, Locale용 플러그인</string>
-    <string name="upgrade_automation">자동화</string>
     <string name="upgrade_open_source_description">구독하시면 지속적인 개발을 지원합니다</string>
     <string name="upgrade_desktop_access_description">Outlook, Apple Reminders 등 타사 클라이언트와 동기화</string>
     <string name="upgrade_desktop_access">데스크탑 접속</string>
     <string name="upgrade_tasks_org_account_description">Tasks.org와 동기화 및 다른 사용자와 협업</string>
-    <string name="upgrade_google_tasks">여러 계정 동기화</string>
     <string name="upgrade_more_customization_description">모든 테마, 색상, 아이콘 사용</string>
     <string name="upgrade_more_customization">더 다양한 맞춤설정</string>
     <string name="pro_free_trial">새 구독자는 7일간 무료 체험이 가능합니다. 언제라도 취소할 수 있습니다</string>
-    <string name="picker_mode_text">글자</string>
     <string name="app_passwords_more_info">타사 데스크탑 및 모바일 앱으로 할일과 달력을 동기화합니다. 자세한 정보는 여기를 탭하세요</string>
-    <string name="picker_mode_clock">시계</string>
-    <string name="picker_mode_calendar">달력</string>
-    <string name="picker_mode_time">시간 선택상자 모드</string>
-    <string name="picker_mode_date">날짜 선택상자 모드</string>
     <string name="invite_invalid">유효하지 않은 초대</string>
     <string name="invite_awaiting_response">응답 대기중인 초대</string>
     <string name="invite_declined">초대 거절</string>
@@ -605,7 +569,6 @@
     <string name="share_list">목록 공유</string>
     <string name="remove_user_confirmation">%1$s는 이제 %2$s에 접근할 수 없습니다</string>
     <string name="remove_user">사용자를 삭제할까요\?</string>
-    <string name="map_theme_use_app_theme">앱 테마 사용</string>
     <string name="tasks_org_account_required">Tasks.org 계정 필요</string>
     <string name="tasks_org_account">Tasks.org 계정</string>
     <string name="copied_to_clipboard">클립보드로 %s 건 복사</string>
@@ -629,7 +592,6 @@
     <string name="decsync_selection_description">파일 기반 동기화</string>
     <string name="tasks_org_description">Tasks.org에 할일 동기화</string>
     <string name="subscription">구독</string>
-    <string name="map_theme">지도 테마</string>
     <string name="filter_criteria_unstarted">시작하지 않음</string>
     <string name="widget_show_title">제목 표시</string>
     <string name="next_saturday">다음 토요일</string>
@@ -649,13 +611,10 @@
     <string name="sign_in">로그인</string>
     <string name="rmd_time_description">상태바 알림에 마감 시한이 없는 할일 보이기</string>
     <string name="microsoft_selection_description">마이크로소프트 계정과 동기화</string>
-    <string name="app_bar_collapse">앱 바메뉴 접기</string>
-    <string name="top">상단</string>
     <string name="enable_reminders">알람 활성화</string>
     <string name="hint_customize_edit_body">필드 순서를 변경하거나 삭제하실 수 있습니다</string>
     <string name="sign_in_to_tasks_disclosure">이메일 주소와 계정 ID가 Tasks.org으로 전송되어 보관됩니다. 이 정보는 계정 인증과 서비스 관련 중요 공지를 전달하기 위해 쓰이며, 다른 누구와도 공유하지 않습니다.</string>
     <string name="completion_sound">완료 효과음 재생</string>
-    <string name="bottom">하단</string>
     <string name="alarm_before_start">시작 %s 전</string>
     <string name="alarm_before_due">마감 %s 전</string>
     <string name="completed_tasks_at_bottom">완료한 할일을 하단으로 이동</string>
@@ -674,7 +633,6 @@
     <string name="sort_completion_group">%s 완료</string>
     <string name="dismiss">닫기</string>
     <string name="hint_customize_edit_title">정보가 너무 많은가요\?</string>
-    <string name="app_bar_position">앱 바메뉴 위치</string>
     <string name="completed">완료</string>
     <string name="snackbar_task_completed">할일 완료</string>
     <string name="enable_reminders_description">안드로이드 설정에 알람이 비활성화 되어있습니다</string>
@@ -732,4 +690,18 @@
     <string name="enable_alarms">제때 알람 받기</string>
     <string name="enable_alarms_description">놓치지 않고 제때 알람을 받으려면, \"설정\"에서 알람 설정 권한을 부여해주세요</string>
     <string name="theme_dynamic">동적</string>
+    <string name="price_per_month_with_currency">%s/월</string>
+    <string name="price_per_year_with_currency">%s/년</string>
+    <string name="add_widget_to_home_screen">홈스크린에 위젯 추가</string>
+    <string name="yesterday">어제</string>
+    <string name="add_shortcut_to_home_screen">홈화면에 바로가기 추가</string>
+    <string name="cost_free">비용: 무료</string>
+    <string name="cost_money">비용: $</string>
+    <string name="multiline_title_on">줄을 바꾸려면 엔터키를 누르세요</string>
+    <string name="cost_more_money">비용: $$$</string>
+    <string name="sync_warning_microsoft_title">마이크로소프트 To Do 동기화</string>
+    <string name="button_learn_more">더 알아보기</string>
+    <string name="sync_warning_google_tasks_title">구글 태스트 동기화</string>
+    <string name="multiline_title">여러 줄 제목 허용</string>
+    <string name="subtasks_multilevel_microsoft">마이크로소프트 To Do는 다단계 하위할일을 지원하지 않습니다</string>
 </resources>

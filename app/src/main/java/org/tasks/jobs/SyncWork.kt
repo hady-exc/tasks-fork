@@ -22,19 +22,22 @@ import org.tasks.R
 import org.tasks.analytics.Firebase
 import org.tasks.billing.Inventory
 import org.tasks.caldav.CaldavSynchronizer
+import org.tasks.data.OpenTaskDao
+import org.tasks.data.dao.CaldavDao
+import org.tasks.data.entity.CaldavAccount
 import org.tasks.data.entity.CaldavAccount.Companion.TYPE_CALDAV
 import org.tasks.data.entity.CaldavAccount.Companion.TYPE_ETEBASE
+import org.tasks.data.entity.CaldavAccount.Companion.TYPE_MICROSOFT
 import org.tasks.data.entity.CaldavAccount.Companion.TYPE_TASKS
-import org.tasks.data.dao.CaldavDao
-import org.tasks.data.dao.GoogleTaskListDao
-import org.tasks.data.OpenTaskDao
 import org.tasks.etebase.EtebaseSynchronizer
 import org.tasks.extensions.Context.hasNetworkConnectivity
 import org.tasks.gtasks.GoogleTaskSynchronizer
 import org.tasks.injection.BaseWorker
 import org.tasks.opentasks.OpenTasksSynchronizer
 import org.tasks.preferences.Preferences
+import org.tasks.sync.microsoft.MicrosoftSynchronizer
 import org.tasks.time.DateTimeUtils2.currentTimeMillis
+import timber.log.Timber
 
 @HiltWorker
 class SyncWork @AssistedInject constructor(
@@ -48,15 +51,17 @@ class SyncWork @AssistedInject constructor(
     private val etebaseSynchronizer: Lazy<EtebaseSynchronizer>,
     private val googleTaskSynchronizer: Lazy<GoogleTaskSynchronizer>,
     private val openTasksSynchronizer: Lazy<OpenTasksSynchronizer>,
-    private val googleTaskListDao: GoogleTaskListDao,
+    private val microsoftSynchronizer: Lazy<MicrosoftSynchronizer>,
     private val openTaskDao: OpenTaskDao,
     private val inventory: Inventory
 ) : BaseWorker(context, workerParams, firebase) {
 
     override suspend fun run(): Result {
+        Timber.d("Starting...")
         if (isBackground) {
             ContextCompat.getSystemService(context, ConnectivityManager::class.java)?.apply {
                 if (restrictBackgroundStatus == ConnectivityManagerCompat.RESTRICT_BACKGROUND_STATUS_ENABLED) {
+                    Timber.w("Background restrictions enabled, skipping sync")
                     return Result.failure()
                 }
             }
@@ -64,6 +69,7 @@ class SyncWork @AssistedInject constructor(
 
         synchronized(LOCK) {
             if (preferences.getBoolean(syncStatus, false)) {
+                Timber.e("Sync ongoing")
                 return Result.retry()
             }
             preferences.setBoolean(syncStatus, true)
@@ -101,12 +107,13 @@ class SyncWork @AssistedInject constructor(
         if (openTaskDao.shouldSync()) {
             openTasksSynchronizer.get().sync()
 
-            if (isImmediate && hasNetworkConnectivity) {
+            if (isImmediate) {
                 AccountManager
                     .get(context)
                     .accounts
                     .filter { OpenTaskDao.SUPPORTED_TYPES.contains(it.type) }
                     .forEach {
+                        Timber.d("Requesting sync for $it")
                         ContentResolver.requestSync(
                             it,
                             openTaskDao.authority,
@@ -122,9 +129,9 @@ class SyncWork @AssistedInject constructor(
 
     private suspend fun googleTaskJobs(): List<Deferred<Unit>> = coroutineScope {
         getGoogleAccounts()
-            .mapIndexed { i, account ->
+            .map { account ->
                 async(Dispatchers.IO) {
-                    googleTaskSynchronizer.get().sync(account, i)
+                    googleTaskSynchronizer.get().sync(account)
                 }
             }
     }
@@ -136,16 +143,17 @@ class SyncWork @AssistedInject constructor(
                     TYPE_ETEBASE -> etebaseSynchronizer.get().sync(it)
                     TYPE_TASKS,
                     TYPE_CALDAV -> caldavSynchronizer.get().sync(it)
+                    TYPE_MICROSOFT -> microsoftSynchronizer.get().sync(it)
                 }
             }
         }
     }
 
     private suspend fun getGoogleAccounts() =
-        googleTaskListDao.getAccounts()
+        caldavDao.getAccounts(CaldavAccount.TYPE_GOOGLE_TASKS)
 
     private suspend fun getCaldavAccounts() =
-            caldavDao.getAccounts(TYPE_CALDAV, TYPE_TASKS, TYPE_ETEBASE)
+            caldavDao.getAccounts(TYPE_CALDAV, TYPE_TASKS, TYPE_ETEBASE, TYPE_MICROSOFT)
 
     companion object {
         private val LOCK = Any()

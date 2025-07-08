@@ -25,6 +25,7 @@ import at.bitfire.ical4android.ICalendar.Companion.prodId
 import com.todoroo.astrid.dao.TaskDao
 import com.todoroo.astrid.service.TaskDeleter
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.runBlocking
 import net.fortuna.ical4j.model.property.ProdId
 import okhttp3.Headers
 import okhttp3.HttpUrl
@@ -75,13 +76,9 @@ import org.tasks.data.entity.PrincipalAccess
 import org.tasks.data.entity.Task
 import timber.log.Timber
 import java.io.IOException
-import java.net.ConnectException
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
 import java.security.KeyManagementException
 import java.security.NoSuchAlgorithmException
 import javax.inject.Inject
-import javax.net.ssl.SSLException
 
 class CaldavSynchronizer @Inject constructor(
     @param:ApplicationContext private val context: Context,
@@ -97,6 +94,7 @@ class CaldavSynchronizer @Inject constructor(
     private val vtodoCache: VtodoCache,
 ) {
     suspend fun sync(account: CaldavAccount) {
+        Timber.d("Synchronizing $account")
         Thread.currentThread().contextClassLoader = context.classLoader
 
         if (!inventory.hasPro && !account.isTasksOrg) {
@@ -113,35 +111,24 @@ class CaldavSynchronizer @Inject constructor(
         }
         try {
             synchronize(account)
-        } catch (e: SocketTimeoutException) {
-            setError(account, e.message)
-        } catch (e: SSLException) {
-            setError(account, e.message)
-        } catch (e: ConnectException) {
-            setError(account, e.message)
-        } catch (e: UnknownHostException) {
-            setError(account, e.message)
-        } catch (e: UnauthorizedException) {
-            setError(account, e.message)
-        } catch (e: ServiceUnavailableException) {
-            setError(account, e.message)
-        } catch (e: KeyManagementException) {
-            setError(account, e.message)
-        } catch (e: NoSuchAlgorithmException) {
-            setError(account, e.message)
         } catch (e: IOException) {
-            setError(account, e.message)
+            setError(account, e)
+        } catch (e: UnauthorizedException) {
+            setError(account, e)
+        } catch (e: ServiceUnavailableException) {
+            setError(account, e)
+        } catch (e: KeyManagementException) {
+            setError(account, e)
+        } catch (e: NoSuchAlgorithmException) {
+            setError(account, e)
         } catch (e: HttpException) {
-            val message = when(e.code) {
-                402, in 500..599 -> e.message
-                else -> {
-                    firebase.reportException(e)
-                    e.message
-                }
+            when(e.code) {
+                402, in 500..599 -> {}
+                else -> { firebase.reportException(e) }
             }
-            setError(account, message)
+            setError(account, e)
         } catch (e: Exception) {
-            setError(account, e.message)
+            setError(account, e)
             firebase.reportException(e)
         }
     }
@@ -217,9 +204,14 @@ class CaldavSynchronizer @Inject constructor(
         else -> SERVER_UNKNOWN
     }
 
+    private suspend fun setError(account: CaldavAccount, throwable: Throwable) {
+        Timber.e(throwable, "$account: ${throwable.message}")
+        setError(account, throwable.message)
+    }
+
     private suspend fun setError(account: CaldavAccount, message: String?) {
         if (!message.isNullOrBlank()) {
-            Timber.e("${account.name}: $message")
+            Timber.e("$account: $message")
         }
         account.error = message
         caldavDao.update(account)
@@ -291,11 +283,14 @@ class CaldavSynchronizer @Inject constructor(
                 .takeIf { it.isNotEmpty() }
                 ?.let {
                     Timber.d("DELETED $it")
-                    taskDeleter.delete(caldavDao.getTasks(caldavCalendar.uuid!!, it.toList()))
+                    val tasks = caldavDao.getTasks(caldavCalendar.uuid!!, it.toList())
+                    vtodoCache.delete(caldavCalendar, tasks)
+                    taskDeleter.delete(tasks.map { it.task })
                 }
         caldavCalendar.ctag = remoteCtag
         Timber.d("UPDATE %s", caldavCalendar)
         caldavDao.update(caldavCalendar)
+        Timber.d("Updating parents for ${caldavCalendar.uuid}")
         caldavDao.updateParents(caldavCalendar.uuid!!)
         localBroadcastManager.broadcastRefresh()
     }
@@ -369,7 +364,9 @@ class CaldavSynchronizer @Inject constructor(
                     fromResponse(it)?.eTag?.takeIf(String::isNotBlank)?.let { etag ->
                         caldavTask.etag = etag
                     }
-                    vtodoCache.putVtodo(calendar, caldavTask, String(data))
+                    runBlocking {
+                        vtodoCache.putVtodo(calendar, caldavTask, String(data))
+                    }
                 }
             }
         } catch (e: HttpException) {

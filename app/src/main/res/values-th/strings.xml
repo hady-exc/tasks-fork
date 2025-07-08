@@ -33,22 +33,13 @@
     <string name="rmd_NoA_snooze">หลับ..</string>
     <string name="today">วันนี้</string>
     <string name="tomorrow">พรุ่งนี้</string>
-    <string name="yesterday">เมื่อวาน</string>
     <string name="repeat_option_custom">กำหนดเอง…</string>
     <string name="delete_tag_confirmation">ลบ %s หรือไม่\?</string>
     <string name="markdown_description">เปิดใช้งานการทําเครื่องหมายในชื่อและคําอธิบาย</string>
     <string name="markdown">มาร์กดาวน์</string>
     <string name="more_options">ตัวเลือกเพิ่มเติม</string>
-    <string name="upgrade_automation_description">ปลั๊กอินสําหรับตัวทํางาน</string>
-    <string name="upgrade_automation">ระบบอัตโนมัติ</string>
     <string name="upgrade_desktop_access">การเข้าถึงเดสก์ท็อป</string>
     <string name="upgrade_tasks_org_account_description">ซิงค์กับ Tasks.org และทํางานร่วมกับผู้ใช้รายอื่น</string>
-    <string name="upgrade_google_tasks">ประสานหลายบัญชี</string>
-    <string name="picker_mode_text">ข้อความ</string>
-    <string name="picker_mode_clock">นาฬิกา</string>
-    <string name="picker_mode_calendar">ปฏิทิน</string>
-    <string name="picker_mode_time">โหมดตัวใช้เลือกเวลา</string>
-    <string name="picker_mode_date">โหมดตัวใช้เลือกวันที่</string>
     <string name="invite_invalid">การเชิญไม่ถูกต้อง</string>
     <string name="invite_awaiting_response">คําเชิญที่กําลังรอการตอบกลับ</string>
     <string name="invite_declined">ปฏิเสธคำเชิญ</string>
@@ -58,7 +49,6 @@
     <string name="remove_user_confirmation">%1$s จะไม่สามารถเข้าถึง %2$s ได้อีกต่อไป</string>
     <string name="remove_user">ลบผู้ใช้หรือไม่\?</string>
     <string name="list_members">รายชื่อสมาชิก</string>
-    <string name="map_theme_use_app_theme">ใช้ธีมแอป</string>
     <string name="tasks_org_account_required">Tasks.org บัญชีลูกค้า</string>
     <string name="tasks_org_account">Tasks.org บัญชี</string>
     <string name="copied_to_clipboard">%s คัดลอกไปยังคลิปบอร์ดแล้ว</string>
@@ -91,7 +81,6 @@
     <string name="logout">ออกจากระบบ</string>
     <string name="this_feature_requires_a_subscription">คุณลักษณะนี้ต้องการการสมัครใช้งาน</string>
     <string name="network_error">ไม่สามารถเชื่อมต่อได้</string>
-    <string name="not_signed_in">ไม่ได้ลงชื่อเข้าใช้</string>
     <string name="authorization_cancelled">ยกเลิกการตรวจสอบแล้ว</string>
     <string name="privacy">ข้อมูลส่วนบุคคล</string>
     <string name="open_source">เปิดแหล่งที่มา</string>
@@ -144,9 +133,6 @@
     <string name="filter_high_priority">ลําดับความสําคัญสูง</string>
     <string name="add_tags">เพิ่มแท็ก</string>
     <string name="places">สถานที่</string>
-    <string name="desaturate_colors_summary_off">สีจะไม่ถูก desaturated ในธีมสีเข้ม</string>
-    <string name="desaturate_colors_summary_on">สีจะถูก desaturated ในธีมสีเข้ม</string>
-    <string name="desaturate_colors">สีที่อิ่มตัว</string>
     <string name="chip_appearance">ลักษณะชิป</string>
     <string name="chips">เศษ</string>
     <string name="back">กลับ</string>
@@ -174,7 +160,6 @@
     <string name="google_tasks_selection_description">บริการพื้นฐานที่ซิงโครไนซ์กับบัญชี Google ของคุณ</string>
     <string name="tasks_org_description">ซิงโครไนซ์งานของคุณกับ Tasks.org</string>
     <string name="choose_synchronization_service">เลือกแพลตฟอร์ม</string>
-    <string name="create_new_tag">สร้าง \"%s\"</string>
     <string name="enter_tag_name">ป้อนชื่อแท็ก</string>
     <string name="subtasks_multilevel_google_task">งานย่อยหลายระดับไม่ได้รับการสนับสนุนโดย Google Tasks</string>
     <string name="collapse_subtasks">ยุบงานย่อย</string>
@@ -267,8 +252,6 @@
     <string name="password">รหัสผ่าน</string>
     <string name="user">ผู้ใช้</string>
     <string name="add_account">เพิ่มบัญชี</string>
-    <string name="use_locale_default">ใช้ค่าเริ่มต้นของสถานที่</string>
-    <string name="start_of_week">ต้นสัปดาห์</string>
     <string name="date_and_time">วันที่และเวลา</string>
     <string name="copy_selected_tasks">คัดลอกงานที่เลือกหรือไม่\?</string>
     <string name="delete_selected_tasks">ลบงานที่เลือก\?</string>
@@ -282,8 +265,6 @@
     <string name="widget_row_settings">การตั้งค่าแถว</string>
     <string name="widget_header_settings">การตั้งค่าส่วนหัว</string>
     <string name="widget_settings">การตั้งค่าวิดเจ็ต</string>
-    <string name="hardware_support_required">ต้องการการสนับสนุนฮาร์ดแวร์</string>
-    <string name="led_notification">การแจ้งเตือน LED</string>
     <string name="settings_localization">แปล</string>
     <string name="restart_later">หลัง</string>
     <string name="restart_now">เริ่มการทํางานใหม่เดี๋ยวนี้</string>
@@ -296,10 +277,8 @@
     <string name="theme_light">แสง</string>
     <string name="theme_black">ดำ</string>
     <string name="launcher_icon">ไอคอนตัวเปิดใช้</string>
-    <string name="accent">สำเนียง</string>
     <string name="icon">ไอคอน</string>
     <string name="color">สี</string>
-    <string name="map_theme">ชุดรูปแบบแผนที่</string>
     <string name="theme">หัวข้อ</string>
     <string name="opacity_footer">ความทึบของท้ายกระดาษ</string>
     <string name="opacity_row">ความทึบของแถว</string>
@@ -350,7 +329,6 @@
     <string name="remove">ลบ</string>
     <string name="add_location">เพิ่มตําแหน่งที่ตั้ง</string>
     <string name="add_reminder">เพิ่มตัวเตือน</string>
-    <string name="TLA_menu_donate">บริจาค</string>
     <string name="quiet_hours_summary">ไม่มีการเตือนในช่วงเวลาที่เงียบสงบ</string>
     <string name="rate_tasks">จัดอันดับงาน</string>
     <string name="contact_developer">ติดต่อนักพัฒนาซอฟต์แวร์</string>
@@ -367,9 +345,6 @@
     <string name="backup_directory">โฟลเดอร์สำรอง</string>
     <string name="attachment_directory">โฟลเดอร์สิ่งที่แนบมา</string>
     <string name="quiet_hours">ชั่วโมงเงียบ</string>
-    <string name="vibrations">การสั่นสะเทือน</string>
-    <string name="sound">เสียง</string>
-    <string name="silent">เงียบ</string>
     <string name="notifications">แจ้ง เตือน</string>
     <string name="widget_show_dividers">แสดงวงเวียน</string>
     <string name="widget_show_menu">แสดงเมนู</string>
@@ -377,11 +352,6 @@
     <string name="widget_show_settings">แสดงการตั้งค่า</string>
     <string name="widget_show_header">แสดงหัวข้อ</string>
     <string name="widget_show_checkboxes">แสดงช่องทำเครื่องหมาย</string>
-    <string name="yesterday_abbrev_lowercase">yest ประมาณว่าใช่</string>
-    <string name="yest">ใช่</string>
-    <string name="tomorrow_abbrev_lowercase">tmrw (ทมเมอร์ว)</string>
-    <string name="tmrw">Tmrw (ทริมร์ว)</string>
-    <string name="yesterday_lowercase">เมื่อวานนี้</string>
     <string name="next_saturday">เสาร์หน้า</string>
     <string name="next_friday">ศุกร์ถัดไป</string>
     <string name="next_thursday">พฤ. ถัดไป</string>
@@ -389,8 +359,6 @@
     <string name="next_tuesday">อังคารหน้า</string>
     <string name="next_monday">ม.ถัดไป</string>
     <string name="next_sunday">อาทิตย์หน้า</string>
-    <string name="tomorrow_lowercase">พรุ่งนี้</string>
-    <string name="today_lowercase">วันนี้</string>
     <plurals name="Ntasks">
         <item quantity="other">%d งาน</item>
     </plurals>
@@ -485,7 +453,6 @@
     <string name="gtasks_GLA_authenticating">กําลังรับรองความถูกต้อง…</string>
     <string name="gtasks_GTA_clear_completed">ล้างเสร็จสมบูรณ์</string>
     <string name="CFC_list_name">ในรายการ…</string>
-    <string name="CFC_gtasks_list_name">ในรายการ GTasks…</string>
     <string name="CFC_gtasks_list_text">ในรายการ: \?</string>
     <string name="calendar_event_not_found">ไม่พบเหตุการณ์ในปฏิทิน</string>
     <string name="gcal_TEA_error">เกิดข้อผิดพลาดในการเพิ่มงานในปฏิทิน!</string>

@@ -4,25 +4,21 @@ import com.natpryce.makeiteasy.MakeItEasy.with
 import com.natpryce.makeiteasy.PropertyValue
 import com.todoroo.astrid.dao.TaskDao
 import dagger.hilt.android.testing.HiltAndroidTest
-import dagger.hilt.android.testing.UninstallModules
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.tasks.data.TaskListQuery.getQuery
 import org.tasks.data.entity.Task
 import org.tasks.date.DateTimeUtils.newDateTime
 import org.tasks.filters.TodayFilter
 import org.tasks.injection.InjectingTestCase
-import org.tasks.injection.ProductionModule
 import org.tasks.makers.TaskMaker.DUE_DATE
 import org.tasks.makers.TaskMaker.PARENT
 import org.tasks.makers.TaskMaker.newTask
 import org.tasks.preferences.Preferences
 import javax.inject.Inject
 
-@UninstallModules(ProductionModule::class)
 @HiltAndroidTest
 class RecursiveLoopTest : InjectingTestCase() {
     @Inject lateinit var taskDao: TaskDao
@@ -35,7 +31,6 @@ class RecursiveLoopTest : InjectingTestCase() {
     }
 
     @Test
-    @Ignore("infinite loop")
     fun handleSelfLoop() = runBlocking {
         addTask(with(DUE_DATE, newDateTime()), with(PARENT, 1L))
 
@@ -46,7 +41,6 @@ class RecursiveLoopTest : InjectingTestCase() {
     }
 
     @Test
-    @Ignore("infinite loop")
     fun handleSingleLevelLoop() = runBlocking {
         val parent = addTask(with(DUE_DATE, newDateTime()))
         val child = addTask(with(PARENT, parent))
@@ -60,7 +54,6 @@ class RecursiveLoopTest : InjectingTestCase() {
     }
 
     @Test
-    @Ignore("infinite loop")
     fun handleMultiLevelLoop() = runBlocking {
         val parent = addTask(with(DUE_DATE, newDateTime()))
         val child = addTask(with(PARENT, parent))
@@ -75,9 +68,9 @@ class RecursiveLoopTest : InjectingTestCase() {
         assertEquals(grandchild, tasks[2].id)
     }
 
-    private suspend fun getTasks() = taskDao.fetchTasks {
+    private suspend fun getTasks() = taskDao.fetchTasks(
         getQuery(preferences, TodayFilter.create())
-    }
+    )
 
     private suspend fun addTask(vararg properties: PropertyValue<in Task?, *>): Long {
         val task = newTask(*properties)

@@ -24,7 +24,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.widget.addTextChangedListener
-import com.todoroo.andlib.utility.AndroidUtilities
 import org.tasks.R
 import org.tasks.dialogs.Linkify
 import org.tasks.markdown.MarkdownProvider
@@ -38,6 +37,8 @@ fun EditTextView(
     markdownProvider: MarkdownProvider?,
     strikethrough: Boolean = false,
     requestFocus: Boolean = false,
+    multiline: Boolean = false,
+    onDone: () -> Unit = {},
 ) {
     val context = LocalContext.current
     var shouldRequestFocus by remember { mutableStateOf(false) }
@@ -57,23 +58,43 @@ fun EditTextView(
                     onTextChanged = { text, _, _, _ -> onChanged(text) },
                     afterTextChanged = { editable -> textWatcher?.invoke(editable) }
                 )
-                setBackgroundColor(context.getColor(android.R.color.transparent))
-                textAlignment = View.TEXT_ALIGNMENT_VIEW_START
-                imeOptions = EditorInfo.IME_FLAG_NO_EXTRACT_UI
-                inputType =
-                    InputType.TYPE_CLASS_TEXT or
-                            InputType.TYPE_TEXT_FLAG_CAP_SENTENCES or
-                            InputType.TYPE_TEXT_FLAG_MULTI_LINE or
-                            InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
-                isSingleLine = false
                 maxLines = Int.MAX_VALUE
-                if (AndroidUtilities.atLeastOreo()) {
-                    importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO
+                isSingleLine = false
+                if (multiline) {
+                    // Multiline configuration
+                    setRawInputType(
+                        InputType.TYPE_CLASS_TEXT or
+                                InputType.TYPE_TEXT_FLAG_CAP_SENTENCES or
+                                InputType.TYPE_TEXT_FLAG_MULTI_LINE or
+                                InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
+                    )
+                    imeOptions = EditorInfo.IME_FLAG_NO_EXTRACT_UI
+                } else {
+                    // Single line with Done button
+                    setRawInputType(
+                        InputType.TYPE_CLASS_TEXT or
+                                InputType.TYPE_TEXT_FLAG_CAP_SENTENCES or
+                                InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
+                    )
+                    imeOptions = EditorInfo.IME_ACTION_DONE or EditorInfo.IME_FLAG_NO_EXTRACT_UI
+                    setImeActionLabel(context.getString(android.R.string.ok), EditorInfo.IME_ACTION_DONE)
+                    setOnEditorActionListener { _, actionId, _ ->
+                        if (actionId == EditorInfo.IME_ACTION_DONE) {
+                            clearFocus()
+                            val imm = context.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                            imm.hideSoftInputFromWindow(windowToken, 0)
+                            onDone()
+                            true
+                        } else {
+                            false
+                        }
+                    }
                 }
-                isVerticalScrollBarEnabled = true
+
+                setBackgroundColor(context.getColor(android.R.color.transparent))
+                importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO
                 freezesText = true
                 setHorizontallyScrolling(false)
-                isHorizontalScrollBarEnabled = false
                 setHint(hint)
                 setHintTextColor(context.getColor(R.color.text_tertiary))
                 setTextSize(

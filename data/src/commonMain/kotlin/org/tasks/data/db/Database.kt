@@ -6,10 +6,10 @@ import androidx.room.RoomDatabase
 import org.tasks.data.dao.AlarmDao
 import org.tasks.data.dao.Astrid2ContentProviderDao
 import org.tasks.data.dao.CaldavDao
+import org.tasks.data.dao.CompletionDao
 import org.tasks.data.dao.DeletionDao
 import org.tasks.data.dao.FilterDao
 import org.tasks.data.dao.GoogleTaskDao
-import org.tasks.data.dao.GoogleTaskListDao
 import org.tasks.data.dao.LocationDao
 import org.tasks.data.dao.NotificationDao
 import org.tasks.data.dao.PrincipalDao
@@ -62,7 +62,7 @@ import org.tasks.data.entity.UserActivity
         AutoMigration(from = 83, to = 84, spec = AutoMigrate83to84::class),
         AutoMigration(from = 88, to = 89, spec = AutoMigrate88to89::class),
     ],
-    version = 89
+    version = 90
 )
 abstract class Database : RoomDatabase() {
     abstract fun notificationDao(): NotificationDao
@@ -75,13 +75,13 @@ abstract class Database : RoomDatabase() {
     abstract fun tagDao(): TagDao
     abstract fun googleTaskDao(): GoogleTaskDao
     abstract fun filterDao(): FilterDao
-    abstract fun googleTaskListDao(): GoogleTaskListDao
     abstract fun taskDao(): TaskDao
     abstract fun caldavDao(): CaldavDao
     abstract fun deletionDao(): DeletionDao
     abstract fun contentProviderDao(): Astrid2ContentProviderDao
     abstract fun upgraderDao(): UpgraderDao
     abstract fun principalDao(): PrincipalDao
+    abstract fun completionDao(): CompletionDao
 
     /** @return human-readable database name for debugging
      */

@@ -2,7 +2,6 @@ package org.tasks.ui.editviewmodel
 
 import com.todoroo.astrid.service.TaskDeleter
 import dagger.hilt.android.testing.HiltAndroidTest
-import dagger.hilt.android.testing.UninstallModules
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -11,18 +10,18 @@ import org.junit.Test
 import org.tasks.LocalBroadcastManager
 import org.tasks.analytics.Firebase
 import org.tasks.billing.Inventory
+import org.tasks.data.dao.CaldavDao
 import org.tasks.data.dao.DeletionDao
 import org.tasks.data.dao.TaskDao
 import org.tasks.data.entity.Task
 import org.tasks.filters.MyTasksFilter
 import org.tasks.injection.InjectingTestCase
-import org.tasks.injection.ProductionModule
+import org.tasks.preferences.PermissivePermissionChecker
 import org.tasks.preferences.Preferences
 import org.tasks.time.DateTimeUtils2.currentTimeMillis
 import org.tasks.ui.TaskListViewModel
 import javax.inject.Inject
 
-@UninstallModules(ProductionModule::class)
 @HiltAndroidTest
 class TaskListViewModelTest : InjectingTestCase() {
     private lateinit var viewModel: TaskListViewModel
@@ -33,12 +32,13 @@ class TaskListViewModelTest : InjectingTestCase() {
     @Inject lateinit var localBroadcastManager: LocalBroadcastManager
     @Inject lateinit var inventory: Inventory
     @Inject lateinit var firebase: Firebase
+    @Inject lateinit var caldavDao: CaldavDao
 
     @Before
     override fun setUp() {
         super.setUp()
         viewModel = TaskListViewModel(
-            context = context,
+            applicationContext = context,
             preferences = preferences,
             taskDao = taskDao,
             deletionDao = deletionDao,
@@ -46,6 +46,8 @@ class TaskListViewModelTest : InjectingTestCase() {
             localBroadcastManager = localBroadcastManager,
             inventory = inventory,
             firebase = firebase,
+            permissionChecker = PermissivePermissionChecker(context),
+            caldavDao = caldavDao,
         )
         viewModel.setFilter(runBlocking { MyTasksFilter.create() })
     }

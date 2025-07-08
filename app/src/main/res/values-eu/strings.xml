@@ -108,7 +108,6 @@
     <string name="calendar_event_not_found">Ez da egutegiko gertaera aurkitu</string>
     <string name="gcal_completed_title">%s (burututa)</string>
     <string name="CFC_gtasks_list_text">Zerrendan: \?</string>
-    <string name="CFC_gtasks_list_name">GTasks zerrendan…</string>
     <string name="gtasks_GTA_clear_completed">Kendu burututakoak</string>
     <string name="gtasks_GLA_authenticating">Autentifikatzen…</string>
     <string name="gtasks_GLA_errorIOAuth">Google zerbitzariekin komunikatzeko arazo bat izan dugu. Saiatu geroago.</string>
@@ -218,16 +217,10 @@
     </plurals>
     <string name="today">Gaur</string>
     <string name="tomorrow">Bihar</string>
-    <string name="yesterday">Atzo</string>
-    <string name="tmrw">Bihar</string>
-    <string name="yest">Atzo</string>
     <string name="widget_show_checkboxes">Erakutsi markaketa-koadroak</string>
     <string name="widget_show_header">Erakutsi goiburua</string>
     <string name="widget_show_settings">Erakutsi ezarpenak</string>
     <string name="notifications">Jakinarazpenak</string>
-    <string name="silent">Isila</string>
-    <string name="sound">Soinua</string>
-    <string name="vibrations">Bibrazioak</string>
     <string name="quiet_hours">Isilune orduak</string>
     <string name="attachment_directory">Eranskinen karpeta</string>
     <string name="backup_directory">Babes-kopien karpeta</string>
@@ -242,7 +235,6 @@
     <string name="contact_developer">Jarri garatzailearekin kontaktuan</string>
     <string name="rate_tasks">Baloratu Tasks</string>
     <string name="quiet_hours_summary">Oroigarririk ez isilune orduetan</string>
-    <string name="TLA_menu_donate">Egin dohaintza</string>
     <string name="add_reminder">Gehitu oroigarria</string>
     <string name="add_location">Gehitu kokalekua</string>
     <string name="remove">Kendu</string>
@@ -293,7 +285,6 @@
     <string name="opacity">Opakutasuna</string>
     <string name="theme">Azala</string>
     <string name="color">Kolorea</string>
-    <string name="accent">Azentua</string>
     <string name="launcher_icon">Abiarazlearen ikonoa</string>
     <string name="theme_black">Beltza</string>
     <string name="theme_light">Argia</string>
@@ -305,8 +296,6 @@
     <string name="restart_now">Berrabiarazi orain</string>
     <string name="restart_later">Geroago</string>
     <string name="settings_localization">Lokalizazioa</string>
-    <string name="led_notification">LED jakinarazpena</string>
-    <string name="hardware_support_required">Hardwareak onartzea ezinbestekoa</string>
     <string name="widget_settings">Trepetaren ezarpenak</string>
     <string name="widget_header_settings">Goiburuaren ezarpenak</string>
     <string name="widget_row_settings">Errenkadaren ezarpenak</string>
@@ -316,8 +305,6 @@
     <string name="delete_selected_tasks">Ezabatu hautatutako zereginak\?</string>
     <string name="copy_selected_tasks">Kopiatu hautatutako zereginak\?</string>
     <string name="date_and_time">Data eta ordua</string>
-    <string name="start_of_week">Astearen hasiera</string>
-    <string name="use_locale_default">Erabili hizkuntzak lehenetsitakoa</string>
     <string name="add_account">Gehitu kontua</string>
     <string name="user">Erabiltzailea</string>
     <string name="password">Pasahitza</string>
@@ -410,7 +397,6 @@
     <string name="subtasks">Azpi-zereginak</string>
     <string name="subtasks_multilevel_google_task">Google Tasks-ek ez ditu hainbat mailako azpi-zereginak onartzen</string>
     <string name="enter_tag_name">Idatzi etiketaren izena</string>
-    <string name="create_new_tag">Sortu \"%s\"</string>
     <string name="display_name">Erakutsi izena</string>
     <string name="this_feature_requires_a_subscription">Ezaugarri honek harpidetza eskatzen du</string>
     <string name="choose_synchronization_service">Hautatu plataforma</string>
@@ -439,9 +425,6 @@
     <string name="back">Atzera</string>
     <string name="chips">Txipak</string>
     <string name="chip_appearance">Txip itxura</string>
-    <string name="desaturate_colors">Desasetu koloreak</string>
-    <string name="desaturate_colors_summary_on">Koloreak desasetuko dira azal ilunetan</string>
-    <string name="desaturate_colors_summary_off">Koloreak ez dira desasetuko azal ilunetan</string>
     <string name="places">Tokiak</string>
     <string name="place_settings">Toki-ezarpenak</string>
     <string name="navigation_drawer">Nabigazio tiradera</string>
@@ -503,9 +486,6 @@
     <string name="action_new_task">Zeregin berria</string>
     <string name="sort_modified_group">Aldaketa %s</string>
     <string name="sort_created_group">Sorrera %s</string>
-    <string name="yesterday_lowercase">atzo</string>
-    <string name="tomorrow_lowercase">bihar</string>
-    <string name="today_lowercase">gaur</string>
     <string name="lists">Zerrendak</string>
     <string name="open_last_viewed_list">Ireki ikusitako azkenen zerrenda</string>
     <string name="on_launch">Abioan</string>
@@ -575,7 +555,6 @@
     <string name="authentication_required">Autentifikazioa derrigorrezkoa</string>
     <string name="sign_in_with_github">Hasi saioa GitHub erabiliz</string>
     <string name="google_play_subscribers">Google Play harpideak</string>
-    <string name="not_signed_in">Saioa hasi gabe</string>
     <string name="no_google_play_subscription">Ez da Google Play harpidetza egokirik aurkitu</string>
     <string name="insufficient_sponsorship">Ez da GitHub sponsorship egokirik aurkitu</string>
     <string name="local_lists">Zerrenda lokalak</string>
@@ -587,8 +566,6 @@
     <string name="show_unstarted">Erakutsi hasi gabeak</string>
     <string name="filter_criteria_unstarted">Hasi gabea</string>
     <string name="widget_show_title">Erakutsi izenburua</string>
-    <string name="yesterday_abbrev_lowercase">atzo</string>
-    <string name="tomorrow_abbrev_lowercase">bihar</string>
     <plurals name="list_count">
         <item quantity="one">Zerrenda %d</item>
         <item quantity="other">%d zerrenda</item>
@@ -599,9 +576,7 @@
     <string name="CFC_startBefore_text">Hasiera: \?</string>
     <string name="default_due_date">Lehenetsitako epemuga data</string>
     <string name="default_start_date">Lehenetsitako hasiera data</string>
-    <string name="map_theme_use_app_theme">Aplikazioaren gaia erabili</string>
     <string name="tasks_org_account_required">Tasks.org kontua behar da</string>
-    <string name="map_theme">Maparen gaia</string>
     <string name="privacy">Pribatutasuna</string>
     <string name="open_source">Kode irekia</string>
     <string name="issue_tracker">Gorabeheren arakatzailea</string>
@@ -620,21 +595,13 @@
     <string name="markdown_description">Markdown gaitu izenburuan eta deskribapenean</string>
     <string name="markdown">Markdown</string>
     <string name="more_options">Aukera gehiago</string>
-    <string name="upgrade_automation_description">Tasker, Automate eta Localerako pluginak</string>
-    <string name="upgrade_automation">Automatizazioa</string>
     <string name="upgrade_open_source_description">Harpidetzak etengabeko garapenaren alde egiten du</string>
     <string name="upgrade_desktop_access_description">Outlook eta Apple Reminders bezalako hirugarrenen bezeroekin sinkronizatu</string>
     <string name="upgrade_desktop_access">Mahaigaineko sarbidea</string>
     <string name="upgrade_tasks_org_account_description">Sinkronizatu Tasks.org-ekin eta lankidetu beste erabiltzaile batzuekin</string>
-    <string name="upgrade_google_tasks">Hainbat kontu sinkronizatu</string>
     <string name="upgrade_more_customization_description">Desblokeatu gai, kolore eta ikono guztiak</string>
     <string name="upgrade_more_customization">Pertsonalizazio gehiago</string>
     <string name="pro_free_trial">Harpidedun berriek 7 eguneko doako proba jasotzen dute. Ezeztatu edozein unetan</string>
-    <string name="picker_mode_text">Testua</string>
-    <string name="picker_mode_clock">Erlojua</string>
-    <string name="picker_mode_calendar">Egutegia</string>
-    <string name="picker_mode_time">Denbora hautatzeko modua</string>
-    <string name="picker_mode_date">Data hautatzeko modua</string>
     <string name="next_saturday">Hurrengo larunbata</string>
     <string name="next_friday">Hurrengo ostirala</string>
     <string name="next_thursday">Hurrengo osteguna</string>
@@ -646,10 +613,6 @@
     <string name="now">Orain</string>
     <string name="when_started">Hasten denean</string>
     <string name="completion_sound">Amaierako soinua erreproduzitu</string>
-    <string name="app_bar_position">Aplikazioaren barraren posizioa</string>
-    <string name="top">Goi-mailakoa</string>
-    <string name="bottom">Behekoa</string>
-    <string name="app_bar_collapse">Aplikazioaren barrak uzkurtu</string>
     <string name="completed">Amaituta</string>
     <string name="snackbar_task_completed">Amaitutako zereginak</string>
     <string name="completed_tasks_at_bottom">Betetako atazak behealdera mugitu</string>

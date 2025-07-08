@@ -14,11 +14,14 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.mandatorySystemGestures
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -28,7 +31,6 @@ import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.AttachMoney
 import androidx.compose.material.icons.outlined.PeopleOutline
 import androidx.compose.material.icons.outlined.PermIdentity
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.SyncProblem
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
@@ -39,8 +41,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,10 +48,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
@@ -60,18 +63,21 @@ import org.tasks.compose.components.Chevron
 import org.tasks.compose.components.SearchBar
 import org.tasks.compose.components.TasksIcon
 import org.tasks.kmp.formatNumber
+import org.tasks.kmp.org.tasks.compose.rememberImeState
 import tasks.kmp.generated.resources.Res
 import tasks.kmp.generated.resources.help_and_feedback
 import tasks.kmp.generated.resources.search
-import tasks.kmp.generated.resources.settings
 import tasks.kmp.generated.resources.subscribe
+import java.util.Locale
 import kotlin.math.roundToInt
+
+@Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
+private val SEARCH_BAR_BOTTOM_PADDING = androidx.compose.material3.OutlinedTextFieldTopPadding
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskListDrawer(
     arrangement: Arrangement.Vertical,
-    bottomSearchBar: Boolean,
     filters: ImmutableList<DrawerItem>,
     onClick: (DrawerItem) -> Unit,
     onAddClick: (DrawerItem.Header) -> Unit,
@@ -79,77 +85,62 @@ fun TaskListDrawer(
     searchBar: @Composable RowScope.() -> Unit,
 ) {
     val bottomAppBarScrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior()
-    val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    var bottomBarHeight by remember { mutableStateOf(0.dp) }
     Scaffold(
         modifier = Modifier
-            .nestedScroll(
-                if (bottomSearchBar)
-                    bottomAppBarScrollBehavior.nestedScrollConnection
-                else
-                    topAppBarScrollBehavior.nestedScrollConnection
-            ),
+            .imePadding()
+            .nestedScroll(bottomAppBarScrollBehavior.nestedScrollConnection),
         bottomBar = {
-            if (bottomSearchBar) {
-                BottomAppBar(
-                    modifier = Modifier.layout { measurable, constraints ->
+            BottomAppBar(
+                modifier = Modifier
+                    .layout { measurable, constraints ->
                         val placeable = measurable.measure(constraints)
                         bottomAppBarScrollBehavior.state.heightOffsetLimit =
                             -placeable.height.toFloat()
                         val height =
                             placeable.height + bottomAppBarScrollBehavior.state.heightOffset
+                        bottomBarHeight = height.toDp()
                         layout(placeable.width, height.roundToInt().coerceAtLeast(0)) {
                             placeable.place(0, 0)
                         }
                     },
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    scrollBehavior = bottomAppBarScrollBehavior
-                ) {
-                    searchBar()
-                }
+                containerColor = MaterialTheme.colorScheme.surface,
+                scrollBehavior = bottomAppBarScrollBehavior
+            ) {
+                searchBar()
             }
         },
-        topBar = {
-            if (!bottomSearchBar) {
-                TopAppBar(
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                    ),
-                    scrollBehavior = topAppBarScrollBehavior,
-                    title = {
-                        Row {
-                            searchBar()
-                        }
-                    }
-                )
-            }
-        }
     ) { contentPadding ->
+        val keyboardOpen = rememberImeState().value
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize(),
-            contentPadding = PaddingValues(
-                top = if (bottomSearchBar) 0.dp else contentPadding.calculateTopPadding(),
-                bottom = if (bottomSearchBar)
-                    maxOf(
-                    WindowInsets.mandatorySystemGestures
-                        .asPaddingValues()
-                        .calculateBottomPadding(),
-                    contentPadding.calculateBottomPadding()
-                ) else
-                    48.dp
-            ),
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = if (keyboardOpen) {
+                contentPadding
+            } else {
+                val systemBarPadding = WindowInsets.systemBars.asPaddingValues()
+                val direction = LocalLayoutDirection.current
+                remember(contentPadding, systemBarPadding, bottomBarHeight) {
+                    PaddingValues(
+                        start = contentPadding.calculateStartPadding(direction),
+                        top = contentPadding.calculateTopPadding(),
+                        end = contentPadding.calculateEndPadding(direction),
+                        bottom = maxOf(
+                            systemBarPadding.calculateBottomPadding(),
+                            contentPadding.calculateBottomPadding() + bottomBarHeight
+                        )
+                    )
+                }
+            },
             verticalArrangement = arrangement,
         ) {
             items(items = filters, key = { it.key() }) {
                 when (it) {
                     is DrawerItem.Filter -> FilterItem(
-//                        modifier = Modifier.animateItemPlacement(),
                         item = it,
                         onClick = { onClick(it) }
                     )
 
                     is DrawerItem.Header -> HeaderItem(
-//                        modifier = Modifier.animateItemPlacement(),
                         item = it,
                         canAdd = it.canAdd,
                         toggleCollapsed = { onClick(it) },
@@ -289,6 +280,7 @@ fun RowScope.MenuSearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
 ) {
+    val density = LocalDensity.current
     var hasFocus by remember { mutableStateOf(false) }
     SearchBar(
         modifier = Modifier
@@ -296,7 +288,7 @@ fun RowScope.MenuSearchBar(
             .padding(
                 start = 8.dp,
                 end = if (hasFocus) 8.dp else 0.dp,
-                bottom = 4.dp
+                bottom = with(density) { SEARCH_BAR_BOTTOM_PADDING.toDp() }
             )
             .weight(1f)
             .animateContentSize(
@@ -324,17 +316,18 @@ fun RowScope.MenuSearchBar(
             }
         }
         IconButton(onClick = { onDrawerAction(DrawerAction.HELP_AND_FEEDBACK) }) {
+            // Cancel the mirroring of the help icon when the locale is Hebrew.
+            val modifier =
+                if (Locale.getDefault().language == Locale.forLanguageTag("he").language) {
+                    Modifier.scale(scaleX = -1f, scaleY = 1f)
+                } else {
+                    Modifier
+                }
             Icon(
                 imageVector = Icons.AutoMirrored.Outlined.HelpOutline,
                 contentDescription = stringResource(Res.string.help_and_feedback),
                 tint = MaterialTheme.colorScheme.onSurface,
-            )
-        }
-        IconButton(onClick = { onDrawerAction(DrawerAction.SETTINGS) }) {
-            Icon(
-                imageVector = Icons.Outlined.Settings,
-                contentDescription = stringResource(Res.string.settings),
-                tint = MaterialTheme.colorScheme.onSurface,
+                modifier = modifier,
             )
         }
     }

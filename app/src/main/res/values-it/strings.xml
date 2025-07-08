@@ -103,7 +103,6 @@
     <string name="calendar_event_not_found">Evento non trovato</string>
     <string name="gcal_completed_title">%s (completato)</string>
     <string name="CFC_gtasks_list_text">Nella lista: ?</string>
-    <string name="CFC_gtasks_list_name">Nella lista GTasks…</string>
     <string name="gtasks_GTA_clear_completed">Elimina attività completate</string>
     <string name="gtasks_GLA_authenticating">Autenticazione…</string>
     <string name="gtasks_GLA_errorIOAuth">Ci scusiamo per il disagio, abbiamo dei problemi a comunicare con i server di Google. Per favore riprovare più tardi.</string>
@@ -214,7 +213,7 @@
     <string name="TEA_timer_comment_started">attività iniziata:</string>
     <string name="TEA_timer_comment_stopped">attività terminata:</string>
     <string name="TEA_timer_comment_spent">Tempo speso:</string>
-    <string name="voice_create_prompt">Dettami il nome dell\'attività</string>
+    <string name="voice_create_prompt">Detta il nome dell\'attività</string>
     <string name="EPr_voiceInputEnabled_title">Voce</string>
     <string name="EPr_voiceRemindersEnabled_title">Promemoria vocali</string>
     <string name="EPr_voiceRemindersEnabled_desc_enabled">Tasks pronuncerà il nome dell\'attività durante i promemoria</string>
@@ -227,16 +226,10 @@
     </plurals>
     <string name="today">Oggi</string>
     <string name="tomorrow">Domani</string>
-    <string name="yesterday">Ieri</string>
-    <string name="tmrw">Domani</string>
-    <string name="yest">Ieri</string>
     <string name="widget_show_checkboxes">Mostra le caselle di selezione</string>
     <string name="widget_show_header">Mostra intestazione</string>
     <string name="widget_show_settings">Mostra impostazioni</string>
     <string name="notifications">Notifiche</string>
-    <string name="silent">Silenzioso</string>
-    <string name="sound">Suono</string>
-    <string name="vibrations">Vibrazioni</string>
     <string name="quiet_hours">Ore di quiete</string>
     <string name="attachment_directory">Cartella degli allegati</string>
     <string name="backup_directory">Cartella di backup</string>
@@ -251,7 +244,6 @@
     <string name="contact_developer">Contatta lo sviluppatore</string>
     <string name="rate_tasks">Valuta Tasks</string>
     <string name="quiet_hours_summary">Nessuna notifica durante le ore di quiete</string>
-    <string name="TLA_menu_donate">Dona</string>
     <string name="add_reminder">Aggiungi promemoria</string>
     <string name="add_location">Aggiungi posizione</string>
     <string name="remove">Elimina</string>
@@ -301,7 +293,6 @@
     <string name="opacity">Opacità</string>
     <string name="theme">Tema</string>
     <string name="color">Colore</string>
-    <string name="accent">Colore secondario</string>
     <string name="launcher_icon">Icona del launcher</string>
     <string name="theme_black">Nero</string>
     <string name="theme_light">Chiaro</string>
@@ -313,8 +304,6 @@
     <string name="restart_now">Riavvia ora</string>
     <string name="restart_later">Dopo</string>
     <string name="settings_localization">Localizzazione</string>
-    <string name="led_notification">LED di notifica</string>
-    <string name="hardware_support_required">È richiesto il supporto hardware</string>
     <string name="widget_settings">Impostazioni widget</string>
     <string name="widget_header_settings">Impostazioni intestazione</string>
     <string name="widget_row_settings">Impostazioni riga</string>
@@ -324,8 +313,6 @@
     <string name="delete_selected_tasks">Eliminare le attività selezionate\?</string>
     <string name="copy_selected_tasks">Copio le attività selezionate\?</string>
     <string name="date_and_time">Data e ora</string>
-    <string name="start_of_week">Inizio della settimana</string>
-    <string name="use_locale_default">Usa il valore predefinito della lingua corrente</string>
     <string name="add_account">Aggiungi account</string>
     <string name="user">Utente</string>
     <string name="notification_disable_battery_optimizations_description">L\'ottimizzazione della batteria può ritardare le notifiche</string>
@@ -399,7 +386,6 @@
     <string name="display_name">Nome visualizzato</string>
     <string name="TEA_add_subtask">Aggiungi attività secondaria</string>
     <string name="SSD_sort_my_order">Personalizzato</string>
-    <string name="desaturate_colors">Riduci saturazione colori</string>
     <string name="share">Condividi</string>
     <string name="select_all">Seleziona tutto</string>
     <string name="calendar_event_created">Creato evento nel calendario per %s</string>
@@ -416,8 +402,6 @@
     <string name="navigation_drawer">Menù laterale</string>
     <string name="place_settings">Impostazioni luogo</string>
     <string name="places">Luoghi</string>
-    <string name="desaturate_colors_summary_on">I colori perderanno saturazione nei temi scuri</string>
-    <string name="desaturate_colors_summary_off">I colori non perderanno saturazione nei temi scuri</string>
     <string name="back">Indietro</string>
     <string name="upgrade_blurb_2">Ho dedicato a Tasks migliaia di ore di lavoro, pubblicando tutto il codice sorgente online, gratuitamente. Per supportare il mio lavoro alcune funzioni richiedono un abbonamento</string>
     <string name="upgrade_blurb_1">Ciao! Mi chiamo Alex. Sono lo sviluppatore indipendente di Tasks</string>
@@ -457,7 +441,6 @@
         <item quantity="many">%d attività secondarie</item>
         <item quantity="other">%d attività secondarie</item>
     </plurals>
-    <string name="create_new_tag">Crea «%s»</string>
     <string name="subtasks_multilevel_google_task">Google Tasks non supporta attività secondarie su più livelli</string>
     <string name="expand_subtasks">Espandi attività secondarie</string>
     <string name="google_tasks_add_to_top">Nuove attività in cima alla lista</string>
@@ -492,9 +475,6 @@
     <string name="widget_due_date_below_title">Sotto il titolo</string>
     <string name="widget_due_date_after_title">Dopo il titolo</string>
     <string name="widget_open_list">Apri lista</string>
-    <string name="yesterday_lowercase">ieri</string>
-    <string name="tomorrow_lowercase">domani</string>
-    <string name="today_lowercase">oggi</string>
     <string name="CFC_list_name">Nella lista…</string>
     <string name="astrid_sort_order_summary">Abilita la modalità di ordinamento manuale di Astrid per \"Attività personali\", \"Oggi\" ed etichette. Questa modalità di ordinamento verrà sostituita da \"Ordine personalizzato\" in un futuro aggiornamento</string>
     <string name="custom_filter_criteria">Criteri del filtro</string>
@@ -576,7 +556,6 @@
     <string name="sign_in_with_github">Accedi con GitHub</string>
     <string name="github_sponsors">Sponsor di GitHub</string>
     <string name="google_play_subscribers">Abbonati a Google Play</string>
-    <string name="not_signed_in">Accesso non eseguito</string>
     <string name="no_google_play_subscription">Nessun abbonamento Google Play idoneo trovato</string>
     <string name="insufficient_sponsorship">Nessuna sponsorizzazione GitHub idonea trovata</string>
     <string name="decsync_selection_description">Sincronizzazione basata sui file</string>
@@ -602,8 +581,6 @@
     <string name="sign_in_to_tasks">Accedi a Tasks.org</string>
     <string name="copied_to_clipboard">%s copiato</string>
     <string name="local_lists">Liste locali</string>
-    <string name="tomorrow_abbrev_lowercase">domani</string>
-    <string name="yesterday_abbrev_lowercase">ieri</string>
     <string name="account_not_included">Non incluso negli abbonamenti con prezzo a scelta</string>
     <string name="tasks_org_account">Account Tasks.org</string>
     <string name="subscription">Abbonamento</string>
@@ -611,21 +588,14 @@
     <string name="CFC_startBefore_name">Inizia…</string>
     <string name="app_passwords">Password delle app</string>
     <string name="widget_show_title">Mostra titolo</string>
-    <string name="picker_mode_time">Modalità selettore ora</string>
-    <string name="picker_mode_date">Modalità selettore data</string>
-    <string name="picker_mode_calendar">Calendario</string>
-    <string name="picker_mode_clock">Orologio</string>
-    <string name="picker_mode_text">Testuale</string>
     <string name="share_list">Condividi lista</string>
     <string name="remove_user_confirmation">%1$s non avrà più accesso a %2$s</string>
     <string name="remove_user">Vuoi rimuovere l\'utente\?</string>
     <string name="invite">Invita</string>
-    <string name="map_theme">Tema della mappa</string>
     <string name="invite_invalid">Invito non valido</string>
     <string name="invite_awaiting_response">Invito in attesa di risposta</string>
     <string name="invite_declined">Invito rifiutato</string>
     <string name="email">E-mail</string>
-    <string name="map_theme_use_app_theme">Usa il tema dell\'app</string>
     <string name="support">Supporto</string>
     <string name="more_options">Altre opzioni</string>
     <string name="tasks_org_account_required">È richiesto un account Tasks.org</string>
@@ -634,13 +604,10 @@
     <string name="issue_tracker">Segnalazione problemi</string>
     <string name="social">Social</string>
     <string name="follow_twitter">Segui @tasks_org</string>
-    <string name="upgrade_automation_description">Estensioni per Tasker, Automate e Locale</string>
-    <string name="upgrade_automation">Automazione</string>
     <string name="upgrade_open_source_description">Il tuo abbonamento supporta lo sviluppo continuo</string>
     <string name="upgrade_desktop_access_description">Sincronizza con client di terze parti come Outlook e Apple Reminders</string>
     <string name="upgrade_desktop_access">Accesso desktop</string>
     <string name="upgrade_tasks_org_account_description">Sincronizza con Tasks.org e collabora con altri utenti</string>
-    <string name="upgrade_google_tasks">Sincronizza più account</string>
     <string name="upgrade_more_customization_description">Sblocca tutti i temi, i colori e le icone</string>
     <string name="upgrade_more_customization">Maggiore personalizzazione</string>
     <string name="pro_free_trial">I nuovi abbonati ricevono 7 giorni di prova gratuita. Puoi recedere in qualsiasi momento</string>
@@ -660,11 +627,7 @@
     <string name="now">Ora</string>
     <string name="when_started">Alla data di inizio</string>
     <string name="completion_sound">Suono di completamento</string>
-    <string name="app_bar_collapse">Comprimi le barre dell\'app</string>
     <string name="completed">Completate</string>
-    <string name="app_bar_position">Posizione della barra dell\'app</string>
-    <string name="top">In alto</string>
-    <string name="bottom">In basso</string>
     <string name="snackbar_task_completed">Attività completata</string>
     <string name="completed_tasks_at_bottom">Sposta le attività completate in basso</string>
     <string name="snackbar_tasks_completed">%d attività completate</string>
@@ -741,8 +704,8 @@
     <string name="donate_today">Dona ora</string>
     <string name="donate_nag">Dimostra il tuo sostegno con una donazione!</string>
     <string name="donate_maybe_later">Forse più tardi</string>
-    <string name="customize_drawer">Personalizza il drawer</string>
-    <string name="customize_drawer_summary">Trascina e rilascia le voci del menu per riorganizzarlo</string>
+    <string name="customize_drawer">Personalizza il menù laterale</string>
+    <string name="customize_drawer_summary">Trascina e rilascia le voci del menù per riorganizzarlo</string>
     <string name="swipe_to_snooze_time_24_hours">dopo 24 ore</string>
     <string name="swipe_to_snooze_time_15_minutes">dopo 15 minuti</string>
     <string name="show_edit_screen_without_unlock">Mostra la schermata di modifica senza sbloccare</string>
@@ -755,4 +718,28 @@
     <string name="swipe_to_snooze_time_description">Una notifica annullata sarà posticipata e ricreata %s</string>
     <string name="send_application_logs">Invia i log dell\'applicazione</string>
     <string name="quiet_hours_in_effect">Ore di quiete attive</string>
+    <string name="yesterday">Ieri</string>
+    <string name="delete_comment">commento</string>
+    <string name="price_per_month_with_currency">%s/mese</string>
+    <string name="price_per_year_with_currency">%s/anno</string>
+    <string name="enable_alarms_description">Per essere avvisati alla scadenza, concedere il permesso di impostare allarmi e promemoria in Impostazioni</string>
+    <string name="enable_alarms">Ricevi notifica alla scadenza</string>
+    <string name="add_shortcut_to_home_screen">Aggiungi collegamento sulla Home</string>
+    <string name="add_widget_to_home_screen">Aggiungi widget sulla Home</string>
+    <string name="comment">Commento</string>
+    <string name="cost_free">Costo: gratuito</string>
+    <string name="multiline_title">Consenti titoli su più righe</string>
+    <string name="multiline_title_on">Premi il tasto Invio per andare a capo</string>
+    <string name="cost_more_money">Costo: $$$</string>
+    <string name="cost_money">Costo: $</string>
+    <string name="sync_warning_google_tasks">Non tutti i dettagli delle attività saranno sincronizzati con Google Tasks</string>
+    <string name="button_learn_more">Ulteriori informazioni</string>
+    <string name="sync_warning_microsoft_title">Informazioni su Microsoft To Do</string>
+    <string name="sync_warning_microsoft">Non tutti i dettagli delle attività saranno sincronizzati con Microsoft To Do.</string>
+    <string name="sync_warning_google_tasks_title">Informazioni su Google Task sync</string>
+    <string name="subtasks_multilevel_microsoft">Attività secondarie multilivello non supportate da Microsoft To Do</string>
+    <string name="app_settings">Impostazioni app</string>
+    <string name="banner_app_updated_title">App aggiornata</string>
+    <string name="banner_app_updated_description">Tasks è stata aggiornata a %s. Vuoi vedere le note di rilascio?</string>
+    <string name="multiline_title_off">Premi il tasto di conferma per salvare l\'attività</string>
 </resources>

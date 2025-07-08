@@ -51,7 +51,7 @@ class SectionedDataSource(
 
     override fun get(index: Int) =
         sections[index]
-            ?.let { UiItem.Header(it.value) }
+            ?.let { UiItem.Header(it.value, it.collapsed) }
             ?: UiItem.Task(getItem(index))
 
     override fun isEmpty() = size == 0
@@ -141,11 +141,19 @@ class SectionedDataSource(
                             sections.add(AdapterSection(i, header, 0, isCollapsed))
                         }
                     groupMode == SortHelper.SORT_DUE -> {
-                        val previousOverdue = previous < startOfToday
+                        val previousOverdue = previous in 1..<startOfToday
                         val currentOverdue = header == HEADER_OVERDUE
-                        if (previous > 0 &&
+                        if (
                             ((currentOverdue != previousOverdue) ||
                                     (!currentOverdue && header != previous.startOfDay()))
+                        ) {
+                            sections.add(AdapterSection(i, header, 0, isCollapsed))
+                        }
+                    }
+                    groupMode == SortHelper.SORT_START -> {
+                        if (
+                            previous == 0L && header != 0L ||
+                            header != previous.startOfDay()
                         ) {
                             sections.add(AdapterSection(i, header, 0, isCollapsed))
                         }

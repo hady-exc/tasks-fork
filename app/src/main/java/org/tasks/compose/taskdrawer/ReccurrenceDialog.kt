@@ -28,6 +28,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import org.tasks.R
 import org.tasks.compose.Constants.TextButton
+import org.tasks.data.entity.Task
 import org.tasks.repeats.RecurrenceUtils.newRecur
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,8 +37,8 @@ fun RecurrenceDialog (
     dismiss: () -> Unit,
     recurrence: RecurrenceHelper,
     setRecurrence: (String?) -> Unit,
-    repeatFromCompletion: Boolean,
-    onRepeatFromChanged: (Boolean) -> Unit,
+    repeatFrom: @Task.RepeatFrom Int,
+    onRepeatFromChanged: (@Task.RepeatFrom Int) -> Unit,
     peekCustomRecurrence: (String?) -> Unit
 ) {
 
@@ -73,7 +74,7 @@ fun RecurrenceDialog (
                     var expanded by remember { mutableStateOf(false) }
                     Text(
                         text = stringResource(
-                            id = if (repeatFromCompletion)
+                            id = if (repeatFrom == Task.RepeatFrom.COMPLETION_DATE)
                                 R.string.repeat_type_completion
                             else
                                 R.string.repeat_type_due
@@ -88,7 +89,7 @@ fun RecurrenceDialog (
                         DropdownMenuItem(
                             onClick = {
                                 expanded = false
-                                onRepeatFromChanged(false)
+                                onRepeatFromChanged(Task.RepeatFrom.DUE_DATE)
                             },
                             text = {
                                 Text(
@@ -100,7 +101,7 @@ fun RecurrenceDialog (
                         DropdownMenuItem(
                             onClick = {
                                 expanded = false
-                                onRepeatFromChanged(true)
+                                onRepeatFromChanged(Task.RepeatFrom.COMPLETION_DATE)
                             },
                             text = {
                                 Text(

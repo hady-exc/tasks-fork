@@ -2,21 +2,17 @@ package org.tasks.filters
 
 import org.jetbrains.compose.resources.getString
 import org.tasks.compose.drawer.DrawerConfiguration
-import org.tasks.data.GoogleTaskFilters
 import org.tasks.data.LocationFilters
 import org.tasks.data.NO_ORDER
 import org.tasks.data.TagFilters
 import org.tasks.data.dao.CaldavDao
 import org.tasks.data.dao.FilterDao
-import org.tasks.data.dao.GoogleTaskListDao
 import org.tasks.data.dao.LocationDao
 import org.tasks.data.dao.TagDataDao
 import org.tasks.data.dao.TaskDao
 import org.tasks.data.entity.CaldavAccount
 import org.tasks.data.entity.CaldavAccount.Companion.TYPE_LOCAL
 import org.tasks.data.entity.CaldavAccount.Companion.TYPE_OPENTASKS
-import org.tasks.data.setupLocalAccount
-import org.tasks.data.toGtasksFilter
 import org.tasks.data.toLocationFilter
 import org.tasks.data.toTagFilter
 import org.tasks.filters.NavigationDrawerSubheader.SubheaderType
@@ -35,7 +31,6 @@ import tasks.kmp.generated.resources.drawer_tags
 class FilterProvider(
     private val filterDao: FilterDao,
     private val tagDataDao: TagDataDao,
-    private val googleTaskListDao: GoogleTaskListDao,
     private val caldavDao: CaldavDao,
     private val configuration: DrawerConfiguration,
     private val locationDao: LocationDao,
@@ -193,48 +188,18 @@ class FilterProvider(
                     .toList()
                     .plusAllIf(IS_DEBUG) { getDebugFilters() }
 
-    private suspend fun googleTaskFilter(
-        account: CaldavAccount,
-        showCreate: Boolean,
-        forceExpand: Boolean,
-    ): List<FilterListItem> {
-        val collapsed = !forceExpand && account.isCollapsed
-        return listOf(
-            NavigationDrawerSubheader(
-                account.username,
-                account.error?.isNotBlank() ?: false,
-                collapsed,
-                SubheaderType.GOOGLE_TASKS,
-                account.id.toString(),
-                if (showCreate) REQUEST_NEW_LIST else 0,
-            )
-        )
-            .apply { if (collapsed) return this }
-            .plus(
-                googleTaskListDao
-                    .getGoogleTaskFilters(account.username!!)
-                    .map(GoogleTaskFilters::toGtasksFilter)
-                    .sort()
-            )
-    }
-
     private suspend fun caldavFilters(
         showCreate: Boolean,
         forceExpand: Boolean,
     ): List<FilterListItem> =
-            caldavDao.getAccounts()
-                    .ifEmpty { listOf(caldavDao.setupLocalAccount()) }
-                    .filter { it.accountType != TYPE_LOCAL || configuration.localListsEnabled }
+            caldavDao
+                .getAccounts()
                 .flatMap {
-                    if (it.isGoogleTasks) {
-                        googleTaskFilter(it, showCreate, forceExpand)
-                    } else {
-                        caldavFilter(
-                            it,
-                            showCreate && it.accountType != TYPE_OPENTASKS,
-                            forceExpand,
-                        )
-                    }
+                    caldavFilter(
+                        it,
+                        showCreate && it.accountType != TYPE_OPENTASKS,
+                        forceExpand,
+                    )
                 }
 
     private suspend fun caldavFilter(
@@ -246,7 +211,7 @@ class FilterProvider(
         return listOf(
             NavigationDrawerSubheader(
                 if (account.accountType == TYPE_LOCAL) {
-                    getString(Res.string.drawer_local_lists)
+                    account.name?.takeIf { it.isNotBlank() } ?: getString(Res.string.drawer_local_lists)
                 } else {
                     account.name
                 },
@@ -266,6 +231,7 @@ class FilterProvider(
                 .map {
                     CaldavFilter(
                         calendar = it.caldavCalendar,
+                        account = account,
                         principals = it.principals,
                         count = it.count,
                     )

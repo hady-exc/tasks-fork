@@ -7,12 +7,7 @@
     <string name="backup_BAc_export">Создать резервную копию сейчас</string>
     <string name="export_toast">Сохранено %1$s в %2$s.</string>
     <string name="import_summary_title">Восстановить сводку</string>
-    <string name="import_summary_message">Файл %1$s содержал %2$s.
-\n
-\n %3$s импортировано,
-\n %4$s уже существовуют,
-\n %5$s с ошибками
-\n</string>
+    <string name="import_summary_message">Файл %1$s содержал %2$s.\n\n %3$s импортировано,\n%4$s уже существовуют,\n%5$s с ошибками</string>
     <string name="import_progress_read">Чтение задачи %d…</string>
     <string name="read_permission_label">Разрешения Tasks</string>
     <string name="discard_confirmation">Отменить сделанные изменения\?</string>
@@ -108,7 +103,6 @@
     <string name="calendar_event_not_found">Событие календаря не найдено</string>
     <string name="gcal_completed_title">%s (выполнено)</string>
     <string name="CFC_gtasks_list_text">В списке: \?</string>
-    <string name="CFC_gtasks_list_name">В списке GTasks…</string>
     <string name="gtasks_GTA_clear_completed">Удалить завершенные</string>
     <string name="gtasks_GLA_authenticating">Аутентификация…</string>
     <string name="gtasks_GLA_errorIOAuth">При обращении к серверам Google возникли проблемы. Пожалуйста, попробуйте позже.</string>
@@ -233,16 +227,10 @@
     </plurals>
     <string name="today">Сегодня</string>
     <string name="tomorrow">Завтра</string>
-    <string name="yesterday">Вчера</string>
-    <string name="tmrw">Завтра</string>
-    <string name="yest">Вчера</string>
     <string name="widget_show_checkboxes">Показать флажки</string>
     <string name="widget_show_header">Показать заголовок</string>
     <string name="widget_show_settings">Показать настройки</string>
     <string name="notifications">Уведомления</string>
-    <string name="silent">Без звука</string>
-    <string name="sound">Звук</string>
-    <string name="vibrations">Вибрация</string>
     <string name="quiet_hours">Тихие часы</string>
     <string name="attachment_directory">Папка вложений</string>
     <string name="backup_directory">Папка резервных копий</string>
@@ -257,7 +245,6 @@
     <string name="contact_developer">Связь с разработчиком</string>
     <string name="rate_tasks">Оцените Tasks</string>
     <string name="quiet_hours_summary">Выкл. напоминания в тихие часы</string>
-    <string name="TLA_menu_donate">Поддержать разработку</string>
     <string name="add_reminder">Добавить напоминание</string>
     <string name="add_location">Добавить место</string>
     <string name="remove">Удалить</string>
@@ -308,7 +295,6 @@
     <string name="opacity">Непрозрачность</string>
     <string name="theme">Цветовая тема</string>
     <string name="color">Цвет</string>
-    <string name="accent">Акцент</string>
     <string name="launcher_icon">Иконка запуска</string>
     <string name="theme_black">Чёрная</string>
     <string name="theme_light">Светлая</string>
@@ -320,8 +306,6 @@
     <string name="restart_now">Перезапустить сейчас</string>
     <string name="restart_later">Позже</string>
     <string name="settings_localization">Локализация</string>
-    <string name="led_notification">LED уведомления</string>
-    <string name="hardware_support_required">Необходима аппаратная поддержка</string>
     <string name="widget_settings">Настройки виджета</string>
     <string name="widget_header_settings">Настройки заголовка</string>
     <string name="widget_row_settings">Настройки строк</string>
@@ -331,8 +315,6 @@
     <string name="delete_selected_tasks">Удалить выделенную(-ые) задачу(-и)?</string>
     <string name="copy_selected_tasks">Скопировать выделенные задачи?</string>
     <string name="date_and_time">Дата и время</string>
-    <string name="start_of_week">Начало недели</string>
-    <string name="use_locale_default">Как в системе</string>
     <string name="add_account">Добавить учётную запись</string>
     <string name="user">Пользователь</string>
     <string name="password">Пароль</string>
@@ -343,9 +325,9 @@
     <string name="repeats_from">Повторять от</string>
     <string name="repeats_single">Повторять %s</string>
     <string name="repeats_single_on">Повторять %1$s в %2$s</string>
-    <string name="repeats_single_until">Повторять %1$s до %2$s</string>
+    <string name="repeats_single_until">Повторять %1$s, завершение %2$s</string>
     <string name="repeats_single_number_of_times">Повторять %1$s, %2$d %3$s</string>
-    <string name="repeats_single_on_until">Повторять %1$s в %2$s до %3$s</string>
+    <string name="repeats_single_on_until">Повторять %1$s в %2$s, завершение %3$s</string>
     <string name="repeats_single_on_number_of_times">Повторять %1$s в %2$s, %3$d %4$s</string>
     <string name="repeats_minutely">ежеминутно</string>
     <string name="repeats_hourly">ежечасно</string>
@@ -355,10 +337,10 @@
     <string name="repeats_yearly">ежегодно</string>
     <string name="repeats_plural">Повторять каждые %s</string>
     <string name="repeats_plural_on">Повторять каждые %1$s в %2$s</string>
-    <string name="repeats_plural_until">Повторять каждые %1$s до %2$s</string>
+    <string name="repeats_plural_until">Повторяется каждые %1$s до %2$s</string>
     <string name="repeats_plural_number_of_times">Повторять каждые %1$s, %2$d %3$s</string>
-    <string name="repeats_plural_on_until">Повторять каждые %1$s в %2$s до %3$s</string>
-    <string name="repeats_plural_on_number_of_times">Повторять каждые %1$s в %2$s, %3$d %4$s</string>
+    <string name="repeats_plural_on_until">Повторяется каждые %1$s в %2$s до %3$s</string>
+    <string name="repeats_plural_on_number_of_times">Повторяется каждые %1$s в %2$s, %3$d %4$s</string>
     <string name="dont_add_to_calendar">Не добавлять в календарь</string>
     <string name="default_calendar">Календарь по умолчанию</string>
     <string name="badges_description">Отображать количество задач на иконке приложения. Не все лаунчеры это поддерживают.</string>
@@ -427,7 +409,6 @@
     <string name="collapse_subtasks">Свернуть подзадачи</string>
     <string name="subtasks_multilevel_google_task">Многоуровневые подзадачи не поддерживаются Google Tasks</string>
     <string name="enter_tag_name">Введите имя тега</string>
-    <string name="create_new_tag">Создать \"%s\"</string>
     <string name="display_name">Отображаемое название</string>
     <string name="this_feature_requires_a_subscription">Эта функция требует подписки</string>
     <string name="choose_synchronization_service">Выберите платформу</string>
@@ -456,9 +437,6 @@
     <string name="back">Назад</string>
     <string name="chips">Индикаторы</string>
     <string name="chip_appearance">Внешний вид индикаторов</string>
-    <string name="desaturate_colors">Уменьшить насыщенность цветов</string>
-    <string name="desaturate_colors_summary_on">Цвета будут менее насыщенными в темных темах</string>
-    <string name="desaturate_colors_summary_off">Цвета не будут менее насыщенными в темных темах</string>
     <string name="shortcut_pick_time">Выбрать время</string>
     <string name="no_time">Без времени</string>
     <string name="no_date">Без даты</string>
@@ -520,9 +498,6 @@
     <string name="action_new_task">Новая задача</string>
     <string name="sort_modified_group">Модифицировано %s</string>
     <string name="sort_created_group">Создано %s</string>
-    <string name="yesterday_lowercase">вчера</string>
-    <string name="tomorrow_lowercase">завтра</string>
-    <string name="today_lowercase">сегодня</string>
     <string name="permission_read_tasks">Полный доступ к базе данных Tasks</string>
     <string name="reset_sort_order">Сбросить порядок сортировки</string>
     <string name="lists">Списки</string>
@@ -575,7 +550,6 @@
     <string name="sign_in_with_google">Войти через Google</string>
     <string name="github_sponsors">Спонсоры GitHub</string>
     <string name="google_play_subscribers">Подписчики Google Play</string>
-    <string name="not_signed_in">Не авторизован</string>
     <string name="authorization_cancelled">Авторизация отменена</string>
     <string name="no_google_play_subscription">Подходящей подписки Google Play не найдено</string>
     <string name="insufficient_sponsorship">Подходящее спонсорство GitHub не найдено</string>
@@ -614,15 +588,11 @@
     <string name="sort_due_group">Завершение %s</string>
     <string name="sort_start_group">Начало %s</string>
     <string name="tasks_org_description">Синхронизировать задачи с Tasks.org</string>
-    <string name="yesterday_abbrev_lowercase">вчера</string>
-    <string name="tomorrow_abbrev_lowercase">завтра</string>
     <string name="account_not_included">Не включено в подписку \'Назовите свою цену\'</string>
     <string name="tasks_org_account">Аккаунт Tasks.org</string>
     <string name="subscription">Подписка</string>
     <string name="widget_show_title">Показать заголовок</string>
-    <string name="map_theme_use_app_theme">Использовать тему приложения</string>
     <string name="tasks_org_account_required">Требуется учетная запись Tasks.org</string>
-    <string name="map_theme">Тема карты</string>
     <string name="follow_twitter">Следите за @task_org</string>
     <string name="privacy">Конфиденциальность</string>
     <string name="open_source">Открытый исходный код</string>
@@ -631,20 +601,12 @@
     <string name="email">Эл. почта</string>
     <string name="remove_user_confirmation">%1$s больше не будет иметь доступа к %2$s</string>
     <string name="more_options">Дополнительные параметры</string>
-    <string name="upgrade_automation_description">Плагины для задач, автоматизации и локализации</string>
-    <string name="upgrade_automation">Автоматизация</string>
-    <string name="upgrade_open_source_description">Ваша подписка поддерживает непрерывное развитие</string>
+    <string name="upgrade_open_source_description">Ваша подписка поддерживает продолжающуюся разработку</string>
     <string name="upgrade_desktop_access_description">Синхронизация со сторонними клиентами, такими как Outlook и Apple Reminders</string>
     <string name="upgrade_tasks_org_account_description">Синхронизируйтесь с Tasks.org и сотрудничайте с другими пользователями</string>
-    <string name="upgrade_google_tasks">Синхронизировать несколько аккаунтов</string>
     <string name="upgrade_more_customization_description">Разблокировать все темы, цвета и иконки</string>
     <string name="upgrade_more_customization">Больше настроек</string>
     <string name="pro_free_trial">Новые подписчики получают 7-дневный бесплатный пробный период. Отмена возможна в любое время</string>
-    <string name="picker_mode_text">Текст</string>
-    <string name="picker_mode_clock">Часы</string>
-    <string name="picker_mode_calendar">Календарь</string>
-    <string name="picker_mode_time">Режим выбора времени</string>
-    <string name="picker_mode_date">Режим выбора даты</string>
     <string name="invite_invalid">Приглашение недействительно</string>
     <string name="invite_awaiting_response">Приглашение в ожидании ответа</string>
     <string name="invite_declined">Приглашение отклонено</string>
@@ -667,10 +629,6 @@
     <string name="now">Сейчас</string>
     <string name="when_started">После начала</string>
     <string name="completion_sound">Воспроизводить звук завершения</string>
-    <string name="app_bar_position">Расположение панели приложения</string>
-    <string name="top">Вверху</string>
-    <string name="bottom">Внизу</string>
-    <string name="app_bar_collapse">Свернуть панели приложения</string>
     <string name="completed">Завершено</string>
     <string name="snackbar_task_completed">Задача выполнена</string>
     <string name="completed_tasks_at_bottom">Переместить выполненные задачи вниз</string>
@@ -747,4 +705,48 @@
     <string name="sort_ascending">По возрастанию</string>
     <string name="sort_descending">По убыванию</string>
     <string name="sort_completed">Время выполнения</string>
+    <string name="comment">Комментарий</string>
+    <string name="yesterday">Вчера</string>
+    <string name="swipe_to_snooze_time_immediately">немедленно</string>
+    <string name="swipe_to_snooze_time_24_hours">через 24 часа</string>
+    <string name="send_application_logs">Отправить логи приложения</string>
+    <string name="swipe_to_snooze_time_1_hour">через 1 час</string>
+    <string name="customize_drawer_summary">Перетаскивайте элементы меню, чтобы изменить их порядок</string>
+    <string name="donate_maybe_later">Возможно, позже</string>
+    <string name="swipe_to_snooze_time_15_minutes">через 15 минут</string>
+    <string name="cost_free">Цена: бесплатно</string>
+    <string name="multiline_title">Разрешить многострочные заголовки</string>
+    <string name="sync_warning_google_tasks">Не все подробности задачи синхронизируются с Google Task</string>
+    <string name="customize_drawer">Настроить панель</string>
+    <string name="swipe_to_snooze_time_30_minutes">через 30 минут</string>
+    <string name="delete_comment">комментарий</string>
+    <string name="change_priority">Изменить приоритет</string>
+    <string name="price_per_year_with_currency">%s/год</string>
+    <string name="price_per_month_with_currency">%s/месяц</string>
+    <string name="sync_warning_microsoft_title">О синхронизации с Microsoft To Do</string>
+    <string name="sync_warning_microsoft">Не все подробности задачи синхронизируются с Microsoft To Do.</string>
+    <string name="sync_warning_google_tasks_title">О синхронизации с Google Task</string>
+    <string name="button_learn_more">Узнать больше</string>
+    <string name="enable_alarms">Получайте напоминания вовремя</string>
+    <string name="swipe_to_snooze_title">Смахните, чтобы отложить</string>
+    <string name="swipe_to_snooze_description">Длительность паузы</string>
+    <string name="enable_alarms_description">Чтобы получать оповещения в нужное время, разрешите приложению устанавливать будильники и напоминания в Настройках</string>
+    <string name="add_shortcut_to_home_screen">Добавить ярлык на домашний экран</string>
+    <string name="add_widget_to_home_screen">Добавить виджет на домашний экран</string>
+    <string name="cost_money">Цена: $</string>
+    <string name="cost_more_money">Цена: $$$</string>
+    <string name="multiline_title_on">Нажмите Enter чтобы перейти на новую строку</string>
+    <string name="donate_nag">Выразите свою поддержку с помощью пожертвования!</string>
+    <string name="theme_dynamic">Динамическая</string>
+    <string name="subtasks_multilevel_microsoft">Многоуровневые подзадачи не поддерживаются Microsoft To Do</string>
+    <string name="donate_today">Пожертвовать сегодня</string>
+    <string name="quiet_hours_in_effect">Режим тихих часов включен</string>
+    <string name="swipe_to_snooze_time_description">Удаленное уведомление будет отложено и появится снова %s</string>
+    <string name="show_edit_screen_without_unlock">Показывать панель редактирования на заблокированном экране</string>
+    <string name="show_edit_screen_without_unlock_summary">Разрешает использовать панель Быстрых Настроек без разблокирования устройства</string>
+    <string name="clear_completed_tasks_count">%s будут удалены</string>
+    <string name="app_settings">Настройки приложения</string>
+    <string name="banner_app_updated_description">Tasks обновились до версии %s. Показать что изменилось?</string>
+    <string name="banner_app_updated_title">Приложение обновлено</string>
+    <string name="multiline_title_off">Нажмите Done, чтобы сохранить задачу</string>
 </resources>

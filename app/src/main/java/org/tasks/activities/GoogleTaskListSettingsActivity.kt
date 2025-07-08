@@ -18,11 +18,14 @@ import kotlinx.coroutines.withContext
 import org.tasks.LocalBroadcastManager
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
-import org.tasks.compose.ListSettings.Toaster
-import org.tasks.data.dao.GoogleTaskListDao
+import org.tasks.caldav.BaseCaldavCalendarSettingsActivity.Companion.EXTRA_CALDAV_ACCOUNT
+import org.tasks.caldav.BaseCaldavCalendarSettingsActivity.Companion.EXTRA_CALDAV_CALENDAR
+import org.tasks.compose.settings.Toaster
+import org.tasks.data.dao.CaldavDao
 import org.tasks.data.entity.CaldavAccount
 import org.tasks.data.entity.CaldavCalendar
-import org.tasks.filters.GtasksFilter
+import org.tasks.filters.CaldavFilter
+import org.tasks.filters.Filter
 import org.tasks.themes.TasksIcons
 import org.tasks.themes.TasksTheme
 import timber.log.Timber
@@ -30,9 +33,15 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
-    @Inject lateinit var googleTaskListDao: GoogleTaskListDao
+    @Inject lateinit var caldavDao: CaldavDao
     @Inject lateinit var taskDeleter: TaskDeleter
     @Inject lateinit var localBroadcastManager: LocalBroadcastManager
+
+    private val account: CaldavAccount
+        get() = intent.getParcelableExtra(EXTRA_CALDAV_ACCOUNT)!!
+
+    private val list: CaldavCalendar?
+        get() = intent.getParcelableExtra(EXTRA_CALDAV_CALENDAR)
 
     private var isNewList = false
     private lateinit var gtasksList: CaldavCalendar
@@ -44,19 +53,14 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
     val snackbar = SnackbarHostState()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        gtasksList = intent.getParcelableExtra(EXTRA_STORE_DATA)
-                ?: CaldavCalendar(
-                    account = intent.getParcelableExtra<CaldavAccount>(EXTRA_ACCOUNT)!!.username
-                ).apply {
-                    isNewList = true
-                }
+        gtasksList = list ?: CaldavCalendar(account = account.username).apply { isNewList = true }
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {
-            selectedColor = gtasksList.color
-            selectedIcon.value = gtasksList.icon ?: defaultIcon
+            baseViewModel.setColor(gtasksList.color)
+            baseViewModel.setIcon(gtasksList.icon ?: defaultIcon)
         }
 
-        if (!isNewList) textState.value = gtasksList.name!!
+        if (!isNewList) baseViewModel.setTitle(gtasksList.name!!)
 
         if (createListViewModel.inProgress
                 || renameListViewModel.inProgress
@@ -70,29 +74,27 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
 
         setContent {
             TasksTheme {
-                baseSettingsContent()
+                BaseSettingsContent()
                 Toaster(state = snackbar)
             }
         }
-
-        updateTheme()
     }
 
-    override val isNew: Boolean
-        get() = isNewList
+    override val filter: Filter?
+        get() = if (isNewList) null else CaldavFilter(calendar = gtasksList, account = account)
 
     override val toolbarTitle: String
         get() = if (isNew) getString(R.string.new_list) else gtasksList.name!!
 
     private fun showProgressIndicator() {
-        showProgress.value = true
+        baseViewModel.showProgress(true)
     }
 
     private fun hideProgressIndicator() {
-        showProgress.value = false
+        baseViewModel.showProgress(false)
     }
 
-    private fun requestInProgress() = showProgress.value
+    private fun requestInProgress() = baseViewModel.viewState.value.showProgress
 
     override suspend fun save() {
         if (requestInProgress()) {
@@ -100,7 +102,7 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
         }
         val newName = newName
         if (isNullOrEmpty(newName)) {
-            errorState.value = getString(R.string.name_cannot_be_empty)
+            baseViewModel.setError(getString(R.string.name_cannot_be_empty))
             return
         }
         when {
@@ -114,25 +116,25 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
             }
             else -> {
                 if (colorChanged() || iconChanged()) {
-                    gtasksList.color = selectedColor
-                    googleTaskListDao.insertOrReplace(
+                    gtasksList.color = baseViewModel.color
+                    caldavDao.insertOrReplace(
                         gtasksList.copy(
-                            icon = selectedIcon.value
+                            icon = baseViewModel.icon
                         )
                     )
                     localBroadcastManager.broadcastRefresh()
                     setResult(
                             Activity.RESULT_OK,
                             Intent(TaskListFragment.ACTION_RELOAD)
-                                    .putExtra(MainActivity.OPEN_FILTER, GtasksFilter(gtasksList)))
+                                    .putExtra(
+                                        MainActivity.OPEN_FILTER,
+                                        CaldavFilter(calendar = gtasksList, account = account)
+                                    )
+                    )
                 }
                 finish()
             }
         }
-    }
-
-    override fun finish() {
-        super.finish()
     }
 
     override fun promptDelete() {
@@ -153,16 +155,16 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
     }
 
     private val newName: String
-        get() = textState.value.trim { it <= ' ' }
+        get() = baseViewModel.title.trim { it <= ' ' }
 
     override fun hasChanges(): Boolean =
         if (isNewList) {
-            selectedColor >= 0 || !isNullOrEmpty(newName)
+            baseViewModel.color != 0 || !isNullOrEmpty(newName)
         } else colorChanged() || nameChanged() || iconChanged()
 
-    private fun colorChanged() = selectedColor != gtasksList.color
+    private fun colorChanged() = baseViewModel.color != gtasksList.color
 
-    private fun iconChanged() = selectedIcon.value != gtasksList.icon
+    private fun iconChanged() = baseViewModel.icon != (gtasksList.icon ?: TasksIcons.LIST)
 
     private fun nameChanged() = newName != gtasksList.name
 
@@ -170,14 +172,18 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
         val result = gtasksList.copy(
             uuid = taskList.id,
             name = taskList.title,
-            color = selectedColor,
-            icon = selectedIcon.value,
+            color = baseViewModel.color,
+            icon = baseViewModel.icon,
         )
-        val id = googleTaskListDao.insertOrReplace(result)
+        val id = caldavDao.insertOrReplace(result)
 
         setResult(
             Activity.RESULT_OK,
-            Intent().putExtra(MainActivity.OPEN_FILTER, GtasksFilter(result.copy(id = id))))
+            Intent().putExtra(
+                MainActivity.OPEN_FILTER,
+                CaldavFilter(calendar = result.copy(id = id), account = account)
+            )
+        )
         finish()
     }
 
@@ -196,15 +202,19 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
     private suspend fun onListRenamed(taskList: TaskList) {
         val result = gtasksList.copy(
             name = taskList.title,
-            color = selectedColor,
-            icon = selectedIcon.value,
+            color = baseViewModel.color,
+            icon = baseViewModel.icon,
         )
-        googleTaskListDao.insertOrReplace(result)
+        caldavDao.insertOrReplace(result)
 
         setResult(
                 Activity.RESULT_OK,
                 Intent(TaskListFragment.ACTION_RELOAD)
-                    .putExtra(MainActivity.OPEN_FILTER, GtasksFilter(result)))
+                    .putExtra(
+                        MainActivity.OPEN_FILTER,
+                        CaldavFilter(calendar = result, account = account)
+                    )
+        )
         finish()
     }
 
@@ -214,10 +224,5 @@ class GoogleTaskListSettingsActivity : BaseListSettingsActivity() {
         lifecycleScope.launch { snackbar.showSnackbar(getString(R.string.gtasks_GLA_errorIOAuth)) }
         //toast(R.string.gtasks_GLA_errorIOAuth)
         return
-    }
-
-    companion object {
-        const val EXTRA_ACCOUNT = "extra_account"
-        const val EXTRA_STORE_DATA = "extra_store_data"
     }
 }

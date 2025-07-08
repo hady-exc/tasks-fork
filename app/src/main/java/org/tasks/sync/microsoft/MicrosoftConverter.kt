@@ -1,11 +1,13 @@
 package org.tasks.sync.microsoft
 
-import org.tasks.data.entity.Task
 import net.fortuna.ical4j.model.Recur
 import net.fortuna.ical4j.model.WeekDay
 import net.fortuna.ical4j.model.WeekDayList
+import org.tasks.data.createDueDate
 import org.tasks.data.entity.CaldavTask
 import org.tasks.data.entity.TagData
+import org.tasks.data.entity.Task
+import org.tasks.date.DateTimeUtils
 import org.tasks.sync.microsoft.Tasks.Task.RecurrenceDayOfWeek
 import org.tasks.sync.microsoft.Tasks.Task.RecurrenceType
 import org.tasks.time.DateTime
@@ -21,6 +23,20 @@ object MicrosoftConverter {
     private const val DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS0000"
     private const val DATE_TIME_UTC_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS0000'Z'"
 
+    fun Task.applySubtask(
+        parent: Long,
+        checklistItem: Tasks.Task.ChecklistItem,
+    ) {
+        this.parent = parent
+        title = checklistItem.displayName
+        completionDate = if (checklistItem.isChecked) {
+            checklistItem.checkedDateTime?.parseDateTime() ?: System.currentTimeMillis()
+        } else {
+            0L
+        }
+        creationDate = checklistItem.createdDateTime.parseDateTime()
+    }
+
     fun Task.applyRemote(
         remote: Tasks.Task,
         defaultPriority: Int,
@@ -34,7 +50,20 @@ object MicrosoftConverter {
             else -> Task.Priority.NONE
         }
         completionDate = remote.completedDateTime.toLong(currentTimeMillis())
-        dueDate = remote.dueDateTime.toLong(0L)
+        remote.dueDateTime.toLong(0L).let {
+            if (it > 0 && hasDueTime()) {
+                val oldDate = DateTimeUtils.newDateTime(dueDate)
+                val newDate = DateTimeUtils.newDateTime(it)
+                        .withHourOfDay(oldDate.hourOfDay)
+                        .withMinuteOfHour(oldDate.minuteOfHour)
+                        .withSecondOfMinute(oldDate.secondOfMinute)
+                setDueDateAdjustingHideUntil(
+                        createDueDate(Task.URGENCY_SPECIFIC_DAY_TIME, newDate.millis)
+                )
+            } else {
+                setDueDateAdjustingHideUntil(it)
+            }
+        }
         creationDate = remote.createdDateTime.parseDateTime()
         modificationDate = remote.lastModifiedDateTime.parseDateTime()
         recurrence = remote.recurrence?.let { recurrence ->
@@ -64,12 +93,14 @@ object MicrosoftConverter {
                 .build()
                 .toString()
         }
-        // checklist to subtasks
         // sync reminders
         // sync files
     }
 
-    fun Task.toRemote(caldavTask: CaldavTask, tags: List<TagData>): Tasks.Task {
+    fun Task.toRemote(
+        caldavTask: CaldavTask,
+        tags: List<TagData>,
+    ): Tasks.Task {
         return Tasks.Task(
             id = caldavTask.remoteId,
             title = title,
@@ -92,13 +123,13 @@ object MicrosoftConverter {
             categories = tags.map { it.name!! }.takeIf { it.isNotEmpty() },
             dueDateTime = if (hasDueDate()) {
                 Tasks.Task.DateTime(
-                        dateTime = DateTime(dueDate).startOfDay().toUTC().toString(DATE_TIME_FORMAT),
-                        timeZone = "UTC"
+                        dateTime = DateTime(dueDate).startOfDay().toString(DATE_TIME_FORMAT),
+                        timeZone = TimeZone.getDefault().id
                 )
-            } else if (isRecurring) {
+            } else if (isRecurring) { // fallback: recurring task must have due date
                 Tasks.Task.DateTime(
-                        dateTime = DateTime().startOfDay().toUTC().toString(DATE_TIME_FORMAT),
-                        timeZone = "UTC"
+                        dateTime = DateTime().startOfDay().toString(DATE_TIME_FORMAT),
+                        timeZone = TimeZone.getDefault().id
                 )
             } else {
                 null
@@ -107,8 +138,8 @@ object MicrosoftConverter {
             createdDateTime = DateTime(creationDate).toUTC().toString(DATE_TIME_UTC_FORMAT),
             completedDateTime = if (isCompleted) {
                 Tasks.Task.DateTime(
-                    dateTime = DateTime(completionDate).toUTC().toString(DATE_TIME_FORMAT),
-                    timeZone = "UTC",
+                    dateTime = DateTime(completionDate).toString(DATE_TIME_FORMAT),
+                    timeZone = TimeZone.getDefault().id,
                 )
             } else {
                 null
@@ -153,13 +184,25 @@ object MicrosoftConverter {
                 }
             } else {
                 null
-            }
-            // subtasks to checklist
+            },
 //            isReminderOn =
             // reminders
             // files
         )
     }
+
+    fun Task.toChecklistItem(id: String?) =
+        Tasks.Task.ChecklistItem(
+            id = id,
+            displayName = title ?: "",
+            createdDateTime = DateTime(creationDate).toUTC().toString(DATE_TIME_UTC_FORMAT),
+            isChecked = isCompleted,
+            checkedDateTime = if (isCompleted) {
+                DateTime(completionDate).toUTC().toString(DATE_TIME_UTC_FORMAT)
+            } else {
+                null
+            },
+        )
 
     private fun String?.parseDateTime(): Long =
         this
@@ -168,13 +211,13 @@ object MicrosoftConverter {
 
     private fun Tasks.Task.DateTime?.toLong(default: Long): Long =
         this
-            ?.let {
-                val tz = TimeZone.getTimeZone(it.timeZone)
+            ?.let { task ->
+                val tz = TimeZone.getTimeZone(task.timeZone)
                 SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.ssssss", Locale.US)
                     .apply { timeZone = tz }
-                    .parse(it.dateTime)
+                    .parse(task.dateTime)
                     ?.time
-                    ?.let { ts -> DateTime(ts, tz).toLocal().millis }
+                    ?.let { DateTime(it, tz).millis }
                     ?: default
             }
             ?: 0L

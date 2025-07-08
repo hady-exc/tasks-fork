@@ -1,23 +1,19 @@
 package org.tasks.preferences
 
-import org.tasks.filters.CustomFilter
 import kotlinx.coroutines.runBlocking
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
 import org.tasks.data.GoogleTask
 import org.tasks.data.dao.CaldavDao
 import org.tasks.data.dao.FilterDao
-import org.tasks.data.dao.GoogleTaskDao
-import org.tasks.data.dao.GoogleTaskListDao
 import org.tasks.data.dao.LocationDao
 import org.tasks.data.dao.TagDataDao
 import org.tasks.data.entity.CaldavCalendar.Companion.ACCESS_READ_ONLY
 import org.tasks.data.entity.CaldavTask
 import org.tasks.data.entity.Task
-import org.tasks.data.getLocalList
 import org.tasks.filters.CaldavFilter
+import org.tasks.filters.CustomFilter
 import org.tasks.filters.Filter
-import org.tasks.filters.GtasksFilter
 import org.tasks.filters.MyTasksFilter
 import org.tasks.filters.NotificationsFilter
 import org.tasks.filters.PlaceFilter
@@ -32,16 +28,14 @@ class DefaultFilterProvider @Inject constructor(
     private val preferences: Preferences,
     private val filterDao: FilterDao,
     private val tagDataDao: TagDataDao,
-    private val googleTaskListDao: GoogleTaskListDao,
     private val caldavDao: CaldavDao,
     private val locationDao: LocationDao,
-    private val googleTaskDao: GoogleTaskDao
 ) {
     var dashclockFilter: Filter
         @Deprecated("use coroutines") get() = runBlocking { getFilterFromPreference(R.string.p_dashclock_filter) }
         set(filter) = setFilterPreference(filter, R.string.p_dashclock_filter)
 
-    var defaultList: Filter
+    var defaultList: CaldavFilter
         @Deprecated("use coroutines") get() = runBlocking { getDefaultList() }
         set(filter) = setFilterPreference(filter, R.string.p_default_list)
 
@@ -53,10 +47,11 @@ class DefaultFilterProvider @Inject constructor(
 
     suspend fun getBadgeFilter() = getFilterFromPreference(R.string.p_badge_list)
 
-    suspend fun getDefaultList() =
+    suspend fun getDefaultList(): CaldavFilter =
             getFilterFromPreference(preferences.getStringValue(R.string.p_default_list), null)
-                    ?.takeIf { it.isWritable }
-                    ?: getAnyList()
+                ?.let { it as? CaldavFilter }
+                ?.takeIf { it.isWritable }
+                ?: getAnyList()
 
     fun setLastViewedFilter(filter: Filter) = setFilterPreference(filter, R.string.p_last_viewed_list)
 
@@ -85,9 +80,17 @@ class DefaultFilterProvider @Inject constructor(
     suspend fun getFilterFromPreference(prefString: String?): Filter =
         getFilterFromPreference(prefString, MyTasksFilter.create())!!
 
-    private suspend fun getAnyList(): Filter {
-        val filter = caldavDao.getGoogleTaskLists().getOrNull(0)?.let(::GtasksFilter)
-                ?: caldavDao.getCalendars().filterNot { it.access == ACCESS_READ_ONLY }.getOrElse(0) { caldavDao.getLocalList() }.let(::CaldavFilter)
+    private suspend fun getAnyList(): CaldavFilter {
+        val filter = caldavDao
+            .getCalendars()
+            .filterNot { it.access == ACCESS_READ_ONLY }
+            .getOrNull(0)
+            ?.let { list ->
+                list.account
+                    ?.let { caldavDao.getAccountByUuid(it) }
+                    ?.let { account -> CaldavFilter(calendar = list, account = account) }
+            }
+            ?: throw IllegalStateException()
         defaultList = filter
         return filter
     }
@@ -108,9 +111,10 @@ class DefaultFilterProvider @Inject constructor(
                 val tag = tagDataDao.getByUuid(split[1])
                 if (tag == null || isNullOrEmpty(tag.name)) null else TagFilter(tag)
             }
-            // TODO: convert filters from old ID to uuid
-            TYPE_GOOGLE_TASKS -> caldavDao.getCalendarByUuid(split[1])?.let { GtasksFilter(it) }
-            TYPE_CALDAV -> caldavDao.getCalendarByUuid(split[1])?.let { CaldavFilter(it) }
+            TYPE_GOOGLE_TASKS, // TODO: convert filters from old ID to uuid?
+            TYPE_CALDAV ->
+                caldavDao.getCalendarByUuid(split[1])
+                    ?.let { CaldavFilter(it, caldavDao.getAccountByUuid(it.account!!)!!) }
             TYPE_LOCATION -> locationDao.getPlace(split[1])?.let { PlaceFilter(it) }
             else -> null
         }
@@ -123,7 +127,7 @@ class DefaultFilterProvider @Inject constructor(
         TYPE_FILTER -> getFilterPreference(filterType, getBuiltInFilterId(filter))
         TYPE_CUSTOM_FILTER -> getFilterPreference(filterType, (filter as CustomFilter).id)
         TYPE_TAG -> getFilterPreference(filterType, (filter as TagFilter).uuid)
-        TYPE_GOOGLE_TASKS -> getFilterPreference(filterType, (filter as GtasksFilter).remoteId)
+        TYPE_GOOGLE_TASKS,
         TYPE_CALDAV -> getFilterPreference(filterType, (filter as CaldavFilter).uuid)
         TYPE_LOCATION -> getFilterPreference(filterType, (filter as PlaceFilter).uid)
         else -> null
@@ -133,7 +137,6 @@ class DefaultFilterProvider @Inject constructor(
 
     private fun getFilterType(filter: Filter) = when (filter) {
         is TagFilter -> TYPE_TAG
-        is GtasksFilter -> TYPE_GOOGLE_TASKS
         is CustomFilter -> TYPE_CUSTOM_FILTER
         is CaldavFilter -> TYPE_CALDAV
         is PlaceFilter -> TYPE_LOCATION
@@ -158,36 +161,31 @@ class DefaultFilterProvider @Inject constructor(
         }
     }
 
-    suspend fun getList(task: Task): Filter {
-        var originalList: Filter? = null
+    suspend fun getList(task: Task): CaldavFilter {
+        var originalList: CaldavFilter? = null
         if (task.isNew) {
             if (task.hasTransitory(GoogleTask.KEY)) {
                 val listId = task.getTransitory<String>(GoogleTask.KEY)!!
-                val googleTaskList = googleTaskListDao.getByRemoteId(listId)
+                val googleTaskList = caldavDao.getCalendarByUuid(listId)
                 if (googleTaskList != null) {
-                    originalList = GtasksFilter(googleTaskList)
+                    val account = caldavDao.getAccountByUuid(googleTaskList.account!!)!!
+                    originalList = CaldavFilter(calendar = googleTaskList, account = account)
                 }
             } else if (task.hasTransitory(CaldavTask.KEY)) {
                 val caldav = caldavDao.getCalendarByUuid(task.getTransitory(CaldavTask.KEY)!!)
                     ?.takeIf { it.access != ACCESS_READ_ONLY }
                 if (caldav != null) {
-                    originalList = CaldavFilter(caldav)
+                    val account = caldavDao.getAccountByUuid(caldav.account!!)!!
+                    originalList = CaldavFilter(calendar = caldav, account = account)
                 }
             }
         } else {
-            val googleTask = googleTaskDao.getByTaskId(task.id)
             val caldavTask = caldavDao.getTask(task.id)
-            if (googleTask != null) {
-                val googleTaskList = googleTaskListDao.getByRemoteId(googleTask.calendar!!)
-                if (googleTaskList != null) {
-                    originalList = GtasksFilter(googleTaskList)
-                }
-            } else if (caldavTask != null) {
-                val calendarByUuid = caldavDao.getCalendarByUuid(caldavTask.calendar!!)
-                if (calendarByUuid != null) {
-                    originalList = CaldavFilter(calendarByUuid)
-                }
-            }
+            val calendar = caldavTask?.calendar?.let { caldavDao.getCalendarByUuid(it) }
+            originalList = calendar
+                ?.account
+                ?.let { caldavDao.getAccountByUuid(it) }
+                ?.let { CaldavFilter(calendar = calendar, account = it) }
         }
         return originalList ?: getDefaultList()
     }
@@ -204,7 +202,7 @@ class DefaultFilterProvider @Inject constructor(
         private const val TYPE_FILTER = 0
         private const val TYPE_CUSTOM_FILTER = 1
         private const val TYPE_TAG = 2
-        const val TYPE_GOOGLE_TASKS = 3
+        @Deprecated("use TYPE_CALDAV") const val TYPE_GOOGLE_TASKS = 3
         private const val TYPE_CALDAV = 4
         private const val TYPE_LOCATION = 5
         private const val FILTER_MY_TASKS = 0

@@ -17,7 +17,6 @@ import android.widget.LinearLayout
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.todoroo.andlib.utility.AndroidUtilities
 import dagger.hilt.android.AndroidEntryPoint
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
@@ -28,7 +27,6 @@ import org.tasks.extensions.Context.hideKeyboard
 import org.tasks.files.ImageHelper
 import org.tasks.preferences.Device
 import org.tasks.preferences.Preferences
-import org.tasks.themes.ThemeColor
 import org.tasks.ui.TaskEditViewModel
 import javax.inject.Inject
 
@@ -38,8 +36,7 @@ class CommentBarFragment : Fragment() {
     @Inject lateinit var dialogBuilder: DialogBuilder
     @Inject lateinit var device: Device
     @Inject lateinit var preferences: Preferences
-    @Inject lateinit var themeColor: ThemeColor
-    
+
     private lateinit var commentButton: View
     private lateinit var commentField: EditText
     private lateinit var pictureButton: ImageView
@@ -71,11 +68,10 @@ class CommentBarFragment : Fragment() {
         commentField.maxLines = Int.MAX_VALUE
         if (
             preferences.getBoolean(R.string.p_show_task_edit_comments, false) &&
-            viewModel.isWritable
+            !viewModel.viewState.value.isReadOnly
         ) {
             commentBar.visibility = View.VISIBLE
         }
-        commentBar.setBackgroundColor(themeColor.primaryColor)
         resetPictureButton()
     }
 

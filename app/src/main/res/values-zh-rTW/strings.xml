@@ -77,7 +77,6 @@
     <string name="gcal_TEA_showCalendar_label">打開行事曆事項</string>
     <string name="gcal_completed_title">%s （已完成）</string>
     <string name="CFC_gtasks_list_text">列表內容: ?</string>
-    <string name="CFC_gtasks_list_name">在Google任務工作列表中…</string>
     <string name="gtasks_GTA_clear_completed">清除已完成項</string>
     <string name="gtasks_GLA_authenticating">正在認證…</string>
     <string name="gtasks_GLA_errorIOAuth">對不起，我們在與Google 服務器通訊時遇到了問題。請稍後再嘗試。</string>
@@ -120,22 +119,16 @@
     </plurals>
     <string name="today">今天</string>
     <string name="tomorrow">明天</string>
-    <string name="yesterday">昨天</string>
-    <string name="tmrw">明天</string>
-    <string name="yest">昨天</string>
     <string name="widget_show_checkboxes">顯示核取方塊</string>
     <string name="widget_show_header">顯示標頭</string>
     <string name="widget_show_settings">顯示設定</string>
     <string name="notifications">通知</string>
-    <string name="sound">鈴聲</string>
-    <string name="vibrations">震動</string>
     <string name="backup_directory">備份資料夾</string>
     <string name="miscellaneous">雜項設定</string>
     <string name="enabled">啟用</string>
     <string name="row_spacing">行距</string>
     <string name="translations">貢獻翻譯</string>
     <string name="rate_tasks">為 Tasks 評分</string>
-    <string name="TLA_menu_donate">贊助</string>
     <string name="tags">標籤</string>
     <string name="filters">過濾</string>
     <string name="date_shortcut_tomorrow_morning">明天早上</string>
@@ -148,7 +141,6 @@
     <string name="opacity">透明度</string>
     <string name="theme">主題</string>
     <string name="color">色彩</string>
-    <string name="accent">強調色</string>
     <string name="language">語言</string>
     <string name="restart_required">重新啟動 Tasks以使變更生效</string>
     <string name="restart_now">馬上重新啟動</string>
@@ -240,12 +232,8 @@
     <string name="google_drive_backup">Google 雲端硬碟備份</string>
     <string name="attachment_directory">附件資料夾</string>
     <string name="quiet_hours">靜音時間</string>
-    <string name="silent">靜音</string>
     <string name="widget_show_dividers">顯示分隔線</string>
     <string name="widget_show_menu">顯示清單</string>
-    <string name="yesterday_lowercase">昨天</string>
-    <string name="tomorrow_lowercase">明天</string>
-    <string name="today_lowercase">今天</string>
     <string name="voice_command_added_task">已新增的任務</string>
     <string name="delete_tag_confirmation">要刪除 %s 嗎 \?</string>
     <string name="repeat_snackbar">%1$s 重新安排至 %2$s</string>
@@ -299,7 +287,6 @@
     <string name="sign_in_with_google">使用 Google 登入</string>
     <string name="github_sponsors">GitHub 贊助者</string>
     <string name="google_play_subscribers">Goole Play 訂閱者</string>
-    <string name="not_signed_in">未登入</string>
     <string name="authorization_cancelled">取消授權</string>
     <string name="current_subscription">目前訂閱: %s</string>
     <string name="price_per_month">$%s/每月</string>
@@ -348,7 +335,6 @@
     <string name="chip_appearance_text_only">僅文字</string>
     <string name="hide_unused_places">隱藏未使用地點</string>
     <string name="hide_unused_tags">隱藏未使用標籤</string>
-    <string name="desaturate_colors_summary_off">暗色主題中顏色將不飽和</string>
     <string name="color_wheel">色輪</string>
     <string name="invalid_username_or_password">無效的使用者名稱或密碼</string>
     <string name="more_notification_settings_summary">鈴聲、震動、與更多</string>
@@ -361,7 +347,6 @@
     <string name="preferences_look_and_feel">外觀</string>
     <string name="tasks_org_description">使用 Task.org 同步您的工作</string>
     <string name="choose_synchronization_service">選擇一個平臺</string>
-    <string name="create_new_tag">建立 \"%s\"</string>
     <string name="enter_tag_name">輸入標籤名稱</string>
     <string name="collapse_subtasks">收起次工作</string>
     <string name="expand_subtasks">展開副工作</string>
@@ -423,8 +408,6 @@
     <string name="password">密碼</string>
     <string name="user">使用者名稱</string>
     <string name="add_account">新增帳號</string>
-    <string name="use_locale_default">使用當地預設</string>
-    <string name="start_of_week">一週之始</string>
     <string name="date_and_time">日期與時間</string>
     <string name="copy_selected_tasks">複製選擇的工作？</string>
     <string name="delete_selected_tasks">刪除所選工作？</string>
@@ -438,8 +421,6 @@
     <string name="widget_row_settings">行設定</string>
     <string name="widget_header_settings">標頭設定</string>
     <string name="widget_settings">小工具設定</string>
-    <string name="hardware_support_required">需要硬體支援</string>
-    <string name="led_notification">LED 通知</string>
     <string name="settings_localization">在地化</string>
     <string name="theme_system_default">系統預設</string>
     <string name="theme_day_night">日/夜</string>
@@ -464,8 +445,6 @@
     <string name="filter_criteria_unstarted">尚未開始</string>
     <string name="show_unstarted">顯示未開始項</string>
     <string name="widget_show_title">顯示標題</string>
-    <string name="yesterday_abbrev_lowercase">昨天</string>
-    <string name="tomorrow_abbrev_lowercase">明天</string>
     <plurals name="list_count">
         <item quantity="other">%d 個清單</item>
     </plurals>
@@ -516,7 +495,6 @@
     <string name="email">電子郵件</string>
     <string name="repeats_from">重複開始</string>
     <string name="list">清單</string>
-    <string name="map_theme">地圖主題</string>
     <string name="opacity_row">行列透明度</string>
     <string name="next_saturday">下週六</string>
     <string name="next_friday">下週五</string>
@@ -582,19 +560,15 @@
     <string name="repeats_never">永不</string>
     <string name="name_your_price">自行設定價格</string>
     <string name="completed_tasks_at_bottom">將已完成的任務移至底部</string>
-    <string name="app_bar_position">應用程式列位置</string>
     <string name="repeat_monthly_on_the_nth_weekday">每月於 %1$s %2$s</string>
     <string name="background_location_permission_required">Tasks 收集位置資料以啟用基於位置的提醒，即使應用程式關閉或未使用。</string>
-    <string name="picker_mode_clock">時鐘</string>
     <string name="upgrade_more_customization_description">解鎖所有主題、顏色和圖示</string>
     <string name="back">返回</string>
-    <string name="desaturate_colors_summary_on">在深色主題中將減淡顏色</string>
     <string name="place_settings">位置設定</string>
     <string name="places">地點</string>
     <string name="pro_dashclock_extension">Dashclock 擴充</string>
     <string name="auto_dismiss_datetime_edit_summary">選擇任務編輯時自動關閉</string>
     <string name="remove_user_confirmation">%1$s 將不再存取 %2$s 的資料庫</string>
-    <string name="picker_mode_time">時間選取器模式</string>
     <string name="snackbar_task_completed">任務已完成</string>
     <string name="sort_created_group">建立於 %s</string>
     <string name="invite_declined">邀請已拒絕</string>
@@ -607,7 +581,6 @@
     <string name="above_average">高於平均</string>
     <string name="dismiss">關閉</string>
     <string name="custom_notification">自訂通知</string>
-    <string name="picker_mode_calendar">行事曆</string>
     <string name="custom_filter_has_reminder">有提醒</string>
     <string name="no_google_play_subscription">沒有符合資格的 Google Play 訂閱</string>
     <string name="follow_reddit">加入 r/tasks</string>
@@ -622,10 +595,8 @@
     <string name="chips">顯示元件</string>
     <string name="chip_appearance">元件外觀</string>
     <string name="upgrade_open_source_description">你的訂閱支援持續開發</string>
-    <string name="upgrade_automation">自動化</string>
     <string name="upgrade_desktop_access_description">與 Outlook 和 Apple 提醒等第三方客戶端同步</string>
     <string name="navigation_drawer">導覽側邊欄</string>
-    <string name="top">頂部</string>
     <string name="sort_not_available">不支援標籤、篩選或地點</string>
     <string name="microsoft_selection_description">與您的個人 Microsoft 帳戶同步</string>
     <string name="sort_start_group">開始 %s</string>
@@ -644,7 +615,6 @@
     <string name="google_tasks_selection_description">基本服務，與您的 Google 帳戶同步</string>
     <string name="etesync_selection_description">端對端加密同步</string>
     <string name="upgrade_blurb_1">嗨！我的名字是 Alex。我是 Tasks 背後的獨立開發者</string>
-    <string name="desaturate_colors">減淡顏色</string>
     <string name="calendar_event_created">建立行事曆事件於 %s</string>
     <string name="widget_id">小工具 ID：%d</string>
     <string name="permission_read_tasks">完全存取 Tasks 資料庫</string>
@@ -657,15 +627,10 @@
     <string name="chat_libera">加入 #tasks 的 Libera Chat 頻道</string>
     <string name="app_passwords_more_info">使用第三方桌面和移動應用程式同步您的任務和行事曆。點擊此處了解更多資訊</string>
     <string name="account_not_included">並不包含「隨意價格」訂閱</string>
-    <string name="upgrade_google_tasks">同步多個帳戶</string>
     <string name="alarm_after_due">到期後 %s</string>
     <string name="pro_free_trial">新訂閱者享有 7 天免費試用。隨時取消</string>
-    <string name="bottom">底部</string>
     <string name="list_members">清單成員</string>
     <string name="invite_invalid">邀請無效</string>
-    <string name="picker_mode_date">日期選擇模式</string>
-    <string name="map_theme_use_app_theme">使用應用程式主題</string>
-    <string name="picker_mode_text">文字</string>
     <string name="upgrade_tasks_org_account_description">與 Tasks.org 同步，並與其他用戶協作</string>
     <string name="upgrade_more_customization">更多自訂</string>
     <string name="local_lists">本機清單</string>
@@ -680,14 +645,12 @@
     <string name="backups_ignore_warnings_summary">如果你不需要備份或有自己的備份解決方案，請忽略備份警告</string>
     <string name="upgrade_desktop_access">桌面訪問</string>
     <string name="completed">已完成</string>
-    <string name="app_bar_collapse">折疊應用程式列</string>
     <string name="caldav_server_unknown">未知</string>
     <string name="hint_customize_edit_title">資訊過多嗎？</string>
     <string name="snoozed_until">延後至 %s</string>
     <string name="sign_in">登入</string>
     <string name="alarm_before_start">開始前 %s</string>
     <string name="enable_reminders_description">在 Android 設定中禁用提醒</string>
-    <string name="upgrade_automation_description">Tasker、Automate 和 Locale 的外掛程式</string>
     <string name="consent_deny">現在不要</string>
     <string name="consent_agree">同意</string>
     <string name="enable_reminders">啟用提醒</string>

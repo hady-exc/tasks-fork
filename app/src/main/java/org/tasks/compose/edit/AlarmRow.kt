@@ -5,16 +5,19 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.ContentAlpha
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -22,11 +25,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.todoroo.astrid.ui.ReminderControlSetViewModel
+import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.persistentSetOf
 import org.tasks.R
 import org.tasks.compose.AddAlarmDialog
 import org.tasks.compose.AddReminderDialog
 import org.tasks.compose.ClearButton
-import org.tasks.compose.DisabledText
 import org.tasks.compose.TaskEditRow
 import org.tasks.data.entity.Alarm
 import org.tasks.reminders.AlarmToString
@@ -38,8 +42,11 @@ fun AlarmRow(
     vm: ReminderControlSetViewModel = viewModel(),
     hasNotificationPermissions: Boolean,
     fixNotificationPermissions: () -> Unit,
-    alarms: List<Alarm>,
+    alarms: ImmutableSet<Alarm>,
     ringMode: Int,
+    isNew: Boolean,
+    hasStartDate: Boolean,
+    hasDueDate: Boolean,
     addAlarm: (Alarm) -> Unit,
     deleteAlarm: (Alarm) -> Unit,
     openRingType: () -> Unit,
@@ -53,6 +60,9 @@ fun AlarmRow(
                 Alarms(
                     alarms = alarms,
                     ringMode = ringMode,
+                    isNew = isNew,
+                    hasStartDate = hasStartDate,
+                    hasDueDate = hasDueDate,
                     replaceAlarm = {
                         vm.setReplace(it)
                         vm.showAddAlarm(visible = true)
@@ -72,12 +82,12 @@ fun AlarmRow(
                     Spacer(modifier = Modifier.height(20.dp))
                     Text(
                         text = stringResource(id = R.string.enable_reminders),
-                        color = colorResource(id = org.tasks.kmp.R.color.red_500),
+                        color = MaterialTheme.colorScheme.error,
                     )
                     Text(
                         text = stringResource(id = R.string.enable_reminders_description),
                         style = MaterialTheme.typography.bodySmall,
-                        color = colorResource(id = org.tasks.kmp.R.color.red_500),
+                        color = MaterialTheme.colorScheme.error,
                     )
                     Spacer(modifier = Modifier.height(20.dp))
                 }
@@ -119,8 +129,11 @@ fun AlarmRow(
 
 @Composable
 fun Alarms(
-    alarms: List<Alarm>,
+    alarms: ImmutableSet<Alarm>,
     ringMode: Int,
+    isNew: Boolean,
+    hasStartDate: Boolean,
+    hasDueDate: Boolean,
     replaceAlarm: (Alarm) -> Unit,
     addAlarm: () -> Unit,
     deleteAlarm: (Alarm) -> Unit,
@@ -131,15 +144,37 @@ fun Alarms(
         alarms.forEach { alarm ->
             AlarmRow(
                 text = AlarmToString(LocalContext.current).toString(alarm),
+                color = when (alarm.type) {
+                    Alarm.TYPE_REL_START -> if (hasStartDate) {
+                        MaterialTheme.colorScheme.onSurface
+                    } else {
+                        MaterialTheme.colorScheme.error
+                    }
+                    Alarm.TYPE_REL_END -> if (hasDueDate) {
+                        MaterialTheme.colorScheme.onSurface
+                    } else {
+                        MaterialTheme.colorScheme.error
+                    }
+                    else -> MaterialTheme.colorScheme.onSurface
+                },
                 onClick = { replaceAlarm(alarm) },
                 remove = { deleteAlarm(alarm) }
             )
         }
+        val showError = remember(alarms, hasDueDate, hasStartDate) {
+            isNew && alarms.isEmpty() && (hasDueDate || hasStartDate)
+        }
         Row(modifier = Modifier.fillMaxWidth()) {
-            DisabledText(
-                text = stringResource(id = R.string.add_reminder),
+            Text(
+                text = stringResource(R.string.add_reminder),
+                color = when {
+                    showError -> MaterialTheme.colorScheme.error
+                    else -> MaterialTheme.colorScheme.onSurface.copy(alpha = ContentAlpha.disabled)
+                },
+                style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
-                    .padding(vertical = 12.dp)
+                    .padding(top = 12.dp, bottom = 12.dp, end = 16.dp)
+                    .defaultMinSize(24.dp)
                     .clickable(onClick = addAlarm)
             )
             Spacer(modifier = Modifier.weight(1f))
@@ -169,6 +204,7 @@ fun Alarms(
 @Composable
 private fun AlarmRow(
     text: String,
+    color: Color,
     onClick: () -> Unit,
     remove: () -> Unit,
 ) {
@@ -182,7 +218,7 @@ private fun AlarmRow(
             modifier = Modifier
                 .padding(vertical = 12.dp)
                 .weight(weight = 1f),
-            color = MaterialTheme.colorScheme.onSurface,
+            color = color,
         )
         ClearButton(onClick = remove)
     }
@@ -194,8 +230,11 @@ private fun AlarmRow(
 fun NoAlarms() {
     TasksTheme {
         AlarmRow(
-            alarms = emptyList(),
+            alarms = persistentSetOf(),
             ringMode = 0,
+            isNew = false,
+            hasStartDate = true,
+            hasDueDate = true,
             addAlarm = {},
             deleteAlarm = {},
             openRingType = {},
@@ -212,8 +251,11 @@ fun NoAlarms() {
 fun PermissionDenied() {
     TasksTheme {
         AlarmRow(
-            alarms = emptyList(),
+            alarms = persistentSetOf(),
             ringMode = 0,
+            isNew = false,
+            hasStartDate = true,
+            hasDueDate = true,
             addAlarm = {},
             deleteAlarm = {},
             openRingType = {},

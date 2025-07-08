@@ -81,7 +81,6 @@
     <string name="gcal_TEA_showCalendar_label">Άνοιγμα event ημερολογίου</string>
     <string name="gcal_completed_title">%s (έχει ολοκληρωθεί)</string>
     <string name="CFC_gtasks_list_text">Στην λίστα: ?</string>
-    <string name="CFC_gtasks_list_name">Στην λίστα του GTasks…</string>
     <string name="gtasks_GTA_clear_completed">Καθαρισμός ολοκληρωμένων</string>
     <string name="gtasks_GLA_authenticating">Αυθεντικοποίηση…</string>
     <string name="gtasks_GLA_errorIOAuth">Συγγνώμη, υπήρξε σφάλμα επικοινωνίας με τους διακομιστές της Google. Παρακαλουμε δοκιμάστε πάλι μετά.</string>
@@ -113,10 +112,6 @@
     <string name="voice_command_added_task">Η εργασία προστέθηκε</string>
     <string name="today">Σήμερα</string>
     <string name="tomorrow">Αύριο</string>
-    <string name="yesterday">Χθές</string>
-    <string name="tmrw">Αύριο</string>
-    <string name="yest">Χθές</string>
-    <string name="TLA_menu_donate">Δωρεά</string>
     <string name="remove">Αφαίρεση</string>
     <string name="add_location">Προσθήκη τοποθεσίας</string>
     <string name="add_reminder">Προσθήκη υπενθύμισης</string>

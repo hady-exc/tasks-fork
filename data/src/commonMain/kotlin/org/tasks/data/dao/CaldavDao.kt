@@ -3,31 +3,31 @@ package org.tasks.data.dao
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.flow.Flow
 import org.tasks.data.CaldavFilters
 import org.tasks.data.CaldavTaskContainer
 import org.tasks.data.NO_ORDER
 import org.tasks.data.TaskContainer
-import org.tasks.data.db.Database
 import org.tasks.data.db.DbUtils.dbchunk
 import org.tasks.data.db.SuspendDbUtils.chunkedMap
 import org.tasks.data.entity.CaldavAccount
-import org.tasks.data.entity.CaldavAccount.Companion.TYPE_GOOGLE_TASKS
 import org.tasks.data.entity.CaldavAccount.Companion.TYPE_LOCAL
 import org.tasks.data.entity.CaldavAccount.Companion.TYPE_OPENTASKS
 import org.tasks.data.entity.CaldavAccount.Companion.TYPE_TASKS
 import org.tasks.data.entity.CaldavCalendar
 import org.tasks.data.entity.CaldavTask
 import org.tasks.data.entity.Task
-import org.tasks.data.withTransaction
 import org.tasks.time.DateTimeUtils2.currentTimeMillis
 
 const val APPLE_EPOCH = 978307200000L // 1/1/2001 GMT
 
 @Dao
-abstract class CaldavDao(private val database: Database) {
+abstract class CaldavDao {
     @Query("SELECT COUNT(*) FROM caldav_lists WHERE cdl_account = :account")
     abstract suspend fun listCount(account: String): Int
 
@@ -55,15 +55,17 @@ abstract class CaldavDao(private val database: Database) {
     abstract suspend fun getAccount(type: Int, username: String): CaldavAccount?
 
     @Query("SELECT * FROM caldav_accounts WHERE cda_id = :id")
-    abstract suspend fun getAccount(id: String): CaldavAccount?
+    abstract suspend fun getAccount(id: Long): CaldavAccount?
 
     @Query("SELECT * FROM caldav_accounts WHERE cda_id = :id")
     abstract fun watchAccount(id: Long): Flow<CaldavAccount?>
 
+    @Query("SELECT EXISTS(SELECT 1 FROM caldav_accounts LIMIT 1)")
+    abstract fun watchAccountExists(): Flow<Boolean>
+
     @Query("""
 SELECT *
 FROM caldav_accounts
-WHERE cda_account_type != $TYPE_LOCAL
 ORDER BY CASE cda_account_type
              WHEN $TYPE_TASKS THEN 0
              ELSE 1
@@ -101,24 +103,24 @@ ORDER BY CASE cda_account_type
     @Update
     abstract suspend fun update(caldavCalendar: CaldavCalendar)
 
-    suspend fun insert(task: Task, caldavTask: CaldavTask, addToTop: Boolean): Long =
-        database.withTransaction {
-            if (task.order != null) {
-                return@withTransaction insert(caldavTask)
-            }
-            if (addToTop) {
-                task.order = findFirstTask(caldavTask.calendar!!, task.parent)
-                    ?.takeIf { task.creationDate.toAppleEpoch() >= it }
-                    ?.minus(1)
-            } else {
-                task.order = findLastTask(caldavTask.calendar!!, task.parent)
-                    ?.takeIf { task.creationDate.toAppleEpoch() <= it }
-                    ?.plus(1)
-            }
-            val id = insert(caldavTask)
-            update(task)
-            id
+    suspend fun insert(task: Task, caldavTask: CaldavTask, addToTop: Boolean): Long {
+        Logger.d("CaldavDao") { "insert task=$task caldavTask=$caldavTask addToTop=$addToTop)" }
+        if (task.order != null) {
+            return insert(caldavTask)
         }
+        if (addToTop) {
+            task.order = findFirstTask(caldavTask.calendar!!, task.parent)
+                ?.takeIf { task.creationDate.toAppleEpoch() >= it }
+                ?.minus(1)
+        } else {
+            task.order = findLastTask(caldavTask.calendar!!, task.parent)
+                ?.takeIf { task.creationDate.toAppleEpoch() <= it }
+                ?.plus(1)
+        }
+        val id = insert(caldavTask)
+        update(task)
+        return id
+    }
 
     @Query("""
 SELECT MIN(IFNULL(`order`, (created - $APPLE_EPOCH) / 1000))
@@ -213,16 +215,7 @@ SELECT EXISTS(SELECT 1
             + "AND cd_deleted = 0")
     abstract suspend fun getCaldavTasksToPush(calendar: String): List<CaldavTaskContainer>
 
-    @Query("SELECT * FROM caldav_lists " +
-            "INNER JOIN caldav_accounts ON caldav_lists.cdl_account = caldav_accounts.cda_uuid " +
-            "WHERE caldav_accounts.cda_account_type = $TYPE_GOOGLE_TASKS " +
-            "ORDER BY cdl_name COLLATE NOCASE")
-    abstract suspend fun getGoogleTaskLists(): List<CaldavCalendar>
-
-    @Query("SELECT * FROM caldav_lists " +
-            "INNER JOIN caldav_accounts ON caldav_lists.cdl_account = caldav_accounts.cda_uuid " +
-            "WHERE caldav_accounts.cda_account_type != $TYPE_GOOGLE_TASKS " +
-            "ORDER BY cdl_name COLLATE NOCASE")
+    @Query("SELECT * FROM caldav_lists ORDER BY cdl_name COLLATE NOCASE")
     abstract suspend fun getCalendars(): List<CaldavCalendar>
 
     @Query("""
@@ -243,17 +236,17 @@ SELECT EXISTS(SELECT 1
     @Query("SELECT cd_remote_id FROM caldav_tasks WHERE cd_calendar = :calendar AND cd_deleted = 0 AND cd_last_sync > 0")
     abstract suspend fun getRemoteIds(calendar: String): List<String>
 
-    suspend fun getTasksByRemoteId(calendar: String, remoteIds: List<String>): List<Long> =
+    suspend fun getTasksByRemoteId(calendar: String, remoteIds: List<String>): List<CaldavTask> =
             remoteIds.chunkedMap { getTasksByRemoteIdInternal(calendar, it) }
 
-    @Query("SELECT cd_task FROM caldav_tasks WHERE cd_calendar = :calendar AND cd_remote_id IN (:remoteIds)")
-    internal abstract suspend fun getTasksByRemoteIdInternal(calendar: String, remoteIds: List<String>): List<Long>
+    @Query("SELECT * FROM caldav_tasks WHERE cd_calendar = :calendar AND cd_remote_id IN (:remoteIds)")
+    internal abstract suspend fun getTasksByRemoteIdInternal(calendar: String, remoteIds: List<String>): List<CaldavTask>
 
-    suspend fun getTasks(calendar: String, objects: List<String>): List<Long> =
+    suspend fun getTasks(calendar: String, objects: List<String>): List<CaldavTask> =
             objects.chunkedMap { getTasksInternal(calendar, it) }
 
-    @Query("SELECT cd_task FROM caldav_tasks WHERE cd_calendar = :calendar AND cd_object IN (:objects)")
-    internal abstract suspend fun getTasksInternal(calendar: String, objects: List<String>): List<Long>
+    @Query("SELECT * FROM caldav_tasks WHERE cd_calendar = :calendar AND cd_object IN (:objects)")
+    internal abstract suspend fun getTasksInternal(calendar: String, objects: List<String>): List<CaldavTask>
 
     @Query("SELECT * FROM caldav_lists WHERE cdl_account = :account AND cdl_url NOT IN (:urls)")
     abstract suspend fun findDeletedCalendars(account: String, urls: List<String>): List<CaldavCalendar>
@@ -267,8 +260,12 @@ SELECT EXISTS(SELECT 1
             + " WHERE cdl_account = cda_uuid")
     abstract suspend fun getAccountForTask(task: Long): CaldavAccount?
 
-    @Query("SELECT DISTINCT cd_calendar FROM caldav_tasks WHERE cd_deleted = 0 AND cd_task IN (:tasks)")
-    abstract suspend fun getCalendars(tasks: List<Long>): List<String>
+    @Query("""
+        SELECT DISTINCT * FROM caldav_lists
+            INNER JOIN caldav_tasks ON cdl_uuid = cd_calendar
+        WHERE cd_deleted = 0 AND cd_task IN (:tasks)
+    """)
+    abstract suspend fun getCalendars(tasks: List<Long>): List<CaldavCalendar>
 
     @Query("""
 SELECT caldav_lists.*, COUNT(DISTINCT(tasks._id)) AS count, COUNT(DISTINCT(principal_access.id)) AS principals
@@ -280,82 +277,110 @@ FROM caldav_lists
                             tasks.hideUntil < :now AND 
                             cd_deleted = 0
          LEFT JOIN principal_access ON caldav_lists.cdl_id = principal_access.list
-         LEFT JOIN caldav_accounts ON caldav_accounts.cda_uuid = caldav_lists.cdl_account
 WHERE caldav_lists.cdl_account = :uuid
-AND caldav_accounts.cda_account_type != $TYPE_GOOGLE_TASKS 
 GROUP BY caldav_lists.cdl_uuid
     """)
     abstract suspend fun getCaldavFilters(uuid: String, now: Long = currentTimeMillis()): List<CaldavFilters>
 
-    @Query("UPDATE tasks SET parent = IFNULL(("
-            + " SELECT p.cd_task FROM caldav_tasks AS p"
-            + "  INNER JOIN caldav_tasks ON caldav_tasks.cd_task = tasks._id"
-            + "  WHERE p.cd_remote_id = caldav_tasks.cd_remote_parent"
-            + "    AND p.cd_calendar = caldav_tasks.cd_calendar"
-            + "    AND p.cd_deleted = 0"
-            + "    AND caldav_tasks.cd_remote_parent IS NOT NULL"
-            + "    AND caldav_tasks.cd_remote_parent != ''"
-            + "), 0)"
-            + "WHERE _id IN (SELECT _id FROM tasks INNER JOIN caldav_tasks ON _id = cd_task WHERE cd_deleted = 0)")
+    @Query("""
+        WITH parent_map AS (
+            SELECT
+                c.cd_task AS task_id,
+                p.cd_task AS parent_id
+            FROM caldav_tasks AS c
+            INNER JOIN caldav_tasks AS p
+                ON p.cd_calendar = c.cd_calendar
+                AND p.cd_remote_id = c.cd_remote_parent
+                AND p.cd_deleted = 0
+            WHERE c.cd_remote_parent IS NOT NULL
+                AND c.cd_remote_parent != ''
+                AND c.cd_deleted = 0
+        )
+        UPDATE tasks
+        SET parent = IFNULL(
+            (SELECT parent_id FROM parent_map WHERE task_id = tasks._id AND tasks._id != parent_id),
+            0
+        )
+        WHERE _id IN (
+            SELECT cd_task
+            FROM caldav_tasks
+            WHERE cd_deleted = 0
+        )
+    """)
     abstract suspend fun updateParents()
 
-    @Query("UPDATE tasks SET parent = IFNULL(("
-            + " SELECT p.cd_task FROM caldav_tasks AS p"
-            + "  INNER JOIN caldav_tasks "
-            + "    ON caldav_tasks.cd_task = tasks._id"
-            + "    AND caldav_tasks.cd_calendar = :calendar"
-            + "  WHERE p.cd_remote_id = caldav_tasks.cd_remote_parent"
-            + "    AND p.cd_calendar = caldav_tasks.cd_calendar"
-            + "    AND p.cd_deleted = 0"
-            + "    AND caldav_tasks.cd_remote_parent IS NOT NULL"
-            + "    AND caldav_tasks.cd_remote_parent != ''"
-            + "), 0)"
-            + "WHERE _id IN (SELECT _id FROM tasks INNER JOIN caldav_tasks ON _id = cd_task WHERE cd_deleted = 0 AND cd_calendar = :calendar)")
+    @Query("""
+        WITH parent_map AS (
+            SELECT
+                c.cd_task AS task_id,
+                p.cd_task AS parent_id
+            FROM caldav_tasks AS c
+            INNER JOIN caldav_tasks AS p
+                ON p.cd_calendar = c.cd_calendar
+                AND p.cd_remote_id = c.cd_remote_parent
+                AND p.cd_deleted = 0
+            WHERE c.cd_calendar = :calendar
+                AND c.cd_remote_parent IS NOT NULL
+                AND c.cd_remote_parent != ''
+                AND c.cd_deleted = 0
+        )
+        UPDATE tasks
+        SET parent = IFNULL(
+            (SELECT parent_id FROM parent_map WHERE task_id = tasks._id),
+            0
+        )
+        WHERE _id IN (
+            SELECT cd_task
+            FROM caldav_tasks
+            WHERE cd_calendar = :calendar
+                AND cd_deleted = 0
+        )
+    """)
     abstract suspend fun updateParents(calendar: String)
 
-    suspend fun move(
+    @Transaction
+    open suspend fun move(
         task: TaskContainer,
         previousParent: Long,
         newParent: Long,
         newPosition: Long?,
     ) {
-        database.withTransaction {
-            val previousPosition = task.caldavSortOrder
-            if (newPosition != null) {
-                if (newParent == previousParent && newPosition < previousPosition) {
-                    shiftDown(task.caldav!!, newParent, newPosition, previousPosition)
-                } else {
-                    val list =
-                        newParent.takeIf { it > 0 }?.let { getTask(it)?.calendar } ?: task.caldav!!
-                    shiftDown(list, newParent, newPosition)
-                }
+        Logger.d("CaldavDao") { "move task=$task previousParent=$previousParent newParent=$newParent newPosition=$newPosition" }
+        val previousPosition = task.caldavSortOrder
+        if (newPosition != null) {
+            if (newParent == previousParent && newPosition < previousPosition) {
+                shiftDown(task.caldav!!, newParent, newPosition, previousPosition)
+            } else {
+                val list =
+                    newParent.takeIf { it > 0 }?.let { getTask(it)?.calendar } ?: task.caldav!!
+                shiftDown(list, newParent, newPosition)
             }
-            task.task.order = newPosition
-            setTaskOrder(task.id, newPosition)
         }
+        task.task.order = newPosition
+        setTaskOrder(task.id, newPosition)
     }
 
-    suspend fun shiftDown(calendar: String, parent: Long, from: Long, to: Long? = null) {
-        database.withTransaction {
-            val updated = ArrayList<Task>()
-            val tasks = getTasksToShift(calendar, parent, from, to)
-            for (i in tasks.indices) {
-                val task = tasks[i]
-                val current = from + i
-                if (task.sortOrder == current) {
-                    val task = task.task
-                    task.order = current + 1
-                    updated.add(task)
-                } else if (task.sortOrder > current) {
-                    break
-                }
+    @Transaction
+    open suspend fun shiftDown(calendar: String, parent: Long, from: Long, to: Long? = null) {
+        Logger.d("CaldavDao") { "shiftDown calendar=$calendar parent=$parent from=$from to=$to" }
+        val updated = ArrayList<Task>()
+        val tasks = getTasksToShift(calendar, parent, from, to)
+        for (i in tasks.indices) {
+            val task = tasks[i]
+            val current = from + i
+            if (task.sortOrder == current) {
+                val task = task.task
+                task.order = current + 1
+                updated.add(task)
+            } else if (task.sortOrder > current) {
+                break
             }
-            updateTasks(updated)
-            updated
-                .map(Task::id)
-                .dbchunk()
-                .forEach { touchInternal(it) }
         }
+        updateTasks(updated)
+        updated
+            .map(Task::id)
+            .dbchunk()
+            .forEach { touchInternal(it) }
     }
 
     @Query("UPDATE tasks SET modified = :modificationTime WHERE _id in (:ids)")
@@ -384,9 +409,22 @@ ORDER BY primary_sort
     @Query("UPDATE tasks SET `order` = :order WHERE _id = :id")
     abstract suspend fun setTaskOrder(id: Long, order: Long?)
 
-    companion object {
-        const val LOCAL = "local"
+    @Query("UPDATE caldav_lists SET cdl_last_sync = 0 WHERE cdl_account = :account")
+    abstract suspend fun resetLastSync(account: String)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun insertOrReplace(googleTaskList: CaldavCalendar): Long
+
+    @Query("""
+        SELECT COUNT(*)
+        FROM caldav_tasks
+        INNER JOIN caldav_lists ON cd_calendar = cdl_uuid
+        WHERE cdl_account = :account
+        AND cd_deleted = 0
+    """)
+    abstract suspend fun countTasks(account: String): Int
+
+    companion object {
         fun Long.toAppleEpoch(): Long = (this - APPLE_EPOCH) / 1000
     }
 }

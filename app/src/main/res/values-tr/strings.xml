@@ -7,12 +7,7 @@
     <string name="backup_BAc_export">Şimdi yedekle</string>
     <string name="export_toast">%1$s şuraya yedeklendi: %2$s.</string>
     <string name="import_summary_title">Geri Alma Özeti</string>
-    <string name="import_summary_message">%1$s dosyası %2$s içeriyor.
-\n
-\n %3$s içe aktarıldı,
-\n %4$s zaten var,
-\n %5$s hata var
-\n</string>
+    <string name="import_summary_message">%1$s dosyası %2$s içeriyor. \n \n %3$s içe aktarıldı,\n %4$s zaten var,\n %5$s hata var.</string>
     <string name="import_progress_read">%d görev okunuyor…</string>
     <string name="read_permission_label">Tasks İzni</string>
     <string name="discard_confirmation">Değişikliklerinizi gözden çıkarmak istediğinize emin misiniz?</string>
@@ -108,7 +103,6 @@
     <string name="calendar_event_not_found">Takvim etkinliği bulunamadı</string>
     <string name="gcal_completed_title">%s (tamamlandı)</string>
     <string name="CFC_gtasks_list_text">Liste içinde: ?</string>
-    <string name="CFC_gtasks_list_name">Gtasks Listesi içinde…</string>
     <string name="gtasks_GTA_clear_completed">Tamamlanları Temizle</string>
     <string name="gtasks_GLA_authenticating">Kimlik doğrulanıyor…</string>
     <string name="gtasks_GLA_errorIOAuth">Üzgünüm, Google sunucuları ile bağlanmakta sıkıntı yaşıyoruz. Lütfen daha sonra yeniden deneyin.</string>
@@ -218,16 +212,10 @@
     </plurals>
     <string name="today">Bugün</string>
     <string name="tomorrow">Yarın</string>
-    <string name="yesterday">Dün</string>
-    <string name="tmrw">Yarın</string>
-    <string name="yest">Dün</string>
     <string name="widget_show_checkboxes">Onay kutularını göster</string>
     <string name="widget_show_header">Üstü göster</string>
     <string name="widget_show_settings">Ayarları göster</string>
     <string name="notifications">Bildirimler</string>
-    <string name="silent">Sessiz</string>
-    <string name="sound">Ses</string>
-    <string name="vibrations">Titreşimler</string>
     <string name="quiet_hours">Sessiz saatler</string>
     <string name="attachment_directory">Ek klasörü</string>
     <string name="backup_directory">Yedekleme klasörü</string>
@@ -242,7 +230,6 @@
     <string name="contact_developer">Geliştiriciyle iletişime geç</string>
     <string name="rate_tasks">Tasks\'i oyla</string>
     <string name="quiet_hours_summary">Sessiz saatlerde anımsatıcı yok</string>
-    <string name="TLA_menu_donate">Bağış yap</string>
     <string name="add_reminder">Anımsatıcı ekle</string>
     <string name="add_location">Konum ekle</string>
     <string name="remove">Kaldır</string>
@@ -292,7 +279,6 @@
     <string name="opacity">Şeffaflık</string>
     <string name="theme">Gövde</string>
     <string name="color">Renk</string>
-    <string name="accent">Ara renk</string>
     <string name="launcher_icon">Başlatıcı simgesi</string>
     <string name="theme_black">Siyah</string>
     <string name="theme_light">Açık</string>
@@ -304,8 +290,6 @@
     <string name="restart_now">Şimdi yeniden başlat</string>
     <string name="restart_later">Sonra</string>
     <string name="settings_localization">Yerelleştirme</string>
-    <string name="led_notification">LED bildirimi</string>
-    <string name="hardware_support_required">Donanım desteği gerekiyor</string>
     <string name="widget_settings">Widget ayarları</string>
     <string name="widget_header_settings">Başlık ayarları</string>
     <string name="widget_row_settings">Satır ayarları</string>
@@ -315,8 +299,6 @@
     <string name="delete_selected_tasks">Seçili görevleri sil?</string>
     <string name="copy_selected_tasks">Seçili görevleri kopyala?</string>
     <string name="date_and_time">Tarih ve zaman</string>
-    <string name="start_of_week">Hafta başlangıcı</string>
-    <string name="use_locale_default">Yerel öntanımlısını kullan</string>
     <string name="add_account">Hesap ekle</string>
     <string name="user">Kullanıcı</string>
     <string name="password">Parola</string>
@@ -408,9 +390,8 @@
     <string name="collapse_subtasks">Alt görevleri gizle</string>
     <string name="TEA_add_subtask">Alt görev ekle</string>
     <string name="subtasks">Alt görevler</string>
-    <string name="subtasks_multilevel_google_task">Google Görevler, çoklu düzey alt görevleri desteklemez</string>
+    <string name="subtasks_multilevel_google_task">Google Görevler, çok düzeyli alt görevleri desteklemez</string>
     <string name="enter_tag_name">Etiket adı girin</string>
-    <string name="create_new_tag">\"%s\" oluştur</string>
     <string name="display_name">Gösterim adı</string>
     <string name="this_feature_requires_a_subscription">Bu özellik abonelik gerektiriyor</string>
     <string name="choose_synchronization_service">Platform seç</string>
@@ -439,9 +420,6 @@
     <string name="back">Geri</string>
     <string name="chips">Yongalar</string>
     <string name="chip_appearance">Yonga görünümü</string>
-    <string name="desaturate_colors">Renkleri solgunlaştır</string>
-    <string name="desaturate_colors_summary_on">Renkler karanlık gövdelerde solgunlaştırılacak</string>
-    <string name="desaturate_colors_summary_off">Renkler karanlık gövdelerde solgunlaştırılmayacak</string>
     <string name="places">Yerler</string>
     <string name="place_settings">Yer ayarları</string>
     <string name="navigation_drawer">Gezinim çekmecesi</string>
@@ -503,9 +481,6 @@
     <string name="action_new_task">Yeni görev</string>
     <string name="sort_created_group">%s oluşturulan</string>
     <string name="sort_modified_group">%s değiştirilen</string>
-    <string name="yesterday_lowercase">dün</string>
-    <string name="tomorrow_lowercase">yarın</string>
-    <string name="today_lowercase">bugün</string>
     <string name="lists">Listeler</string>
     <string name="open_last_viewed_list">Son görülen listeyi aç</string>
     <string name="on_launch">Başlangıçta</string>
@@ -564,7 +539,6 @@
     <string name="sign_in_with_github">GitHub ile oturum aç</string>
     <string name="github_sponsors">GitHub Sponsorları</string>
     <string name="google_play_subscribers">Google Play aboneleri</string>
-    <string name="not_signed_in">Oturum açılmadı</string>
     <string name="no_google_play_subscription">Uygun Google Play aboneliği bulunamadı</string>
     <string name="insufficient_sponsorship">Uygun GitHub sponsorluğu bulunamadı</string>
     <string name="save_percent">%%%d tasarruf</string>
@@ -595,15 +569,11 @@
     <string name="sort_due_group">%s biten</string>
     <string name="sort_start_group">%s başlayan</string>
     <string name="tasks_org_description">Görevlerinizi Tasks.org ile eşzamanlayın</string>
-    <string name="yesterday_abbrev_lowercase">dün</string>
-    <string name="tomorrow_abbrev_lowercase">yarın</string>
     <string name="account_not_included">\'Fiyat belirle\' aboneliklerini içermez</string>
     <string name="tasks_org_account">Tasks.org hesabı</string>
     <string name="subscription">Abonelik</string>
     <string name="widget_show_title">Başlığı göster</string>
-    <string name="map_theme_use_app_theme">Uygulama gövdesi kullan</string>
     <string name="tasks_org_account_required">Tasks.org hesabı gerekli</string>
-    <string name="map_theme">Harita gövdesi</string>
     <string name="privacy">Gizlilik</string>
     <string name="open_source">Açık kaynak</string>
     <string name="issue_tracker">Sorun izleyicisi</string>
@@ -620,21 +590,13 @@
     <string name="email">E-posta</string>
     <string name="share_list">Listeyi paylaş</string>
     <string name="more_options">Daha çok seçenek</string>
-    <string name="upgrade_automation_description">Tasker, Automate ve Locale için eklentiler</string>
-    <string name="upgrade_automation">Otomasyon</string>
     <string name="upgrade_open_source_description">Aboneliğiniz geliştirmenin sürekliliğini destekler</string>
     <string name="upgrade_desktop_access_description">Outlook ve Apple Anımsatıcılar gibi üçüncü taraf istemcilerle eşzamanlama</string>
     <string name="upgrade_more_customization_description">Tüm gövdeler, renkler ve simgeler kullanılabilir</string>
     <string name="upgrade_desktop_access">Masaüstü erişimi</string>
     <string name="upgrade_tasks_org_account_description">Tasks.org ile eşzamanla ve diğer kullanıcılarla ortak çalış</string>
-    <string name="upgrade_google_tasks">Çoklu hesapları eşzamanla</string>
     <string name="upgrade_more_customization">Daha çok özelleştirme</string>
     <string name="pro_free_trial">Yeni aboneler 7 günlük sınama süresi kazanır. İstendiğinde iptal edilir</string>
-    <string name="picker_mode_text">Metin</string>
-    <string name="picker_mode_clock">Saat</string>
-    <string name="picker_mode_calendar">Takvim</string>
-    <string name="picker_mode_time">Zaman seçici kipi</string>
-    <string name="picker_mode_date">Tarih seçici kipi</string>
     <string name="next_friday">Sonraki Cma</string>
     <string name="next_saturday">Sonraki Cts</string>
     <string name="next_thursday">Sonraki Per</string>
@@ -647,12 +609,8 @@
     <string name="chat_libera">Libera Chat\'te #tasks kanalına katıl</string>
     <string name="now">Şimdi</string>
     <string name="when_started">Başladığında</string>
-    <string name="top">Üst</string>
-    <string name="bottom">Alt</string>
-    <string name="app_bar_position">Uygulama çubuğu konumu</string>
     <string name="completion_sound">Tamamlandığında ses çal</string>
     <string name="completed">Tamamlandı</string>
-    <string name="app_bar_collapse">Uygulama çubuklarını daralt</string>
     <string name="snackbar_task_completed">Görev tamamlandı</string>
     <string name="completed_tasks_at_bottom">Tamamlanan görevleri alta taşı</string>
     <string name="snackbar_tasks_completed">%d görev tamamlandı</string>
@@ -736,4 +694,30 @@
     <string name="donate_today">Bugün bağış yapın</string>
     <string name="donate_maybe_later">Belki daha sonra</string>
     <string name="donate_nag">Desteğinizi bağış yaparak göstermeyi düşünün!</string>
+    <string name="comment">Yorum</string>
+    <string name="cost_free">Ücret: Ücretsiz</string>
+    <string name="cost_money">Ücret: $</string>
+    <string name="delete_comment">yorum</string>
+    <string name="yesterday">Dün</string>
+    <string name="quiet_hours_in_effect">Sessiz saatler etkin</string>
+    <string name="sync_warning_microsoft_title">Microsoft To Do eşzamanlayıcı hakkında</string>
+    <string name="sync_warning_microsoft">Tüm görev ayrıntıları Microsoft To Do ile eşzamanlanmaz.</string>
+    <string name="sync_warning_google_tasks_title">Google Görevler eşzamanlayıcıyla ilgili</string>
+    <string name="button_learn_more">Daha çoğunu öğren</string>
+    <string name="sync_warning_google_tasks">Tüm görev ayrıntıları Google Görevler ile eşzamanlanmaz</string>
+    <string name="price_per_month_with_currency">%s/ay</string>
+    <string name="price_per_year_with_currency">%s/yıl</string>
+    <string name="enable_alarms">Doğru zamanda bildirim al</string>
+    <string name="enable_alarms_description">Doğru zamanda bildirim aldığınızdan emin olmak için, alarm ve anımsatıcı kurmak için Ayarlar\'da izin verin</string>
+    <string name="add_shortcut_to_home_screen">Ana ekrana kısayol ekle</string>
+    <string name="add_widget_to_home_screen">Ana ekrana parçacık ekle</string>
+    <string name="send_application_logs">Uygulama günlüklerini gönder</string>
+    <string name="cost_more_money">Ücret: $$$</string>
+    <string name="multiline_title">Çok satırlı başlıklara izin ver</string>
+    <string name="multiline_title_on">Satır eklemek için Enter tuşuna bas</string>
+    <string name="subtasks_multilevel_microsoft">Microsoft To Do, çok düzeyli alt görevleri desteklemez</string>
+    <string name="app_settings">Uygulama ayarları</string>
+    <string name="banner_app_updated_description">Tasks %s sürümüne güncellendi. Dağıtım notlarını görmek ister misiniz?</string>
+    <string name="banner_app_updated_title">Uygulama güncellendi</string>
+    <string name="multiline_title_off">Tamamlandıya basarak görevi kaydet</string>
 </resources>

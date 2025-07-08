@@ -30,6 +30,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.tasks.LocalBroadcastManager
 import org.tasks.compose.pickers.SearchableFilterPicker
 import org.tasks.dialogs.FilterPickerViewModel
+import org.tasks.filters.CaldavFilter
 import org.tasks.filters.Filter
 import org.tasks.filters.NavigationDrawerSubheader
 import org.tasks.preferences.DefaultFilterProvider
@@ -110,7 +111,17 @@ class FilterSelectionActivity : AppCompatActivity() {
         const val EXTRA_FILTER = "extra_filter"
         const val EXTRA_LISTS_ONLY = "extra_lists_only"
 
-        fun Fragment.registerForListPickerResult(callback: (Filter) -> Unit): ActivityResultLauncher<Intent> {
+        fun Fragment.registerForListPickerResult(callback: (CaldavFilter) -> Unit): ActivityResultLauncher<Intent> {
+            return registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                it.data?.let { intent ->
+                    IntentCompat
+                        .getParcelableExtra(intent, EXTRA_FILTER, CaldavFilter::class.java)
+                        ?.let(callback)
+                }
+            }
+        }
+
+        fun Fragment.registerForFilterPickerResult(callback: (Filter) -> Unit): ActivityResultLauncher<Intent> {
             return registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 it.data?.let { intent ->
                     IntentCompat
@@ -120,7 +131,7 @@ class FilterSelectionActivity : AppCompatActivity() {
             }
         }
 
-        fun ComponentActivity.registerForListPickerResult(callback: (Filter) -> Unit): ActivityResultLauncher<Intent> {
+        fun ComponentActivity.registerForFilterPickerResult(callback: (Filter) -> Unit): ActivityResultLauncher<Intent> {
             return registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 it.data?.let { intent ->
                     IntentCompat

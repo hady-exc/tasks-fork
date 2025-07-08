@@ -6,7 +6,6 @@ import com.google.api.client.util.DateTime
 import com.google.api.services.tasks.model.Task
 import com.google.api.services.tasks.model.TaskList
 import com.google.api.services.tasks.model.Tasks
-import org.tasks.filters.GtasksFilter
 import com.todoroo.astrid.dao.TaskDao
 import com.todoroo.astrid.gtasks.GtasksListService
 import com.todoroo.astrid.gtasks.api.GtasksApiUtilities
@@ -20,12 +19,10 @@ import org.tasks.LocalBroadcastManager
 import org.tasks.R
 import org.tasks.Strings.isNullOrEmpty
 import org.tasks.analytics.Firebase
-import org.tasks.billing.Inventory
 import org.tasks.data.*
 import org.tasks.data.dao.AlarmDao
 import org.tasks.data.dao.CaldavDao
 import org.tasks.data.dao.GoogleTaskDao
-import org.tasks.data.dao.GoogleTaskListDao
 import org.tasks.data.entity.CaldavAccount
 import org.tasks.data.entity.CaldavCalendar
 import org.tasks.data.entity.CaldavTask
@@ -48,7 +45,6 @@ import kotlin.math.max
 
 class GoogleTaskSynchronizer @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    private val googleTaskListDao: GoogleTaskListDao,
     private val caldavDao: CaldavDao,
     private val gtasksListService: GtasksListService,
     private val preferences: Preferences,
@@ -60,19 +56,14 @@ class GoogleTaskSynchronizer @Inject constructor(
     private val permissionChecker: PermissionChecker,
     private val googleAccountManager: GoogleAccountManager,
     private val localBroadcastManager: LocalBroadcastManager,
-    private val inventory: Inventory,
     private val taskDeleter: TaskDeleter,
     private val invokers: InvokerFactory,
     private val alarmDao: AlarmDao,
 ) {
-    suspend fun sync(account: CaldavAccount, i: Int) {
+    suspend fun sync(account: CaldavAccount) {
         Timber.d("%s: start sync", account)
         try {
-            if (i == 0 || inventory.hasPro) {
-                synchronize(account)
-            } else {
-                account.error = CaldavAccount.ERROR_PAYMENT_REQUIRED
-            }
+            synchronize(account)
         } catch (e: SocketTimeoutException) {
             Timber.e(e)
             account.error = e.message
@@ -109,8 +100,7 @@ class GoogleTaskSynchronizer @Inject constructor(
 
     @Throws(IOException::class)
     private suspend fun synchronize(account: CaldavAccount) {
-        if (!permissionChecker.canAccessAccounts()
-                || googleAccountManager.getAccount(account.username) == null) {
+        if (googleAccountManager.getAccount(account.username) == null) {
             account.error = context.getString(R.string.cannot_access_account)
             return
         }
@@ -129,14 +119,14 @@ class GoogleTaskSynchronizer @Inject constructor(
         } while (!isNullOrEmpty(nextPageToken))
         gtasksListService.updateLists(account, gtaskLists)
         val defaultRemoteList = defaultFilterProvider.defaultList
-        if (defaultRemoteList is GtasksFilter) {
-            val list = googleTaskListDao.getByRemoteId(defaultRemoteList.remoteId)
+        if (defaultRemoteList.isGoogleTasks) {
+            val list = caldavDao.getCalendarByUuid(defaultRemoteList.uuid)
             if (list == null) {
                 preferences.setString(R.string.p_default_list, null)
             }
         }
         pushLocalChanges(account, gtasksInvoker)
-        for (list in googleTaskListDao.getByRemoteId(gtaskLists.map { it.id })) {
+        for (list in caldavDao.getCalendarsByAccount(account.uuid!!)) {
             if (isNullOrEmpty(list.uuid)) {
                 firebase.reportException(RuntimeException("Empty remote id"))
                 continue
@@ -202,7 +192,7 @@ class GoogleTaskSynchronizer @Inject constructor(
         var newlyCreated = false
         val remoteId: String?
         val defaultRemoteList = defaultFilterProvider.defaultList
-        var listId = if (defaultRemoteList is GtasksFilter) defaultRemoteList.remoteId else DEFAULT_LIST
+        var listId = if (defaultRemoteList.isGoogleTasks) defaultRemoteList.uuid else DEFAULT_LIST
         if (isNullOrEmpty(gtasksMetadata.remoteId)) { // Create case
             gtasksMetadata.calendar?.takeIf { it.isNotBlank() }?.let {
                 listId = it
@@ -361,7 +351,7 @@ class GoogleTaskSynchronizer @Inject constructor(
                 write(task, googleTask)
             }
         }
-        googleTaskListDao.insertOrReplace(
+        caldavDao.insertOrReplace(
             list.copy(
                 lastSync = lastSyncDate
             )
@@ -408,8 +398,8 @@ class GoogleTaskSynchronizer @Inject constructor(
             }
         }
 
-        fun mergeDates(remoteDueDate: Long, local: org.tasks.data.entity.Task?) {
-            if (remoteDueDate > 0 && local!!.hasDueTime()) {
+        fun mergeDates(remoteDueDate: Long, local: org.tasks.data.entity.Task) {
+            if (remoteDueDate > 0 && local.hasDueTime()) {
                 val oldDate = newDateTime(local.dueDate)
                 val newDate = newDateTime(remoteDueDate)
                         .withHourOfDay(oldDate.hourOfDay)
@@ -418,7 +408,7 @@ class GoogleTaskSynchronizer @Inject constructor(
                 local.setDueDateAdjustingHideUntil(
                         createDueDate(org.tasks.data.entity.Task.URGENCY_SPECIFIC_DAY_TIME, newDate.millis))
             } else {
-                local!!.setDueDateAdjustingHideUntil(remoteDueDate)
+                local.setDueDateAdjustingHideUntil(remoteDueDate)
             }
         }
 

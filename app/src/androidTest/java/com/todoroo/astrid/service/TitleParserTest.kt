@@ -5,37 +5,45 @@
  */
 package com.todoroo.astrid.service
 
-import org.tasks.data.entity.Task
 import com.todoroo.astrid.utility.TitleParser
 import dagger.hilt.android.testing.HiltAndroidTest
-import dagger.hilt.android.testing.UninstallModules
 import kotlinx.coroutines.runBlocking
-import net.fortuna.ical4j.model.Recur.Frequency.*
-import org.junit.Assert.*
+import net.fortuna.ical4j.model.Recur.Frequency.DAILY
+import net.fortuna.ical4j.model.Recur.Frequency.MONTHLY
+import net.fortuna.ical4j.model.Recur.Frequency.WEEKLY
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotSame
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 import org.tasks.R
+import org.tasks.data.dao.CaldavDao
 import org.tasks.data.dao.TagDataDao
+import org.tasks.data.entity.Task
+import org.tasks.data.newLocalAccount
 import org.tasks.date.DateTimeUtils
 import org.tasks.injection.InjectingTestCase
-import org.tasks.injection.ProductionModule
 import org.tasks.preferences.Preferences
 import org.tasks.repeats.RecurrenceUtils.newRecur
-import java.util.*
+import java.util.Calendar
 import javax.inject.Inject
 
-@UninstallModules(ProductionModule::class)
 @HiltAndroidTest
 class TitleParserTest : InjectingTestCase() {
     @Inject lateinit var tagDataDao: TagDataDao
     @Inject lateinit var preferences: Preferences
     @Inject lateinit var taskCreator: TaskCreator
+    @Inject lateinit var caldavDao: CaldavDao
 
     @Before
     override fun setUp() {
-        super.setUp()
-        preferences.setStringFromInteger(R.string.p_default_urgency_key, 0)
+        runBlocking {
+            super.setUp()
+            preferences.setStringFromInteger(R.string.p_default_urgency_key, 0)
+            caldavDao.newLocalAccount()
+        }
     }
 
     /**

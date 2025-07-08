@@ -69,17 +69,12 @@
     </plurals>
     <string name="now">ଏବେ</string>
     <string name="today">ଆଜି</string>
-    <string name="today_lowercase">ଆଜି</string>
-    <string name="tomorrow_lowercase">ଆସନ୍ତାକାଲି</string>
-    <string name="yesterday">ଗତକାଲି</string>
-    <string name="yesterday_lowercase">ଗତକାଲି</string>
     <string name="next_sunday">ଆସନ୍ତା ରଵି</string>
     <string name="next_tuesday">ଆସନ୍ତା ମଙ୍ଗଳ</string>
     <string name="next_wednesday">ଆସନ୍ତା ବୁଧ</string>
     <string name="next_thursday">ଆସନ୍ତା ଗୁରୁ</string>
     <string name="next_friday">ଆସନ୍ତା ଶୁକ୍ର</string>
     <string name="widget_show_dividers">ଵିଭାଜକ ଦେଖାଅ</string>
-    <string name="TLA_menu_donate">ଦାନ କରନ୍ତୁ</string>
     <string name="date_shortcut_morning">ସକାଳ</string>
     <string name="date_shortcut_afternoon">ଅପରାହ୍ଣ</string>
     <string name="date_shortcut_evening">ସଞ୍ଜ</string>
@@ -96,7 +91,6 @@
     <string name="theme_dark">ଗାଢ଼</string>
     <string name="theme_day_night">ଦିନ/ରାତି</string>
     <string name="date_and_time">ତାରିଖ ଓ ସମୟ</string>
-    <string name="start_of_week">ସପ୍ତାହ ଆରମ୍ଭ</string>
     <string name="user">ଉପଭୋକ୍ତା</string>
     <string name="password">ପାସ୍‍ୱର୍ଡ଼</string>
     <string name="url">URL</string>
@@ -115,8 +109,6 @@
     <string name="open_source">ଖୋଲା ଉତ୍ସ</string>
     <string name="invite">ନିମନ୍ତ୍ରଣ ପଠାଇବା</string>
     <string name="invite_invalid">ନିମନ୍ତ୍ରଣ ଅମାନ୍ୟ ଅଟେ</string>
-    <string name="picker_mode_calendar">କ୍ୟାଲେଣ୍ଡର</string>
-    <string name="picker_mode_clock">ଘଡ଼ି</string>
     <string name="widget_show_title">ଆଖ୍ୟା ଦେଖାଅ</string>
     <string name="SSD_sort_my_order">ମୋର କ୍ରମ</string>
     <string name="SSD_sort_start">ଆରମ୍ଭ ତାରିଖ ଅନୁଯାୟୀ</string>
@@ -158,7 +150,6 @@
     <string name="language">ଭାଷା</string>
     <string name="theme_system_default">ସିଷ୍ଟମ୍ ଡିଫଲ୍ଟ</string>
     <string name="restart_later">ପରେ</string>
-    <string name="led_notification">LED ଵିଜ୍ଞପ୍ତି</string>
     <string name="widget_due_date_after_title">ଆଖ୍ୟା ପରେ</string>
     <string name="widget_due_date_below_title">ଆଖ୍ୟା ତଳେ</string>
     <string name="repeats_minutely">ପ୍ରତି ମିନିଟ୍</string>

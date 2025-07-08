@@ -36,6 +36,7 @@ import org.tasks.compose.ServerSelector
 import org.tasks.data.dao.CaldavDao
 import org.tasks.data.entity.CaldavAccount
 import org.tasks.data.entity.CaldavAccount.Companion.SERVER_UNKNOWN
+import org.tasks.data.entity.CaldavAccount.Companion.TYPE_LOCAL
 import org.tasks.data.entity.Task
 import org.tasks.databinding.ActivityCaldavAccountSettingsBinding
 import org.tasks.dialogs.DialogBuilder
@@ -116,7 +117,7 @@ abstract class BaseCaldavAccountSettingsActivity : ThemedInjectingAppCompatActiv
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showSoftInput(binding.name, InputMethodManager.SHOW_IMPLICIT)
         }
-        if (!inventory.hasPro) {
+        if (!inventory.hasPro && caldavAccount?.accountType != TYPE_LOCAL) {
             newSnackbar(getString(R.string.this_feature_requires_a_subscription))
                     .setDuration(BaseTransientBottomBar.LENGTH_INDEFINITE)
                     .setAction(R.string.button_subscribe) {
@@ -138,7 +139,10 @@ abstract class BaseCaldavAccountSettingsActivity : ThemedInjectingAppCompatActiv
         )
         binding.password.setOnFocusChangeListener { _, hasFocus -> onPasswordFocused(hasFocus) }
         binding.serverSelector.setContent {
-            TasksTheme(theme = tasksTheme.themeBase.index) {
+            TasksTheme(
+                theme = tasksTheme.themeBase.index,
+                primary = tasksTheme.themeColor.primaryColor,
+            ) {
                 var selected by rememberSaveable { serverType }
                 ServerSelector(selected) {
                     serverType.value = it
@@ -305,7 +309,8 @@ abstract class BaseCaldavAccountSettingsActivity : ThemedInjectingAppCompatActiv
 
     private fun newSnackbar(message: String?): Snackbar {
         val snackbar = Snackbar.make(binding.rootLayout, message!!, 8000)
-                .setTextColor(getColor(R.color.snackbar_text_color))
+            .setBackgroundTint(getColor(R.color.dialog_background))
+                .setTextColor(getColor(R.color.text_primary))
                 .setActionTextColor(getColor(R.color.snackbar_action_color))
         snackbar
                 .view
@@ -338,7 +343,7 @@ abstract class BaseCaldavAccountSettingsActivity : ThemedInjectingAppCompatActiv
         }
     }
 
-    private fun removeAccountPrompt() {
+    protected open suspend fun removeAccountPrompt() {
         if (requestInProgress()) {
             return
         }
@@ -375,7 +380,9 @@ abstract class BaseCaldavAccountSettingsActivity : ThemedInjectingAppCompatActiv
     override fun onMenuItemClick(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.menu_help -> openUri(helpUrl)
-            R.id.remove -> removeAccountPrompt()
+            R.id.remove -> lifecycleScope.launch {
+                removeAccountPrompt()
+            }
         }
         return onOptionsItemSelected(item)
     }

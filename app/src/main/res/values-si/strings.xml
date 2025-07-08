@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="github_sponsor">අනුග්‍රාහකයා</string>
-    <string name="map_theme_use_app_theme">යෙදුම් තේමාව භාවිතා කරන්න</string>
-    <string name="picker_mode_date">දින තේරීම් ආකාරය</string>
     <string name="invite_invalid">ආරාධනය අවලංගුයි</string>
     <string name="share_list">ලැයිස්තුව බෙදාගන්න</string>
     <string name="issue_tracker">දෝෂ සෙවීම</string>
@@ -23,8 +21,6 @@
     <string name="calendar_event_created">%s සඳහා දින දර්ශන සිදුවීම නිර්මාණය කරන ලදි</string>
     <string name="auto_dismiss_datetime_widget">විජට්</string>
     <string name="auto_dismiss_datetime_edit">කාර්ය සංස්කරණය</string>
-    <string name="desaturate_colors_summary_off">අඳුරු තේමාවන් වලදී වර්ණ අසංතෘප්ත නොවේ</string>
-    <string name="desaturate_colors">අවිනිශ්චිත වර්ණ</string>
     <string name="chip_appearance">චිප් පෙනුම</string>
     <string name="TEA_timer_est">කාලය %s</string>
     <plurals name="list_count">
@@ -33,12 +29,10 @@
     </plurals>
     <string name="astrid_sort_order_summary">\'මගේ කාර්යයන්\', \'අද\' සහ ටැග් සඳහා Astrid හි අතින් වර්ග කිරීමේ මාදිලිය සක්‍රීය කරන්න. මෙම වර්ග කිරීමේ මාදිලිය අනාගත යාවත්කාලීනයකදී \'මාගේ පිලිවෙල\' මගින් ප්‍රතිස්ථාපනය වනු ඇත</string>
     <string name="error_adding_account">දෝෂය: %s</string>
-    <string name="use_locale_default">ස්ථාන පෙරනිමිය භාවිතා කරන්න</string>
     <string name="widget_due_date_hidden">සඟවන්න</string>
     <string name="widget_due_date_below_title">මාතෘකාවට පහළින්</string>
     <string name="widget_due_date_after_title">මාතෘකාවෙන් පසු</string>
     <string name="widget_settings">විජට් සැකසුම්</string>
-    <string name="map_theme">සිතියම් තේමාව</string>
     <string name="default_recurrence">පෙරනිමි පුනරාවර්තනය</string>
     <string name="back_button_saves_task">පසුපස බොත්තම මඟින් කාර්යය සුරකිනු ඇත</string>
     <string name="geofence_radius">අරය</string>
@@ -63,19 +57,13 @@
     <string name="action_call">අමතන්න</string>
     <string name="display_name">ප්‍රදර්ශන නාමය</string>
     <string name="actfm_picture_clear">පින්තූරය ඉවත් කරන්න</string>
-    <string name="upgrade_automation_description">Tasker, Automate සහ Locale සඳහා ප්ලගීන (plugins)</string>
-    <string name="upgrade_automation">ස්වයංක්‍රීයකරණය</string>
     <string name="upgrade_open_source_description">ඔබේ දායකත්වය අඛණ්ඩ සංවර්ධනයට සහාය වේ</string>
     <string name="upgrade_desktop_access_description">Outlook සහ Apple Reminders වැනි තෙවන පාර්ශවීය සේවාදායකයින් සමඟ සමමුහුර්ත කරන්න</string>
     <string name="upgrade_desktop_access">ඩෙස්ක්ටොප් ප්‍රවේශය</string>
     <string name="upgrade_tasks_org_account_description">Tasks.org සමඟ සමමුහුර්ත කර අනෙකුත් පරිශීලකයින් සමඟ සහයෝගයෙන් කටයුතු කරන්න</string>
-    <string name="upgrade_google_tasks">ගිණුම් කිහිපයක් සමමුහුර්ත කරන්න</string>
     <string name="upgrade_more_customization_description">සියලුම තේමාවන්, වර්ණ සහ අයිකන අගුළු ඇරීම</string>
     <string name="upgrade_more_customization">තවත් අභිරුචිකරණය</string>
     <string name="pro_free_trial">නව ග්‍රාහකයින්ට දින 7 ක නොමිලේ අත්හදා බැලීම් කාලයක් ලැබේ. ඕනෑම වේලාවක අවලංගු කරන්න</string>
-    <string name="picker_mode_text">පෙළ</string>
-    <string name="picker_mode_clock">ඔරලෝසුව</string>
-    <string name="picker_mode_calendar">දින දර්ශනය</string>
     <string name="invite_declined">ආරාධනය ප්‍රතික්ෂේප විය</string>
     <string name="invite">ආරාධනා කරන්න</string>
     <string name="email">විද්යුත් තැපෑල</string>
@@ -103,7 +91,6 @@
     <string name="sign_in_with_github">GitHub සමඟ පුරනය වන්න</string>
     <string name="github_sponsors">GitHub අනුග්‍රාහකයන්</string>
     <string name="google_play_subscribers">Google Play ග්‍රාහකයින්</string>
-    <string name="not_signed_in">පුරනය වී නොමැත</string>
     <string name="authorization_cancelled">අවසරය අවලංගු කරන ලදි</string>
     <string name="privacy">පෞද්ගලිකත්වය</string>
     <string name="open_source">විවෘත මූලාශ්‍රය</string>
@@ -175,7 +162,6 @@
     <string name="password">මුරපදය</string>
     <string name="user">පරිශීලක</string>
     <string name="add_account">ගිණුම එක් කරන්න</string>
-    <string name="start_of_week">සතියේ ආරම්භය</string>
     <string name="date_and_time">දිනය සහ වේලාව</string>
     <string name="copy_selected_tasks">තෝරාගත් කාර්යයන් පිටපත් කරන්නද\?</string>
     <string name="delete_selected_tasks">තෝරාගත් කාර්යයන් මකාදමන්න ද\?</string>
@@ -185,8 +171,6 @@
     <string name="widget_open_list">ලැයිස්තුව විවෘත කරන්න</string>
     <string name="widget_row_settings">පේළි සැකසුම්</string>
     <string name="widget_header_settings">ශීර්ෂ සැකසුම්</string>
-    <string name="hardware_support_required">දෘඩාංග සහාය අවශ්‍යයි</string>
-    <string name="led_notification">LED දැනුම්දීම</string>
     <string name="settings_localization">ප්‍රාදේශීයකරණය</string>
     <string name="restart_later">පසුව</string>
     <string name="restart_now">නැවත ආරම්භ කරන්න</string>
@@ -226,12 +210,6 @@
     <string name="decsync_selection_description">ගොනු මත පදනම් වූ සමමුහුර්තකරණය</string>
     <string name="tasks_org_description">Tasks.org සමඟ ඔබේ කාර්යයන් සමමුහුර්ත කරන්න</string>
     <string name="widget_show_checkboxes">පිරික්සුම් කොටු පෙන්වන්න</string>
-    <string name="yesterday_abbrev_lowercase">ඊයේ</string>
-    <string name="yest">ඊයේ</string>
-    <string name="tomorrow_abbrev_lowercase">හෙට</string>
-    <string name="tmrw">හෙට</string>
-    <string name="yesterday_lowercase">ඊයේ</string>
-    <string name="yesterday">ඊයේ</string>
     <string name="next_saturday">ඊළඟ සෙනසුරාදා</string>
     <string name="next_friday">ඊළඟ සිකුරාදා</string>
     <string name="next_thursday">ඊළඟ බ්‍රහස්පතින්දා</string>
@@ -239,9 +217,7 @@
     <string name="next_tuesday">ඊළඟ අඟහරුවාදා</string>
     <string name="next_monday">ඊළඟ සඳුදා</string>
     <string name="next_sunday">ඊළඟ ඉරිදා</string>
-    <string name="tomorrow_lowercase">හෙට</string>
     <string name="tomorrow">හෙට</string>
-    <string name="today_lowercase">අද</string>
     <string name="today">අද</string>
     <plurals name="Ntasks">
         <item quantity="one">කාර්යය 1</item>
@@ -336,7 +312,6 @@
     <string name="ring_once">එක් වරක් නාද කරන්න</string>
     <string name="ring_five_times">පස් වතාවක් නාද කරන්න</string>
     <string name="CFC_list_name">ලැයිස්තුවේ…</string>
-    <string name="CFC_gtasks_list_name">GTasks ලැයිස්තුවේ…</string>
     <string name="SSD_sort_modified">අවසන් වරට වෙනස් කරන ලද දිනය අනුව</string>
     <string name="astrid_sort_order">Astrid අතින් වර්ග කිරීම</string>
     <string name="TVA_add_comment">අදහස දක්වන්න…</string>
@@ -410,7 +385,6 @@
     <string name="repeats_single">පුනරාවර්තනය %s</string>
     <string name="repeats_from">පුනරාවර්තනය වනුයේ</string>
     <string name="bundle_notifications">බහු දැනුම්දීම්</string>
-    <string name="accent">දෙවන වර්ණය</string>
     <string name="date_shortcut_must_come_after">%1$s, %2$s ට පසුව පැමිණිය යුතුය</string>
     <string name="date_shortcut_must_come_before">%2$s පෙර %1$s පැමිණිය යුතුය</string>
     <string name="rmd_EPr_quiet_hours_end_title">නිහඬ කාලය අවසානය</string>
@@ -490,7 +464,6 @@
     <string name="cancel">අවලංගු කරන්න</string>
     <string name="ok">හරි</string>
     <string name="choose_synchronization_service">සේවාවක් තෝරන්න</string>
-    <string name="create_new_tag">\"%s\" සාදන්න</string>
     <string name="enter_tag_name">ටැගයේ නම ඇතුළත් කරන්න</string>
     <string name="subtasks_multilevel_google_task">Google Tasks විසින් බහු මට්ටමේ උප කාර්යයන් සඳහා සහාය නොදක්වයි</string>
     <string name="collapse_subtasks">උප කාර්යයන් හකුළුවන්න</string>
@@ -602,7 +575,6 @@
     <string name="remove">ඉවත් කරන්න</string>
     <string name="add_location">ස්ථානය එක් කරන්න</string>
     <string name="add_reminder">මතක් කිරීමක් එක් කරන්න</string>
-    <string name="TLA_menu_donate">පරිත්‍යාග කරන්න</string>
     <string name="quiet_hours_summary">නිහඬ කාලය තුළ මතක් කිරීම් නොමැත</string>
     <string name="rate_tasks">Tasks අගයන්න</string>
     <string name="contact_developer">සංවර්ධකයා අමතන්න</string>
@@ -619,9 +591,6 @@
     <string name="backup_directory">උපස්ථ ෆෝල්ඩරය</string>
     <string name="attachment_directory">ඇමුණුම් ෆෝල්ඩරය</string>
     <string name="quiet_hours">නිහඬ පැය</string>
-    <string name="vibrations">කම්පන</string>
-    <string name="sound">ශබ්දය</string>
-    <string name="silent">නිහඬ</string>
     <string name="notifications">දැනුම්දීම්</string>
     <string name="widget_show_dividers">බෙදුම්තීරු පෙන්වන්න</string>
     <string name="widget_show_menu">මෙනුව පෙන්වන්න</string>
@@ -631,7 +600,6 @@
     <string name="repeats_single_on">%1$s, %2$s පුනරාවර්තනය වේ</string>
     <string name="markdown_description">මාතෘකාව සහ විස්තරය තුළ ලකුණු කිරීම සක්‍රිය කරන්න</string>
     <string name="markdown">ලකුණු කිරීම</string>
-    <string name="picker_mode_time">කාලය තෝරාගැනීම් මාදිලිය</string>
     <string name="invite_awaiting_response">ප්‍රතිචාරයක් බලාපොරොත්තුවෙන් ඇති ආරාධන</string>
     <string name="list_members">සාමාජික ලැයිස්තුව</string>
     <string name="migrating_tasks">සංක්‍රමණික කාර්යයන්</string>
@@ -641,7 +609,6 @@
     <string name="foreground_location">පෙරබිම ස්ථානය</string>
     <string name="navigation_drawer">මෙනුව</string>
     <string name="place_settings">ස්ථාන සැකසුම්</string>
-    <string name="desaturate_colors_summary_on">අඳුරු තේමාවන් වලදී වර්ණ අසංතෘප්ත වේ</string>
     <string name="repeat_snackbar">%1$s, %2$s සඳහා නැවත සකස් කරන ලදි</string>
     <string name="CFC_importance_text">අවම වශයෙන් ප්‍රමුඛතාවය \?</string>
     <string name="chat_libera">ලිබරා චැට් හි #කාර්යයන් හා සම්බන්ධ වන්න</string>
@@ -663,9 +630,7 @@
         <item quantity="one">දිනය</item>
         <item quantity="other">දින</item>
     </plurals>
-    <string name="app_bar_collapse">යෙදුම් තීරු හකුළන්න</string>
     <string name="customize_edit_screen_summary">ක්ෂේත්‍ර නැවත සැකසීම හෝ ඉවත් කිරීම</string>
-    <string name="app_bar_position">යෙදුම් තීරුවේ පිහිටීම</string>
     <string name="TEA_creation_date">නිර්මාණය කළ දිනය</string>
     <string name="snackbar_tasks_completed">කාර්යයන් %d සම්පූර්ණ කර ඇත</string>
     <plurals name="reminder_minutes">

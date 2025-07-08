@@ -108,7 +108,6 @@
     <string name="calendar_event_not_found">Събитието от календара не е намерено</string>
     <string name="gcal_completed_title">%s (завършено)</string>
     <string name="CFC_gtasks_list_text">В списъка: \?</string>
-    <string name="CFC_gtasks_list_name">В списъка GTasks…</string>
     <string name="gtasks_GTA_clear_completed">Изчистване на завършените</string>
     <string name="gtasks_GLA_authenticating">Удостоверяване…</string>
     <string name="gtasks_GLA_errorIOAuth">Има проблем с връзката до сървърите на Google. Опитайте отново по-късно.</string>
@@ -217,16 +216,10 @@
     </plurals>
     <string name="today">Днес</string>
     <string name="tomorrow">Утре</string>
-    <string name="yesterday">Вчера</string>
-    <string name="tmrw">Утре</string>
-    <string name="yest">Вчера</string>
     <string name="widget_show_checkboxes">Отметки</string>
     <string name="widget_show_header">Заглавка</string>
     <string name="widget_show_settings">Настройки</string>
     <string name="notifications">Известия</string>
-    <string name="silent">Безшумен</string>
-    <string name="sound">Звук</string>
-    <string name="vibrations">Вибрации</string>
     <string name="quiet_hours">Тихи часове</string>
     <string name="attachment_directory">Папка за прикачени файлове</string>
     <string name="backup_directory">Папка за резервни копия</string>
@@ -241,7 +234,6 @@
     <string name="contact_developer">Връзка с разработчика</string>
     <string name="rate_tasks">Оценете Tasks</string>
     <string name="quiet_hours_summary">Без напомняния по време на тихите часове</string>
-    <string name="TLA_menu_donate">Дарение</string>
     <string name="add_reminder">Добавяне на напомняне</string>
     <string name="add_location">Добавяне на място</string>
     <string name="remove">Премахване</string>
@@ -292,7 +284,6 @@
     <string name="opacity">Непрозрачност</string>
     <string name="theme">Тема</string>
     <string name="color">Цвят</string>
-    <string name="accent">Акцент</string>
     <string name="launcher_icon">Икона за стартиране</string>
     <string name="theme_black">Черна</string>
     <string name="theme_light">Светла</string>
@@ -304,8 +295,6 @@
     <string name="restart_now">Рестартиране</string>
     <string name="restart_later">По-късно</string>
     <string name="settings_localization">Локализация</string>
-    <string name="led_notification">Известия с LED</string>
-    <string name="hardware_support_required">Необходима е апаратна поддръжка</string>
     <string name="widget_settings">Настройки на приспособления</string>
     <string name="widget_header_settings">Настройки на заглавката</string>
     <string name="widget_row_settings">Настройки на реда</string>
@@ -315,8 +304,6 @@
     <string name="delete_selected_tasks">Изтриване на избраните задачи?</string>
     <string name="copy_selected_tasks">Копиране на избраните задачи?</string>
     <string name="date_and_time">Дата и час</string>
-    <string name="start_of_week">Начало на седмицата</string>
-    <string name="use_locale_default">По подразбиране от езика</string>
     <string name="add_account">Добавяне на профил</string>
     <string name="user">Потребител</string>
     <string name="password">Парола</string>
@@ -406,11 +393,8 @@
     <string name="more_settings">Повече настройки</string>
     <string name="help_and_feedback">Помощ и обратна връзка</string>
     <string name="theme_system_default">Спрямо системата</string>
-    <string name="today_lowercase">днес</string>
-    <string name="yesterday_lowercase">вчера</string>
     <string name="default_location">Място по подразбиране</string>
     <string name="enter_tag_name">Въведете име на етикета</string>
-    <string name="create_new_tag">Добавяне на „%s“</string>
     <string name="add_tags">Добавяне на етикети</string>
     <string name="error_adding_account">Грешка: %s</string>
     <string name="place_settings">Настройки на местата</string>
@@ -437,10 +421,7 @@
     <string name="astrid_sort_order_summary">Използвайте режима за ръчно сортиране на Astrid за „Моите задачи“, „Днес“ и етикетите. Този режим на сортиране ще бъде заменен с „Моя подредба“ в бъдещо издание</string>
     <string name="astrid_sort_order">Ръчно сортиране на Astrid</string>
     <string name="SSD_sort_my_order">Моя подредба</string>
-    <string name="picker_mode_clock">Часовник</string>
     <string name="invite">Покана</string>
-    <string name="picker_mode_calendar">Календар</string>
-    <string name="picker_mode_text">Текст</string>
     <string name="markdown">Markdown</string>
     <string name="license_summary">Tasks е софтуер с отворен код, лицензиран под GNU General Public License v3.0</string>
     <string name="this_feature_requires_a_subscription">Тази възможност изисква абонамент</string>
@@ -452,8 +433,6 @@
     <string name="widget_show_dividers">Разделители</string>
     <string name="widget_show_menu">Меню</string>
     <string name="widget_show_title">Заглавие</string>
-    <string name="yesterday_abbrev_lowercase">вчера</string>
-    <string name="tomorrow_abbrev_lowercase">утре</string>
     <string name="next_saturday">Следващата събота</string>
     <string name="next_friday">Следващият петък</string>
     <string name="next_thursday">Следващият четвъртък</string>
@@ -461,7 +440,6 @@
     <string name="next_tuesday">Следващият вторник</string>
     <string name="next_monday">Следващият понеделник</string>
     <string name="next_sunday">Следващата неделя</string>
-    <string name="tomorrow_lowercase">утре</string>
     <string name="repeat_type_completion_capitalized">Дата на завършване</string>
     <plurals name="list_count">
         <item quantity="one">%d списък</item>
@@ -538,7 +516,6 @@
     <string name="local_lists">Местни списъци</string>
     <string name="background_location_permission_required">Tasks събира данни за местоположението, за да прави напомняния на тази основа, дори и когато приложението е затворено или не се използва.</string>
     <string name="when_started">При започване</string>
-    <string name="map_theme">Тема на картата</string>
     <string name="wearable_notifications_summary">Показване на известия на носимото устройство</string>
     <string name="color_wheel">Цветно колело</string>
     <string name="notification_troubleshooting_summary">Докоснете тук, ако имате проблеми с известията</string>
@@ -561,7 +538,6 @@
     <string name="randomly_every">Произволно на всеки %s</string>
     <string name="multi_select_reschedule">Пренасрочване</string>
     <string name="auto_dismiss_datetime">Автоматично затваряне след избор на дата и час</string>
-    <string name="picker_mode_time">Режим на избор на час</string>
     <string name="more_options">Допълнителни настройки</string>
     <string name="auto_dismiss_datetime_list_summary">Затваряне след избор от списъка със задачи</string>
     <string name="shortcut_pick_time">Час по избор</string>
@@ -577,7 +553,6 @@
     <string name="ok">Добре</string>
     <string name="chips">Индикатори в списъка</string>
     <string name="chip_appearance">Външен вид на индикаторите в списъка</string>
-    <string name="desaturate_colors">Намаляване на наситеността на цветовете</string>
     <string name="filter_any_due_date">Всяка крайна дата</string>
     <string name="android_auto_backup">Услуга за резервни копия на Android</string>
     <string name="device_settings">Настройки на устройството</string>
@@ -585,9 +560,7 @@
     <string name="sort_start_group">Започната %s</string>
     <string name="sort_due_group">Завършена %s</string>
     <string name="on_launch">При стартиране</string>
-    <string name="desaturate_colors_summary_on">При тъмите теми цветовете ще бъдат с намалена наситеност</string>
     <string name="sort_created_group">Създадена %s</string>
-    <string name="desaturate_colors_summary_off">При тъмите теми цветовете няма да бъдат променяни</string>
     <string name="sort_modified_group">Променена %s</string>
     <string name="github_sponsor">Дарител</string>
     <string name="tasks_org_account_required">Необходим е профил в Tasks.org</string>
@@ -600,7 +573,6 @@
     <string name="migrating_tasks">Преместване на задачи</string>
     <string name="save_percent">Спестявате %d%%</string>
     <string name="app_password">Парола на приложението</string>
-    <string name="upgrade_automation">Автоматизация</string>
     <string name="upgrade_desktop_access">От настолни устройства</string>
     <string name="custom_filter_has_reminder">Има напомняне</string>
     <string name="follow_twitter">Следвайте @tasks_org</string>
@@ -608,7 +580,6 @@
     <string name="invite_declined">Поканата е отхвърлена</string>
     <string name="invite_awaiting_response">Поканата очаква орговор</string>
     <string name="invite_invalid">Поканата е недейсвителна</string>
-    <string name="picker_mode_date">Режим избор на дата</string>
     <string name="app_passwords">Пароли на приложениятя</string>
     <string name="current_subscription">Текущ абонамент: %s</string>
     <string name="price_per_year">$%s/година</string>
@@ -618,7 +589,6 @@
     <string name="github_sponsors">Дарители от GitHub</string>
     <string name="sign_in_to_tasks">Вход в Tasks.org</string>
     <string name="markdown_description">Markdown в заглавията и описанията</string>
-    <string name="bottom">Долу</string>
     <string name="completed_tasks_at_bottom">Преместване на завършените задачи отдолу</string>
     <string name="caldav_server_unknown">Неизвестен</string>
     <string name="caldav_server_other">Друг</string>
@@ -630,7 +600,6 @@
     <string name="remove_user_confirmation">%1$s вече няма да има достъп до %2$s</string>
     <string name="upgrade_more_customization">Повече настройки</string>
     <string name="completion_sound">Възпроизвеждане на звук при завършване</string>
-    <string name="top">Горе</string>
     <string name="custom_notification">Потребителско известие</string>
     <string name="snoozed_until">Отложено до %s</string>
     <string name="caldav_server_type">Вид на сървъра</string>
@@ -643,13 +612,9 @@
     <string name="privacy">Поверителност</string>
     <string name="google_play_subscribers">Абонати на Google Play</string>
     <string name="upgrade_more_customization_description">Отключване на всички теми, цветове и пиктограми</string>
-    <string name="upgrade_google_tasks">Синхронизиране на няколко профила</string>
     <string name="snackbar_task_completed">Задачата е завършена</string>
     <string name="share_list">Споделяне на списък</string>
-    <string name="app_bar_collapse">Свиване на лентата на приложението</string>
     <string name="insufficient_sponsorship">Не е намерен подходящо спонсорство в GitHub</string>
-    <string name="upgrade_automation_description">Приставки за Tasker, Automate и Locale</string>
-    <string name="app_bar_position">Разположение на лентата на приложението</string>
     <string name="alarm_before_start">%s преди началото</string>
     <string name="completed">Завършена</string>
     <string name="customize_edit_screen_summary">Подреждане или премахване на полета</string>
@@ -667,7 +632,6 @@
     <string name="hint_customize_edit_body">Можете да настроите екрана като подреждате или премахвате полета</string>
     <string name="account_not_included">Не е включено в абонамента „Посочете своя цена“</string>
     <string name="upgrade_desktop_access_description">Синхронизиране с клиенти като Outlook и Apple Reminders</string>
-    <string name="map_theme_use_app_theme">С темата на приложението</string>
     <string name="app_password_enter_description">Дайте име на паролата (по избор)</string>
     <string name="android_auto_backup_device_summary">Трябва да изберете услуга за резервни копия в настройките на устройството. Не всички устройства предлагат такава услуга.</string>
     <string name="copied_to_clipboard">%s копирано в междинната памет</string>
@@ -677,7 +641,6 @@
     <string name="app_password_delete_confirmation">Всички приложения, които използват паролата ще бъдат отписани</string>
     <string name="app_password_save">Използвайте тези данни за вход за настройка на друго приложение. Те дават пълен достъп до профила ви в Tasks.org за това не ги записвайте никъде и не ги споделяйте с никого!</string>
     <string name="app_passwords_more_info">Синхронизирайте задачите и календарите си с други настолни и мобилни приложения. Докоснете за повече информация</string>
-    <string name="not_signed_in">Не сте вписани</string>
     <string name="insufficient_subscription">Недостатъчно ниво на абонамент. За да бъде възстановена услугата надстройте своя абонамент.</string>
     <string name="authorization_cancelled">Удостоверяването е спряно</string>
     <string name="background_location">Местоположение във фонов режим</string>
@@ -735,4 +698,26 @@
     <string name="quiet_hours_in_effect">В момента е време за тишина</string>
     <string name="enable_alarms">Получавайте напомнянията навреме</string>
     <string name="enable_alarms_description">За да бъдете сигурни, че ще получите напомняне в точното време дайте разрешение за задаване на будилници и напомняния в настройките</string>
+    <string name="price_per_year_with_currency">%s/година</string>
+    <string name="delete_comment">коментар</string>
+    <string name="price_per_month_with_currency">%s/месец</string>
+    <string name="yesterday">Вчера</string>
+    <string name="add_shortcut_to_home_screen">Добавяне към началния екран</string>
+    <string name="add_widget_to_home_screen">Добавяне на приспособление</string>
+    <string name="comment">Коментар</string>
+    <string name="multiline_title">Многоредови заглавия</string>
+    <string name="cost_more_money">Цена: $$$</string>
+    <string name="cost_money">Цена: $</string>
+    <string name="cost_free">Цена: безплатно</string>
+    <string name="multiline_title_on">Натиснете Enter, за да въведете нови редове</string>
+    <string name="sync_warning_google_tasks_title">Относно синхронизацията с Google Task</string>
+    <string name="button_learn_more">Научете повече</string>
+    <string name="sync_warning_google_tasks">Не всички подробности от задачата се синхронизират с Google Tasks</string>
+    <string name="sync_warning_microsoft_title">Относно синхронизацията с Microsoft To Do</string>
+    <string name="sync_warning_microsoft">Не всички подробности от задачата се синхронизират с Microsoft To Do.</string>
+    <string name="subtasks_multilevel_microsoft">Вложени задачи не се поддържат от Microsoft To Do</string>
+    <string name="app_settings">Настройки на приложението</string>
+    <string name="banner_app_updated_description">Приложението Tasks е обновено до издание %s. Ще прегледате ли бележките към изданието?</string>
+    <string name="banner_app_updated_title">Приложението е обновено</string>
+    <string name="multiline_title_off">Докоснете „Готово“ за запазване на задачата</string>
 </resources>

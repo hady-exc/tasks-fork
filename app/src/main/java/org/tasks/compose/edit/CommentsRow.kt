@@ -2,6 +2,7 @@ package org.tasks.compose.edit
 
 import android.net.Uri
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +13,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import org.tasks.R
@@ -24,6 +27,7 @@ import org.tasks.kmp.org.tasks.time.getFullDateTime
 @Composable
 fun CommentsRow(
     comments: List<UserActivity>,
+    copyCommentToClipboard: (String) -> Unit,
     deleteComment: (UserActivity) -> Unit,
     openImage: (Uri) -> Unit,
 ) {
@@ -40,6 +44,7 @@ fun CommentsRow(
                 comments.forEach {
                     Comment(
                         comment = it,
+                        copyCommentToClipboard = copyCommentToClipboard,
                         deleteComment = deleteComment,
                         openImage = openImage,
                     )
@@ -52,12 +57,20 @@ fun CommentsRow(
 @Composable
 fun Comment(
     comment: UserActivity,
+    copyCommentToClipboard: (String) -> Unit,
     deleteComment: (UserActivity) -> Unit,
     openImage: (Uri) -> Unit,
 ) {
     Row(verticalAlignment = Alignment.Top) {
         Column(
-            modifier = Modifier.weight(1f).padding(top = 8.dp),
+            modifier = Modifier
+                .weight(1f)
+                .padding(top = 8.dp)
+                .pointerInput(comment) {
+                    detectTapGestures(onLongPress = {
+                        comment.message?.let(copyCommentToClipboard)
+                    })
+                },
         ) {
             comment.message?.let {
                 // TODO: linkify text
@@ -70,7 +83,9 @@ fun Comment(
                 AsyncImage(
                     model = it,
                     contentDescription = null,
-                    modifier = Modifier.clickable { openImage(it) }.size(100.dp)
+                    modifier = Modifier
+                        .clickable { openImage(it) }
+                        .size(100.dp)
                 )
             }
             Text(
@@ -79,11 +94,8 @@ fun Comment(
                 color = MaterialTheme.colorScheme.onSurface,
             )
         }
-        DeleteButton(
-            onClick = {
-                // TODO: add confirmation dialog
-                deleteComment(comment)
-            }
-        )
+        DeleteButton(stringResource(R.string.delete_comment)) {
+            deleteComment(comment)
+        }
     }
 }

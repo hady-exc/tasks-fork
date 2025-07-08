@@ -4,16 +4,16 @@
   <string name="debug_strict_mode_thread">Strict mode - Thread</string>
   <string name="debug_strict_mode_vm">Strict mode - VM</string>
   <string name="debug_leakcanary">LeakCanary</string>
-  <string name="debug_flipper">Flipper</string>
   <string name="debug_pro">Unlock pro</string>
   <string name="debug_purchase">Purchase %s</string>
   <string name="debug_consume">Consume %s</string>
   <string name="debug_themes">debug_themes</string>
-  <string name="debug_tasker">debug_tasker</string>
   <string name="debug_reset_ssl">Reset SSL certificates</string>
   <string name="debug_crash_app">Crash app now</string>
+  <string name="debug_create_tasks">Create tasks</string>
   <string name="debug_main_queries">Crash on violation</string>
   <string name="debug_force_restart">Restart app</string>
   <string name="debug_clear_hints">Clear hints</string>
   <string name="google_oauth_scheme">com.googleusercontent.apps.1006257750459-vf4mvft1b3rfda8b4c4bl4k4418abqlf</string>
+  <string name="microsoft_oauth_path">/8wnYBRqh5nnQgFzbIXfxXSs41xE=</string>
 </resources>

@@ -95,7 +95,6 @@
     <string name="calendar_event_not_found">Kalenteritapahtumaa ei löydy</string>
     <string name="gcal_completed_title">%s (valmistunut)</string>
     <string name="CFC_gtasks_list_text">Listalla: ?</string>
-    <string name="CFC_gtasks_list_name">Gtask lista…</string>
     <string name="gtasks_GTA_clear_completed">Poista valmiit</string>
     <string name="gtasks_GLA_authenticating">Todennetaan…</string>
     <string name="gtasks_GLA_errorIOAuth">Valitettavasti meillä on yhteysongelmia Google palvelimiin.  Ole hyvä ja yritä myöhemmin uudestaa.</string>
@@ -205,16 +204,10 @@
     </plurals>
     <string name="today">Tänään</string>
     <string name="tomorrow">Huomenna</string>
-    <string name="yesterday">Eilen</string>
-    <string name="tmrw">Huomenna</string>
-    <string name="yest">Eilen</string>
     <string name="widget_show_checkboxes">Näytä valintaruudut</string>
     <string name="widget_show_header">Näytä otsikot</string>
     <string name="widget_show_settings">Näytä asetukset</string>
     <string name="notifications">Ilmoitukset</string>
-    <string name="silent">Äänetön</string>
-    <string name="sound">Ääni</string>
-    <string name="vibrations">Värinä</string>
     <string name="quiet_hours">Hiljainen aika</string>
     <string name="attachment_directory">Liitehakemisto</string>
     <string name="backup_directory">Varmuuskopioiden hakemisto</string>
@@ -228,7 +221,6 @@
     <string name="contact_developer">Ota yhteyttä kehittäjään</string>
     <string name="rate_tasks">Arvostele Tasks</string>
     <string name="quiet_hours_summary">Ei ilmoituksia hiljaisena aikana</string>
-    <string name="TLA_menu_donate">Lahjoita</string>
     <string name="add_reminder">Lisää muistutus</string>
     <string name="remove">Poista</string>
     <string name="randomly">Satunnaisesti</string>
@@ -270,7 +262,6 @@
     <string name="opacity">Läpinäkyvyys</string>
     <string name="theme">Teema</string>
     <string name="color">Väri</string>
-    <string name="accent">Sävy</string>
     <string name="theme_black">Musta</string>
     <string name="theme_light">Vaalea</string>
     <string name="theme_dark">Tumma</string>
@@ -281,8 +272,6 @@
     <string name="restart_now">Käynnistä uudelleen nyt</string>
     <string name="restart_later">Myöhemmin</string>
     <string name="settings_localization">Paikallistaminen</string>
-    <string name="led_notification">LED muistutus</string>
-    <string name="hardware_support_required">Laitetuki vaaditaan</string>
     <string name="widget_settings">Widgetin asetukset</string>
     <string name="widget_header_settings">Otsikon asetukset</string>
     <string name="widget_row_settings">Rivin asetukset</string>
@@ -292,8 +281,6 @@
     <string name="delete_selected_tasks">Poistetaanko valitut tehtävät?</string>
     <string name="copy_selected_tasks">Kopioi valitut tehtävät?</string>
     <string name="date_and_time">Päivä ja aika</string>
-    <string name="start_of_week">Viikon alku</string>
-    <string name="use_locale_default">Käytä paikallista oletusta</string>
     <string name="notification_disable_battery_optimizations_description">Akun optimointi voi viivästyttää ilmoituksia</string>
     <string name="bundle_notifications">Niputa ilmoitukset</string>
     <string name="badges">Merkit</string>
@@ -342,8 +329,6 @@
     <string name="chip_appearance_icon_only">Vain pikkukuvake</string>
     <string name="chip_appearance_text_only">Vain teksti</string>
     <string name="chip_appearance_text_and_icon">Teksti ja pikkukuvake</string>
-    <string name="desaturate_colors_summary_off">Värejä ei muuteta tummiin teemoihin</string>
-    <string name="desaturate_colors_summary_on">Tummissa teemoissa värit ovat tyydyttymättömiä</string>
     <string name="chip_appearance">Lappujen sisältö</string>
     <string name="chips">Lisätietolaput</string>
     <string name="back">Takaisin</string>
@@ -358,7 +343,6 @@
     <string name="etesync_selection_description">End-to-end-salattu synkronointi</string>
     <string name="caldav_selection_description">Avoimiin verkkostandardeihin pohjautuva synkronointi</string>
     <string name="choose_synchronization_service">Valitse alusta</string>
-    <string name="create_new_tag">Luo \"%s\"</string>
     <string name="enter_tag_name">Anna tunnisteen nimi</string>
     <string name="subtasks_multilevel_google_task">Google Tasks ei tue monitasoisia alitehtäviä</string>
     <string name="collapse_subtasks">Pienennä alitehtävät</string>
@@ -453,7 +437,6 @@
     <string name="custom_filter_criteria">Suodin kriteerit</string>
     <string name="auto_dismiss_datetime_list">Tehtävä lista</string>
     <string name="navigation_drawer">Navigointi valikko</string>
-    <string name="desaturate_colors">Himmennä värit</string>
     <string name="show_advanced_settings">Näytä lisäasetukset</string>
     <string name="google_tasks_selection_description">Perus palvelu joka synkronoi sinun Google tilisi kanssa</string>
     <string name="opacity_footer">Alatunnisteen läpinäkyvyys</string>
@@ -496,9 +479,6 @@
     <string name="opacity_header">Ylätunnisteen läpinäkyvyys</string>
     <string name="sort_modified_group">Muutettu %s</string>
     <string name="sort_created_group">Luotu %s</string>
-    <string name="yesterday_lowercase">eilen</string>
-    <string name="tomorrow_lowercase">huomenna</string>
-    <string name="today_lowercase">tänään</string>
     <string name="lists">Listat</string>
     <string name="open_last_viewed_list">Avaa viimeksi katsottu lista</string>
     <string name="on_launch">Käynnistettäessä</string>
@@ -516,21 +496,13 @@
     <string name="markdown_description">Ota Markdown käyttöön otsikossa ja kuvauksessa</string>
     <string name="markdown">Markdown</string>
     <string name="more_options">Lisää vaihtoehtoja</string>
-    <string name="upgrade_automation_description">Liitännäiset Taskeria, Automatea ja Localea varten</string>
-    <string name="upgrade_automation">Automaatio</string>
     <string name="upgrade_open_source_description">Tilauksesi tukee jatkuvaa kehitystä</string>
     <string name="upgrade_desktop_access_description">Synkronoi kolmansien osapuolten, kuten Outlookin ja Applen muistutusten, kanssa</string>
     <string name="upgrade_desktop_access">Työpöydän käyttöoikeus</string>
     <string name="upgrade_tasks_org_account_description">Synkronoi Tasks.orgin kanssa ja tee yhteistyötä muiden käyttäjien kanssa</string>
-    <string name="upgrade_google_tasks">Synkronoi useita tilejä</string>
     <string name="upgrade_more_customization_description">Avaa kaikki teemat, värit ja kuvakkeet</string>
     <string name="upgrade_more_customization">Lisää räätälöintiä</string>
     <string name="pro_free_trial">Uudet tilaajat saavat 7 päivän ilmaisen kokeilujakson. Peruuta milloin tahansa</string>
-    <string name="picker_mode_text">Teksti</string>
-    <string name="picker_mode_clock">Kello</string>
-    <string name="picker_mode_calendar">kalenteri</string>
-    <string name="picker_mode_time">Ajanottotila</string>
-    <string name="picker_mode_date">Päivämäärän poimintatila</string>
     <string name="invite_invalid">Kutsu on mitätön</string>
     <string name="invite_awaiting_response">Kutsu odottaa vastausta</string>
     <string name="invite_declined">Kutsu hylätty</string>
@@ -539,7 +511,6 @@
     <string name="remove_user_confirmation">%1$s ei enää pääse %2$s:een</string>
     <string name="remove_user">Poista käyttäjä\?</string>
     <string name="list_members">Luettelo jäsenistä</string>
-    <string name="map_theme_use_app_theme">Käytä sovelluksen teemaa</string>
     <string name="account_not_included">Ei sisälly \"Nimeä hintasi\" -tilauksiin</string>
     <string name="tasks_org_account_required">Tarvitaan Tasks.org-tili</string>
     <string name="tasks_org_account">Tasks.org-tili</string>
@@ -597,7 +568,6 @@
     <string name="subscription">Tilaus</string>
     <string name="caldav_home_set_not_found">Kotijoukkoa ei löytynyt</string>
     <string name="repeat_monthly_fifth_week">viides</string>
-    <string name="map_theme">Kartta-teema</string>
     <string name="default_recurrence">Oletusarvoinen toistuvuus</string>
     <string name="default_tags">Oletustunnisteet</string>
     <string name="no_app_found">Yksikään sovellus ei pysty käsittelemään tätä pyyntöä</string>
@@ -605,8 +575,6 @@
     <string name="show_unstarted">Näytä aloittamattomat</string>
     <string name="header_spacing">Välit</string>
     <string name="widget_show_title">Näytä otsikko</string>
-    <string name="yesterday_abbrev_lowercase">eilen</string>
-    <string name="tomorrow_abbrev_lowercase">huomenna</string>
     <string name="next_saturday">Seuraava la</string>
     <string name="next_thursday">Seuraava to</string>
     <string name="next_wednesday">Seuraava ke</string>
@@ -617,7 +585,6 @@
     <string name="astrid_sort_order">Astrid manuaalinen lajittelu</string>
     <string name="github_sponsors">GitHubin sponsorit</string>
     <string name="google_play_subscribers">Google Play -tilaajat</string>
-    <string name="not_signed_in">Ei kirjautunut sisään</string>
     <string name="authorization_cancelled">Lupa peruutettu</string>
     <string name="privacy">yksityisyys</string>
     <string name="open_source">Avoin lähdekoodi</string>
@@ -642,14 +609,12 @@
     <string name="when_started">Kun aloitettu</string>
     <string name="now">Nyt</string>
     <string name="cancel">Peruuta</string>
-    <string name="top">Ylhäällä</string>
     <string name="custom_filter_has_reminder">Sisältää muistutuksen</string>
     <string name="randomly_every">Satunnaisesti joka %s</string>
     <plurals name="reminder_minutes">
         <item quantity="one">Minuutti</item>
         <item quantity="other">Minuuttia</item>
     </plurals>
-    <string name="app_bar_position">Sovelluspalkin sijainti</string>
     <plurals name="reminder_hours">
         <item quantity="one">Tunti</item>
         <item quantity="other">Tuntia</item>
@@ -677,7 +642,6 @@
     <string name="snackbar_tasks_completed">%d tehtävää suoritettu</string>
     <string name="custom_notification">Mukautettu ilmoitus</string>
     <string name="snoozed_until">Torkuta %s</string>
-    <string name="bottom">Alhaalla</string>
     <string name="completed">Valmiit</string>
     <string name="snackbar_task_completed">Tehtävä suoritettu</string>
     <string name="hint_customize_edit_title">Liikaa tietoa?</string>
@@ -686,7 +650,6 @@
     <string name="dismiss">Hylkää</string>
     <string name="customize_edit_screen_summary">Uudelleenjärjestä tai poista kenttiä</string>
     <string name="enable_reminders_description">Muistutukset on poistettu käytöstä Androidin asetuksista</string>
-    <string name="app_bar_collapse">Piilota sovelluspalkki</string>
     <string name="alarm_after_start">%s aloituksen jälkeen</string>
     <string name="alarm_before_start">%s ennen aloitusta</string>
     <string name="alarm_after_due">%s määräajan jälkeen</string>

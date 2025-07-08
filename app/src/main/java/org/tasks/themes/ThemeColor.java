@@ -1,23 +1,16 @@
 package org.tasks.themes;
 
-import static com.todoroo.andlib.utility.AndroidUtilities.atLeastOreo;
+import static org.tasks.kmp.org.tasks.themes.ColorProvider.WHITE;
 import static org.tasks.themes.ColorUtilsKt.calculateContrast;
 
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.content.Context;
-import android.content.res.ColorStateList;
-import android.content.res.Resources;
-import android.os.Build.VERSION_CODES;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.view.View;
 
 import androidx.annotation.ColorInt;
-import androidx.annotation.RequiresApi;
 import androidx.core.os.ParcelCompat;
-
-import com.google.android.material.bottomappbar.BottomAppBar;
 
 import org.tasks.R;
 import org.tasks.dialogs.ColorPalettePicker.Pickable;
@@ -74,7 +67,6 @@ public class ThemeColor implements Pickable {
 
   public static final int[] COLORS =
       new int[] {
-              org.tasks.kmp.R.color.grey_900,
               org.tasks.kmp.R.color.tomato,
               org.tasks.kmp.R.color.red_500,
               org.tasks.kmp.R.color.deep_orange_500,
@@ -173,12 +165,12 @@ public class ThemeColor implements Pickable {
     }
     colorPrimary = color;
 
-    double contrast = calculateContrast(TasksThemeKt.WHITE, colorPrimary);
+    double contrast = calculateContrast(WHITE, colorPrimary);
     isDark = contrast < 3;
     if (isDark) {
       colorOnPrimary = context.getColor(R.color.black_87);
     } else {
-      colorOnPrimary = TasksThemeKt.WHITE;
+      colorOnPrimary = WHITE;
     }
   }
 
@@ -196,27 +188,15 @@ public class ThemeColor implements Pickable {
   public void applyToNavigationBar(Activity activity) {
     activity.getWindow().setNavigationBarColor(getPrimaryColor());
 
-    if (atLeastOreo()) {
-      View decorView = activity.getWindow().getDecorView();
-      int systemUiVisibility = applyLightNavigationBar(decorView.getSystemUiVisibility());
-      decorView.setSystemUiVisibility(systemUiVisibility);
-    }
+    View decorView = activity.getWindow().getDecorView();
+    int systemUiVisibility = applyLightNavigationBar(decorView.getSystemUiVisibility());
+    decorView.setSystemUiVisibility(systemUiVisibility);
   }
 
-  @RequiresApi(api = VERSION_CODES.O)
   private int applyLightNavigationBar(int flag) {
     return isDark
         ? flag | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
         : flag & ~View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
-  }
-
-  void applyStyle(Resources.Theme theme) {
-    theme.applyStyle(isDark ? R.style.BlackToolbarTheme : R.style.WhiteToolbarTheme, true);
-  }
-
-  public void applyTaskDescription(Activity activity, String description) {
-    activity.setTaskDescription(
-        new ActivityManager.TaskDescription(description, null, getPrimaryColor()));
   }
 
   @Override
@@ -252,10 +232,6 @@ public class ThemeColor implements Pickable {
 
   public boolean isDark() {
     return isDark;
-  }
-
-  public void apply(BottomAppBar bottomAppBar) {
-    bottomAppBar.setBackgroundTint(ColorStateList.valueOf(getPrimaryColor()));
   }
 
   @Override

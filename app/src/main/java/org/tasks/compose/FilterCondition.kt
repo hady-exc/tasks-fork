@@ -21,7 +21,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Abc
 import androidx.compose.material.icons.outlined.Add
@@ -54,6 +56,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -61,10 +64,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.os.ConfigurationCompat
 import com.todoroo.astrid.core.CriterionInstance
+import kotlinx.collections.immutable.ImmutableList
 import org.tasks.R
 import org.tasks.compose.ListSettings.SettingRow
 import org.tasks.compose.SwipeOut.SwipeOut
 import org.tasks.extensions.formatNumber
+import org.tasks.kmp.org.tasks.compose.settings.SettingRow
 import org.tasks.themes.TasksTheme
 import java.util.Locale
 
@@ -109,7 +114,7 @@ private fun SwipeOutDecorationPreview () {
 private fun FabPreview () {
     TasksTheme {
         FilterCondition.NewCriterionFAB(
-            isExtended = remember { mutableStateOf(true) }
+            isExtended = true
         ) {
 
         }
@@ -120,7 +125,7 @@ object FilterCondition {
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
     fun FilterCondition(
-        items: SnapshotStateList<CriterionInstance>,
+        items: ImmutableList<CriterionInstance>,
         onDelete: (Int) -> Unit,
         doSwap: (Int, Int) -> Unit,
         onComplete: () -> Unit,
@@ -141,9 +146,9 @@ object FilterCondition {
         val dragDropState = rememberDragDropState(
             lazyListState = listState,
             confirmDrag = { index -> index != 0 },
-            completeDragDrop = onComplete,
+            completeDragDrop = {},
         ) { fromIndex, toIndex ->
-            if (fromIndex != 0 && toIndex != 0) doSwap(fromIndex, toIndex)
+            if (fromIndex != toIndex) doSwap(fromIndex, toIndex)
         }
 
         Row {
@@ -158,9 +163,9 @@ object FilterCondition {
         Row {
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .height(56.dp * items.size)
                     .doDrag(dragDropState),
-                userScrollEnabled = true,
+                userScrollEnabled = false,
                 state = listState
             ) {
                 itemsIndexed(
@@ -282,7 +287,7 @@ object FilterCondition {
 
     @Composable
     fun NewCriterionFAB(
-        isExtended: MutableState<Boolean>,
+        isExtended: Boolean,
         onClick: () -> Unit
     ) {
 
@@ -304,10 +309,10 @@ object FilterCondition {
                         imageVector = Icons.Outlined.Add,
                         contentDescription = "New Criteria",
                         modifier = Modifier.padding(
-                            start = if (extended) 16.dp else 0.dp
+                            start = if (isExtended) 16.dp else 0.dp
                         )
                     )
-                    if (extended)
+                    if (isExtended)
                         Text(
                             text = LocalContext.current.getString(R.string.CFA_button_add),
                             modifier = Modifier.padding(end = 16.dp)
@@ -419,6 +424,7 @@ object FilterCondition {
             ) {
                 Column(
                     modifier = Modifier
+                        .verticalScroll(rememberScrollState())
                         .padding(horizontal = Constants.KEYLINE_FIRST)
                         .padding(bottom = Constants.KEYLINE_FIRST)
                 ) {
@@ -485,7 +491,9 @@ object FilterCondition {
                                 contentDescription = null
                             )
                         },
-                        textStyle = MaterialTheme.typography.bodyMedium,
+                        textStyle = MaterialTheme.typography.bodyMedium.copy(
+                            textDirection = TextDirection.Content
+                        ),
                         colors = Constants.textFieldColors(),
                     )
                 }

@@ -7,8 +7,10 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
 import dagger.hilt.android.AndroidEntryPoint
 import org.tasks.R
+import org.tasks.compose.AddAccountDialog
 import org.tasks.dialogs.DialogBuilder
 import org.tasks.extensions.Context.openUri
+import org.tasks.preferences.Preferences
 import org.tasks.themes.TasksTheme
 import org.tasks.themes.Theme
 import javax.inject.Inject
@@ -18,9 +20,13 @@ class AddAccountDialog : DialogFragment() {
 
     @Inject lateinit var dialogBuilder: DialogBuilder
     @Inject lateinit var theme: Theme
+    @Inject lateinit var preferences: Preferences
 
     private val hasTasksAccount: Boolean
         get() = arguments?.getBoolean(EXTRA_HAS_TASKS_ACCOUNT) ?: false
+
+    private val hasPro: Boolean
+        get() = arguments?.getBoolean(EXTRA_HAS_PRO) ?: false
 
     enum class Platform {
         TASKS_ORG,
@@ -29,7 +35,8 @@ class AddAccountDialog : DialogFragment() {
         DAVX5,
         CALDAV,
         ETESYNC,
-        DECSYNC_CC
+        DECSYNC_CC,
+        LOCAL,
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -37,9 +44,13 @@ class AddAccountDialog : DialogFragment() {
             .newDialog()
             .setTitle(R.string.choose_synchronization_service)
             .setContent {
-                TasksTheme(theme = theme.themeBase.index) {
-                    org.tasks.compose.AddAccountDialog(
+                TasksTheme(
+                    theme = theme.themeBase.index,
+                    primary = theme.themeColor.primaryColor,
+                ) {
+                    AddAccountDialog(
                         hasTasksAccount = hasTasksAccount,
+                        hasPro = hasPro,
                         selected = this::selected
                     )
                 }
@@ -58,10 +69,17 @@ class AddAccountDialog : DialogFragment() {
         const val ADD_ACCOUNT = "add_account"
         const val EXTRA_SELECTED = "selected"
         private const val EXTRA_HAS_TASKS_ACCOUNT = "extra_has_tasks_account"
+        private const val EXTRA_HAS_PRO = "extra_has_pro"
 
-        fun newAccountDialog(hasTasksAccount: Boolean) =
+        fun newAccountDialog(
+            hasTasksAccount: Boolean,
+            hasPro: Boolean,
+        ) =
             AddAccountDialog().apply {
-                arguments = bundleOf(EXTRA_HAS_TASKS_ACCOUNT to hasTasksAccount)
+                arguments = bundleOf(
+                    EXTRA_HAS_TASKS_ACCOUNT to hasTasksAccount,
+                    EXTRA_HAS_PRO to hasPro,
+                )
             }
     }
 }

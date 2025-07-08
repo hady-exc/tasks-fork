@@ -1,6 +1,5 @@
 package org.tasks.preferences;
 
-import static com.todoroo.andlib.utility.AndroidUtilities.atLeastOreo;
 import static com.todoroo.andlib.utility.AndroidUtilities.atLeastQ;
 import static com.todoroo.andlib.utility.AndroidUtilities.atLeastTiramisu;
 import static java.util.Arrays.asList;
@@ -30,10 +29,6 @@ public class PermissionChecker {
     return checkPermissions(permission.READ_CALENDAR, permission.WRITE_CALENDAR);
   }
 
-  public boolean canAccessAccounts() {
-    return atLeastOreo() || checkPermissions(permission.GET_ACCOUNTS);
-  }
-
   public boolean canAccessForegroundLocation() {
     return checkPermissions(permission.ACCESS_FINE_LOCATION);
   }
@@ -42,9 +37,13 @@ public class PermissionChecker {
     return checkPermissions(backgroundPermissions().toArray(new String[0]));
   }
 
+  public boolean hasNotificationPermission() {
+    return !atLeastTiramisu() || checkPermissions(permission.POST_NOTIFICATIONS);
+  }
+
   public boolean canNotify() {
       return org.tasks.extensions.Context.INSTANCE.canScheduleExactAlarms(context)
-            && (!atLeastTiramisu() || checkPermissions(permission.POST_NOTIFICATIONS));
+            && hasNotificationPermission();
   }
 
   private boolean checkPermissions(String... permissions) {

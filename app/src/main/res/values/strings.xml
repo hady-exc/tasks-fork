@@ -28,6 +28,7 @@ File %1$s contained %2$s.\n\n
   <string name="TLA_menu_sort">Sort</string>
   <string name="TLA_menu_search">Search</string>
   <string name="TLA_menu_settings">Settings</string>
+  <string name="app_settings">App settings</string>
   <string name="TAd_actionEditTask">Edit</string>
   <string name="customize_drawer">Customize drawer</string>
   <string name="customize_drawer_summary">Drag and drop to rearrange menu items</string>
@@ -131,7 +132,6 @@ File %1$s contained %2$s.\n\n
   <string name="calendar_event_not_found">Calendar event not found</string>
   <string name="gcal_completed_title">%s (completed)</string>
   <string name="CFC_gtasks_list_text">In List: ?</string>
-  <string name="CFC_gtasks_list_name">In GTasks List…</string>
   <string name="CFC_list_name">In list…</string>
   <string name="gtasks_GTA_clear_completed">Clear Completed</string>
   <string name="gtasks_GLA_authenticating">Authenticating…</string>
@@ -262,6 +262,8 @@ File %1$s contained %2$s.\n\n
   <string name="new_tag">Create new tag</string>
   <string name="new_list">Create new list</string>
   <string name="delete_tag_confirmation">Delete %s?</string>
+  <string name="delete_comment">comment</string>
+  <string name="comment">Comment</string>
   <string name="TPl_notification">Timers Active for %s!</string>
   <string name="TEA_timer_controls">Timer</string>
   <string name="TEA_timer_comment_started">started this task:</string>
@@ -279,9 +281,7 @@ File %1$s contained %2$s.\n\n
   </plurals>
   <string name="now">Now</string>
   <string name="today">Today</string>
-  <string name="today_lowercase">today</string>
   <string name="tomorrow">Tomorrow</string>
-  <string name="tomorrow_lowercase">tomorrow</string>
   <string name="next_sunday">Next Sun</string>
   <string name="next_monday">Next Mon</string>
   <string name="next_tuesday">Next Tue</string>
@@ -290,11 +290,6 @@ File %1$s contained %2$s.\n\n
   <string name="next_friday">Next Fri</string>
   <string name="next_saturday">Next Sat</string>
   <string name="yesterday">Yesterday</string>
-  <string name="yesterday_lowercase">yesterday</string>
-  <string name="tmrw">Tmrw</string>
-  <string name="tomorrow_abbrev_lowercase">tmrw</string>
-  <string name="yest">Yest</string>
-  <string name="yesterday_abbrev_lowercase">yest</string>
   <string name="widget_show_checkboxes">Show checkboxes</string>
   <string name="widget_show_header">Show header</string>
   <string name="widget_show_settings">Show settings</string>
@@ -302,9 +297,6 @@ File %1$s contained %2$s.\n\n
   <string name="widget_show_menu">Show menu</string>
   <string name="widget_show_dividers">Show dividers</string>
   <string name="notifications">Notifications</string>
-  <string name="silent">Silent</string>
-  <string name="sound">Sound</string>
-  <string name="vibrations">Vibrations</string>
   <string name="quiet_hours">Quiet hours</string>
   <string name="quiet_hours_in_effect">Quiet hours are in effect</string>
   <string name="attachment_directory">Attachment folder</string>
@@ -324,7 +316,6 @@ File %1$s contained %2$s.\n\n
   <string name="send_application_logs">Send application logs</string>
   <string name="rate_tasks">Rate Tasks</string>
   <string name="quiet_hours_summary">No reminders during quiet hours</string>
-  <string name="TLA_menu_donate">Donate</string>
   <string name="add_reminder">Add reminder</string>
   <string name="add_location">Add location</string>
   <string name="remove">Remove</string>
@@ -390,10 +381,8 @@ File %1$s contained %2$s.\n\n
   <string name="opacity_row">Row opacity</string>
   <string name="opacity_footer">Footer opacity</string>
   <string name="theme">Theme</string>
-  <string name="map_theme">Map theme</string>
   <string name="color">Color</string>
   <string name="icon">Icon</string>
-  <string name="accent">Accent</string>
   <string name="launcher_icon">Launcher icon</string>
   <string name="theme_black">Black</string>
   <string name="theme_light">Light</string>
@@ -407,8 +396,6 @@ File %1$s contained %2$s.\n\n
   <string name="restart_now">Restart now</string>
   <string name="restart_later">Later</string>
   <string name="settings_localization">Localization</string>
-  <string name="led_notification">LED notification</string>
-  <string name="hardware_support_required">Hardware support required</string>
   <string name="widget_settings">Widget settings</string>
   <string name="widget_header_settings">Header settings</string>
   <string name="widget_row_settings">Row settings</string>
@@ -423,9 +410,9 @@ File %1$s contained %2$s.\n\n
   <string name="delete_selected_tasks">Delete selected tasks?</string>
   <string name="copy_selected_tasks">Copy selected tasks?</string>
   <string name="date_and_time">Date and time</string>
-  <string name="start_of_week">Start of week</string>
-  <string name="use_locale_default">Use locale default</string>
   <string name="add_account">Add account</string>
+  <string name="continue_without_sync">Continue without sync</string>
+  <string name="help_me_choose">Help me choose</string>
   <string name="user">User</string>
   <string name="password">Password</string>
   <string name="url">URL</string>
@@ -494,6 +481,7 @@ File %1$s contained %2$s.\n\n
   <string name="requires_pro_subscription">Requires pro subscription</string>
   <string name="this_feature_requires_a_subscription">This feature requires a subscription</string>
   <string name="logout">Log out</string>
+  <string name="delete_tasks_warning">%s will be deleted. This cannot be undone!</string>
   <string name="logout_warning">All data for this account will be removed from your device</string>
   <string name="cannot_access_account">Cannot access account</string>
   <string name="reinitialize_account">Reinitialize</string>
@@ -518,6 +506,8 @@ File %1$s contained %2$s.\n\n
   <string name="open_map">Open map</string>
   <string name="choose_new_location">Choose new location</string>
   <string name="third_party_licenses">Third-party licenses</string>
+  <string name="banner_app_updated_title">App updated</string>
+  <string name="banner_app_updated_description">Tasks was just updated to %s. Would you like to see the release notes?</string>
   <string name="whats_new">What\'s New</string>
   <string name="version_string">Version %s</string>
   <string name="invalid_backup_file">Invalid backup file</string>
@@ -526,8 +516,8 @@ File %1$s contained %2$s.\n\n
   <string name="expand_subtasks">Expand subtasks</string>
   <string name="collapse_subtasks">Collapse subtasks</string>
   <string name="subtasks_multilevel_google_task">Multi-level subtasks not supported by Google Tasks</string>
+  <string name="subtasks_multilevel_microsoft">Multi-level subtasks not supported by Microsoft To Do</string>
   <string name="enter_tag_name">Enter tag name</string>
-  <string name="create_new_tag">Create \"%s\"</string>
   <string name="choose_synchronization_service">Select a platform</string>
   <string name="tasks_org_description">Synchronize your tasks with Tasks.org</string>
   <string name="google_tasks_selection_description">Basic service that synchronizes with your Google account</string>
@@ -556,9 +546,6 @@ File %1$s contained %2$s.\n\n
   <string name="back">Back</string>
   <string name="chips">Chips</string>
   <string name="chip_appearance">Chip appearance</string>
-  <string name="desaturate_colors">Desaturate colors</string>
-  <string name="desaturate_colors_summary_on">Colors will be desaturated in dark themes</string>
-  <string name="desaturate_colors_summary_off">Colors will not be desaturated in dark themes</string>
   <string name="places">Places</string>
   <string name="place_settings">Place settings</string>
   <string name="navigation_drawer">Navigation drawer</string>
@@ -642,6 +629,8 @@ File %1$s contained %2$s.\n\n
   <string name="no_google_play_subscription">No eligible Google Play subscription found</string>
   <string name="price_per_year">$%s/year</string>
   <string name="price_per_month">$%s/month</string>
+  <string name="price_per_month_with_currency">%s/month</string>
+  <string name="price_per_year_with_currency">%s/year</string>
   <string name="current_subscription">Current subscription: %s</string>
   <string name="follow_reddit">Join r/tasks</string>
   <string name="follow_twitter">Follow @tasks_org</string>
@@ -652,7 +641,6 @@ File %1$s contained %2$s.\n\n
   <string name="open_source">Open source</string>
   <string name="privacy">Privacy</string>
   <string name="authorization_cancelled">Authorization cancelled</string>
-  <string name="not_signed_in">Not signed in</string>
   <string name="google_play_subscribers">Google Play subscribers</string>
   <string name="github_sponsors">GitHub Sponsors</string>
   <string name="sign_in_with_google">Sign in with Google</string>
@@ -679,7 +667,6 @@ File %1$s contained %2$s.\n\n
   <string name="tasks_org_account">Tasks.org account</string>
   <string name="tasks_org_account_required">Tasks.org account required</string>
   <string name="account_not_included">Not included with \'Name your price\' subscriptions</string>
-  <string name="map_theme_use_app_theme">Use app theme</string>
   <string name="list_members">List members</string>
   <string name="remove_user">Remove user?</string>
   <string name="remove_user_confirmation">%1$s will no longer have access to %2$s</string>
@@ -689,29 +676,17 @@ File %1$s contained %2$s.\n\n
   <string name="invite_declined">Invite declined</string>
   <string name="invite_awaiting_response">Invite awaiting response</string>
   <string name="invite_invalid">Invite invalid</string>
-  <string name="picker_mode_date">Date picker mode</string>
-  <string name="picker_mode_time">Time picker mode</string>
-  <string name="picker_mode_calendar">Calendar</string>
-  <string name="picker_mode_clock">Clock</string>
-  <string name="picker_mode_text">Text</string>
   <string name="pro_free_trial">New subscribers receive a 7-day free trial. Cancel at any time</string>
   <string name="upgrade_more_customization">More customization</string>
   <string name="upgrade_more_customization_description">Unlock all themes, colors, and icons</string>
-  <string name="upgrade_google_tasks">Synchronize multiple accounts</string>
   <string name="upgrade_tasks_org_account_description">Sync with Tasks.org and collaborate with other users</string>
   <string name="upgrade_desktop_access">Desktop access</string>
   <string name="upgrade_desktop_access_description">Sync with third-party clients like Outlook and Apple Reminders</string>
   <string name="upgrade_open_source_description">Your subscription supports continued development</string>
-  <string name="upgrade_automation">Automation</string>
-  <string name="upgrade_automation_description">Plugins for Tasker, Automate, and Locale</string>
   <string name="more_options">More options</string>
   <string name="markdown">Markdown</string>
   <string name="markdown_description">Enable Markdown in title and description</string>
   <string name="completion_sound">Play completion sound</string>
-  <string name="app_bar_position">App bar position</string>
-  <string name="app_bar_collapse">Collapse app bars</string>
-  <string name="top">Top</string>
-  <string name="bottom">Bottom</string>
   <string name="completed">Completed</string>
   <string name="snackbar_task_completed">Task completed</string>
   <string name="completed_tasks_at_bottom">Move completed tasks to bottom</string>
@@ -740,4 +715,17 @@ File %1$s contained %2$s.\n\n
   <string name="sort_ascending">Ascending</string>
   <string name="sort_descending">Descending</string>
   <string name="sort_not_available">Not available for tags, filters, or places</string>
+  <string name="add_shortcut_to_home_screen">Add shortcut to home screen</string>
+  <string name="add_widget_to_home_screen">Add widget to home screen</string>
+  <string name="cost_free">Cost: Free</string>
+  <string name="cost_money">Cost: $</string>
+  <string name="cost_more_money">Cost: $$$</string>
+  <string name="multiline_title">Allow multiline titles</string>
+  <string name="multiline_title_on">Press Enter key to add line breaks</string>
+  <string name="multiline_title_off">Press Done to save task</string>
+  <string name="sync_warning_microsoft_title">About Microsoft To Do sync</string>
+  <string name="sync_warning_microsoft">Not all task details sync with Microsoft To Do.</string>
+  <string name="sync_warning_google_tasks_title">About Google Task sync</string>
+  <string name="sync_warning_google_tasks">Not all task details sync with Google Tasks</string>
+  <string name="button_learn_more">Learn more</string>
 </resources>

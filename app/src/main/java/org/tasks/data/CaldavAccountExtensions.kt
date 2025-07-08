@@ -3,9 +3,11 @@ package org.tasks.data
 import android.app.Activity
 import android.content.Context
 import org.tasks.R
+import org.tasks.activities.GoogleTaskListSettingsActivity
 import org.tasks.caldav.BaseCaldavAccountSettingsActivity
 import org.tasks.caldav.CaldavAccountSettingsActivity
 import org.tasks.caldav.CaldavCalendarSettingsActivity
+import org.tasks.caldav.LocalAccountSettingsActivity
 import org.tasks.caldav.LocalListSettingsActivity
 import org.tasks.data.OpenTaskDao.Companion.isDavx5
 import org.tasks.data.OpenTaskDao.Companion.isDavx5Managed
@@ -28,6 +30,7 @@ val CaldavAccount.prefTitle: Int
         uuid.isDecSync() -> R.string.decsync
         isMicrosoft -> R.string.microsoft
         isGoogleTasks -> R.string.gtasks_GPr_header
+        isLocalList -> R.string.local_lists
         else -> 0
     }
 
@@ -41,6 +44,7 @@ val CaldavAccount.prefIcon: Int
         uuid.isDecSync() -> R.drawable.ic_decsync
         isMicrosoft -> R.drawable.ic_microsoft_tasks
         isGoogleTasks -> R.drawable.ic_google
+        isLocalList -> R.drawable.ic_outline_cloud_off_24px
         else -> 0
     }
 
@@ -56,6 +60,7 @@ fun CaldavAccount.listSettingsClass(): Class<out Activity> = when(accountType) {
     CaldavAccount.TYPE_OPENTASKS -> OpenTasksListSettingsActivity::class.java
     CaldavAccount.TYPE_ETEBASE -> EtebaseCalendarSettingsActivity::class.java
     CaldavAccount.TYPE_MICROSOFT -> MicrosoftListSettingsActivity::class.java
+    CaldavAccount.TYPE_GOOGLE_TASKS -> GoogleTaskListSettingsActivity::class.java
     else -> CaldavCalendarSettingsActivity::class.java
 }
 
@@ -64,6 +69,7 @@ val CaldavAccount.accountSettingsClass: Class<out BaseCaldavAccountSettingsActiv
         isCaldavAccount -> CaldavAccountSettingsActivity::class.java
         isEtebaseAccount -> EtebaseAccountSettingsActivity::class.java
         isOpenTasks -> OpenTaskAccountSettingsActivity::class.java
+        isLocalList -> LocalAccountSettingsActivity::class.java
         else -> throw IllegalArgumentException("Unexpected account type: $this")
     }
 

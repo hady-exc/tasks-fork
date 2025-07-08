@@ -104,7 +104,6 @@
     <string name="calendar_event_not_found">Evento de calendario non atopado</string>
     <string name="gcal_completed_title">%s (finalizado)</string>
     <string name="CFC_gtasks_list_text">Na lista: \?</string>
-    <string name="CFC_gtasks_list_name">Na lista GTasks…</string>
     <string name="gtasks_GTA_clear_completed">Limpar as finalizadas</string>
     <string name="gtasks_GLA_authenticating">Autenticando…</string>
     <string name="gtasks_GLA_errorIOAuth">Houbo un problema ao comunicarse cos servidores de Google. Inténtao máis tarde.</string>
@@ -148,16 +147,10 @@
     </plurals>
     <string name="today">Hoxe</string>
     <string name="tomorrow">Mañá</string>
-    <string name="yesterday">Onte</string>
-    <string name="tmrw">Mañá</string>
-    <string name="yest">Onte</string>
     <string name="widget_show_checkboxes">Amosar caisiñas de verificación</string>
     <string name="widget_show_header">Amosar encabezado</string>
     <string name="widget_show_settings">Amosar configuracións</string>
     <string name="notifications">Notificacións</string>
-    <string name="silent">Silencioso</string>
-    <string name="sound">Son</string>
-    <string name="vibrations">Vibracións</string>
     <string name="quiet_hours">Horario silencioso</string>
     <string name="attachment_directory">Cartafol de anexos</string>
     <string name="backup_directory">Cartafol de copias de seguranza</string>
@@ -171,7 +164,6 @@
     <string name="contact_developer">Contactar co desenvolvedor</string>
     <string name="rate_tasks">Valorar Tasks</string>
     <string name="quiet_hours_summary">Sen avisos en horario silencioso</string>
-    <string name="TLA_menu_donate">Doar</string>
     <string name="add_reminder">Engadir recordatorio</string>
     <string name="remove">Borrar</string>
     <string name="randomly">Ao chou</string>
@@ -213,7 +205,6 @@
     <string name="opacity">Opacidade</string>
     <string name="theme">Tema</string>
     <string name="color">Cor</string>
-    <string name="accent">Resaltado</string>
     <string name="theme_black">Negro</string>
     <string name="theme_light">Claro</string>
     <string name="theme_dark">Escuro</string>
@@ -224,8 +215,6 @@
     <string name="restart_now">Reiniciar ahora</string>
     <string name="restart_later">Máis tarde</string>
     <string name="settings_localization">Localización</string>
-    <string name="led_notification">Notificación LED</string>
-    <string name="hardware_support_required">Precísase de soporte con hardware</string>
     <string name="widget_settings">Configuración de widgets</string>
     <string name="widget_header_settings">Configuración de cabeceiras</string>
     <string name="widget_row_settings">Configuración de filas</string>
@@ -240,13 +229,11 @@
     <string name="upgrade_to_pro">Anovar a pro</string>
     <string name="password_required">Precísase contrasinal</string>
     <string name="icon">Icona</string>
-    <string name="today_lowercase">hoxe</string>
     <string name="documentation">Documentación</string>
     <string name="filter_medium_priority">Prioridade intermedia</string>
     <string name="filter_no_priority">Sen prioridade</string>
     <string name="repeat_type_due">data de fin</string>
     <string name="geofence_radius">Radio</string>
-    <string name="use_locale_default">Usar predefinido do sistema</string>
     <string name="add_account">Engadir conta</string>
     <string name="error_adding_account">Erro: %s</string>
     <string name="repeats_yearly">por ano</string>
@@ -273,7 +260,6 @@
     <string name="opacity_header">Opacidade da cabeceira</string>
     <string name="widget_due_date_after_title">Despois do título</string>
     <string name="widget_due_date_below_title">Por debaixo do título</string>
-    <string name="start_of_week">Comezo da semana</string>
     <string name="notification_disable_battery_optimizations_description">Os optimizadores da batería poden retrasar as notificacións</string>
     <string name="badges">Contadores</string>
     <string name="list">Lista</string>
@@ -298,7 +284,6 @@
     <string name="manage_subscription">Cambiar a suscrición</string>
     <string name="button_unsubscribe">Cancelar a suscrición</string>
     <string name="about">Sobre de</string>
-    <string name="upgrade_automation">Automatización</string>
     <plurals name="list_count">
         <item quantity="one">%d lista</item>
         <item quantity="other">%d listas</item>
@@ -323,7 +308,6 @@
         <item quantity="one">tempo</item>
         <item quantity="other">tempos</item>
     </plurals>
-    <string name="tomorrow_lowercase">mañá</string>
     <string name="next_tuesday">Próx Mar</string>
     <string name="next_wednesday">Próx Mér</string>
     <string name="add_location">Engadir posición</string>
@@ -380,7 +364,6 @@
     <string name="price_per_year">$%s/ano</string>
     <string name="migrate_count">Mover %s a Tasks.org</string>
     <string name="list_members">Lista de participantes</string>
-    <string name="picker_mode_date">Modo de selección de data</string>
     <string name="caldav_server_unknown">Descoñecido</string>
     <string name="caldav_server_other">Outro</string>
     <string name="more_options">Máis opcións</string>
@@ -388,9 +371,6 @@
     <string name="caldav_server_type">Tipo de servidor</string>
     <string name="next_sunday">Próx Dom</string>
     <string name="now">Agora</string>
-    <string name="yesterday_lowercase">onte</string>
-    <string name="tomorrow_abbrev_lowercase">mañá</string>
-    <string name="yesterday_abbrev_lowercase">onte</string>
     <string name="header_spacing">Espazado</string>
     <string name="subtasks">Subtarefas</string>
     <string name="menu_discard_changes">Descartar mudanzas</string>
@@ -404,20 +384,16 @@
     <string name="requires_pro_subscription">Precísase dunha suscrición pro</string>
     <string name="this_feature_requires_a_subscription">Esta característica necesita dunha suscrición</string>
     <string name="enter_tag_name">Introduce nome de etiqueta</string>
-    <string name="create_new_tag">Crear \"%s\"</string>
     <string name="show_advanced_settings">Amosar configuración avanzada</string>
     <string name="preferences_look_and_feel">Estilo e apariencia</string>
     <string name="preferences_advanced">Avanzada</string>
     <string name="places">Lugares</string>
-    <string name="desaturate_colors_summary_on">As cores desaturaranse nos estilos escuros</string>
-    <string name="desaturate_colors_summary_off">As cores non se desaturan nos estilos escuros</string>
     <string name="place_settings">Configuración de posición</string>
     <string name="hide_unused_tags">Agochar etiquetas sen usar</string>
     <string name="hide_unused_places">Agochar lugares sen usar</string>
     <string name="account">Conta</string>
     <string name="custom_filter_has_subtask">Ten subtarefas</string>
     <string name="tasks_org_account_required">Precísase de conta en Tasks.org</string>
-    <string name="map_theme_use_app_theme">Empregar estilo de aplicativo</string>
     <string name="remove_user">Borrar usuario\?</string>
     <string name="share_list">Compartir lista</string>
     <string name="invite_invalid">Convite non válido</string>
@@ -460,7 +436,6 @@
     <string name="device_settings">Configuracións de dispositivo</string>
     <string name="migrating_tasks">Migrando as tarefas</string>
     <string name="tasks_org_account">Conta en Tasks.org</string>
-    <string name="top">Arriba</string>
     <string name="multi_select_reschedule">Reprogramar</string>
     <string name="SSD_sort_my_order">O meu pedido</string>
     <string name="TEA_control_location">Posición</string>
@@ -490,7 +465,6 @@
     <string name="url_required">Precísase a URL</string>
     <string name="opacity_row">Opacidade da fila</string>
     <string name="opacity_footer">Opacidade do rodapé</string>
-    <string name="map_theme">Estilo de mapa</string>
     <string name="launcher_icon">Icona de escritorio</string>
     <string name="theme_system_default">Predefinido do sistema</string>
     <string name="repeats_single_number_of_times">Repetir %1$s, ocorre que %2$d %3$s</string>
@@ -538,7 +512,6 @@
     <string name="custom_filter_has_reminder">Ten un recordatorio</string>
     <string name="price_per_month">$%s/mes</string>
     <string name="authorization_cancelled">Cancelouse a autenticación</string>
-    <string name="not_signed_in">Sen acceso</string>
     <string name="above_average">Por riba da media</string>
     <string name="save_percent">Gardar %d%%</string>
     <string name="app_password">Contrasinal da app</string>
@@ -549,13 +522,7 @@
     <string name="invite">Convidar</string>
     <string name="invite_declined">Convite rexeitado</string>
     <string name="invite_awaiting_response">Convite en agarda</string>
-    <string name="picker_mode_time">Modo de selección de hora</string>
-    <string name="picker_mode_calendar">Calendario</string>
-    <string name="picker_mode_clock">Reloxo</string>
-    <string name="picker_mode_text">Texto</string>
     <string name="upgrade_desktop_access_description">Sincronizar con clientes de terceiros como Outlook e Appler Reminders</string>
-    <string name="upgrade_automation_description">Engadidos de Tasker, Automate, e Locale</string>
-    <string name="bottom">Abaixo</string>
     <string name="completed">Finalizada</string>
     <string name="completed_tasks_at_bottom">Mover as tarefas finalizadas ao fondo</string>
     <string name="snoozed_until">Posposta ata %s</string>

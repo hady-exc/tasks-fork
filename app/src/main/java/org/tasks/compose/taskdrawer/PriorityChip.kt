@@ -37,11 +37,10 @@ private fun PriorityChip(current: Int, action: () -> Unit)
         priorityColor(
             priority = current,
             isDarkMode = isSystemInDarkTheme(),
-            desaturate = false, // TODO -- get from preferences
         )
     )
 
-    IconChip(icon = priorityIcon, iconColor = color, action = action)
+    IconChip(icon = priorityIcon, contentColor = color, action = action)
 
 }
 

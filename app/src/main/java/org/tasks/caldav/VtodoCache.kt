@@ -1,9 +1,12 @@
 package org.tasks.caldav
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.tasks.data.dao.CaldavDao
 import org.tasks.data.entity.CaldavAccount
 import org.tasks.data.entity.CaldavCalendar
 import org.tasks.data.entity.CaldavTask
+import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -13,20 +16,22 @@ class VtodoCache @Inject constructor(
     private val caldavDao: CaldavDao,
     private val fileStorage: FileStorage,
 ) {
-    fun move(from: CaldavCalendar, to: CaldavCalendar, task: CaldavTask) {
-        val source =
-            fileStorage.getFile(from.account, from.uuid, task.obj)
-        if (source?.exists() != true) {
-            return
+    suspend fun move(from: CaldavCalendar, to: CaldavCalendar, task: CaldavTask) =
+        withContext(Dispatchers.IO) {
+            val source =
+                fileStorage.getFile(from.account, from.uuid, task.obj)
+            if (source?.exists() != true) {
+                return@withContext
+            }
+            val target =
+                fileStorage.getFile(to.account, to.uuid)
+                    ?.apply { mkdirs() }
+                    ?.let { File(it, task.obj!!) }
+                    ?: return@withContext
+            source.copyTo(target, overwrite = true)
+            val deleted = source.delete()
+            Timber.d("Moved $source to $target [success=${deleted}]")
         }
-        val target =
-            fileStorage.getFile(to.account, to.uuid)
-                ?.apply { mkdirs() }
-                ?.let { File(it, task.obj!!) }
-                ?: return
-        source.copyTo(target, overwrite = true)
-        source.delete()
-    }
 
     suspend fun getVtodo(caldavTask: CaldavTask?): String? {
         if (caldavTask == null) {
@@ -36,7 +41,7 @@ class VtodoCache @Inject constructor(
         return getVtodo(calendar, caldavTask)
     }
 
-    fun getVtodo(calendar: CaldavCalendar?, caldavTask: CaldavTask?): String? {
+    suspend fun getVtodo(calendar: CaldavCalendar?, caldavTask: CaldavTask?): String? {
         val file = fileStorage.getFile(
             calendar?.account,
             caldavTask?.calendar,
@@ -45,36 +50,47 @@ class VtodoCache @Inject constructor(
         return fileStorage.read(file)
     }
 
-    fun putVtodo(calendar: CaldavCalendar, caldavTask: CaldavTask, vtodo: String?) {
+    suspend fun putVtodo(calendar: CaldavCalendar, caldavTask: CaldavTask, vtodo: String?) {
         val `object` = caldavTask.obj?.takeIf { it.isNotBlank() } ?: return
-        val directory =
-            fileStorage
-                .getFile(calendar.account, caldavTask.calendar)
-                ?.apply { mkdirs() }
-                ?: return
-        fileStorage.write(File(directory, `object`), vtodo)
-    }
-
-    suspend fun delete(taskIds: List<Long>) {
-        val tasks = caldavDao.getTasks(taskIds).groupBy { it.calendar!! }
-        tasks.forEach { (c, t) ->
-            val calendar = caldavDao.getCalendar(c) ?: return@forEach
-            t.forEach { delete(calendar, it) }
+        withContext(Dispatchers.IO) {
+            val directory =
+                fileStorage
+                    .getFile(calendar.account, caldavTask.calendar)
+                    ?.apply { mkdirs() }
+                    ?: return@withContext
+            fileStorage.write(File(directory, `object`), vtodo)
         }
     }
 
-    fun delete(calendar: CaldavCalendar, caldavTask: CaldavTask) {
-        fileStorage
-            .getFile(calendar.account, caldavTask.calendar, caldavTask.obj)
-            ?.delete()
+    suspend fun delete(calendar: CaldavCalendar, tasks: List<CaldavTask>) {
+        tasks.forEach { delete(calendar, it) }
     }
 
-    fun delete(calendar: CaldavCalendar) =
-        fileStorage.getFile(calendar.account, calendar.uuid)?.deleteRecursively()
+    suspend fun delete(calendar: CaldavCalendar, caldavTask: CaldavTask) = withContext(Dispatchers.IO) {
+        fileStorage.getFile(calendar.account, caldavTask.calendar, caldavTask.obj)?.let {
+            val deleted = it.delete()
+            Timber.d("Deleting $it [success=$deleted]")
+        }
+    }
 
-    fun delete(account: CaldavAccount) =
-        fileStorage.getFile(account.uuid)?.deleteRecursively()
+    suspend fun delete(calendar: CaldavCalendar) = withContext(Dispatchers.IO) {
+        fileStorage.getFile(calendar.account, calendar.uuid)?.let {
+            val deleted = it.deleteRecursively()
+            Timber.d("Deleting $it [success=$deleted]")
+        }
+    }
 
-    fun clear() =
-        fileStorage.getFile()?.deleteRecursively()
+    suspend fun delete(account: CaldavAccount) = withContext(Dispatchers.IO) {
+        fileStorage.getFile(account.uuid)?.let {
+            val deleted = it.deleteRecursively()
+            Timber.d("Deleting $it [success=$deleted]")
+        }
+    }
+
+    suspend fun clear() = withContext(Dispatchers.IO) {
+        fileStorage.getFile()?.let {
+            val deleted = it.deleteRecursively()
+            Timber.d("Deleting $it [success=$deleted]")
+        }
+    }
 }

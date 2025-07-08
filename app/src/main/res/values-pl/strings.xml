@@ -102,7 +102,6 @@
     <string name="calendar_event_not_found">Zdarzenie kalendarza nie odnazlezione</string>
     <string name="gcal_completed_title">%s (ukończono)</string>
     <string name="CFC_gtasks_list_text">Na liście: ?</string>
-    <string name="CFC_gtasks_list_name">Na liście GTasks…</string>
     <string name="gtasks_GTA_clear_completed">Wyczyść zakończone</string>
     <string name="gtasks_GLA_authenticating">Uwierzytelnianie…</string>
     <string name="gtasks_GLA_errorIOAuth">Przepraszamy, mieliśmy problem z porozumieniem się z serwerami Google. Prosimy spróbować ponownie.</string>
@@ -227,16 +226,10 @@
     </plurals>
     <string name="today">Dzisiaj</string>
     <string name="tomorrow">Jutro</string>
-    <string name="yesterday">Wczoraj</string>
-    <string name="tmrw">Jutro</string>
-    <string name="yest">Wczoraj</string>
     <string name="widget_show_checkboxes">Pokaż pola wyboru</string>
     <string name="widget_show_header">Pokaż nagłówek</string>
     <string name="widget_show_settings">Pokaż ustawienia</string>
     <string name="notifications">Powiadomienia</string>
-    <string name="silent">Cichy</string>
-    <string name="sound">Dźwięk</string>
-    <string name="vibrations">Wibracje</string>
     <string name="quiet_hours">Ciche godziny</string>
     <string name="attachment_directory">Katalog załączników</string>
     <string name="backup_directory">Katalog kopii zapasowych</string>
@@ -251,7 +244,6 @@
     <string name="contact_developer">Skontaktuj się z twórcą</string>
     <string name="rate_tasks">Oceń Tasks</string>
     <string name="quiet_hours_summary">Brak przypomnień w czasie wyciszenia</string>
-    <string name="TLA_menu_donate">Wesprzyj</string>
     <string name="add_reminder">Dodaj przypomnienie</string>
     <string name="add_location">Dodaj lokalizację</string>
     <string name="remove">Usuń</string>
@@ -301,7 +293,6 @@
     <string name="opacity">Nieprzezroczystość</string>
     <string name="theme">Motyw</string>
     <string name="color">Kolor</string>
-    <string name="accent">Akcent</string>
     <string name="launcher_icon">Ikona programu startowego</string>
     <string name="theme_black">Czarny</string>
     <string name="theme_light">Jasny</string>
@@ -313,8 +304,6 @@
     <string name="restart_now">Zrestartuj teraz</string>
     <string name="restart_later">Póżniej</string>
     <string name="settings_localization">Ustawienia regionalne</string>
-    <string name="led_notification">Powiadomienie LED</string>
-    <string name="hardware_support_required">Wymagane wsparcie sprzętowe</string>
     <string name="widget_settings">Ustawienie widgetu</string>
     <string name="widget_header_settings">Ustawienia nagłówka</string>
     <string name="widget_row_settings">Ustawienia rzędu</string>
@@ -324,8 +313,6 @@
     <string name="delete_selected_tasks">Usunąć zaznaczone zadania?</string>
     <string name="copy_selected_tasks">Skopiować zaznaczone zadania?</string>
     <string name="date_and_time">Data i czas</string>
-    <string name="start_of_week">Początek tygodnia</string>
-    <string name="use_locale_default">Użyj domyślnych</string>
     <string name="add_account">Dodaj konto</string>
     <string name="user">Użytkownik</string>
     <string name="password">Hasło</string>
@@ -421,7 +408,6 @@
     <string name="subtasks">Podzadania</string>
     <string name="subtasks_multilevel_google_task">Wielopoziomowe podzadania nie są obsługiwane przez Google Tasks</string>
     <string name="enter_tag_name">Wprowadź nazwę tagu</string>
-    <string name="create_new_tag">Stwórz \"%s\"</string>
     <string name="display_name">Nazwa wyświetlana</string>
     <string name="this_feature_requires_a_subscription">Ta funkcja wymaga subskrypcji</string>
     <string name="choose_synchronization_service">Wybierz platformę</string>
@@ -450,9 +436,6 @@
     <string name="back">Wstecz</string>
     <string name="chips">Chipy</string>
     <string name="chip_appearance">Wygląd chipów</string>
-    <string name="desaturate_colors">Desaturuj kolory</string>
-    <string name="desaturate_colors_summary_on">Kolory będą desaturowane w ciemnych motywach</string>
-    <string name="desaturate_colors_summary_off">Kolory nie będą desaturowane w ciemnych motywach</string>
     <string name="shortcut_pick_time">Wybierz czas</string>
     <string name="no_time">Brak czasu</string>
     <string name="no_date">Brak daty</string>
@@ -514,9 +497,6 @@
     <string name="sort_modified_group">Zmienione %s</string>
     <string name="sort_created_group">Stworzone %s</string>
     <string name="action_new_task">Nowe zadanie</string>
-    <string name="yesterday_lowercase">wczoraj</string>
-    <string name="tomorrow_lowercase">jutro</string>
-    <string name="today_lowercase">dzisiaj</string>
     <string name="permission_read_tasks">Pełny dostęp do bazy danych Tasks</string>
     <string name="reset_sort_order">Resetuj porządek sortowania</string>
     <string name="lists">Listy</string>
@@ -558,7 +538,6 @@
     <string name="authentication_required">Wymagane uwierzytelnienie</string>
     <string name="sign_in_with_github">Zaloguj z GitHub</string>
     <string name="sign_in_with_google">Zaloguj z Google</string>
-    <string name="not_signed_in">Niezalogowany</string>
     <string name="repeat_monthly_fifth_week">piąty</string>
     <plurals name="list_count">
         <item quantity="one">%d lista</item>
@@ -600,8 +579,6 @@
     <string name="tasks_org_description">Synchronizowanie zadań z Tasks.org</string>
     <string name="filter_criteria_unstarted">Nierozpoczęte</string>
     <string name="show_unstarted">Pokaż nierozpoczęte</string>
-    <string name="yesterday_abbrev_lowercase">wczoraj</string>
-    <string name="tomorrow_abbrev_lowercase">jutro</string>
     <string name="filter_any_start_date">Dowolna data rozpoczęcia</string>
     <string name="no_start_date">Bez daty rozpoczęcia</string>
     <string name="CFC_startBefore_name">Początek przed…</string>
@@ -614,9 +591,7 @@
     <string name="subscription">Subskrypcja</string>
     <string name="account_not_included">Nie obejmuje subskrypcji \"Podaj swoją cenę\"</string>
     <string name="widget_show_title">Pokaż tytuł</string>
-    <string name="map_theme_use_app_theme">Użyj motywu aplikacji</string>
     <string name="tasks_org_account_required">Wymagane konto Tasks.org</string>
-    <string name="map_theme">Motyw mapy</string>
     <string name="privacy">Prywatność</string>
     <string name="social">Media społecznościowe</string>
     <string name="follow_twitter">Obserwuj @tasks_org</string>
@@ -626,21 +601,13 @@
     <string name="markdown_description">Włącz Markdown w tytule i opisie</string>
     <string name="markdown">Markdown</string>
     <string name="more_options">Więcej opcji</string>
-    <string name="upgrade_automation_description">Wtyczki do Tasker, Automate i Locale</string>
-    <string name="upgrade_automation">Automatyzacja</string>
     <string name="upgrade_open_source_description">Twoja subskrypcja wspiera dalszy rozwój aplikacji</string>
     <string name="upgrade_desktop_access_description">Synchronizacja z aplikacjami innych firm, takimi jak Outlook i Apple Reminders</string>
     <string name="upgrade_desktop_access">Dostęp z aplikacji desktopowych</string>
     <string name="upgrade_tasks_org_account_description">Synchronizuj z Tasks.org oraz współpracuj z innymi użytkownikami</string>
-    <string name="upgrade_google_tasks">Synchronizuj wiele kont</string>
     <string name="upgrade_more_customization_description">Odblokuj wszystkie motywy, kolory oraz ikony</string>
     <string name="upgrade_more_customization">Więcej możliwości konfiguracji</string>
     <string name="pro_free_trial">Nowi subskrybenci otrzymują 7-dniowy, darmowy okres próbny. Można anulować w dowolnym momencie</string>
-    <string name="picker_mode_text">Tekst</string>
-    <string name="picker_mode_clock">Zegar</string>
-    <string name="picker_mode_calendar">Kalendarz</string>
-    <string name="picker_mode_time">Tryb Time picker</string>
-    <string name="picker_mode_date">Tryb selektora dat</string>
     <string name="invite_invalid">Zaproszenie nieważne</string>
     <string name="invite_awaiting_response">Zaproszenie oczekuje na odpowiedź</string>
     <string name="invite_declined">Zaproszenie odrzucone</string>
@@ -659,7 +626,6 @@
     <string name="next_monday">Następny poniedziałek</string>
     <string name="next_sunday">Następna niedziela</string>
     <string name="completed">Zakończone</string>
-    <string name="app_bar_collapse">Zwiń pasek aplikacji</string>
     <string name="caldav_server_unknown">Nieznane</string>
     <plurals name="reminder_week">
         <item quantity="one">Tydzień</item>
@@ -686,7 +652,6 @@
     <string name="now">Teraz</string>
     <string name="custom_filter_has_reminder">Ma przypomnienie</string>
     <string name="snoozed_until">Uśpione do %s</string>
-    <string name="bottom">Dół</string>
     <string name="completed_tasks_at_bottom">Przenieś zakończone zadania na dół</string>
     <plurals name="reminder_hours">
         <item quantity="one">Godzina</item>
@@ -695,8 +660,6 @@
         <item quantity="other">Godzin</item>
     </plurals>
     <string name="randomly_every">Losowo co %s</string>
-    <string name="app_bar_position">Pozycja paska aplikacji</string>
-    <string name="top">Góra</string>
     <string name="custom_notification">Własne powiadomienie</string>
     <string name="snackbar_task_completed">Zadanie zakończone</string>
     <string name="snackbar_tasks_completed">%d zadań zakończonych</string>

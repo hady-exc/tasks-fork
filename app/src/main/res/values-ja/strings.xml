@@ -7,12 +7,7 @@
     <string name="backup_BAc_export">今すぐバックアップ</string>
     <string name="export_toast">%1$s を %2$s にバックアップしました。</string>
     <string name="import_summary_title">復元の概要</string>
-    <string name="import_summary_message">ファイル %1$s の%2$s中
-\n
-\n %3$sをインポート
-\n %4$sがすでに存在
-\n %5$sが失敗
-\n</string>
+    <string name="import_summary_message">ファイル %1$s の%2$s中\n\n %3$sをインポート\n %4$sがすでに存在\n %5$sが失敗</string>
     <string name="import_progress_read">タスク %d を読み込み中…</string>
     <string name="read_permission_label">Tasks へのアクセス</string>
     <string name="discard_confirmation">本当に変更を破棄しますか？</string>
@@ -113,7 +108,6 @@
     <string name="calendar_event_not_found">カレンダーイベントが見つかりません</string>
     <string name="gcal_completed_title">%s (完了)</string>
     <string name="CFC_gtasks_list_text">リストに含む: \?</string>
-    <string name="CFC_gtasks_list_name">GTasks リストに…</string>
     <string name="gtasks_GTA_clear_completed">完了したタスクをクリア</string>
     <string name="gtasks_GLA_authenticating">認証中…</string>
     <string name="gtasks_GLA_errorIOAuth">すみません、Google のサーバーとの通信で問題が発生しました。しばらくしてからもう一度お試しください。</string>
@@ -219,16 +213,10 @@
     </plurals>
     <string name="today">今日</string>
     <string name="tomorrow">明日</string>
-    <string name="yesterday">昨日</string>
-    <string name="tmrw">明日</string>
-    <string name="yest">昨日</string>
     <string name="widget_show_checkboxes">チェックボックスを表示</string>
     <string name="widget_show_header">ヘッダーを表示</string>
     <string name="widget_show_settings">設定を表示</string>
     <string name="notifications">通知</string>
-    <string name="silent">サイレント</string>
-    <string name="sound">サウンド</string>
-    <string name="vibrations">振動</string>
     <string name="quiet_hours">おやすみモード</string>
     <string name="attachment_directory">添付フォルダー</string>
     <string name="backup_directory">フォルダーをバックアップ</string>
@@ -243,7 +231,6 @@
     <string name="contact_developer">開発者に連絡</string>
     <string name="rate_tasks">Tasks を評価</string>
     <string name="quiet_hours_summary">おやすみモードの間はリマインダーを停止します</string>
-    <string name="TLA_menu_donate">寄付</string>
     <string name="add_reminder">リマインダーを追加</string>
     <string name="add_location">場所を追加</string>
     <string name="remove">削除</string>
@@ -293,7 +280,6 @@
     <string name="opacity">透明度</string>
     <string name="theme">テーマ</string>
     <string name="color">色</string>
-    <string name="accent">アクセント</string>
     <string name="launcher_icon">ランチャーアイコン</string>
     <string name="theme_black">黒</string>
     <string name="theme_light">ライト</string>
@@ -305,8 +291,6 @@
     <string name="restart_now">今すぐ再起動</string>
     <string name="restart_later">あとで</string>
     <string name="settings_localization">ローカライズ</string>
-    <string name="led_notification">LED 通知</string>
-    <string name="hardware_support_required">ハードウェア サポートが必要です</string>
     <string name="widget_settings">ウィジェット設定</string>
     <string name="widget_header_settings">ヘッダー設定</string>
     <string name="widget_row_settings">行設定</string>
@@ -316,8 +300,6 @@
     <string name="delete_selected_tasks">選択したタスクを削除しますか？</string>
     <string name="copy_selected_tasks">選択したタスクをコピーしますか？</string>
     <string name="date_and_time">日付と時刻</string>
-    <string name="start_of_week">週の始まり</string>
-    <string name="use_locale_default">ロケールのデフォルトを使用する</string>
     <string name="add_account">アカウントを追加</string>
     <string name="user">ユーザー</string>
     <string name="password">パスワード</string>
@@ -328,9 +310,9 @@
     <string name="repeats_from">繰り返し開始</string>
     <string name="repeats_single">%s 繰り返し</string>
     <string name="repeats_single_on">%1$s を %2$s に繰り返し</string>
-    <string name="repeats_single_until">%1$s を %2$s まで繰り返し</string>
+    <string name="repeats_single_until">%1$s を繰り返し、%2$s に終了</string>
     <string name="repeats_single_number_of_times">%1$s を %2$d %3$s に繰り返し</string>
-    <string name="repeats_single_on_until">%1$s を %2$s に %3$s まで繰り返し</string>
+    <string name="repeats_single_on_until">%2$s に %1$s を繰り返し、%3$s に終了</string>
     <string name="repeats_single_on_number_of_times">%1$s を %2$s に %3$d %4$s 繰り返し</string>
     <string name="repeats_minutely">…分ごとに</string>
     <string name="repeats_hourly">…時間ごとに</string>
@@ -342,7 +324,7 @@
     <string name="repeats_plural_on">%1$s ごとに %2$s に繰り返し</string>
     <string name="repeats_plural_until">%1$s ごとに %2$s まで繰り返し</string>
     <string name="repeats_plural_number_of_times">%1$s ごとに %2$d %3$s 繰り返し</string>
-    <string name="repeats_plural_on_until">%1$s ごとに %2$s に %3$s まで繰り返し</string>
+    <string name="repeats_plural_on_until">毎%1$sの%2$sに繰り返し、%3$sに終了</string>
     <string name="repeats_plural_on_number_of_times">%1$s を %2$s に %3$d %4$s 繰り返し</string>
     <string name="dont_add_to_calendar">カレンダーに追加しない</string>
     <string name="default_calendar">デフォルトのカレンダー</string>
@@ -419,16 +401,12 @@
     <string name="opacity_row">行の透明度</string>
     <string name="opacity_footer">フッターの透明度</string>
     <string name="opacity_header">ヘッダーの透明度</string>
-    <string name="map_theme">地図のテーマ</string>
     <string name="default_tags">デフォルトのタグ</string>
     <string name="menu_discard_changes">変更を破棄</string>
     <string name="date_shortcut_tomorrow_night">明日の夜</string>
     <string name="date_shortcut_tomorrow_evening">明日の夕方</string>
     <string name="widget_show_menu">メニューを表示</string>
     <string name="widget_show_title">タイトルを表示</string>
-    <string name="yesterday_abbrev_lowercase">昨日</string>
-    <string name="tomorrow_abbrev_lowercase">明日</string>
-    <string name="yesterday_lowercase">昨日</string>
     <string name="next_saturday">次の土曜日</string>
     <string name="next_friday">次の金曜日</string>
     <string name="next_thursday">次の木曜日</string>
@@ -436,8 +414,6 @@
     <string name="next_tuesday">次の火曜日</string>
     <string name="next_monday">次の月曜日</string>
     <string name="next_sunday">次の日曜日</string>
-    <string name="tomorrow_lowercase">明日</string>
-    <string name="today_lowercase">今日</string>
     <string name="repeat_type_completion_capitalized">完了日</string>
     <plurals name="list_count">
         <item quantity="other">リスト %d 件</item>
@@ -469,7 +445,6 @@
     <string name="hide_unused_places">使われていない場所を隠す</string>
     <string name="place_settings">場所の設定</string>
     <string name="places">場所</string>
-    <string name="upgrade_automation_description">Tasker、AutomateとLocaleのプラグイン</string>
     <string name="local_lists">ローカルリスト</string>
     <string name="sort_created_group">作成: %s</string>
     <string name="app_password_created_at">作成: %s</string>
@@ -504,7 +479,6 @@
     <string name="authentication_required">認証が必要です</string>
     <string name="share_list">リストを共有</string>
     <string name="markdown">マークダウン</string>
-    <string name="picker_mode_date">日付選択の方法</string>
     <string name="auto_dismiss_datetime_widget">ウィジェット</string>
     <string name="lists">リスト</string>
     <string name="migrating_tasks">タスクを移行する</string>
@@ -517,7 +491,6 @@
     <string name="caldav_selection_description">オープンインターネット標準による同期</string>
     <string name="etesync_selection_description">エンドツーエンド暗号化による同期</string>
     <string name="microsoft_selection_description">個人用 Microsoftアカウントと同期する</string>
-    <string name="desaturate_colors_summary_off">ダークテーマの使用時に彩度は下がりません</string>
     <string name="chip_appearance_text_and_icon">文字とアイコン</string>
     <string name="chip_appearance_text_only">文字のみ</string>
     <string name="shortcut_pick_time">時間を選択</string>
@@ -544,8 +517,6 @@
     <string name="more_options">さらなるオプション</string>
     <string name="markdown_description">タイトル欄と説明欄でマークダウン記法を有効にします</string>
     <string name="completion_sound">完了時に音を鳴らす</string>
-    <string name="app_bar_position">アプリケーションバーの位置</string>
-    <string name="app_bar_collapse">アプリケーションバーを折りたたむ</string>
     <string name="snackbar_task_completed">タスク完了</string>
     <string name="completed_tasks_at_bottom">完了したタスクを一番下に移動</string>
     <string name="alarm_before_due">締切 %s 前</string>
@@ -574,12 +545,10 @@
     <string name="customize_edit_screen_summary">フィールドの並び替えや削除</string>
     <string name="widget_due_date_below_title">タイトルの下</string>
     <string name="widget_due_date_after_title">タイトルの後ろ</string>
-    <string name="create_new_tag">\"%s\" を作成</string>
     <string name="etesync_account_description">EteSync.com またはセルフホストサーバーのアカウントが必要です</string>
     <string name="documentation">ドキュメント</string>
     <string name="color_wheel">カラーホイール</string>
     <string name="more_notification_settings_summary">通知音、バイブレーションなど</string>
-    <string name="desaturate_colors">彩度を下げる</string>
     <string name="wearable_notifications_summary">ウェアラブルデバイスに通知を表示する</string>
     <string name="auto_dismiss_datetime_list">タスクリスト</string>
     <string name="backup_location_warning">警告: Tasks を削除すると %s にあるファイルも削除されます。ファイルの削除を回避するには、別の場所を指定してください。</string>
@@ -592,16 +561,11 @@
     <string name="issue_tracker">Issue tracker / 問題追跡</string>
     <string name="privacy">プライバシー</string>
     <string name="authorization_cancelled">認証が取り消されました</string>
-    <string name="not_signed_in">サインインしていません</string>
     <string name="tasks_org_account_required">Tasks.org のアカウントが必要です</string>
     <string name="account_not_included">「価格はあなた次第」でのサブスクリプションには含まれていません</string>
     <string name="list_members">リストメンバー</string>
-    <string name="map_theme_use_app_theme">アプリのテーマを使用</string>
-    <string name="picker_mode_text">文字</string>
-    <string name="picker_mode_time">時間選択の方法</string>
     <string name="remove_user_confirmation">%1$s は %2$s にアクセスできなくなります</string>
     <string name="invite_awaiting_response">応答待ちの招待</string>
-    <string name="upgrade_google_tasks">複数のアカウントを同期可能</string>
     <string name="enable_reminders">リマインダーを有効にする</string>
     <string name="decsync_selection_description">ファイルベースによる同期</string>
     <string name="filter_no_priority">優先度 なし</string>
@@ -632,7 +596,6 @@
     <string name="invite">招待</string>
     <string name="invite_invalid">招待が無効</string>
     <string name="upgrade_desktop_access_description">Outlook や Apple Reminders などのサードパーティクライアントと同期可能</string>
-    <string name="upgrade_automation">自動化</string>
     <string name="upgrade_tasks_org_account_description">Tasks.org と同期し、他のユーザーと共同作業が可能</string>
     <string name="upgrade_desktop_access">デスクトップアクセス</string>
     <string name="upgrade_open_source_description">あなたの支援が継続的な開発を支えます</string>
@@ -644,8 +607,6 @@
     <string name="troubleshooting">トラブルシューティング</string>
     <string name="app_passwords_more_info">タスクやカレンダーをサードパーティ製のデスクトップアプリやモバイルアプリと同期します。詳しくはここをタップ</string>
     <string name="support">サポート</string>
-    <string name="picker_mode_clock">時計</string>
-    <string name="picker_mode_calendar">カレンダー</string>
     <string name="permission_read_tasks">Tasks データベースへの完全なアクセス</string>
     <string name="auto_dismiss_datetime">日時選択画面を自動で閉じる</string>
     <string name="chip_appearance_icon_only">アイコンのみ</string>
@@ -655,7 +616,6 @@
     <string name="above_average">平均以上</string>
     <string name="filter_any_start_date">着手日時あり</string>
     <string name="chip_appearance">チップの外観</string>
-    <string name="desaturate_colors_summary_on">ダークテーマの使用時に彩度が下がります</string>
     <string name="sort_modified_group">変更: %s</string>
     <string name="sort_start_group">着手: %s</string>
     <string name="sort_due_group">締切: %s</string>
@@ -670,7 +630,6 @@
     <string name="settings_default">デフォルト</string>
     <string name="custom_filter_criteria">フィルター条件</string>
     <string name="filter_after_today">今日以降</string>
-    <string name="top">上部</string>
     <string name="foreground_location">フォアグラウンド時の位置情報</string>
     <string name="enable_reminders_description">Android の設定によりリマインダーは無効になっています</string>
     <string name="caldav_server_unknown">不明</string>
@@ -681,7 +640,6 @@
     <string name="filter_today_only">今日のみ</string>
     <string name="social">ソーシャルサービス</string>
     <string name="filter_low_priority">優先度 低</string>
-    <string name="bottom">下部</string>
     <string name="android_auto_backup_device_summary">デバイス設定からバックアップサービスの使用を許可する必要があります。すべてのデバイスがバックアップサービスを提供しているわけではありません。</string>
     <string name="dismiss">閉じる</string>
     <string name="notification_troubleshooting_summary">通知に問題がある場合はこちらをタップ</string>
@@ -708,4 +666,46 @@
     <string name="repeats_after">回数</string>
     <string name="repeat_monthly_on_the_nth_weekday">毎月 %1$s %2$s</string>
     <string name="change_priority">優先度を変更</string>
+    <string name="customize_drawer_summary">ドラッグ&amp;ドロップしてメニューを並び替え</string>
+    <string name="quiet_hours_in_effect">お休みモードが有効です</string>
+    <string name="delete_comment">コメント</string>
+    <string name="swipe_to_snooze_title">スワイプしてスヌーズ</string>
+    <string name="swipe_to_snooze_time_30_minutes">30分後</string>
+    <string name="swipe_to_snooze_time_15_minutes">15分後</string>
+    <string name="swipe_to_snooze_time_description">クリアされた通知は%sにスヌーズ及び再通知されます</string>
+    <string name="swipe_to_snooze_time_immediately">今すぐ</string>
+    <string name="swipe_to_snooze_description">スヌーズ間隔</string>
+    <string name="swipe_to_snooze_time_24_hours">24時間後</string>
+    <string name="swipe_to_snooze_time_1_hour">1時間後</string>
+    <string name="comment">コメント</string>
+    <string name="multiline_title">複数行のタイトルを許可</string>
+    <string name="multiline_title_on">エンターキーを押して改行を追加する</string>
+    <string name="show_edit_screen_without_unlock">ロック時に編集画面を表示</string>
+    <string name="send_application_logs">アプリケーションのログを送信</string>
+    <string name="show_edit_screen_without_unlock_summary">デバイスのロックを解除せずにクイック設定タイルを利用可能に</string>
+    <string name="add_shortcut_to_home_screen">ホーム画面にショートカットを追加</string>
+    <string name="add_widget_to_home_screen">ホーム画面にウィジェットを追加</string>
+    <string name="theme_dynamic">ダイナミック</string>
+    <string name="customize_drawer">ドロワーのカスタマイズ</string>
+    <string name="clear_completed_tasks_count">%s 削除されます</string>
+    <string name="donate_today">今日寄付をする</string>
+    <string name="donate_maybe_later">また後で</string>
+    <string name="subtasks_multilevel_microsoft">Microsoft To Do は多層式のサブタスクに対応していません</string>
+    <string name="price_per_month_with_currency">%s/月</string>
+    <string name="price_per_year_with_currency">%s/年</string>
+    <string name="donate_nag">寄付によるサポートをご検討ください！</string>
+    <string name="sync_warning_microsoft">すべてのタスクの詳細が Microsoft To Do と同期されるわけではありません。</string>
+    <string name="button_learn_more">詳細を見る</string>
+    <string name="enable_alarms">適切なタイミングで通知を受け取る</string>
+    <string name="sync_warning_microsoft_title">Microsoft To Do の同期について</string>
+    <string name="sync_warning_google_tasks">すべてのタスクの詳細が Google Tasks と同期されるわけではありません</string>
+    <string name="sync_warning_google_tasks_title">Google Tasks の同期について</string>
+    <string name="enable_alarms_description">適切なタイミングで通知を受け取るために、設定でアラームとリマインダーを許可してください</string>
+    <string name="yesterday">昨日</string>
+    <string name="app_settings">アプリ設定</string>
+    <string name="banner_app_updated_title">アプリが更新されました</string>
+    <string name="banner_app_updated_description">Tasks が %s に更新されました。リリース ノートを表示しますか?</string>
+    <string name="cost_money">費用: $</string>
+    <string name="multiline_title_off">タスクを保存するには「完了」を押してください</string>
+    <string name="cost_free">料金: 無料</string>
 </resources>

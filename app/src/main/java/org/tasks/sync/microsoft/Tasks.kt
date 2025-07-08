@@ -1,19 +1,25 @@
 package org.tasks.sync.microsoft
 
-import com.squareup.moshi.Json
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import org.tasks.data.Redacted
 
+@Serializable
 data class Tasks(
     val value: List<Task>,
-    @field:Json(name = "@odata.nextLink") val nextPage: String?,
-    @field:Json(name = "@odata.deltaLink") val nextDelta: String?,
+    @SerialName("@odata.nextLink") val nextPage: String? = null,
+    @SerialName("@odata.deltaLink") val nextDelta: String? = null,
 ) {
-    data class Task(
-        @field:Json(name = "@odata.etag") val etag: String? = null,
+    @Serializable
+    data class Task @OptIn(ExperimentalSerializationApi::class) constructor(
+        @SerialName("@odata.etag") val etag: String? = null,
         val id: String? = null,
-        val title: String? = null,
+        @Redacted val title: String? = null,
         val body: Body? = null,
-        val importance: Importance = Importance.low,
-        val status: Status = Status.notStarted,
+        @EncodeDefault val importance: Importance = Importance.low,
+        @EncodeDefault val status: Status = Status.notStarted,
         val categories: List<String>? = null,
         val isReminderOn: Boolean = false,
         val createdDateTime: String? = null,
@@ -22,33 +28,41 @@ data class Tasks(
         val dueDateTime: DateTime? = null,
         val linkedResources: List<LinkedResource>? = null,
         val recurrence: Recurrence? = null,
-        @field:Json(name = "@removed") val removed: Removed? = null,
+        val reminderDateTime: DateTime? = null,
+        val checklistItems: List<ChecklistItem>? = null,
+        @SerialName("@removed") val removed: Removed? = null,
     ) {
+        @Serializable
         data class Body(
-            val content: String,
+            @Redacted val content: String,
             val contentType: String,
         )
 
+        @Serializable
         data class LinkedResource(
             val applicationName: String,
-            val displayName: String,
+            val displayName: String?,
             val externalId: String,
             val id: String,
         )
 
+        @Serializable
         data class Removed(
             val reason: String,
         )
 
+        @Serializable
         data class DateTime(
             val dateTime: String,
             val timeZone: String,
         )
 
+        @Serializable
         data class Recurrence(
             val pattern: Pattern,
         )
 
+        @Serializable
         data class Pattern(
             val type: RecurrenceType,
             val interval: Int,
@@ -85,6 +99,15 @@ data class Tasks(
             friday,
             saturday,
         }
+
+        @Serializable
+        data class ChecklistItem(
+            val id: String? = null,
+            val displayName: String,
+            val createdDateTime: String? = null,
+            val isChecked: Boolean,
+            val checkedDateTime: String? = null,
+        )
 
         enum class Importance {
             low,

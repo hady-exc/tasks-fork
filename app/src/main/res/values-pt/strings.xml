@@ -1,29 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="actfm_picture_clear">Eliminar imagem</string>
+    <string name="actfm_picture_clear">Remover Imagem</string>
     <string name="TVA_add_comment">Adicionar um comentário…</string>
     <string name="backup_BAc_import">Importar cópia de segurança</string>
     <string name="backup_BAc_export">Fazer cópia de segurança</string>
     <string name="export_toast">Cópia de segurança feita de %1$s para %2$s.</string>
     <string name="import_summary_title">Resumo do restauro</string>
-    <string name="import_summary_message">O ficheiro %1$s continha %2$s.
-\n
-\n %3$s importadas,
-\n %4$s já existiam,
-\n %5$s tinham erros.
-\n</string>
-    <string name="import_progress_read">A ler a tarefa %d…</string>
+    <string name="import_summary_message">O ficheiro %1$s continha %2$s\n\n%3$s importadas\n%4$s já existem,\n%5$s tinham erros</string>
+    <string name="import_progress_read">Lendo a tarefa %d…</string>
     <string name="read_permission_label">Permissões do Tasks</string>
     <string name="discard_confirmation">Tem a certeza que deseja descartar as alterações?</string>
-    <string name="keep_editing">Continuar a editar</string>
-    <string name="DLG_delete_this_task_question">Eliminar esta tarefa\?</string>
-    <string name="DLG_hour_minutes">Tempo (horas:minutos)</string>
-    <string name="DLG_undo">Anular</string>
-    <string name="WID_dateButtonUnset">Definir</string>
-    <string name="TLA_no_items">Não existem tarefas aqui.</string>
+    <string name="keep_editing">Continuar editando</string>
+    <string name="DLG_delete_this_task_question">Remover esta tarefa?</string>
+    <string name="DLG_hour_minutes">Horário (horas:minutos)</string>
+    <string name="DLG_undo">Desfazer</string>
+    <string name="WID_dateButtonUnset">Clique para definir</string>
+    <string name="TLA_no_items">Não há tarefas aqui.</string>
     <string name="TLA_menu_sort">Ordenar</string>
     <string name="TLA_menu_search">Pesquisar</string>
-    <string name="TLA_menu_settings">Definições</string>
+    <string name="TLA_menu_settings">Configurações</string>
     <string name="TAd_actionEditTask">Editar</string>
     <string name="SSD_sort_auto">Ordenação inteligente</string>
     <string name="SSD_sort_alpha">Por título</string>
@@ -98,7 +93,6 @@
     <string name="calendar_event_not_found">Não foi encontrado o evento no calendário</string>
     <string name="gcal_completed_title">%s (terminada)</string>
     <string name="CFC_gtasks_list_text">Na lista: ?</string>
-    <string name="CFC_gtasks_list_name">Na lista da GTasks…</string>
     <string name="gtasks_GTA_clear_completed">Eliminar terminadas</string>
     <string name="gtasks_GLA_authenticating">Autenticação…</string>
     <string name="gtasks_GLA_errorIOAuth">Ocorreu um erro ao comunicar com os servidores do Google. Tente mais tarde.</string>
@@ -203,20 +197,15 @@
     <string name="voice_command_added_task">Tarefa adicionada</string>
     <plurals name="Ntasks">
         <item quantity="one">1 tarefa</item>
+        <item quantity="many">%d tarefas</item>
         <item quantity="other">%d tarefas</item>
     </plurals>
     <string name="today">Hoje</string>
     <string name="tomorrow">Amanhã</string>
-    <string name="yesterday">Ontem</string>
-    <string name="tmrw">Amanhã</string>
-    <string name="yest">Ontem</string>
     <string name="widget_show_checkboxes">Mostrar caixas de verificação</string>
     <string name="widget_show_header">Mostrar cabeçalho</string>
     <string name="widget_show_settings">Mostrar configurações</string>
     <string name="notifications">Notificações</string>
-    <string name="silent">Silêncio</string>
-    <string name="sound">Som</string>
-    <string name="vibrations">Vibrações</string>
     <string name="quiet_hours">Horas de silêncio</string>
     <string name="attachment_directory">Pasta de anexo</string>
     <string name="backup_directory">Pasta de cópias de segurança</string>
@@ -230,7 +219,6 @@
     <string name="contact_developer">Contactar o programador</string>
     <string name="rate_tasks">Avaliar o Tasks</string>
     <string name="quiet_hours_summary">Sem lembretes nas horas de silêncio</string>
-    <string name="TLA_menu_donate">Fazer um donativo</string>
     <string name="add_reminder">Adicionar lembrete</string>
     <string name="remove">Remover</string>
     <string name="randomly">Aleatoriamente</string>
@@ -267,12 +255,11 @@
     <string name="name_cannot_be_empty">O nome não pode estar vazio</string>
     <string name="no_title">(sem título)</string>
     <string name="back_button_saves_task">Botão \'voltar\' guarda a tarefa</string>
-    <string name="default_list">Lista predefinida</string>
+    <string name="default_list">Lista padrão</string>
     <string name="filter">Filtro</string>
     <string name="opacity">Opacidade</string>
     <string name="theme">Tema</string>
     <string name="color">Cor</string>
-    <string name="accent">Destaque</string>
     <string name="theme_black">Preto</string>
     <string name="theme_light">Claro</string>
     <string name="theme_dark">Escuro</string>
@@ -283,7 +270,6 @@
     <string name="restart_now">Reiniciar agora</string>
     <string name="restart_later">Mais tarde</string>
     <string name="settings_localization">Tradução</string>
-    <string name="led_notification">Notificação no LED</string>
     <string name="widget_settings">Definições do widget</string>
     <string name="widget_header_settings">Definições de cabeçalho</string>
     <string name="widget_row_settings">Definições de linhas</string>
@@ -293,8 +279,6 @@
     <string name="delete_selected_tasks">Eliminar as tarefas selecionadas\?</string>
     <string name="copy_selected_tasks">Copiar as tarefas selecionadas?</string>
     <string name="date_and_time">Data e hora</string>
-    <string name="start_of_week">Início da semana</string>
-    <string name="use_locale_default">Usar o idioma predefinido</string>
     <string name="notification_disable_battery_optimizations_description">As otimizações da bateria podem atrasar as notificações</string>
     <string name="bundle_notifications">Agrupar notificações</string>
     <string name="list">Lista</string>
@@ -330,9 +314,6 @@
     <string name="action_call">Ligar</string>
     <string name="action_open">Abrir</string>
     <string name="TEA_timer_est">Duração %s</string>
-    <string name="yesterday_lowercase">ontem</string>
-    <string name="tomorrow_lowercase">amanhã</string>
-    <string name="today_lowercase">hoje</string>
     <string name="button_unsubscribe">Cancelar subscrição</string>
     <string name="icon">Ícone</string>
     <string name="google_tasks_add_to_top">Novas tarefas no topo</string>
@@ -361,7 +342,7 @@
     <string name="cannot_access_account">Não é possível aceder à conta</string>
     <string name="logout_warning">Todos os dados desta conta serão removidos do seu aparelho</string>
     <string name="logout">Sair</string>
-    <string name="requires_pro_subscription">É necessária uma subscrição pro</string>
+    <string name="requires_pro_subscription">Requer assinatura Pro</string>
     <string name="pro_dashclock_extension">Extensão Dashclock</string>
     <string name="license_summary">O Tasks é um programa livre e de código-aberto disponibilizado sob a GNU General Public License v3.0</string>
     <string name="about">Sobre</string>
@@ -381,7 +362,6 @@
     <string name="password">Palavra-passe</string>
     <string name="user">Utilizador</string>
     <string name="add_account">Adicionar conta</string>
-    <string name="hardware_support_required">É necessário que o dispositivo tenha esta funcionalidade</string>
     <string name="launcher_icon">Ícone do lançador</string>
     <string name="url_invalid_scheme">Deve iniciar com http(s)://</string>
     <string name="url_host_name_required">É necessário o nome do host</string>
@@ -453,9 +433,6 @@
     <string name="navigation_drawer">Gaveta de navegação</string>
     <string name="place_settings">Configuração de locais</string>
     <string name="places">Locais</string>
-    <string name="desaturate_colors_summary_off">As cores não serão dessaturadas em temas escuros</string>
-    <string name="desaturate_colors_summary_on">As cores serão dessaturadas em temas escuros</string>
-    <string name="desaturate_colors">Dessaturar cores</string>
     <string name="chip_appearance">Aparência da ficha</string>
     <string name="chips">Fichas</string>
     <string name="back">Voltar</string>
@@ -474,7 +451,7 @@
     <string name="preferences_advanced">Avançado</string>
     <string name="preferences_look_and_feel">Aparência</string>
     <string name="documentation">Documentação</string>
-    <string name="help_and_feedback">Ajuda e comentários</string>
+    <string name="help_and_feedback">Ajuda &amp; sugestões</string>
     <string name="etesync_account_description">Precisa de uma conta no EteSync.com ou de um servidor auto-alojado</string>
     <string name="caldav_account_description">Precisa de uma conta com um fornecedor CalDAV ou de um servidor auto-alojado. Encontre um fornecedor visitando tasks.org/caldav</string>
     <string name="show_advanced_settings">Mostrar configurações avançadas</string>
@@ -483,7 +460,6 @@
     <string name="choose_synchronization_service">Selecione uma plataforma</string>
     <string name="this_feature_requires_a_subscription">Este recurso necessita de uma subscrição</string>
     <string name="display_name">Mostrar nome</string>
-    <string name="create_new_tag">Criar \"%s\"</string>
     <string name="enter_tag_name">Digite o nome da etiqueta</string>
     <string name="subtasks_multilevel_google_task">As subtarefas em vários níveis não são suportadas pelo Google Tasks</string>
     <string name="subtasks">Subtarefas</string>
@@ -536,7 +512,7 @@
     <string name="background_location_permission_required">O Tarefas recolhe dados de localização para permitir lembretes baseados em localização, mesmo quando a aplicação está fechada ou não estiver a ser usada.</string>
     <string name="default_tags">Etiquetas predefinidas</string>
     <string name="header_spacing">Espaçamento</string>
-    <string name="ok">OK</string>
+    <string name="ok">Aceitar</string>
     <string name="repeat_type_completion_capitalized">Data de término</string>
     <string name="always_display_full_date">Mostrar data completa</string>
     <plurals name="list_count">
@@ -547,21 +523,13 @@
     <string name="markdown_description">Ativar código Markdown no título e descrição</string>
     <string name="markdown">Código Markdown</string>
     <string name="more_options">Mais opções</string>
-    <string name="upgrade_automation_description">Plug-ins para Tasker, Automate e Locale</string>
-    <string name="upgrade_automation">Automação</string>
     <string name="upgrade_open_source_description">A sua subscrição ajuda a continuar o desenvolvimento</string>
     <string name="upgrade_desktop_access_description">Sincronize com clientes terceiros, como Outlook e Apple Reminders</string>
     <string name="upgrade_desktop_access">Acesso desktop</string>
     <string name="upgrade_tasks_org_account_description">Sincronize com o Tasks.org e colabore com outros utilizadores</string>
-    <string name="upgrade_google_tasks">Sincronize várias contas</string>
     <string name="upgrade_more_customization_description">Desbloqueie todos os temas, cores e ícones</string>
     <string name="upgrade_more_customization">Mais personalizações</string>
     <string name="pro_free_trial">Os novos subscritores recebem 7 dias de teste grátis. Cancele a qualquer momento</string>
-    <string name="picker_mode_text">Texto</string>
-    <string name="picker_mode_clock">Relógio</string>
-    <string name="picker_mode_calendar">Calendário</string>
-    <string name="picker_mode_time">Modo de escolher hora</string>
-    <string name="picker_mode_date">Modo de escolher data</string>
     <string name="invite_invalid">Convite inválido</string>
     <string name="invite_awaiting_response">Convite a aguardar resposta</string>
     <string name="invite_declined">Convite cancelado</string>
@@ -570,7 +538,6 @@
     <string name="remove_user_confirmation">%1$s deixará de ter acesso a %2$s</string>
     <string name="remove_user">Remover utilizador\?</string>
     <string name="list_members">Lista de membros</string>
-    <string name="map_theme_use_app_theme">Usar tema da aplicação</string>
     <string name="account_not_included">Não incluído nas subscrições de \'Dê o seu preço\'</string>
     <string name="tasks_org_account_required">É necessária uma conta no Tasks.org</string>
     <string name="tasks_org_account">Conta Tasks.org</string>
@@ -591,7 +558,6 @@
     <string name="sign_in_with_google">Iniciar sessão com o Google</string>
     <string name="github_sponsors">Patrocinadores do GitHub</string>
     <string name="google_play_subscribers">Subscritores do Google Play</string>
-    <string name="not_signed_in">Não autenticado</string>
     <string name="privacy">Privacidade</string>
     <string name="open_source">Código-fonte aberto</string>
     <string name="issue_tracker">Reportar problemas</string>
@@ -620,14 +586,11 @@
     <string name="tasks_org_description">Sincronize as suas tarefas com o Tasks.org</string>
     <string name="subscription">Subscrição</string>
     <string name="repeat_monthly_fifth_week">quinto</string>
-    <string name="map_theme">Tema do mapa</string>
     <string name="default_recurrence">Recorrência predefinida</string>
     <string name="no_app_found">Nenhuma aplicação pode manipular este pedido</string>
     <string name="filter_criteria_unstarted">Não iniciada</string>
     <string name="show_unstarted">Mostrar não iniciadas</string>
     <string name="widget_show_title">Mostrar título</string>
-    <string name="yesterday_abbrev_lowercase">ontem</string>
-    <string name="tomorrow_abbrev_lowercase">amanhã</string>
     <string name="next_saturday">Próximo sábado</string>
     <string name="next_friday">Próxima 6ª-feira</string>
     <string name="next_thursday">Próxima 5ª-feira</string>
@@ -649,10 +612,6 @@
     <string name="when_started">Quando iniciado</string>
     <string name="completion_sound">Reproduzir som de conclusão</string>
     <string name="completed">Terminado</string>
-    <string name="app_bar_collapse">Contrair barras da aplicação</string>
-    <string name="app_bar_position">Posição da barra da aplicação</string>
-    <string name="top">Superior</string>
-    <string name="bottom">Inferior</string>
     <string name="snackbar_task_completed">Tarefa terminada</string>
     <string name="completed_tasks_at_bottom">Mover as tarefas terminadas para o fundo</string>
     <string name="snackbar_tasks_completed">%d tarefas terminadas</string>
@@ -722,4 +681,45 @@
     <string name="repeats_weekly_on">Repete em</string>
     <string name="theme_dynamic">Dinâmico</string>
     <string name="clear_completed_tasks_count">%s serão eliminadas</string>
+    <string name="enable_alarms_description">Para garantir que você seja notificado na hora certa, conceda permissão para configurar alarmes e lembretes nas Configurações</string>
+    <string name="swipe_to_snooze_title">Deslize para adiar</string>
+    <string name="swipe_to_snooze_description">Tempo de adiamento</string>
+    <string name="swipe_to_snooze_time_immediately">Imediatamente</string>
+    <string name="swipe_to_snooze_time_15_minutes">após 15 minutos</string>
+    <string name="swipe_to_snooze_time_30_minutes">após 30 minutos</string>
+    <string name="swipe_to_snooze_time_24_hours">após 24 horas</string>
+    <string name="yesterday">Ontem</string>
+    <string name="donate_maybe_later">Talvez depois</string>
+    <string name="multiline_title_off">Pressione Concluído para salvar a tarefa</string>
+    <string name="customize_drawer">Personalizar menu</string>
+    <string name="show_edit_screen_without_unlock_summary">Permite o uso do bloco de Configurações Rápidas sem desbloquear o dispositivo</string>
+    <string name="delete_comment">comentário</string>
+    <string name="quiet_hours_in_effect">O horário de silêncio está em vigor</string>
+    <string name="price_per_month_with_currency">%s/mês</string>
+    <string name="price_per_year_with_currency">%s/ano</string>
+    <string name="sync_warning_microsoft_title">Sobre a sincronização do Microsoft To Do</string>
+    <string name="sync_warning_google_tasks">Nem todos os detalhes das tarefas são sincronizados com o Google Tasks</string>
+    <string name="sync_warning_google_tasks_title">Sobre a sincronização do Google Tasks</string>
+    <string name="button_learn_more">Saiba mais</string>
+    <string name="add_widget_to_home_screen">Adicionar widget à tela inicial</string>
+    <string name="enable_alarms">Receba notificações na hora certa</string>
+    <string name="banner_app_updated_title">Aplicativo atualizado</string>
+    <string name="cost_money">Custo: R$</string>
+    <string name="multiline_title">Permitir títulos em várias linhas</string>
+    <string name="multiline_title_on">Pressione a tecla Enter para adicionar quebras de linha</string>
+    <string name="donate_nag">Considere mostrar seu apoio com uma doação!</string>
+    <string name="cost_more_money">Custo:R$$$</string>
+    <string name="show_edit_screen_without_unlock">Mostrar tela de edição sem desbloquear</string>
+    <string name="swipe_to_snooze_time_1_hour">após 1 hora</string>
+    <string name="banner_app_updated_description">O Tasks foi atualizado para a versão %s. Gostaria de ver as notas de lançamento?</string>
+    <string name="sync_warning_microsoft">Nem todos os detalhes das tarefas são sincronizados com o Microsoft To Do.</string>
+    <string name="subtasks_multilevel_microsoft">Subtarefas de múltiplos níveis não são suportadas pelo Microsoft To Do</string>
+    <string name="donate_today">Doe hoje</string>
+    <string name="customize_drawer_summary">Arraste e solte para reorganizar os itens do menu</string>
+    <string name="swipe_to_snooze_time_description">Uma notificação desmarcada será adiada e recriada em %s</string>
+    <string name="app_settings">Configurações do aplicativo</string>
+    <string name="comment">Comentário</string>
+    <string name="add_shortcut_to_home_screen">Adicionar atalho para a tela inicial</string>
+    <string name="cost_free">Custo: Grátis</string>
+    <string name="send_application_logs">Enviar logs do aplicativo</string>
 </resources>

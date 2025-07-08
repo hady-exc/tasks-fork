@@ -22,6 +22,7 @@ import org.tasks.data.sql.Field
 
 const val SUPPRESS_SYNC = "suppress_sync"
 const val FORCE_CALDAV_SYNC = "force_caldav_sync"
+const val FORCE_MICROSOFT_SYNC = "force_microsoft_sync"
 
 @Serializable
 @CommonParcelize
@@ -111,8 +112,6 @@ data class Task @OptIn(ExperimentalSerializationApi::class) constructor(
 
     /** Checks whether this due date has a due time or only a date  */
     fun hasDueTime(): Boolean = hasDueTime(dueDate)
-
-    fun repeatAfterCompletion(): Boolean = repeatFrom == RepeatFrom.COMPLETION_DATE
 
     fun setDueDateAdjustingHideUntil(newDueDate: Long) {
         if (dueDate > 0) {
@@ -208,6 +207,24 @@ data class Task @OptIn(ExperimentalSerializationApi::class) constructor(
                 && order == original.order
     }
 
+    fun microsoftUpToDate(original: Task?): Boolean {
+        if (this === original) {
+            return true
+        }
+        return if (original == null) {
+            false
+        } else title == original.title
+                && priority == original.priority
+                && dueDate == original.dueDate
+                && completionDate == original.completionDate
+                && deletionDate == original.deletionDate
+                && notes == original.notes
+                && recurrence == original.recurrence
+    }
+
+    val isSaved: Boolean
+        get() = id != NO_ID
+
     @Synchronized
     fun suppressSync() {
         putTransitory(SUPPRESS_SYNC, true)
@@ -264,6 +281,7 @@ data class Task @OptIn(ExperimentalSerializationApi::class) constructor(
         }
     }
 
+    @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE)
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(RepeatFrom.DUE_DATE, RepeatFrom.COMPLETION_DATE)
     annotation class RepeatFrom {
@@ -340,8 +358,14 @@ data class Task @OptIn(ExperimentalSerializationApi::class) constructor(
         private const val TRANS_SUPPRESS_REFRESH = "suppress-refresh"
         const val TRANS_REMINDERS = "reminders"
         const val TRANS_RANDOM = "random"
-        const val TRANS_IS_CHANGED = "task-is-changed"
-        const val TRANS_CALENDAR = "calendar"
+        const val CHANGED_TASK = "changedTask"
+        const val CHANGED_ALARMS = "changedAlarms"
+        const val CHANGED_ATTACHMENTS = "changedAttachments"
+        const val CHANGED_LIST = "changedList"
+        const val CHANGED_LOCATION = "changedLocation"
+        const val CHANGED_TAGS = "changedTags"
+        const val TRANS_CALENDAR = "calendar"           // TODO: remove after TaskEditDrawer uses TaskEditViewModel
+        const val TRANS_IS_CHANGED = "task_is_changed"  // TODO: remove after TaskEditDrawer uses TaskEditViewModel
 
         private val INVALID_COUNT = ";?COUNT=(-1|0)".toRegex()
 

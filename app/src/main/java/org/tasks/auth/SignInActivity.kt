@@ -39,11 +39,12 @@ import net.openid.appauth.RegistrationRequest
 import net.openid.appauth.RegistrationResponse
 import net.openid.appauth.ResponseTypeValues
 import org.tasks.R
-import org.tasks.Tasks.Companion.IS_GENERIC
+import org.tasks.TasksApplication.Companion.IS_GENERIC
 import org.tasks.analytics.Firebase
 import org.tasks.billing.Inventory
 import org.tasks.billing.PurchaseActivity
-import org.tasks.billing.PurchaseActivity.Companion.EXTRA_GITHUB
+import org.tasks.billing.PurchaseActivityViewModel.Companion.EXTRA_GITHUB
+import org.tasks.billing.PurchaseActivityViewModel.Companion.EXTRA_NAME_YOUR_PRICE
 import org.tasks.compose.ConsentDialog
 import org.tasks.compose.SignInDialog
 import org.tasks.dialogs.DialogBuilder
@@ -105,7 +106,10 @@ class SignInActivity : ComponentActivity() {
             var selectedPlatform by rememberSaveable {
                 mutableStateOf(autoSelect)
             }
-            TasksTheme(theme = theme.themeBase.index) {
+            TasksTheme(
+                theme = theme.themeBase.index,
+                primary = theme.themeColor.primaryColor,
+            ) {
                 selectedPlatform
                     ?.let {
                         Dialog(onDismissRequest = { finish() }) {
@@ -163,7 +167,8 @@ class SignInActivity : ComponentActivity() {
         if (e is HttpException && e.code == 402) {
             startActivityForResult(
                 Intent(this, PurchaseActivity::class.java)
-                    .putExtra(EXTRA_GITHUB, viewModel.authService?.isGitHub ?: IS_GENERIC),
+                    .putExtra(EXTRA_GITHUB, viewModel.authService?.isGitHub ?: IS_GENERIC)
+                    .putExtra(EXTRA_NAME_YOUR_PRICE, false),
                 RC_PURCHASE
             )
         } else {

@@ -104,11 +104,9 @@
     </plurals>
     <string name="today">I dag</string>
     <string name="tomorrow">I morgen</string>
-    <string name="yesterday">I går</string>
     <string name="widget_show_checkboxes">Vis avkryssingsbokser</string>
     <string name="widget_show_settings">Vis innstillinger</string>
     <string name="notifications"> Varsler</string>
-    <string name="vibrations">Vibrering</string>
     <string name="row_spacing">Radmellomrom</string>
     <string name="source_code">Kildekode</string>
     <string name="contact_developer">Kontakt utvikler</string>
@@ -124,7 +122,6 @@
     <string name="restart_now">Restart nå</string>
     <string name="restart_later">Senere</string>
     <string name="settings_localization">Lokalisering</string>
-    <string name="led_notification">LED-varsel</string>
     <string name="notification_disable_battery_optimizations_description">Batterioptimalisering kan føre til forsinkede varsler</string>
     <string name="bundle_notifications">Samle varsler</string>
     <string name="repeats_single">Gjentas %s</string>
@@ -199,7 +196,6 @@
     <string name="CFC_tag_contains_name">Etikettnavn inneholder…</string>
     <string name="CFC_tag_contains_text">Etikettnavn inneholder: \?</string>
     <string name="calendar_event_not_found">Fant ikke kalenderhendelsen</string>
-    <string name="CFC_gtasks_list_name">I GTasks-listen…</string>
     <string name="gtasks_GLA_authenticating">Identitetsbekrefter…</string>
     <string name="gtasks_GPr_header">Google Tasks</string>
     <string name="gtasks_error_accountNotFound">Kontoen %s ble ikke funnet. Logg ut og inn igjen fra Google Tasks-innstillingene.</string>
@@ -257,11 +253,7 @@
     <string name="delete_tag_confirmation">Slett %s\?</string>
     <string name="TEA_timer_comment_stopped">stoppet arbeid med dette gjøremålet:</string>
     <string name="voice_command_added_task">La til gjøremål</string>
-    <string name="tmrw">Imrgn</string>
-    <string name="yest">Igår</string>
     <string name="widget_show_header">Vis hode</string>
-    <string name="silent">Stille</string>
-    <string name="sound">Lyd</string>
     <string name="quiet_hours">Stilletimer</string>
     <string name="attachment_directory">Vedleggsmappe</string>
     <string name="backup_directory">Sikkerhetskopimappe</string>
@@ -272,7 +264,6 @@
     <string name="customize_edit_screen">Tilpass redigeringsskjerm</string>
     <string name="translations">Hjelp til i oversettelsen</string>
     <string name="quiet_hours_summary">Ingen påminnelser i stilletid</string>
-    <string name="TLA_menu_donate">Doner</string>
     <string name="add_reminder">Legg til påminnelse</string>
     <string name="add_location">Legg til sted</string>
     <string name="remove">Fjern</string>
@@ -317,14 +308,12 @@
     <string name="filter">Filter</string>
     <string name="theme">Drakt</string>
     <string name="color">Farge</string>
-    <string name="accent">Aksentfarge</string>
     <string name="launcher_icon">Oppstarterfarge</string>
     <string name="theme_black">Svart</string>
     <string name="theme_light">Lys</string>
     <string name="theme_dark">Mørk</string>
     <string name="theme_wallpaper">Bakgrunnsbilde</string>
     <string name="theme_day_night">Dag/natt</string>
-    <string name="hardware_support_required">Maskinvarestøtte kreves</string>
     <string name="widget_settings">Miniprogramsinnstillinger</string>
     <string name="widget_header_settings">Hodeinnstillinger</string>
     <string name="widget_row_settings">Radinnstillinger</string>
@@ -334,8 +323,6 @@
     <string name="delete_selected_tasks">Slett valgte gjøremål\?</string>
     <string name="copy_selected_tasks">Kopier valgte gjøremål\?</string>
     <string name="date_and_time">Dato og tid</string>
-    <string name="start_of_week">Ukestart</string>
-    <string name="use_locale_default">Bruk forvalgt lokalitet</string>
     <string name="add_account">Legg til konto</string>
     <string name="user">Bruker</string>
     <string name="password">Passord</string>
@@ -410,7 +397,6 @@
     <string name="subtasks">Gjøremålssteg</string>
     <string name="subtasks_multilevel_google_task">Gjøremålssteg med flere nivåer støttes ikke av Google Tasks</string>
     <string name="enter_tag_name">Skriv inn etikettnavn</string>
-    <string name="create_new_tag">Opprett «%s»</string>
     <string name="display_name">Visningsnavn</string>
     <string name="this_feature_requires_a_subscription">Denne funksjonen krever abonnement</string>
     <string name="choose_synchronization_service">Velg en plattform</string>
@@ -468,9 +454,6 @@
     <string name="hide_unused_places">Skjul ubrukte steder</string>
     <string name="hide_unused_tags">Skjul ubrukte etiketter</string>
     <string name="navigation_drawer">Navigasjonsskuff</string>
-    <string name="desaturate_colors_summary_off">Farger vil ikke miste metning i mørke drakter</string>
-    <string name="desaturate_colors_summary_on">Farger vil miste metning i mørke drakter</string>
-    <string name="desaturate_colors">Gi farger mindre metning</string>
     <string name="chip_appearance">Flisutseende</string>
     <string name="chips">Flis</string>
     <string name="upgrade_blurb_2">Jeg har brukt tusenvis av timer på å jobbe med Tasks, og jeg offentliggjør all kildekoden på nettet gratis. For å støtte mitt arbeid krever noen funksjoner et abonnement</string>
@@ -499,9 +482,6 @@
     <string name="got_it">Skjønner!</string>
     <string name="sort_modified_group">Endret %s</string>
     <string name="sort_created_group">Opprettet %s</string>
-    <string name="yesterday_lowercase">i går</string>
-    <string name="tomorrow_lowercase">i morgen</string>
-    <string name="today_lowercase">i dag</string>
     <string name="reset_sort_order">Tilbakestill sorteringsrekkefølge</string>
     <string name="lists">Lister</string>
     <string name="on_launch">Ved oppstart</string>
@@ -562,7 +542,6 @@
     <string name="insufficient_sponsorship">Fant ikke noe GitHub-sponsorabonnement</string>
     <string name="migrate_count">Flytt %s til Tasks.org</string>
     <string name="sign_in_with_github">Logg inn med GitHub</string>
-    <string name="not_signed_in">Ikke innlogget</string>
     <plurals name="list_count">
         <item quantity="one">%d liste</item>
         <item quantity="other">%d lister</item>
@@ -588,8 +567,6 @@
     <string name="subscription">Abonnement</string>
     <string name="filter_criteria_unstarted">Ikke startet</string>
     <string name="show_unstarted">Vis ustartede</string>
-    <string name="yesterday_abbrev_lowercase">igår</string>
-    <string name="tomorrow_abbrev_lowercase">imrgn</string>
     <string name="filter_any_start_date">Vilkårlig startdato</string>
     <string name="no_start_date">Ingen startdato</string>
     <string name="CFC_startBefore_name">Start innen …</string>
@@ -601,9 +578,7 @@
     <string name="sort_due_group">Frist %s</string>
     <string name="tasks_org_account">Tasks.org-konto</string>
     <string name="widget_show_title">Vis tittel</string>
-    <string name="map_theme_use_app_theme">Bruk programdrakt</string>
     <string name="tasks_org_account_required">Tasks.org-konto kreves</string>
-    <string name="map_theme">Kartdrakt</string>
     <string name="list_members">Liste over medlemmer</string>
     <string name="social">Sosialt</string>
     <string name="remove_user_confirmation">%1$s vil ikke lenger ha tilgang til %2$s</string>
@@ -617,21 +592,13 @@
     <string name="markdown_description">Aktiver Markdown i tittel og beskrivelse</string>
     <string name="markdown">Markdown</string>
     <string name="more_options">Flere innstillinger</string>
-    <string name="upgrade_automation_description">Plugins for Tasker, Automate og Locale</string>
-    <string name="upgrade_automation">automatisering</string>
     <string name="upgrade_open_source_description">Abonnementet støtter fortsatt utvikling</string>
     <string name="upgrade_desktop_access_description">Synkronisere med tredjepartsklienter som Outlook og Apple-påminnelser</string>
     <string name="upgrade_desktop_access">Tilgang til skrivebordet</string>
     <string name="upgrade_tasks_org_account_description">Synkronisere med Tasks.org og samarbeide med andre brukere</string>
-    <string name="upgrade_google_tasks">Synkronisere flere kontoer</string>
     <string name="upgrade_more_customization_description">Lås opp alle temaer, farger og ikoner</string>
     <string name="upgrade_more_customization">Mer tilpasning</string>
     <string name="pro_free_trial">Nye abonnenter får en 7-dagers gratis prøveperiode. Avbryt når som helst</string>
-    <string name="picker_mode_text">Tekst</string>
-    <string name="picker_mode_clock">klokke</string>
-    <string name="picker_mode_calendar">Kalender</string>
-    <string name="picker_mode_time">Modus for tidsvelger</string>
-    <string name="picker_mode_date">Datovelgermodus</string>
     <string name="invite_invalid">Invitasjon ugyldig</string>
     <string name="invite_awaiting_response">Inviter venter på svar</string>
     <string name="invite_declined">Invitasjon avslått</string>
@@ -648,9 +615,6 @@
     <string name="now">Nå</string>
     <string name="when_started">Når startet</string>
     <string name="completion_sound">Spill fullførelseslyd</string>
-    <string name="top">Topp</string>
-    <string name="app_bar_position">Programfeltposisjon</string>
-    <string name="bottom">Bunn</string>
     <string name="snackbar_task_completed">Gjøremål fullført</string>
     <string name="completed_tasks_at_bottom">Flytt fullførte gjøremål til bunnen</string>
     <string name="caldav_server_other">Annet</string>
@@ -659,7 +623,6 @@
         <item quantity="one">Minutt</item>
         <item quantity="other">Minutter</item>
     </plurals>
-    <string name="app_bar_collapse">Fold sammen programfelter</string>
     <plurals name="reminder_hours">
         <item quantity="one">Time</item>
         <item quantity="other">Timer</item>

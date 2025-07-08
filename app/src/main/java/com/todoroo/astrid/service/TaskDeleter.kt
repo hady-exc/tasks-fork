@@ -2,7 +2,10 @@ package com.todoroo.astrid.service
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.tasks.LocalBroadcastManager
 import org.tasks.caldav.VtodoCache
@@ -10,13 +13,11 @@ import org.tasks.data.dao.DeletionDao
 import org.tasks.data.dao.LocationDao
 import org.tasks.data.dao.TaskDao
 import org.tasks.data.dao.UserActivityDao
-import org.tasks.data.db.Database
 import org.tasks.data.db.SuspendDbUtils.chunkedMap
 import org.tasks.data.entity.CaldavAccount
 import org.tasks.data.entity.CaldavCalendar
 import org.tasks.data.entity.Task
 import org.tasks.data.pictureUri
-import org.tasks.data.withTransaction
 import org.tasks.files.FileHelper
 import org.tasks.location.GeofenceApi
 import org.tasks.notifications.NotificationManager
@@ -25,7 +26,6 @@ import javax.inject.Inject
 
 class TaskDeleter @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val database: Database,
     private val deletionDao: DeletionDao,
     private val taskDao: TaskDao,
     private val localBroadcastManager: LocalBroadcastManager,
@@ -36,7 +36,6 @@ class TaskDeleter @Inject constructor(
     private val userActivityDao: UserActivityDao,
     private val locationDao: LocationDao,
 ) {
-
     suspend fun markDeleted(item: Task) = markDeleted(listOf(item.id))
 
     suspend fun markDeleted(taskIds: List<Long>): List<Task> = withContext(NonCancellable) {
@@ -46,10 +45,10 @@ class TaskDeleter @Inject constructor(
             .let { taskDao.fetch(it.toList()) }
             .filterNot { it.readOnly }
             .map { it.id }
-        database.withTransaction {
-            deletionDao.markDeleted(ids)
-            cleanup(ids)
-        }
+        deletionDao.markDeleted(
+            ids = ids,
+            cleanup = { cleanup(it) }
+        )
         syncAdapters.sync()
         localBroadcastManager.broadcastRefresh()
         taskDao.fetch(ids)
@@ -60,34 +59,37 @@ class TaskDeleter @Inject constructor(
     suspend fun delete(task: Long) = delete(listOf(task))
 
     suspend fun delete(tasks: List<Long>) {
-        database.withTransaction {
-            deletionDao.delete(tasks)
-            cleanup(tasks)
-        }
+        deletionDao.delete(
+            ids = tasks,
+            cleanup = { cleanup(it) }
+        )
         localBroadcastManager.broadcastRefresh()
     }
 
     suspend fun delete(list: CaldavCalendar) {
         vtodoCache.delete(list)
-        database.withTransaction {
-            val tasks = deletionDao.delete(list)
-            delete(tasks)
-        }
+        deletionDao.delete(
+            caldavCalendar = list,
+            cleanup = { cleanup(it) }
+        )
         localBroadcastManager.broadcastRefreshList()
     }
 
-    suspend fun delete(list: CaldavAccount) {
-        vtodoCache.delete(list)
-        database.withTransaction {
-            val tasks = deletionDao.delete(list)
-            delete(tasks)
-        }
+    suspend fun delete(account: CaldavAccount) {
+        vtodoCache.delete(account)
+        deletionDao.delete(
+            caldavAccount = account,
+            cleanup = { cleanup(it) }
+        )
         localBroadcastManager.broadcastRefreshList()
     }
 
     private suspend fun cleanup(tasks: List<Long>) {
+        if (tasks.isEmpty()) {
+            return
+        }
+        notificationManager.cancel(tasks)
         tasks.forEach { task ->
-            notificationManager.cancel(task)
             locationDao.getGeofencesForTask(task).forEach {
                 locationDao.delete(it)
                 geofenceApi.update(it.place!!)
@@ -97,7 +99,13 @@ class TaskDeleter @Inject constructor(
                 userActivityDao.delete(it)
             }
         }
-        notificationManager.updateTimerNotification()
-        deletionDao.purgeDeleted()
+        coroutineScope {
+            launch(Dispatchers.IO) {
+                notificationManager.updateTimerNotification()
+                deletionDao.purgeDeleted()
+            }
+        }
     }
+
+    fun isDeleted(task: Long): Boolean = deletionDao.isDeleted(task)
 }

@@ -11,7 +11,6 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Cancel
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
@@ -54,7 +53,6 @@ fun Chip(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Chip(
     text: String? = null,

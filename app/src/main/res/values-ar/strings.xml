@@ -90,16 +90,10 @@
     </plurals>
     <string name="today">اليوم</string>
     <string name="tomorrow">غدًا</string>
-    <string name="yesterday">أمس</string>
-    <string name="tmrw">غدًا</string>
-    <string name="yest">أمس</string>
     <string name="widget_show_checkboxes">إظهار مربعات التعليم</string>
     <string name="widget_show_header">إظهار الرأس</string>
     <string name="widget_show_settings">إظهار الإعدادات</string>
     <string name="notifications">إشعارات</string>
-    <string name="silent">الصمت</string>
-    <string name="sound">صوت</string>
-    <string name="vibrations">إهتزازات</string>
     <string name="quiet_hours">الساعات الهادئة</string>
     <string name="enabled">مفعّل</string>
     <string name="font_size">حجم الخط</string>
@@ -109,7 +103,6 @@
     <string name="contact_developer">تواصل مع المطور</string>
     <string name="rate_tasks">قيّم تاسكس</string>
     <string name="quiet_hours_summary">لا منبهات أثناء أوقات الراحة</string>
-    <string name="TLA_menu_donate">تبرع</string>
     <string name="add_reminder">أضف منبه</string>
     <string name="remove">حذف</string>
     <string name="randomly">عشوائياً</string>
@@ -120,8 +113,6 @@
     <string name="opacity">التعتيم</string>
     <string name="settings_localization">تخصيص اللغة و الجهة</string>
     <string name="backup_BAc_export">نسخ احتياطي الآن</string>
-    <string name="desaturate_colors">ألوان غير مشبعة</string>
-    <string name="accent">اللون الثانوي</string>
     <string name="theme_system_default">افتراضيات النظام</string>
     <string name="theme_day_night">صباحي/مسائي</string>
     <string name="theme_wallpaper">خلفية</string>
@@ -150,12 +141,9 @@
     <string name="widget_open_list">فتح قائمة</string>
     <string name="open_last_viewed_list">فتح آخر قائمة تم عرضها</string>
     <string name="on_launch">عند فتح التطبيق</string>
-    <string name="desaturate_colors_summary_off">ستكون الألوان مشبعة في المظهر الداكن</string>
-    <string name="desaturate_colors_summary_on">ستكون الألوان غير مشبعة في المظهر الداكن</string>
     <string name="default_list">القائمة الافتراضية</string>
     <string name="google_tasks_add_to_top">اضف المهام الجديدة لاعلى القائمة</string>
     <string name="add_account">أضف حساب</string>
-    <string name="led_notification">إشعار LED</string>
     <string name="wearable_notifications_summary">عرض الإشعارات على الساعة الذكية</string>
     <string name="building_notifications">توليد الإخطارات</string>
     <string name="bundle_notifications_summary">ادمج عدة إشعارات في شعار واحد</string>
@@ -176,11 +164,7 @@
     <string name="visit_website">زر الموقع</string>
     <string name="action_new_task">مهمة جديدة</string>
     <string name="help">مساعدة</string>
-    <string name="start_of_week">بداية أسبوع</string>
     <string name="take_a_picture">التقط صورة</string>
-    <string name="yesterday_lowercase">أمس</string>
-    <string name="tomorrow_lowercase">الغد</string>
-    <string name="today_lowercase">اليوم</string>
     <string name="repeat_option_every_year">سنويًّا</string>
     <string name="repeat_option_every_month">شهريًّا</string>
     <string name="repeat_option_every_week">أسبوعيًّا</string>
@@ -261,8 +245,6 @@
     <string name="date_shortcut_hour">لساعة</string>
     <string name="geofence_radius">نصف القطر</string>
     <string name="backup_directory">مجلّد النّسخ الاحتياطيّة</string>
-    <string name="yesterday_abbrev_lowercase">البارحة</string>
-    <string name="tomorrow_abbrev_lowercase">غدًا</string>
     <string name="delete_tag_confirmation">احذف %s؟</string>
     <string name="repeat_option_does_not_repeat">بدون تكرار</string>
     <string name="ring_nonstop">الرنّ بدون توقّف</string>
@@ -296,8 +278,6 @@
     <string name="FLA_new_filter">أنشأ تصفيةً جديدة</string>
     <string name="sort_created">بتاريخ الإنشاء</string>
     <string name="sort_start_group">تبدأ %s</string>
-    <string name="picker_mode_clock">الساعة</string>
-    <string name="picker_mode_calendar">التقويم</string>
     <string name="invite">أرسل دعوة</string>
     <string name="email">البريد اﻹلكتروني</string>
     <string name="app_password_enter_description">أعط كلمة سرّك اسمًا (اختياري)</string>
@@ -328,7 +308,6 @@
     <string name="documentation">التوثيق</string>
     <string name="preferences_advanced">متقدم</string>
     <string name="choose_synchronization_service">اختر منصّة</string>
-    <string name="create_new_tag">أنشأ \"%s\"</string>
     <string name="filter">تصفية</string>
     <string name="move">نقل</string>
     <string name="subtasks">مهام فرعيّة</string>
@@ -435,12 +414,7 @@
     <string name="sort_modified_group">عُدّل %s</string>
     <string name="sort_created_group">أنشأ %s</string>
     <string name="EPr_manage_delete_gcal_status">تم حذف %d من أحداث التقويم!</string>
-    <string name="import_summary_message">الملف %1$s احتوى على %2$s.
-\n
-\n تم استيراد %3$s،
-\n %4$s موجود مسبقًا
-\n مشاكل في %5$s
-\n</string>
+    <string name="import_summary_message">الملف %1$s احتوى على %2$s. \n \n تم استيراد %3$s، \n %4$s موجود مسبقًا \n مشاكل في %5$s</string>
     <string name="support_development_subscribe">‪افتح ميّزات إضافيّة وادعم البرامج مفتوحة المصدر</string>
     <string name="invalid_backup_file">ملف نسخة احتياطيّة غير صالح</string>
     <string name="location_remind_departure">تذكير عند الرحيل</string>
@@ -486,20 +460,13 @@
     <string name="CFC_dueBefore_name">تستحق في…</string>
     <string name="EPr_cal_end_or_start_at_due_time">وقت حدث التقويم</string>
     <string name="markdown">ماركداون</string>
-    <string name="upgrade_automation_description">الإضافات ل Tasker و Automate و Locale</string>
-    <string name="upgrade_automation">تشغيل آلي</string>
     <string name="upgrade_desktop_access_description">قم بالمزامنة مع برامج الجهات الخارجية مثل Outlook و Apple Reminders</string>
     <string name="upgrade_desktop_access">الوصول إلى سطح المكتب</string>
     <string name="upgrade_tasks_org_account_description">قم بالمزامنة مع Tasks.org وتعاون مع مستخدمين آخرين</string>
-    <string name="upgrade_google_tasks">مزامنة حسابات متعددة</string>
     <string name="upgrade_more_customization_description">افتح جميع الثيمات والألوان والرموز</string>
     <string name="upgrade_more_customization">المزيد من التخصيص</string>
     <string name="pro_free_trial">يحصل المشتركون الجدد على نسخة تجريبية مجانية مدتها 7 أيام. تلغى في أي وقت</string>
-    <string name="picker_mode_text">نص</string>
-    <string name="picker_mode_time">وضع منتقي الوقت</string>
-    <string name="picker_mode_date">وضع منتقي التاريخ</string>
     <string name="remove_user_confirmation">%1$s لا يملك حق الوصول ل%2$s</string>
-    <string name="map_theme_use_app_theme">استخدم ثيم التطبيق</string>
     <string name="account_not_included">غير مشمول في اشتراكات \"ضع سعرك\"</string>
     <string name="app_password_save">استخدم بيانات الاعتماد هذه لتكوين تطبيق تابع لجهة خارجية. يمنحون حق الوصول الكامل إلى حساب Tasks.org الخاص بك ، ولا تكتبها بالاسفل أو تشاركها مع أي شخص!</string>
     <string name="app_passwords_more_info">قم بمزامنة المهام والتقويمات الخاصة بك مع تطبيقات سطح المكتب والأجهزة المحمولة التابعة لجهات خارجية. اضغط هنا لمزيد من المعلومات</string>
@@ -509,7 +476,6 @@
     <string name="github_sponsor">راعي</string>
     <string name="authentication_required">يستلزم التوثيق</string>
     <string name="github_sponsors">رعاة GitHub</string>
-    <string name="not_signed_in">لم تسجل الدخول</string>
     <string name="authorization_cancelled">تم إلغاء التخويل</string>
     <string name="issue_tracker">تعقب المشكلة</string>
     <string name="chat_libera">انضم إلى #tasks على Libera Chat</string>
@@ -541,7 +507,7 @@
     <string name="location_departed">غادر عند %s</string>
     <string name="reinitialize_account">إعادة التهيئة</string>
     <string name="cannot_access_account">لا يمكن الوصول الى الحساب</string>
-    <string name="requires_pro_subscription">يتطلب اشتراك متقدم</string>
+    <string name="requires_pro_subscription">يتطلب اشتراك احترافي</string>
     <string name="license_summary">التطبيق \"مهامي\" هي برنامج مفتوح المصدر حر ، ومرخص بموجب رخصة جنو العمومية العامة v3.0</string>
     <string name="about">حول</string>
     <string name="upgrade_to_pro">طور لاصدار متقدم</string>
@@ -553,16 +519,13 @@
     <string name="repeats_plural_until">كرره كل %1$s، ينتهي عند %2$s</string>
     <string name="repeats_plural_on">كرره كل %1$s في %2$s</string>
     <string name="repeats_plural">كرره كل %s</string>
-    <string name="repeats_single_on_until">أعده %1$s في %2$s حتى %3$s</string>
-    <string name="repeats_single_until">أعده %1$s حتى %2$s</string>
+    <string name="repeats_single_on_until">أعده %1$s في %2$s أنهه عند %3$s</string>
+    <string name="repeats_single_until">أعده %1$s أنهه عند %2$s</string>
     <string name="repeats_single_on">أعده %1$s عند %2$s</string>
     <string name="repeats_single">أعده %s</string>
     <string name="bundle_notifications">حزمة الاشعارات</string>
-    <string name="use_locale_default">استخدم الإعدادات المحلية الافتراضية</string>
     <string name="clear_completed_tasks_confirmation">أزل المهام المتممة؟</string>
-    <string name="hardware_support_required">مطلوب دعم الأجهزة</string>
     <string name="restart_required">أعد تشغيل التطبيق ليأخذ هذا التغيير تأثيره</string>
-    <string name="map_theme">قالب الخارطة</string>
     <string name="opacity_footer">عتمة التذييل</string>
     <string name="opacity_header">عتمة العنوان</string>
     <string name="opacity_row">عتمة الصف</string>
@@ -585,7 +548,6 @@
     <string name="persistent_notifications_description">الإشعارات المستمرة لا يمكن محوها</string>
     <string name="rmd_EPr_rmd_time_desc">اشعارات لمهام بدون وقت استحقاق ستظهر عند %s</string>
     <string name="gtasks_GLA_authenticating">قيد المصادقة…</string>
-    <string name="CFC_gtasks_list_name">في قوائم مهام كوكل…</string>
     <string name="no_due_date">بدون تاريخ استحقاق</string>
     <string name="EPr_default_location_reminder_title">مذكرات الموقع الافتراضية</string>
     <string name="default_due_date">وقت الاستحقاق الافتراضي</string>
@@ -715,18 +677,15 @@
     </plurals>
     <string name="now">اﻵن</string>
     <string name="TEA_creation_date">تاريخ الإنشاء</string>
-    <string name="sign_in_to_tasks_disclosure">سيتم إرسال عنوان البريد الإلكتروني ومعرف الحساب الخاصان بك وتخزينهما من قبل Tasks.org. هذه المعلومات سيتم استخدامها من أجل المصادقة ومن أجل تزويدك بالإعلانات المهمة المتعلقة بالخدمة. لن يتم مشاركة هذه المعلومات مع أحد</string>
+    <string name="sign_in_to_tasks_disclosure">سيتم إرسال عنوان البريد الإلكتروني ومعرف الحساب الخاصان بك وتخزينهما من قبل Tasks.org. هذه المعلومات سيتم استخدامها من أجل المصادقة ومن أجل تزويدك بالإعلانات المهمة المتعلقة بالخدمة. لن يتم مشاركة هذه المعلومات مع أحد.</string>
     <string name="default_reminder">تذكير افتراضي</string>
     <string name="rmd_time_description">أظهر الإشعارات من أجل المهام بدون أوقات محددة</string>
-    <string name="app_bar_collapse">تصغير أشرطة التطبيق</string>
     <string name="completed">مكتمل</string>
     <string name="snackbar_task_completed">اكتملت المهمة</string>
     <string name="customize_edit_screen_summary">أعد ترتيب أو أزل الحقول</string>
     <string name="randomly_every">عشوائياً كل %s</string>
     <string name="sort_completion_group">إكمال %s</string>
     <string name="custom_filter_has_reminder">لديه تذكير</string>
-    <string name="bottom">أسفل</string>
-    <string name="app_bar_position">موقع شريط التطبيق</string>
     <string name="alarm_after_start">%s بعد البدئ</string>
     <string name="alarm_before_due">%s حتى موعد الإنتهاء</string>
     <string name="completed_tasks_at_bottom">انقل المهام المكتملة إلى الأسفل</string>
@@ -761,7 +720,7 @@
         <item quantity="many">يوم</item>
         <item quantity="other">يوم</item>
     </plurals>
-    <string name="sort_list">بالقوائم</string>
+    <string name="sort_list">بالقائمة</string>
     <string name="sort_completed">بوقت الانتهاء</string>
     <string name="swipe_to_snooze_title">التمرير للاغفاء</string>
     <string name="swipe_to_snooze_time_immediately">فورا</string>
@@ -794,8 +753,62 @@
     <string name="repeats_after">بعد</string>
     <string name="sign_in">سجل دخولك</string>
     <string name="consent_deny">ليس الآن</string>
-    <string name="dismiss">تجاهل</string>
+    <string name="dismiss">استبعاد</string>
     <string name="clear_completed_tasks_count">سيتم حذف %s</string>
     <string name="repeats_ends">ينتهي عند</string>
     <string name="repeats_never">أبدا</string>
+    <string name="app_settings">إعدادات التطبيق</string>
+    <string name="show_edit_screen_without_unlock">إظهار شاشة التعديل بدون فتح القفل</string>
+    <string name="customize_drawer">تخصيص الدرج</string>
+    <string name="customize_drawer_summary">اسحب وأفلِت لإعادة ترتيب عناصر القائمة</string>
+    <string name="quiet_hours_in_effect">ساعات الهدوء سارية المفعول</string>
+    <string name="delete_comment">تعليق</string>
+    <string name="swipe_to_snooze_description">وقت الغفوة</string>
+    <string name="swipe_to_snooze_time_description">سيتم تأجيل الإشعار الذي تم مسحه وإعادة إنشائه %s</string>
+    <string name="yesterday">الأمس</string>
+    <string name="comment">التعليق</string>
+    <string name="send_application_logs">إرسال سجلات التطبيق</string>
+    <string name="repeats_on">على</string>
+    <string name="repeat_monthly_on_the_nth_weekday">شهرياً على %1$s %2$s</string>
+    <string name="repeat_monthly_on_day_number">شهرياً في اليوم %1d</string>
+    <string name="show_edit_screen_without_unlock_summary">تمكين استخدام لوحة الإعدادات السريعة دون إلغاء قفل الجهاز</string>
+    <string name="banner_app_updated_description">تم تحديث Tasks للتو إلى %s. هل ترغب في الاطلاع على ملاحظات الإصدار؟</string>
+    <string name="banner_app_updated_title">التطبيق محدث</string>
+    <string name="donate_today">تبرع اليوم</string>
+    <string name="donate_maybe_later">ربما لاحقا</string>
+    <string name="donate_nag">فكِّر في إظهار دعمك بالتبرع!</string>
+    <string name="subtasks_multilevel_microsoft">المهام الفرعية متعددة المستويات غير مدعومة من قبل Microsoft To Do</string>
+    <string name="repeats_custom_recurrence">التكرار المخصّص</string>
+    <string name="repeats_weekly_on">التكرار على</string>
+    <string name="add_widget_to_home_screen">إضافة عنصر واجهة مستخدم إلى الشاشة الرئيسية</string>
+    <string name="multiline_title">السماح بعناوين متعددة الأسطر</string>
+    <string name="multiline_title_on">اضغط على مفتاح Enter لإضافة فواصل الأسطر</string>
+    <string name="multiline_title_off">اضغط على تم لحفظ المهمة</string>
+    <string name="caldav_server_unknown">غير معروف</string>
+    <string name="sort_not_available">غير متاح للعلامات أو المرشحات أو الأماكن</string>
+    <string name="sync_warning_microsoft">لا تتم مزامنة جميع تفاصيل المهام مع Microsoft To Do.</string>
+    <string name="price_per_month_with_currency">%s/شهر</string>
+    <string name="snoozed_until">مؤجل حتى%s</string>
+    <string name="caldav_server_type">نوع الخادم</string>
+    <string name="button_learn_more">تعرف على المزيد</string>
+    <string name="custom_notification">إشعار مخصص</string>
+    <string name="enable_reminders_description">التذكيرات معطلة في إعدادات أندرويد</string>
+    <string name="enable_alarms">احصل على إشعار في الوقت المناسب</string>
+    <string name="caldav_server_other">آخر</string>
+    <string name="hint_customize_edit_title">الكثير من المعلومات؟</string>
+    <string name="hint_customize_edit_body">يمكنك تخصيص هذه الشاشة عن طريق إعادة ترتيب الحقول أو إزالتها</string>
+    <string name="consent_agree">موافق</string>
+    <string name="add_shortcut_to_home_screen">إضافة اختصار إلى الشاشة الرئيسية</string>
+    <string name="cost_free">التكلفة: مجاناً</string>
+    <string name="cost_money">التكلفة: المال</string>
+    <string name="cost_more_money">التكلفة: المزيد من المال</string>
+    <string name="sync_warning_microsoft_title">نبذة عن مزامنة Microsoft To Do</string>
+    <string name="sync_warning_google_tasks_title">حول مزامنة مهام جوجل</string>
+    <string name="sync_warning_google_tasks">لا تتم مزامنة جميع تفاصيل المهام مع مهام جوجل</string>
+    <string name="enable_reminders">تفعيل التذكيرات</string>
+    <string name="price_per_year_with_currency">%s/السنة</string>
+    <string name="enable_alarms_description">للتأكد من إخطارك في الوقت المناسب، امنح الإذن لضبط التنبيهات والتذكيرات في الإعدادات</string>
+    <string name="continue_without_sync">المتابعة بدون مزامنة</string>
+    <string name="delete_tasks_warning">%s سيتم حذفها. لا يمكن التراجع عن ذلك!</string>
+    <string name="help_me_choose">ساعدني في الاختيار</string>
 </resources>

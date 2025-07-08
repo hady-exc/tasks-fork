@@ -13,7 +13,6 @@ import android.content.res.Configuration
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET
 import android.net.Uri
-import android.os.Build
 import android.provider.Settings
 import android.text.format.DateFormat
 import android.view.View
@@ -26,6 +25,7 @@ import com.todoroo.andlib.utility.AndroidUtilities.atLeastS
 import org.tasks.BuildConfig
 import org.tasks.R
 import org.tasks.notifications.NotificationManager.Companion.NOTIFICATION_CHANNEL_DEFAULT
+import timber.log.Timber
 
 object Context {
     private const val HTTP = "http"
@@ -132,21 +132,28 @@ object Context {
     }
 
     fun Context.openAppNotificationSettings() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startActivity(
-                Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
-                    .putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
-            )
-        }
+        startActivity(
+            Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                .putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+        )
     }
 
     fun Context.openChannelNotificationSettings() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startActivity(
-                Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
-                    .putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
-                    .putExtra(Settings.EXTRA_CHANNEL_ID, NOTIFICATION_CHANNEL_DEFAULT)
-            )
+        startActivity(
+            Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
+                .putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+                .putExtra(Settings.EXTRA_CHANNEL_ID, NOTIFICATION_CHANNEL_DEFAULT)
+        )
+    }
+
+    fun Context.takePersistableUriPermission(
+        uri: Uri,
+        mode: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
+    ) {
+        try {
+            contentResolver.takePersistableUriPermission(uri, mode)
+        } catch (e: SecurityException) {
+            Timber.e(e)
         }
     }
 }

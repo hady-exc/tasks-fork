@@ -46,6 +46,7 @@ class EtebaseSynchronizer @Inject constructor(
     }
 
     suspend fun sync(account: CaldavAccount) {
+        Timber.d("Synchronizing $account")
         Thread.currentThread().contextClassLoader = context.classLoader
 
         if (!inventory.hasPro) {
@@ -134,6 +135,7 @@ class EtebaseSynchronizer @Inject constructor(
         }
         Timber.d("UPDATE %s", caldavCalendar)
         caldavDao.update(caldavCalendar)
+        Timber.d("Updating parents for ${caldavCalendar.uuid}")
         caldavDao.updateParents(caldavCalendar.uuid!!)
         localBroadcastManager.broadcastRefresh()
     }

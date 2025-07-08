@@ -1,0 +1,3 @@
+* Database performance improvements
+* Additional debug logging
+* Update translations

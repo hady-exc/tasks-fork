@@ -1,33 +1,64 @@
 package org.tasks.filters
 
+import androidx.compose.runtime.Stable
+import co.touchlab.kermit.Logger
 import org.tasks.CommonParcelable
 import org.tasks.data.NO_COUNT
 import org.tasks.data.NO_ORDER
+import org.tasks.data.UUIDHelper
 
-interface Filter : FilterListItem, CommonParcelable {
-    val valuesForNewTasks: String?
+
+@Stable
+abstract class Filter : FilterListItem, CommonParcelable {
+    open val valuesForNewTasks: String?
         get() = null
-    val sql: String?
-    val icon: String?
+    abstract val sql: String?
+    open val icon: String?
         get() = null
-    val title: String?
-    val tint: Int
+    abstract val title: String?
+    open val tint: Int
         get() = 0
     @Deprecated("Remove this")
-    val count: Int
+    open val count: Int
         get() = NO_COUNT
-    val order: Int
+    open val order: Int
         get() = NO_ORDER
     override val itemType: FilterListItem.Type
         get() = FilterListItem.Type.ITEM
-    val isReadOnly: Boolean
+    open val isReadOnly: Boolean
         get() = false
     val isWritable: Boolean
         get() = !isReadOnly
 
-    fun supportsManualSort(): Boolean = false
-    fun supportsHiddenTasks(): Boolean = true
-    fun supportsSubtasks(): Boolean = true
-    fun supportsSorting(): Boolean = true
-    fun disableHeaders(): Boolean = !supportsSorting()
+    open fun supportsManualSort(): Boolean = false
+    open fun supportsHiddenTasks(): Boolean = true
+    open fun supportsSubtasks(): Boolean = true
+    open fun supportsSorting(): Boolean = true
+    open fun disableHeaders(): Boolean = !supportsSorting()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Filter) return false
+        return areItemsTheSame(other)
+    }
+
+    override fun hashCode(): Int = key().hashCode()
+}
+
+fun Filter.key(): String = when (this) {
+    is CustomFilter -> "custom_${id}"
+    is CaldavFilter -> "list_${account.id}_${calendar.id}"
+    is PlaceFilter -> "place_${place.id}"
+    is TagFilter -> "tag_${tagData.id}"
+    is MyTasksFilter -> "builtin_my_tasks"
+    is TodayFilter -> "builtin_today"
+    is RecentlyModifiedFilter -> "builtin_recently_modified"
+    is TimerFilter -> "builtin_timer"
+    is SnoozedFilter -> "builtin_snoozed"
+    is NotificationsFilter -> "builtin_notifications"
+    is DebugFilter -> title
+    else -> {
+        Logger.w { "Unexpected filter type: ${javaClass.name}" }
+        UUIDHelper.newUUID()
+    }
 }

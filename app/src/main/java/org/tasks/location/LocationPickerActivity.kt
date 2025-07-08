@@ -3,11 +3,13 @@ package org.tasks.location
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -95,7 +97,7 @@ class LocationPickerActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListe
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        theme.applyTheme(this)
+        enableEdgeToEdge()
         window.statusBarColor = ContextCompat.getColor(this, android.R.color.transparent)
         val binding = ActivityLocationPickerBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -129,10 +131,7 @@ class LocationPickerActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListe
         search = menu.findItem(R.id.menu_search)
         search.setOnActionExpandListener(this)
         toolbar.setOnMenuItemClickListener(this)
-        val themeColor = theme.themeColor
-        themeColor.applyToNavigationBar(this)
-        val dark = preferences.mapTheme == 2
-                || preferences.mapTheme == 0 && theme.themeBase.isDarkTheme(this)
+        val dark = theme.themeBase.isDarkTheme(this)
         map.init(this, this, dark)
         val params = appBarLayout.layoutParams as CoordinatorLayout.LayoutParams
         val behavior = AppBarLayout.Behavior()
@@ -171,7 +170,11 @@ class LocationPickerActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListe
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = if (search.isActionViewExpanded) searchAdapter else recentsAdapter
 
-        binding.currentLocation.setOnClickListener { currentLocation() }
+        with (binding.currentLocation) {
+            setOnClickListener { currentLocation() }
+            backgroundTintList = ColorStateList.valueOf(theme.themeColor.primaryColor)
+            imageTintList = ColorStateList.valueOf(theme.themeColor.colorOnPrimary)
+        }
         binding.selectThisLocation.setOnClickListener { selectLocation() }
     }
 
@@ -403,28 +406,5 @@ class LocationPickerActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListe
         private const val EXTRA_MAP_POSITION = "extra_map_position"
         private const val EXTRA_APPBAR_OFFSET = "extra_appbar_offset"
         private const val SEARCH_DEBOUNCE_TIMEOUT = 300L
-
-        fun Fragment.registerForLocationPickerResult(callback: (Place) -> Unit): ActivityResultLauncher<Intent> {
-            return registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                it.data?.let { intent ->
-                    IntentCompat
-                        .getParcelableExtra(intent, EXTRA_PLACE, Place::class.java)
-                        ?.let(callback)
-                }
-            }
-        }
-
-        fun ActivityResultLauncher<Intent>.launch(
-            context: Context,
-            selectedLocation: Location? = null
-        ) {
-            launch(
-                Intent(context, LocationPickerActivity::class.java)
-                    .putExtra(EXTRA_PLACE, selectedLocation?.place as Parcelable?)
-            )
-        }
-
-
-
     }
 }

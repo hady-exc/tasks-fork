@@ -11,9 +11,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import org.tasks.R
 import org.tasks.Strings
 import org.tasks.activities.FilterSettingsActivity.Companion.sql
-import org.tasks.data.GoogleTask
 import org.tasks.data.dao.CaldavDao
-import org.tasks.data.dao.GoogleTaskListDao
 import org.tasks.data.dao.TagDataDao
 import org.tasks.data.dao.TaskDao.TaskCriteria.activeAndVisible
 import org.tasks.data.entity.Alarm
@@ -35,7 +33,6 @@ import javax.inject.Inject
 class FilterCriteriaProvider @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val tagDataDao: TagDataDao,
-    private val googleTaskListDao: GoogleTaskListDao,
     private val caldavDao: CaldavDao
 ) {
     private val r = context.resources
@@ -88,7 +85,7 @@ class FilterCriteriaProvider @Inject constructor(
         IDENTIFIER_IMPORTANCE -> priorityFilter
         IDENTIFIER_STARTDATE -> startDateFilter
         IDENTIFIER_DUEDATE -> dueDateFilter
-        IDENTIFIER_GTASKS -> gtasksFilterCriteria()
+        IDENTIFIER_GTASKS,
         IDENTIFIER_CALDAV -> caldavFilterCriteria()
         IDENTIFIER_TAG_IS -> tagFilter()
         IDENTIFIER_TAG_CONTAINS -> tagNameContainsFilter
@@ -120,9 +117,6 @@ class FilterCriteriaProvider @Inject constructor(
             add(dueDateFilter)
             add(priorityFilter)
             add(taskTitleContainsFilter)
-            if (googleTaskListDao.getAccounts().isNotEmpty()) {
-                add(gtasksFilterCriteria())
-            }
             add(caldavFilterCriteria())
             add(recurringFilter)
             add(completedFilter)
@@ -335,34 +329,6 @@ class FilterCriteriaProvider @Inject constructor(
                 r.getString(R.string.CFC_title_contains_name),
                 "",
                 r.getString(R.string.CFC_title_contains_name))
-
-    private suspend fun gtasksFilterCriteria(): CustomFilterCriterion {
-        val lists = caldavDao.getGoogleTaskLists()
-        val listNames = arrayOfNulls<String>(lists.size)
-        val listIds = arrayOfNulls<String>(lists.size)
-        for (i in lists.indices) {
-            listNames[i] = lists[i].name
-            listIds[i] = lists[i].uuid
-        }
-        val values: MutableMap<String, Any> = HashMap()
-        values[GoogleTask.KEY] = "?"
-        return MultipleSelectCriterion(
-                IDENTIFIER_GTASKS,
-                context.getString(R.string.CFC_gtasks_list_text),
-                select(CaldavTask.TASK)
-                        .from(CaldavTask.TABLE)
-                        .join(inner(Task.TABLE, CaldavTask.TASK.eq(Task.ID)))
-                        .where(
-                                and(
-                                        activeAndVisible(),
-                                        CaldavTask.DELETED.eq(0),
-                                        CaldavTask.CALENDAR.eq("?")))
-                        .toString(),
-                values,
-                listNames,
-                listIds,
-                context.getString(R.string.CFC_gtasks_list_name))
-    }
 
     private suspend fun caldavFilterCriteria(): CustomFilterCriterion {
         val calendars = caldavDao.getCalendars()

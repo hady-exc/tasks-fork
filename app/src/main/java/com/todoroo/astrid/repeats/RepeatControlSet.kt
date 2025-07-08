@@ -7,28 +7,20 @@ package com.todoroo.astrid.repeats
 
 import android.app.Activity.RESULT_OK
 import android.content.Intent
-import android.os.Bundle
-import android.view.View
-import android.view.ViewGroup
-import androidx.compose.ui.platform.ComposeView
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import net.fortuna.ical4j.model.Recur
 import net.fortuna.ical4j.model.WeekDay
 import org.tasks.R
 import org.tasks.compose.edit.RepeatRow
 import org.tasks.data.dao.CaldavDao
-import org.tasks.data.entity.CaldavAccount
-import org.tasks.filters.CaldavFilter
-import org.tasks.filters.GtasksFilter
 import org.tasks.repeats.BasicRecurrenceDialog
 import org.tasks.repeats.RecurrenceUtils.newRecur
 import org.tasks.repeats.RepeatRuleToString
 import org.tasks.time.DateTime
 import org.tasks.time.DateTimeUtils2.currentTimeMillis
-import org.tasks.time.startOfDay
 import org.tasks.ui.TaskEditControlFragment
 import javax.inject.Inject
 
@@ -41,10 +33,7 @@ class RepeatControlSet : TaskEditControlFragment() {
         if (requestCode == REQUEST_RECURRENCE) {
             if (resultCode == RESULT_OK) {
                 val result = data?.getStringExtra(BasicRecurrenceDialog.EXTRA_RRULE)
-                viewModel.recurrence.value = result
-                if (result?.isNotBlank() == true && viewModel.dueDate.value == 0L) {
-                    viewModel.setDueDate(currentTimeMillis().startOfDay())
-                }
+                viewModel.setRecurrence(result)
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data)
@@ -52,7 +41,8 @@ class RepeatControlSet : TaskEditControlFragment() {
     }
 
     private fun onDueDateChanged() {
-        viewModel.recurrence.value?.takeIf { it.isNotBlank() }?.let { recurrence ->
+        // TODO: move to view model
+        viewModel.viewState.value.task.recurrence?.takeIf { it.isNotBlank() }?.let { recurrence ->
             val recur = newRecur(recurrence)
             if (recur.frequency == Recur.Frequency.MONTHLY && recur.dayList.isNotEmpty()) {
                 val weekdayNum = recur.dayList[0]
@@ -69,56 +59,35 @@ class RepeatControlSet : TaskEditControlFragment() {
                     it.clear()
                     it.add(WeekDay(dateTime.weekDay, num))
                 }
-                viewModel.recurrence.value = recur.toString()
+                viewModel.setRecurrence(recur.toString())
             }
         }
     }
 
-    override fun createView(savedInstanceState: Bundle?) {
-        lifecycleScope.launchWhenResumed {
-            viewModel.dueDate.collect {
-                onDueDateChanged()
-            }
+    @Composable
+    override fun Content() {
+        val viewState = viewModel.viewState.collectAsStateWithLifecycle().value
+        val dueDate = viewModel.dueDate.collectAsStateWithLifecycle().value
+        LaunchedEffect(dueDate) {
+            onDueDateChanged()
         }
-    }
-
-    override fun bind(parent: ViewGroup?): View =
-        (parent as ComposeView).apply {
-            setContent {
-                RepeatRow(
-                    recurrence = viewModel.recurrence.collectAsStateWithLifecycle().value?.let {
-                        repeatRuleToString.toString(it)
-                    },
-                    repeatAfterCompletion = viewModel.repeatAfterCompletion.collectAsStateWithLifecycle().value,
-                    onClick = {
-                        lifecycleScope.launch {
-                            val accountType = viewModel.selectedList.value
-                                .let {
-                                    when (it) {
-                                        is CaldavFilter -> it.account
-                                        is GtasksFilter -> it.account
-                                        else -> null
-                                    }
-                                }
-                                ?.let { caldavDao.getAccountByUuid(it) }
-                                ?.accountType
-                                ?: CaldavAccount.TYPE_LOCAL
-                            BasicRecurrenceDialog.newBasicRecurrenceDialog(
-                                target = this@RepeatControlSet,
-                                rc = REQUEST_RECURRENCE,
-                                rrule = viewModel.recurrence.value,
-                                dueDate = viewModel.dueDate.value,
-                                accountType = accountType,
-                            )
-                                .show(parentFragmentManager, FRAG_TAG_BASIC_RECURRENCE)
-                        }
-                    },
-                    onRepeatFromChanged = { viewModel.repeatAfterCompletion.value = it }
+        RepeatRow(
+            recurrence = viewState.task.recurrence?.let { repeatRuleToString.toString(it) },
+            repeatFrom = viewState.task.repeatFrom,
+            onClick = {
+                val accountType = viewState.list.account.accountType
+                BasicRecurrenceDialog.newBasicRecurrenceDialog(
+                    target = this@RepeatControlSet,
+                    rc = REQUEST_RECURRENCE,
+                    rrule = viewState.task.recurrence,
+                    dueDate = dueDate,
+                    accountType = accountType,
                 )
-            }
-        }
-
-    override fun controlId() = TAG
+                    .show(parentFragmentManager, FRAG_TAG_BASIC_RECURRENCE)
+            },
+            onRepeatFromChanged = { viewModel.setRepeatFrom(it) }
+        )
+    }
 
     companion object {
         val TAG = R.string.TEA_ctrl_repeat_pref

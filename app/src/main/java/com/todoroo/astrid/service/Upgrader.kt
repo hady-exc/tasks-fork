@@ -6,6 +6,7 @@ import androidx.annotation.ColorRes
 import com.google.common.collect.ImmutableListMultimap
 import com.google.common.collect.ListMultimap
 import com.google.common.collect.Multimaps
+import com.todoroo.astrid.core.SortHelper
 import com.todoroo.astrid.dao.TaskDao
 import dagger.Lazy
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -22,7 +23,6 @@ import org.tasks.data.Location
 import org.tasks.data.convertPictureUri
 import org.tasks.data.dao.CaldavDao
 import org.tasks.data.dao.FilterDao
-import org.tasks.data.dao.GoogleTaskListDao
 import org.tasks.data.dao.LocationDao
 import org.tasks.data.dao.TagDao
 import org.tasks.data.dao.TagDataDao
@@ -33,13 +33,15 @@ import org.tasks.data.entity.CaldavTask
 import org.tasks.data.entity.Filter
 import org.tasks.data.entity.Tag
 import org.tasks.data.entity.TagData
-import org.tasks.filters.GtasksFilter
+import org.tasks.filters.CaldavFilter
 import org.tasks.preferences.DefaultFilterProvider
 import org.tasks.preferences.Preferences
 import org.tasks.time.DateTimeUtils2.currentTimeMillis
 import org.tasks.widget.AppWidgetManager
 import org.tasks.widget.WidgetPreferences
+import timber.log.Timber
 import java.io.File
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class Upgrader @Inject constructor(
@@ -49,7 +51,6 @@ class Upgrader @Inject constructor(
     private val tagDao: TagDao,
     private val filterDao: FilterDao,
     private val defaultFilterProvider: DefaultFilterProvider,
-    private val googleTaskListDao: GoogleTaskListDao,
     private val userActivityDao: UserActivityDao,
     private val taskAttachmentDao: TaskAttachmentDao,
     private val caldavDao: CaldavDao,
@@ -87,7 +88,10 @@ class Upgrader @Inject constructor(
                 taskMover.migrateLocalTasks()
             }
             run(from, V9_7) { caldavDao.resetOrders() }
-            run(from, V9_7_3) { caldavDao.updateParents() }
+            run(from, V9_7_3) {
+                Timber.d("Updating parents")
+                caldavDao.updateParents()
+            }
             run(from, V10_0_2) {
                 filterDao.getFilters()
                         .filter { it.dirtyHack.trim() == "WHERE" }
@@ -112,17 +116,40 @@ class Upgrader @Inject constructor(
                 setInstallDetails(from)
             }
             run(from, Upgrade_13_2.VERSION) {
+                Timber.d("Updating parents")
                 caldavDao.updateParents()
                 upgrade_13_2.get().rebuildFilters()
             }
             run(from, Upgrade_13_11.VERSION) {
                 upgrade_13_11.get().migrateIcons()
             }
+            run(from, V14_5_4) {
+                // save existing default widget sorting
+                for (widgetId in widgetManager.widgetIds) {
+                    val widgetPreferences = WidgetPreferences(context, preferences, widgetId)
+                    if (preferences.getInt(context.getString(R.string.p_widget_group) + widgetId, -1) == -1) {
+                        widgetPreferences.groupMode = SortHelper.GROUP_NONE
+                    }
+                    if (preferences.getInt(context.getString(R.string.p_widget_sort) + widgetId, -1) == -1) {
+                        widgetPreferences.sortMode = SortHelper.SORT_AUTO
+                    }
+                }
+            }
+            run(from, V14_6_1) {
+                if (preferences.installVersion < V14_5_4) {
+                    if (preferences.getInt(R.string.p_sort_mode, -1) == -1) {
+                        preferences.sortMode = SortHelper.SORT_AUTO
+                    }
+                    if (preferences.getInt(R.string.p_group_mode, -2) == -2) {
+                        preferences.groupMode = SortHelper.GROUP_NONE
+                    }
+                }
+            }
             preferences.setBoolean(R.string.p_just_updated, true)
         } else {
             setInstallDetails(to)
         }
-        preferences.lastSubscribeRequest = 0L
+        preferences.lastSubscribeRequest -= TimeUnit.DAYS.toMillis(7)
         preferences.setCurrentVersion(to)
     }
 
@@ -207,6 +234,7 @@ class Upgrader @Inject constructor(
             }
         }
         caldavDao.update(updated)
+        Timber.d("Updating parents")
         caldavDao.updateParents()
     }
 
@@ -270,9 +298,12 @@ class Upgrader @Inject constructor(
         if (isNullOrEmpty(defaultGoogleTaskList)) {
             // TODO: look up default list
         } else {
-            val googleTaskList = googleTaskListDao.getByRemoteId(defaultGoogleTaskList!!)
+            val googleTaskList = caldavDao.getCalendarByUuid(defaultGoogleTaskList!!)
             if (googleTaskList != null) {
-                defaultFilterProvider.defaultList = GtasksFilter(googleTaskList)
+                caldavDao.getAccountByUuid(googleTaskList.account!!)?.let {
+                    defaultFilterProvider.defaultList =
+                        CaldavFilter(calendar = googleTaskList, account = it)
+                }
             }
         }
     }
@@ -374,6 +405,8 @@ class Upgrader @Inject constructor(
         const val V12_4 = 120400
         const val V12_6 = 120601
         const val V12_8 = 120800
+        const val V14_5_4 = 140516
+        const val V14_6_1 = 140602
 
         @JvmStatic
         fun getAndroidColor(context: Context, index: Int): Int {

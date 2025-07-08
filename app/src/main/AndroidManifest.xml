@@ -2,9 +2,7 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:tools="http://schemas.android.com/tools"
-    android:installLocation="internalOnly"
-    android:enableOnBackInvokedCallback="true"
-    tools:targetApi="tiramisu">
+    android:installLocation="internalOnly">
 
   <!-- ================================================== Used Permissions = -->
 
@@ -68,7 +66,6 @@
   <!-- **************************************** -->
   <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
   <uses-permission android:name="com.google.android.googleapps.permission.GOOGLE_AUTH"/>
-  <uses-permission android:name="android.permission.GET_ACCOUNTS" android:maxSdkVersion="25"/>
 
   <!-- ****************************** -->
   <!-- Check DAVx5/EteSync sync state -->
@@ -90,17 +87,8 @@
   <uses-permission
       android:name="${applicationId}.permission.WRITE_TASKS"
       tools:node="remove" />
-<!--
-  <uses-permission
-      android:name="org.tasks.permission.READ_TASKS"
-      tools:ignore="SystemPermissionTypo"
-      tools:node="remove" />
-  <uses-permission
-      android:name="org.tasks.permission.WRITE_TASKS"
-      tools:node="remove" />
   <uses-permission android:name="at.techbee.jtx.permission.READ" tools:node="remove" />
   <uses-permission android:name="at.techbee.jtx.permission.WRITE" tools:node="remove" />
--->
 
   <!-- ============================================== Exported Permissions = -->
 
@@ -165,7 +153,6 @@
     android:fullBackupOnly="false"
     android:icon="@mipmap/ic_launcher_blue_grey"
     android:label="@string/app_name"
-    android:manageSpaceActivity="org.tasks.preferences.ManageSpaceActivity"
     android:name=".Tasks"
     android:roundIcon="@mipmap/ic_launcher_blue_grey"
     android:supportsRtl="true"
@@ -191,14 +178,6 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="org.tasks.github.a50fdbf3e289a7fb2fc6" />
       </intent-filter>
-      <intent-filter>
-        <action android:name="android.intent.action.VIEW"/>
-        <category android:name="android.intent.category.DEFAULT"/>
-        <category android:name="android.intent.category.BROWSABLE"/>
-        <data
-            android:host="${applicationId}"
-            android:scheme="msauth" />
-      </intent-filter>
     </activity>
 
     <activity
@@ -218,7 +197,9 @@
       android:taskAffinity=""
       android:theme="@style/TranslucentDialog"/>
 
-    <activity android:name=".location.LocationPickerActivity"/>
+    <activity
+        android:name=".location.LocationPickerActivity"
+        android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar" />
 
     <activity
       android:exported="true"
@@ -334,6 +315,14 @@
           android:resource="@xml/samsung_scrollable_flex_window_widget_meta_info"/>
     </receiver>
 
+    <receiver
+        android:name=".widget.RequestPinWidgetReceiver"
+        android:exported="false">
+      <intent-filter>
+        <action android:name="org.tasks.CONFIGURE_WIDGET" />
+      </intent-filter>
+    </receiver>
+
     <!-- ======================================================== Services = -->
 
     <service
@@ -428,6 +417,10 @@
     <activity
       android:name=".caldav.CaldavAccountSettingsActivity"
       android:theme="@style/Tasks"/>
+
+    <activity
+        android:name=".caldav.LocalAccountSettingsActivity"
+        android:theme="@style/Tasks" />
 
     <activity
       android:name=".etebase.EtebaseAccountSettingsActivity"
@@ -621,17 +614,11 @@
     <receiver android:name="org.tasks.jobs.NotificationReceiver" />
 
     <activity
-        android:name=".auth.MicrosoftAuthenticationActivity"
-        android:theme="@style/TranslucentDialog"/>
-
-    <!--  android:windowSoftInputMode="adjustResize"
-     -->
-
-    <activity
-      android:launchMode="singleTask"
-      android:resizeableActivity="true"
-      android:exported="true"
-      android:name="com.todoroo.astrid.activity.MainActivity">
+        android:name="com.todoroo.astrid.activity.MainActivity"
+        android:exported="true"
+        android:launchMode="singleTask"
+        android:theme="@style/Theme.App.Starting"
+        android:windowSoftInputMode="adjustResize">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
       </intent-filter>
@@ -645,8 +632,6 @@
       android:theme="@style/TranslucentDialog"/>
 
     <activity android:name=".tags.TagPickerActivity" />
-
-<!--    <activity android:name=".tags.TagPickerActivityCompose" />  -->
 
     <activity
       android:name=".etebase.EtebaseCalendarSettingsActivity"
@@ -670,9 +655,6 @@
       </intent-filter>
     </activity>
 
-    <activity
-      android:name=".preferences.ManageSpaceActivity"
-      android:theme="@style/Tasks" />
       <activity android:name="org.tasks.sync.microsoft.MicrosoftListSettingsActivity" />
 
       <activity
@@ -1030,6 +1012,20 @@
     <meta-data android:name="com.samsung.android.keepalive.density" android:value="true"/>
     <!-- Version >= 3.0. DeX Dual Mode support -->
     <meta-data android:name="com.samsung.android.multidisplay.keep_process_alive" android:value="true"/>
+
+    <activity
+        android:name="com.microsoft.identity.client.BrowserTabActivity"
+        android:exported="true">
+        <intent-filter>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data
+                android:host="${applicationId}"
+                android:path="@string/microsoft_oauth_path"
+                android:scheme="msauth" />
+        </intent-filter>
+    </activity>
 
   </application>
 

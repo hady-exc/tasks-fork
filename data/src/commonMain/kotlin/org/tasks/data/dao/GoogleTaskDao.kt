@@ -4,32 +4,32 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
-import org.tasks.data.db.Database
+import co.touchlab.kermit.Logger
 import org.tasks.data.entity.CaldavAccount.Companion.TYPE_GOOGLE_TASKS
 import org.tasks.data.entity.CaldavTask
 import org.tasks.data.entity.Task
-import org.tasks.data.withTransaction
 
 @Dao
-abstract class GoogleTaskDao(private val database: Database) {
+abstract class GoogleTaskDao {
     @Insert
     abstract suspend fun insert(task: CaldavTask): Long
 
     @Insert
     abstract suspend fun insert(tasks: Iterable<CaldavTask>)
 
-    suspend fun insertAndShift(task: Task, caldavTask: CaldavTask, top: Boolean) {
-        database.withTransaction {
-            if (top) {
-                task.order = 0
-                shiftDown(caldavTask.calendar!!, task.parent, 0)
-            } else {
-                task.order = getBottom(caldavTask.calendar!!, task.parent)
-            }
-            insert(caldavTask)
-            update(task)
+    @Transaction
+    open suspend fun insertAndShift(task: Task, caldavTask: CaldavTask, top: Boolean) {
+        Logger.d("GoogleTaskDao") { "insertAndShift task=$task caldavTask=$caldavTask top=$top" }
+        if (top) {
+            task.order = 0
+            shiftDown(caldavTask.calendar!!, task.parent, 0)
+        } else {
+            task.order = getBottom(caldavTask.calendar!!, task.parent)
         }
+        insert(caldavTask)
+        update(task)
     }
 
     @Query("UPDATE tasks SET `order` = `order` + 1 WHERE parent = :parent AND `order` >= :position AND _id IN (SELECT cd_task FROM caldav_tasks WHERE cd_calendar = :listId)")
@@ -44,25 +44,25 @@ abstract class GoogleTaskDao(private val database: Database) {
     @Query("UPDATE tasks SET `order` = `order` - 1 WHERE parent = :parent AND `order` >= :position AND _id IN (SELECT cd_task FROM caldav_tasks WHERE cd_calendar = :listId)")
     internal abstract suspend fun shiftUp(listId: String, parent: Long, position: Long)
 
-    suspend fun move(task: Task, list: String, newParent: Long, newPosition: Long) {
-        database.withTransaction {
-            val previousParent = task.parent
-            val previousPosition = task.order!!
-            if (newParent == previousParent) {
-                if (previousPosition < newPosition) {
-                    shiftUp(list, newParent, previousPosition, newPosition)
-                } else {
-                    shiftDown(list, newParent, previousPosition, newPosition)
-                }
+    @Transaction
+    open suspend fun move(task: Task, list: String, newParent: Long, newPosition: Long) {
+        Logger.d("GoogleTaskDao") { "move task=$task list=$list newParent=$newParent newPosition=$newPosition" }
+        val previousParent = task.parent
+        val previousPosition = task.order!!
+        if (newParent == previousParent) {
+            if (previousPosition < newPosition) {
+                shiftUp(list, newParent, previousPosition, newPosition)
             } else {
-                shiftUp(list, previousParent, previousPosition)
-                shiftDown(list, newParent, newPosition)
+                shiftDown(list, newParent, previousPosition, newPosition)
             }
-            task.parent = newParent
-            task.order = newPosition
-            update(task)
-            setMoved(task.id, list)
+        } else {
+            shiftUp(list, previousParent, previousPosition)
+            shiftDown(list, newParent, newPosition)
         }
+        task.parent = newParent
+        task.order = newPosition
+        update(task)
+        setMoved(task.id, list)
     }
 
     @Query("UPDATE caldav_tasks SET gt_moved = 1 WHERE cd_task = :task and cd_calendar = :list")
@@ -88,9 +88,6 @@ abstract class GoogleTaskDao(private val database: Database) {
 
     @Query("SELECT * FROM caldav_tasks WHERE cd_task = :taskId")
     abstract suspend fun getAllByTaskId(taskId: Long): List<CaldavTask>
-
-    @Query("SELECT DISTINCT cd_calendar FROM caldav_tasks WHERE cd_deleted = 0 AND cd_task IN (:tasks)")
-    abstract suspend fun getLists(tasks: List<Long>): List<String>
 
     @Query("SELECT IFNULL(MAX(`order`), -1) + 1 FROM tasks INNER JOIN caldav_tasks ON cd_task = tasks._id WHERE cd_calendar = :listId AND parent = :parent")
     abstract suspend fun getBottom(listId: String, parent: Long): Long
@@ -169,26 +166,25 @@ WHERE cd_remote_id = :id
     abstract suspend fun updatePosition(id: String, parent: String?, position: String)
 
     suspend fun reposition(caldavDao: CaldavDao, listId: String) {
-        database.withTransaction {
-            caldavDao.updateParents(listId)
-            val orderedTasks = getByRemoteOrder(listId)
-            var subtasks = 0L
-            var parent = 0L
-            for (task in orderedTasks) {
-                if (task.parent > 0) {
-                    if (task.order != subtasks) {
-                        task.order = subtasks
-                        update(task)
-                    }
-                    subtasks++
-                } else {
-                    subtasks = 0
-                    if (task.order != parent) {
-                        task.order = parent
-                        update(task)
-                    }
-                    parent++
+        Logger.d("GoogleTaskDao") { "reposition listId=$listId" }
+        caldavDao.updateParents(listId)
+        val orderedTasks = getByRemoteOrder(listId)
+        var subtasks = 0L
+        var parent = 0L
+        for (task in orderedTasks) {
+            if (task.parent > 0) {
+                if (task.order != subtasks) {
+                    task.order = subtasks
+                    update(task)
                 }
+                subtasks++
+            } else {
+                subtasks = 0
+                if (task.order != parent) {
+                    task.order = parent
+                    update(task)
+                }
+                parent++
             }
         }
     }

@@ -7,12 +7,7 @@
     <string name="backup_BAc_export">Створити резервну копію зараз</string>
     <string name="export_toast">Збережено %1$s в %2$s.</string>
     <string name="import_summary_title">Відновити підсумок</string>
-    <string name="import_summary_message">Файл %1$s містив %2$s.
-\n
-\n %3$s імпортовано,
-\n %4$s вже існувало,
-\n %5$s з помилками
-\n</string>
+    <string name="import_summary_message">Файл %1$s містив %2$s. \n \n %3$s імпортовано, \n %4$s вже існувало, \n %5$s з помилками</string>
     <string name="import_progress_read">Читання завдання %d…</string>
     <string name="read_permission_label">Дозволи Tasks</string>
     <string name="discard_confirmation">Дійсно хочете скасувати ваші зміни?</string>
@@ -108,7 +103,6 @@
     <string name="calendar_event_not_found">Подію у календарі не знайдено</string>
     <string name="gcal_completed_title">%s (завершено)</string>
     <string name="CFC_gtasks_list_text">У списку: \?</string>
-    <string name="CFC_gtasks_list_name">У списку GTasks…</string>
     <string name="gtasks_GTA_clear_completed">Очистити завершені</string>
     <string name="gtasks_GLA_authenticating">Авторизація…</string>
     <string name="gtasks_GLA_errorIOAuth">Вибачте, виникли проблеми звернення до серверів Google. Будь ласка, спробуйте пізніше.</string>
@@ -233,16 +227,10 @@
     </plurals>
     <string name="today">Сьогодні</string>
     <string name="tomorrow">Завтра</string>
-    <string name="yesterday">Вчора</string>
-    <string name="tmrw">Звтр</string>
-    <string name="yest">Вчр</string>
     <string name="widget_show_checkboxes">Показати кнопки для галочок</string>
     <string name="widget_show_header">Показати заголовок</string>
     <string name="widget_show_settings">Показати налаштування</string>
     <string name="notifications">Сповіщення</string>
-    <string name="silent">Безшумно</string>
-    <string name="sound">Звук</string>
-    <string name="vibrations">Вібрації</string>
     <string name="quiet_hours">Тихі години</string>
     <string name="attachment_directory">Тека з прикріпленими файлами</string>
     <string name="backup_directory">Тека з резервними копіями</string>
@@ -257,7 +245,6 @@
     <string name="contact_developer">Зв\'язатися з розробником</string>
     <string name="rate_tasks">Оцінити Tasks</string>
     <string name="quiet_hours_summary">Без нагадувань під час тихих годин</string>
-    <string name="TLA_menu_donate">Допомогти</string>
     <string name="add_reminder">Додати нагадування</string>
     <string name="add_location">Додати місце</string>
     <string name="remove">Вилучити</string>
@@ -308,7 +295,6 @@
     <string name="opacity">Прозорість</string>
     <string name="theme">Тема</string>
     <string name="color">Колір</string>
-    <string name="accent">Акцент</string>
     <string name="launcher_icon">Піктограма запуску</string>
     <string name="theme_black">Чорна</string>
     <string name="theme_light">Світла</string>
@@ -320,8 +306,6 @@
     <string name="restart_now">Перезапустити зараз</string>
     <string name="restart_later">Пізніше</string>
     <string name="settings_localization">Локалізація</string>
-    <string name="led_notification">LED-сповіщення</string>
-    <string name="hardware_support_required">Потрібна підтримка апартних засобів</string>
     <string name="widget_settings">Налаштування віджету</string>
     <string name="widget_header_settings">Налаштування заголовку</string>
     <string name="widget_row_settings">Налаштування рядку</string>
@@ -331,8 +315,6 @@
     <string name="delete_selected_tasks">Видалити вибрані завдання?</string>
     <string name="copy_selected_tasks">Копіювати вибрані завдання?</string>
     <string name="date_and_time">Дата й час</string>
-    <string name="start_of_week">Початок тижня</string>
-    <string name="use_locale_default">Типово для локалі</string>
     <string name="add_account">Додати обліковий запис</string>
     <string name="user">Користувач</string>
     <string name="password">Пароль</string>
@@ -421,9 +403,6 @@
     <string name="preferences_look_and_feel">Зовнішній вигляд</string>
     <string name="preferences_advanced">Розширені</string>
     <string name="show_advanced_settings">Показати розширені налаштування</string>
-    <string name="desaturate_colors">Зменшити насиченість</string>
-    <string name="desaturate_colors_summary_off">Кольори не будуть ненасиченими в темних темах</string>
-    <string name="desaturate_colors_summary_on">Кольори будуть ненасиченими в темних темах</string>
     <string name="theme_system_default">За системними налаштуваннями</string>
     <plurals name="subtask_count">
         <item quantity="one">%d підзавдання</item>
@@ -441,7 +420,6 @@
     <string name="caldav_selection_description">Синхронізація на основі стандартів відкритого інтернету</string>
     <string name="google_tasks_selection_description">Базовий сервіс, що синхронізується з вашим обліковим записом Google</string>
     <string name="choose_synchronization_service">Обрати платформу</string>
-    <string name="create_new_tag">Створити \"%s\"</string>
     <string name="enter_tag_name">Введіть назву мітки</string>
     <string name="subtasks_multilevel_google_task">Багаторівневі підзавдання не підтримуються Google Tasks</string>
     <string name="collapse_subtasks">Згорнути підзавдання</string>
@@ -500,7 +478,6 @@
     <string name="sign_in_with_google">Увійти через Google</string>
     <string name="github_sponsors">Спонсори GitHub</string>
     <string name="google_play_subscribers">Підписники Google Play</string>
-    <string name="not_signed_in">Не авторизовані</string>
     <string name="authorization_cancelled">Авторизацію скасовано</string>
     <string name="follow_reddit">Долучитися до r/tasks</string>
     <string name="current_subscription">Поточна підписка: %s</string>
@@ -587,9 +564,6 @@
     <string name="header_spacing">Інтервал</string>
     <string name="widget_show_dividers">Показати розділювачі</string>
     <string name="widget_show_menu">Показати меню</string>
-    <string name="yesterday_lowercase">вчора</string>
-    <string name="tomorrow_lowercase">завтра</string>
-    <string name="today_lowercase">сьогодні</string>
     <string name="repeat_type_completion_capitalized">Дата завершення</string>
     <plurals name="list_count">
         <item quantity="one">%d список</item>
@@ -613,15 +587,11 @@
     <string name="sort_due_group">Завершення %s</string>
     <string name="sort_start_group">Початок %s</string>
     <string name="tasks_org_description">Синхронізувати ваші завдання з Tasks.org</string>
-    <string name="yesterday_abbrev_lowercase">вчора</string>
-    <string name="tomorrow_abbrev_lowercase">завтра</string>
     <string name="account_not_included">Не входить до передплати \"Назвіть свою ціну\"</string>
     <string name="tasks_org_account">Обліковий запис Tasks.org</string>
     <string name="subscription">Підписка</string>
     <string name="widget_show_title">Показати заголовок</string>
-    <string name="map_theme_use_app_theme">Використовувати тему застосунку</string>
     <string name="tasks_org_account_required">Потрібен обліковий запис Tasks.org</string>
-    <string name="map_theme">Тема карти</string>
     <string name="cancel">Скасувати</string>
     <string name="ok">Гаразд</string>
     <string name="privacy">Приватність</string>
@@ -639,19 +609,11 @@
     <string name="invite">Запросити</string>
     <string name="email">Е-пошта</string>
     <string name="share_list">Поділитися списком</string>
-    <string name="picker_mode_text">Текст</string>
-    <string name="picker_mode_clock">Годинник</string>
-    <string name="picker_mode_calendar">Календар</string>
-    <string name="picker_mode_time">Режим вибору часу</string>
-    <string name="picker_mode_date">Режим вибору дати</string>
     <string name="more_options">Додаткові параметри</string>
-    <string name="upgrade_automation_description">Плагіни для Tasker, Automate і Locale</string>
-    <string name="upgrade_automation">Автоматизація</string>
     <string name="upgrade_open_source_description">Ваша передплата підтримує постійний розвиток</string>
     <string name="upgrade_desktop_access_description">Синхронізація зі сторонніми клієнтами, наприклад Outlook і Apple Нагадування</string>
     <string name="upgrade_desktop_access">Доступ до комп\'ютера</string>
     <string name="upgrade_tasks_org_account_description">Синхронізація з Tasks.org та співпраця з іншими користувачами</string>
-    <string name="upgrade_google_tasks">Синхронізація кількох облікових записів</string>
     <string name="upgrade_more_customization_description">Розблокування всіх тем, кольорів і піктограм</string>
     <string name="upgrade_more_customization">Більше налаштувань</string>
     <string name="pro_free_trial">Нові передплатники отримують 7-денну безплатну пробну версію. Скасувати її можна в будь-який час</string>
@@ -668,11 +630,7 @@
     <string name="now">Зараз</string>
     <string name="when_started">Після запуску</string>
     <string name="completion_sound">Відтворювати звук завершення</string>
-    <string name="bottom">Унизу</string>
-    <string name="top">Угорі</string>
-    <string name="app_bar_position">Розташування панелі застосунку</string>
     <string name="completed">Виконано</string>
-    <string name="app_bar_collapse">Згорнути панелі застосунку</string>
     <string name="snackbar_task_completed">Завдання виконано</string>
     <string name="completed_tasks_at_bottom">Перемістити виконані завдання вниз</string>
     <string name="alarm_before_start">%s до початку</string>
@@ -767,5 +725,29 @@
     <string name="swipe_to_snooze_time_24_hours">за 24 години</string>
     <string name="show_edit_screen_without_unlock_summary">Дозволяє використовувати плитку швидких налаштувань без розблокування пристрою</string>
     <string name="quiet_hours_in_effect">Активовано тихі години</string>
-    <string name="send_application_logs">Надіслати логи застосунку</string>
+    <string name="send_application_logs">Надіслати журнал застосунку</string>
+    <string name="delete_comment">коментар</string>
+    <string name="comment">Коментар</string>
+    <string name="yesterday">Учора</string>
+    <string name="subtasks_multilevel_microsoft">Багаторівневі підзавдання, які не підтримуються Microsoft To Do</string>
+    <string name="cost_free">Вартість: Безплатно</string>
+    <string name="cost_more_money">Вартість: $$$</string>
+    <string name="multiline_title">Дозволити багаторядкові заголовки</string>
+    <string name="multiline_title_on">Натисніть Enter, щоб перенести рядок</string>
+    <string name="sync_warning_microsoft">Не всі відомості про завдання синхронізуються з Microsoft To Do.</string>
+    <string name="sync_warning_google_tasks_title">Про синхронізацію з Google Task</string>
+    <string name="sync_warning_microsoft_title">Про синхронізацію з Microsoft To Do</string>
+    <string name="sync_warning_google_tasks">Не всі відомості про завдання синхронізуються з Google Tasks</string>
+    <string name="price_per_year_with_currency">%s/рік</string>
+    <string name="button_learn_more">Докладніше</string>
+    <string name="enable_alarms">Отримуйте сповіщення в потрібний час</string>
+    <string name="enable_alarms_description">Щоб бути впевненим, що ви отримаєте сповіщення в потрібний час, надайте дозвіл на встановлення будильників і нагадувань у Налаштуваннях</string>
+    <string name="price_per_month_with_currency">%s/місяць</string>
+    <string name="add_shortcut_to_home_screen">Додати ярлик на домашній екран</string>
+    <string name="add_widget_to_home_screen">Додати віджет на домашній екран</string>
+    <string name="cost_money">Вартість: $</string>
+    <string name="app_settings">Налаштування застосунку</string>
+    <string name="banner_app_updated_title">Застосунок оновлено</string>
+    <string name="banner_app_updated_description">Tasks щойно оновлено до %s. Переглянете примітки до випуску?</string>
+    <string name="multiline_title_off">Натисніть готово, щоб зберегти завдання</string>
 </resources>

@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.LinearLayout
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,6 +35,7 @@ import org.tasks.data.dao.LocationDao
 import org.tasks.data.entity.Place
 import org.tasks.data.mapPosition
 import org.tasks.extensions.formatNumber
+import org.tasks.filters.Filter
 import org.tasks.filters.PlaceFilter
 import org.tasks.location.MapFragment
 import org.tasks.preferences.Preferences
@@ -82,21 +84,16 @@ class PlaceSettingsActivity : BaseListSettingsActivity(),
         super.onCreate(savedInstanceState)
 
         if (savedInstanceState == null) {
-            textState.value = place.displayName
-            selectedColor = place.color
-            selectedIcon.value = place.icon ?: defaultIcon
+            baseViewModel.setTitle(place.displayName)
+            baseViewModel.setColor(place.color)
+            baseViewModel.setIcon(place.icon ?: defaultIcon)
         }
 
         sliderPos.floatValue = (place.radius / STEP * STEP).toFloat()
 
-        val dark = preferences.mapTheme == 2
-                || preferences.mapTheme == 0 && tasksTheme.themeBase.isDarkTheme(this)
-
-        updateTheme()
-
         setContent {
             TasksTheme {
-                baseSettingsContent {
+                BaseSettingsContent {
                     Row(
                         modifier = Modifier
                             .requiredHeight(56.dp)
@@ -108,8 +105,8 @@ class PlaceSettingsActivity : BaseListSettingsActivity(),
                         Text(stringResource(id = R.string.geofence_radius))
                         Row(horizontalArrangement = Arrangement.End) {
                             Text(getString(
-                                    R.string.location_radius_meters,
-                                    locale.formatNumber(sliderPos.floatValue.roundToInt()
+                                R.string.location_radius_meters,
+                                locale.formatNumber(sliderPos.floatValue.roundToInt()
                                 )))
                         }
                     }
@@ -131,7 +128,7 @@ class PlaceSettingsActivity : BaseListSettingsActivity(),
                             disabledInactiveTickColor = colorResource(id = R.color.text_tertiary)
                         )
                     )
-
+                    val dark = isSystemInDarkTheme()
                     AndroidView(
                         factory = { ctx ->
                             viewHolder = LinearLayout(ctx).apply {
@@ -156,22 +153,22 @@ class PlaceSettingsActivity : BaseListSettingsActivity(),
         }
     }
 
-    override fun hasChanges() = textState.value != place.displayName
-                    || selectedColor != place.color
-                    || selectedIcon.value != place.icon
+    override fun hasChanges() = baseViewModel.title != place.displayName
+                    || baseViewModel.color != place.color
+                    || baseViewModel.icon != (place.icon ?: TasksIcons.PLACE)
 
     override suspend fun save() {
-        val newName: String = textState.value
+        val newName: String = baseViewModel.title
 
         if (isNullOrEmpty(newName)) {
-            errorState.value = getString(R.string.name_cannot_be_empty)
+            baseViewModel.setError(getString(R.string.name_cannot_be_empty))
             return
         }
 
         place = place.copy(
             name = newName,
-            color = selectedColor,
-            icon = selectedIcon.value,
+            color = baseViewModel.color,
+            icon = baseViewModel.icon,
             radius = sliderPos.floatValue.roundToInt(),
         )
         locationDao.update(place)
@@ -183,8 +180,8 @@ class PlaceSettingsActivity : BaseListSettingsActivity(),
         finish()
     }
 
-    override val isNew: Boolean
-        get() = false
+    override val filter: Filter
+        get() = PlaceFilter(place)
 
     override val toolbarTitle: String
         get() = place.address ?: place.displayName

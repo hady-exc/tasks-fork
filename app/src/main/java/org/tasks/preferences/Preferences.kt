@@ -9,6 +9,8 @@ import android.content.pm.PackageManager
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Binder
+import androidx.compose.material3.DisplayMode
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
@@ -143,12 +145,6 @@ class Preferences @JvmOverloads constructor(
             return defaultCalendar != null && defaultCalendar != "-1" && defaultCalendar != "0"
         }
 
-    val ringtone: Uri?
-        get() = getRingtone(
-            R.string.p_rmd_ringtone,
-            RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-        )
-
     val completionSound: Uri?
         get() = getRingtone(
             R.string.p_completion_ringtone,
@@ -169,12 +165,6 @@ class Preferences @JvmOverloads constructor(
 
     val defaultCalendar: String?
         get() = getStringValue(R.string.gcal_p_default)
-
-    val firstDayOfWeek: Int
-        get() {
-            val firstDayOfWeek = getIntegerFromString(R.string.p_start_of_week, 0)
-            return if (firstDayOfWeek < 1 || firstDayOfWeek > 7) 0 else firstDayOfWeek
-        }
 
     val showEditScreenWithoutUnlock: Boolean
         get() = getBoolean(R.string.p_show_edit_screen_without_unlock, false)
@@ -228,9 +218,6 @@ class Preferences @JvmOverloads constructor(
     val fontSize: Int
         get() = getInt(R.string.p_fontSize, 16)
 
-    val mapTheme: Int
-        get() = getIntegerFromString(R.string.p_map_theme, 0)
-
     fun getIntegerFromString(keyResource: Int, defaultValue: Int): Int =
         getIntegerFromString(context.getString(keyResource), defaultValue)
 
@@ -255,6 +242,7 @@ class Preferences @JvmOverloads constructor(
     }
 
     fun setString(key: String?, newValue: String?) {
+        Timber.d("Setting $key -> ${newValue?.let { if (BuildConfig.DEBUG) it else if (it.isBlank()) "" else "<redacted>" }}")
         val editor = prefs.edit()
         editor.putString(key, newValue)
         editor.apply()
@@ -264,6 +252,7 @@ class Preferences @JvmOverloads constructor(
         setStringSet(context.getString(key), newValue)
 
     fun setStringSet(key: String, newValue: Set<String>) {
+        Timber.d("Setting $key -> ${newValue.size} items")
         val editor = prefs.edit()
         editor.putStringSet(key, newValue)
         editor.apply()
@@ -277,7 +266,9 @@ class Preferences @JvmOverloads constructor(
 
     fun setStringFromInteger(keyResource: Int, newValue: Int) {
         val editor = prefs.edit()
-        editor.putString(context.getString(keyResource), newValue.toString())
+        val key = context.getString(keyResource)
+        Timber.d("Setting $key -> $newValue")
+        editor.putString(key, newValue.toString())
         editor.apply()
     }
 
@@ -296,6 +287,7 @@ class Preferences @JvmOverloads constructor(
     }
 
     fun setBoolean(key: String?, value: Boolean) {
+        Timber.d("Setting $key -> $value")
         val editor = prefs.edit()
         editor.putBoolean(key, value)
         editor.apply()
@@ -311,6 +303,7 @@ class Preferences @JvmOverloads constructor(
     }
 
     fun setInt(key: String?, value: Int) {
+        Timber.d("Setting $key -> $value")
         val editor = prefs.edit()
         editor.putInt(key, value)
         editor.apply()
@@ -326,12 +319,14 @@ class Preferences @JvmOverloads constructor(
     }
 
     fun setLong(key: String?, value: Long) {
+        Timber.d("Setting $key -> $value")
         val editor = prefs.edit()
         editor.putLong(key, value)
         editor.apply()
     }
 
     fun clear(key: String?) {
+        Timber.d("Clearing $key")
         val editor = prefs.edit()
         editor.remove(key)
         editor.apply()
@@ -353,11 +348,11 @@ class Preferences @JvmOverloads constructor(
         set(value) = setLong(R.string.p_install_date, value)
 
     override var sortMode: Int
-        get() = getInt(R.string.p_sort_mode, SortHelper.SORT_AUTO)
+        get() = getInt(R.string.p_sort_mode, SortHelper.SORT_DUE)
         set(value) { setInt(R.string.p_sort_mode, value) }
 
     override var groupMode: Int
-        get() = getInt(R.string.p_group_mode, SortHelper.GROUP_NONE)
+        get() = getInt(R.string.p_group_mode, SortHelper.SORT_DUE)
         set(value) { setInt(R.string.p_group_mode, value) }
 
     override var completedMode: Int
@@ -438,18 +433,6 @@ class Preferences @JvmOverloads constructor(
                     Binder.getCallingUid(),
                     Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION))
 
-    val notificationDefaults: Int
-        get() {
-            var result = 0
-            if (getBoolean(R.string.p_rmd_vibrate, true)) {
-                result = result or NotificationCompat.DEFAULT_VIBRATE
-            }
-            if (getBoolean(R.string.p_led_notification, true)) {
-                result = result or NotificationCompat.DEFAULT_LIGHTS
-            }
-            return result
-        }
-
     fun remove(resId: Int) {
         val editor = prefs.edit()
         editor.remove(context.getString(resId))
@@ -484,9 +467,6 @@ class Preferences @JvmOverloads constructor(
     fun <T> getPrefs(c: Class<T>): Map<String, T> =
         prefs.all.filter { (_, value) -> c.isInstance(value) } as Map<String, T>
 
-    val isFlipperEnabled: Boolean
-        get() = BuildConfig.DEBUG && getBoolean(R.string.p_flipper, false)
-
     var isPositionHackEnabled: Boolean
         get() = getLong(R.string.p_google_tasks_position_hack, 0) > currentTimeMillis() - ONE_WEEK
         set(value) { setLong(R.string.p_google_tasks_position_hack, if (value) currentTimeMillis() else 0) }
@@ -509,7 +489,7 @@ class Preferences @JvmOverloads constructor(
         set(value) { setBoolean(R.string.p_sort_ascending, value) }
 
     override var groupAscending: Boolean
-        get() = getBoolean(R.string.p_group_ascending, false)
+        get() = getBoolean(R.string.p_group_ascending, true)
         set(value) { setBoolean(R.string.p_group_ascending, value) }
 
     override var completedAscending: Boolean
@@ -551,11 +531,11 @@ class Preferences @JvmOverloads constructor(
     val defaultThemeColor: Int
         get() = getInt(R.string.p_theme_color, BLUE_500)
 
+    val dynamicColor: Boolean
+        get() = getBoolean(R.string.p_dynamic_color, false)
+
     val markdown: Boolean
         get() = getBoolean(R.string.p_markdown, false)
-
-    val isTopAppBar: Boolean
-        get() = getIntegerFromString(R.string.p_app_bar_position, 1) == 0
 
     var lastReviewRequest: Long
         get() = getLong(R.string.p_last_review_request, 0L)
@@ -565,9 +545,21 @@ class Preferences @JvmOverloads constructor(
         get() = getBoolean(R.string.p_warn_notifications_disabled, true)
         set(value) = setBoolean(R.string.p_warn_notifications_disabled, value)
 
+    var warnAlarmsDisabled: Boolean
+        get() = getBoolean(R.string.p_warn_alarms_disabled, true)
+        set(value) = setBoolean(R.string.p_warn_alarms_disabled, value)
+
     var warnQuietHoursDisabled: Boolean
         get() = getBoolean(R.string.p_warn_quiet_hours_enabled, true)
         set(value) = setBoolean(R.string.p_warn_quiet_hours_enabled, value)
+
+    var warnMicrosoft: Boolean
+        get() = getBoolean(R.string.p_warn_microsoft, true)
+        set(value) = setBoolean(R.string.p_warn_microsoft, value)
+
+    var warnGoogleTasks: Boolean
+        get() = getBoolean(R.string.p_warn_google_tasks, true)
+        set(value) = setBoolean(R.string.p_warn_google_tasks, value)
 
     var lastSubscribeRequest: Long
         get() = getLong(R.string.p_last_subscribe_request, 0L)
@@ -577,11 +569,27 @@ class Preferences @JvmOverloads constructor(
         get() = getBoolean(R.string.p_shown_beast_mode_hint, false)
         set(value) = setBoolean(R.string.p_shown_beast_mode_hint, value)
 
-    val desaturateDarkMode: Boolean
-        get() = getBoolean(R.string.p_desaturate_colors, true)
-
     val linkify: Boolean
         get() = getBoolean(R.string.p_linkify_task_edit, false)
+
+    val multilineTitle: Boolean
+        get() = getBoolean(R.string.p_multiline_title, false)
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    var calendarDisplayMode: DisplayMode
+        get() = if (getIntegerFromString(R.string.p_picker_mode_date, 0) == 1)
+            DisplayMode.Input else DisplayMode.Picker
+        set(mode) {
+            setStringFromInteger(R.string.p_picker_mode_date, if (mode == DisplayMode.Input) 1 else 0)
+        }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    var timeDisplayMode: DisplayMode
+        get() = if (getIntegerFromString(R.string.p_picker_mode_time, 0) == 1)
+            DisplayMode.Input else DisplayMode.Picker
+        set(mode) {
+            setStringFromInteger(R.string.p_picker_mode_time, if (mode == DisplayMode.Input) 1 else 0)
+        }
 
     companion object {
         private fun getSharedPreferencesName(context: Context): String =

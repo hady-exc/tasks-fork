@@ -6,36 +6,45 @@
 package com.todoroo.astrid.activity
 
 import android.Manifest
-import android.app.Activity
+import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.os.Parcelable
 import android.speech.RecognizerIntent
-import android.view.Gravity
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.addCallback
+import android.view.ViewGroup.LAYOUT_DIRECTION_LTR
+import android.view.ViewGroup.MarginLayoutParams
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.compose.BackHandler
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.runtime.getValue
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.ui.platform.LocalContext
-import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.app.ShareCompat
 import androidx.core.content.IntentCompat
-import androidx.core.view.forEach
+import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
-import androidx.core.view.setMargins
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -49,11 +58,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
-import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.material.snackbar.Snackbar
 import com.todoroo.andlib.utility.AndroidUtilities
 import com.todoroo.astrid.adapter.TaskAdapter
@@ -73,26 +79,26 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.tasks.LocalBroadcastManager
 import org.tasks.R
 import org.tasks.ShortcutManager
-import org.tasks.Tasks
+import org.tasks.TasksApplication
 import org.tasks.activities.FilterSettingsActivity
-import org.tasks.activities.GoogleTaskListSettingsActivity
 import org.tasks.activities.PlaceSettingsActivity
 import org.tasks.activities.TagSettingsActivity
 import org.tasks.analytics.Firebase
 import org.tasks.billing.PurchaseActivity
 import org.tasks.caldav.BaseCaldavCalendarSettingsActivity
 import org.tasks.compose.AlarmsDisabledBanner
+import org.tasks.compose.AppUpdatedBanner
 import org.tasks.compose.FilterSelectionActivity.Companion.launch
 import org.tasks.compose.FilterSelectionActivity.Companion.registerForListPickerResult
 import org.tasks.compose.NotificationsDisabledBanner
 import org.tasks.compose.QuietHoursBanner
 import org.tasks.compose.SubscriptionNagBanner
-import org.tasks.compose.rememberReminderPermissionState
+import org.tasks.compose.SyncWarningGoogleTasks
+import org.tasks.compose.SyncWarningMicrosoft
 import org.tasks.compose.taskdrawer.TaskDrawerFragment
 import org.tasks.data.TaskContainer
 import org.tasks.data.dao.CaldavDao
@@ -103,12 +109,12 @@ import org.tasks.data.entity.Task
 import org.tasks.data.listSettingsClass
 import org.tasks.data.open
 import org.tasks.data.sql.QueryTemplate
-import org.tasks.data.withTransaction
 import org.tasks.databinding.FragmentTaskListBinding
 import org.tasks.dialogs.DateTimePicker.Companion.newDateTimePicker
 import org.tasks.dialogs.DialogBuilder
 import org.tasks.dialogs.PriorityPicker.Companion.newPriorityPicker
 import org.tasks.dialogs.SortSettingsActivity
+import org.tasks.dialogs.WhatsNewDialog
 import org.tasks.extensions.Context.is24HourFormat
 import org.tasks.extensions.Context.openAppNotificationSettings
 import org.tasks.extensions.Context.openReminderSettings
@@ -122,17 +128,17 @@ import org.tasks.filters.CaldavFilter
 import org.tasks.filters.CustomFilter
 import org.tasks.filters.Filter
 import org.tasks.filters.FilterImpl
-import org.tasks.filters.GtasksFilter
 import org.tasks.filters.MyTasksFilter
 import org.tasks.filters.PlaceFilter
+import org.tasks.filters.SearchFilter
 import org.tasks.filters.TagFilter
 import org.tasks.kmp.org.tasks.time.DateStyle
 import org.tasks.kmp.org.tasks.time.getRelativeDateTime
 import org.tasks.markdown.MarkdownProvider
 import org.tasks.preferences.Device
 import org.tasks.preferences.MainPreferences
-import org.tasks.preferences.PermissionChecker
 import org.tasks.preferences.Preferences
+import org.tasks.preferences.ResourceResolver.getData
 import org.tasks.scheduling.NotificationSchedulerIntentService
 import org.tasks.sync.SyncAdapters
 import org.tasks.tags.TagPickerActivity
@@ -146,12 +152,12 @@ import org.tasks.themes.TasksTheme
 import org.tasks.themes.Theme
 import org.tasks.themes.ThemeColor
 import org.tasks.time.DateTimeUtils2.currentTimeMillis
-import org.tasks.ui.TaskEditEvent
-import org.tasks.ui.TaskEditEventBus
+import org.tasks.ui.Banner
 import org.tasks.ui.TaskListEvent
 import org.tasks.ui.TaskListEventBus
 import org.tasks.ui.TaskListViewModel
 import org.tasks.ui.TaskListViewModel.Companion.createSearchQuery
+import timber.log.Timber
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.max
@@ -183,9 +189,9 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     @Inject lateinit var firebase: Firebase
     @Inject lateinit var repeatTaskHelper: RepeatTaskHelper
     @Inject lateinit var taskListEventBus: TaskListEventBus
-    @Inject lateinit var taskEditEventBus: TaskEditEventBus
     @Inject lateinit var database: Database
     @Inject lateinit var markdown: MarkdownProvider
+    @Inject lateinit var theme: Theme
 
     private val listViewModel: TaskListViewModel by viewModels()
     private val mainViewModel: MainActivityViewModel by activityViewModels()
@@ -195,7 +201,9 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     private lateinit var search: MenuItem
     private var mode: ActionMode? = null
     lateinit var themeColor: ThemeColor
+    private var onClickMenu: () -> Unit = {}
     private lateinit var binding: FragmentTaskListBinding
+    private var windowInsets: PaddingValues? = null
     private val listPickerLauncher = registerForListPickerResult {
         val selected = taskAdapter.getSelected()
         lifecycleScope.launch {
@@ -203,13 +211,16 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         }
         finishActionMode()
     }
+    private val settingsLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        (activity as? MainActivity)?.restartActivity()
+    }
 
     private val sortRequest =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
                 result.data?.let { data ->
                     if (data.getBooleanExtra(SortSettingsActivity.EXTRA_FORCE_RELOAD, false)) {
-                        activity?.recreate()
+                        (activity as? MainActivity)?.restartActivity()
                     }
                     if (data.getBooleanExtra(SortSettingsActivity.EXTRA_CHANGED_GROUP, false)) {
                         listViewModel.clearCollapsed()
@@ -270,24 +281,72 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         taskListEventBus
             .onEach(this::process)
             .launchIn(viewLifecycleOwner.lifecycleScope)
-    }
 
-    @OptIn(ExperimentalAnimationApi::class, ExperimentalPermissionsApi::class)
-    override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        requireActivity().onBackPressedDispatcher.addCallback(owner = viewLifecycleOwner) {
-            if (search.isActionViewExpanded) {
-                search.collapseActionView()
-            } else {
-                requireActivity().finish()
-                if (!preferences.getBoolean(R.string.p_open_last_viewed_list, true)) {
-                    runBlocking {
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if ((mainViewModel.state.value.filter as? SearchFilter)?.query?.isNotBlank() == true) {
+                    lifecycleScope.launch {
                         mainViewModel.resetFilter()
                     }
+                    if (search.isActionViewExpanded) {
+                        search.collapseActionView()
+                    }
+                    Timber.d("Filtro resettato")
+                } else {
+                    isEnabled = false // Disabilita il callback per consentire il comportamento predefinito
+                    requireActivity().onBackPressedDispatcher.onBackPressed()
                 }
             }
+        })
+    }
+
+    fun setNavigationClickListener(onClick: () -> Unit) {
+        onClickMenu = onClick
+    }
+
+    @SuppressLint("PrivateResource")
+    fun applyInsets(windowInsets: PaddingValues) {
+        if (this::binding.isInitialized) {
+            applyInsetsInternal(windowInsets)
+        } else {
+            this.windowInsets = windowInsets
         }
+    }
+
+    private fun applyInsetsInternal(windowInsets: PaddingValues) {
+        val density = resources.displayMetrics.density
+        val viewLayoutDir = view?.layoutDirection ?: resources.configuration.layoutDirection
+        val composeLayoutDirection =
+            if (viewLayoutDir == View.LAYOUT_DIRECTION_RTL) LayoutDirection.Rtl else LayoutDirection.Ltr
+        val topInset = (windowInsets.calculateTopPadding().value * density).toInt()
+        val bottomInset = (windowInsets.calculateBottomPadding().value * density).toInt()
+        val (startInset, endInset) =
+            (windowInsets.calculateStartPadding(composeLayoutDirection).value * density).toInt().let {
+            if (viewLayoutDir == LAYOUT_DIRECTION_LTR) it to 0 else 0 to it
+        }
+        with(binding.toolbar) {
+            val actionBarHeight = TypedValue.complexToDimensionPixelSize(
+                getData(requireContext(), android.R.attr.actionBarSize),
+                resources.displayMetrics
+            )
+            val params = layoutParams
+            params.height = actionBarHeight + topInset
+            layoutParams = params
+            updatePadding(top = topInset)
+        }
+        binding.taskListCoordinator.updatePadding(
+            left = startInset,
+            right = endInset,
+        )
+        binding.bottomAppBar.updatePadding(bottom = bottomInset)
+        (binding.fab.layoutParams as MarginLayoutParams).bottomMargin = bottomInset / 2
+    }
+
+    @OptIn(ExperimentalPermissionsApi::class)
+    override fun onCreateView(
+            inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentTaskListBinding.inflate(inflater, container, false)
+        windowInsets?.let { applyInsetsInternal(it) }
         filter = getFilter()
         val swipeRefreshLayout: SwipeRefreshLayout
         val emptyRefreshLayout: SwipeRefreshLayout
@@ -296,10 +355,12 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             swipeRefreshLayout = bodyStandard.swipeLayout
             emptyRefreshLayout = bodyEmpty.swipeLayoutEmpty
             recyclerView = bodyStandard.recyclerView
-            fab.setOnClickListener { launchTaskDrawer() }  // *** TaskDrawer
+            //fab.setOnClickListener { createNewTask() }
+            fab.setOnClickListener {     // *** TaskDrawer
+                lifecycleScope.launch { launchTaskDrawer(addTask("")) }
+            }
             fab.isVisible = filter.isWritable
         }
-
         themeColor = if (filter.tint != 0) colorProvider.getThemeColor(filter.tint, true) else defaultThemeColor
         (filter as? AstridOrderingFilter)?.filterOverride = null
 
@@ -330,104 +391,148 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         setupRefresh(swipeRefreshLayout)
         setupRefresh(emptyRefreshLayout)
         binding.toolbar.title = filter.title
+        binding.toolbar.setTitleTextAppearance(requireContext(), com.google.android.material.R.style.TextAppearance_Material3_HeadlineSmall)
+        binding.toolbar.setTitleTextColor(themeColor.primaryColor)
         binding.appbarlayout.addOnOffsetChangedListener { _, verticalOffset ->
             if (verticalOffset == 0 && binding.bottomAppBar.isScrolledDown) {
                 binding.bottomAppBar.performShow()
             }
         }
-        val toolbar = if (preferences.isTopAppBar) {
-            binding.bottomAppBar.isVisible = false
-            with (binding.fab) {
-                layoutParams = (layoutParams as CoordinatorLayout.LayoutParams).apply {
-                    setMargins(resources.getDimensionPixelSize(R.dimen.keyline_first))
-                    anchorId = View.NO_ID
-                    gravity = Gravity.BOTTOM or Gravity.END
-                }
+        with (binding.fab) {
+            backgroundTintList = ColorStateList.valueOf(themeColor.primaryColor)
+            imageTintList = ColorStateList.valueOf(themeColor.colorOnPrimary)
+        }
+        with (binding.bottomAppBar) {
+            setOnMenuItemClickListener(this@TaskListFragment)
+            setNavigationOnClickListener {
+                activity?.hideKeyboard()
+                onClickMenu()
             }
-            binding.toolbar.setNavigationIcon(R.drawable.ic_outline_menu_24px)
-            binding.toolbar
-        } else {
-            themeColor.apply(binding.bottomAppBar)
-            binding.bottomAppBar.isVisible = true
-            binding.toolbar.navigationIcon = null
-            binding.bottomAppBar
         }
-        if (!preferences.getBoolean(R.string.p_app_bar_collapse, true)) {
-            binding.bottomAppBar.hideOnScroll = false
-            (binding.toolbar.layoutParams as AppBarLayout.LayoutParams).scrollFlags = 0
-        }
-        toolbar.setOnMenuItemClickListener(this)
-        toolbar.setNavigationOnClickListener {
-            activity?.hideKeyboard()
-            mainViewModel.openDrawer()
-        }
-        setupMenu(toolbar)
+        setupToolbarMenu()
+        setupBottomAppBarMenu()
+        binding.banner.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
         binding.banner.setContent {
             val context = LocalContext.current
+            val mainActivityState = mainViewModel.state.collectAsStateWithLifecycle().value
             val state = listViewModel.state.collectAsStateWithLifecycle().value
-//            TasksTheme(theme = theme.themeBase.index) { // TODO: debug!!!
-            TasksTheme {
-                val hasRemindersPermission by rememberReminderPermissionState()
+            BackHandler(enabled = state.searchQuery != null && mainActivityState.task == null) {
+                Timber.d("onBackPressed")
+                if (search.isActionViewExpanded) {
+                    search.collapseActionView()
+                }
+            }
+            TasksTheme(
+                theme = theme.themeBase.index,
+                primary = theme.themeColor.primaryColor,
+            ) {
                 val notificationPermissions = if (AndroidUtilities.atLeastTiramisu()) {
                     rememberPermissionState(
                         Manifest.permission.POST_NOTIFICATIONS,
                         onPermissionResult = { success ->
                             if (success) {
                                 NotificationSchedulerIntentService.enqueueWork(context)
-                                listViewModel.dismissNotificationBanner(fix = true)
+                                listViewModel.dismissBanner(tookAction = true)
                             }
                         }
                     )
                 } else {
                     null
                 }
-                val showNotificationBanner = state.warnNotificationsDisabled && notificationPermissions?.status is PermissionStatus.Denied
-                val showAlarmsBanner = !showNotificationBanner && state.warnNotificationsDisabled && !hasRemindersPermission
-                val showSubscriptionNag = !showNotificationBanner && !showAlarmsBanner && state.begForSubscription
-                val showQuietHoursWarning = !showNotificationBanner && !showAlarmsBanner && !showSubscriptionNag && state.warnQuietHoursEnabled
-                NotificationsDisabledBanner(
-                    visible = showNotificationBanner,
-                    settings = {
-                        if (notificationPermissions?.status?.shouldShowRationale == true) {
-                            context.openAppNotificationSettings()
-                        } else {
-                            notificationPermissions?.launchPermissionRequest()
-                        }
-                    },
-                    dismiss = { listViewModel.dismissNotificationBanner() },
-                )
-                AlarmsDisabledBanner(
-                    visible = showAlarmsBanner,
-                    settings = { context.openReminderSettings() },
-                    dismiss = { listViewModel.dismissNotificationBanner() },
-                )
-                SubscriptionNagBanner(
-                    visible = showSubscriptionNag,
-                    subscribe = {
-                        listViewModel.dismissPurchaseBanner(clickedPurchase = true)
-                        if (Tasks.IS_GOOGLE_PLAY) {
-                            context.startActivity(Intent(context, PurchaseActivity::class.java))
-                        } else {
-                            preferences.lastSubscribeRequest = currentTimeMillis()
-                            context.openUri(R.string.url_donate)
-                        }
-                    },
-                    dismiss = {
-                        listViewModel.dismissPurchaseBanner(clickedPurchase = false)
-                    },
-                )
-                QuietHoursBanner(
-                    visible = showQuietHoursWarning,
-                    showSettings = {
-                        listViewModel.dismissQuietHoursBanner()
-                        context.startActivity(Intent(context, MainPreferences::class.java))
-                    },
-                    dismiss = {
-                        listViewModel.dismissQuietHoursBanner()
+
+                AnimatedVisibility(
+                    visible = state.banner != null,
+                    enter = expandVertically(),
+                    exit = shrinkVertically(),
+                ) {
+                    when (state.banner) {
+                        is Banner.NotificationsDisabled ->
+                            NotificationsDisabledBanner(
+                                settings = {
+                                    if (notificationPermissions?.status?.shouldShowRationale == true) {
+                                        context.openAppNotificationSettings()
+                                    } else {
+                                        notificationPermissions?.launchPermissionRequest()
+                                    }
+                                },
+                                dismiss = { listViewModel.dismissBanner() },
+                            )
+
+                        Banner.AlarmsDisabled ->
+                            AlarmsDisabledBanner(
+                                settings = { context.openReminderSettings() },
+                                dismiss = { listViewModel.dismissBanner() },
+                            )
+
+                        Banner.BegForMoney ->
+                            SubscriptionNagBanner(
+                                subscribe = {
+                                    listViewModel.dismissBanner(tookAction = true)
+                                    if (TasksApplication.IS_GOOGLE_PLAY) {
+                                        context.startActivity(
+                                            Intent(
+                                                context,
+                                                PurchaseActivity::class.java
+                                            )
+                                        )
+                                    } else {
+                                        preferences.lastSubscribeRequest = currentTimeMillis()
+                                        context.openUri(R.string.url_donate)
+                                    }
+                                },
+                                dismiss = { listViewModel.dismissBanner() },
+                            )
+
+                        Banner.QuietHoursEnabled ->
+                            QuietHoursBanner(
+                                showSettings = {
+                                    listViewModel.dismissBanner()
+                                    context.startActivity(
+                                        Intent(
+                                            context,
+                                            MainPreferences::class.java
+                                        )
+                                    )
+                                },
+                                dismiss = { listViewModel.dismissBanner() },
+                            )
+
+                        Banner.WarnGoogleTasks ->
+                            SyncWarningGoogleTasks(
+                                moreInfo = {
+                                    listViewModel.dismissBanner()
+                                    context.openUri(R.string.url_google_tasks)
+                                },
+                                dismiss = { listViewModel.dismissBanner() },
+                            )
+
+                        Banner.WarnMicrosoft ->
+                            SyncWarningMicrosoft(
+                                moreInfo = {
+                                    listViewModel.dismissBanner()
+                                    context.openUri(R.string.url_microsoft)
+                                },
+                                dismiss = { listViewModel.dismissBanner() },
+                            )
+
+                        Banner.AppUpdated ->
+                            AppUpdatedBanner(
+                                whatsNew = {
+                                    val fragmentManager = parentFragmentManager
+                                    if (fragmentManager.findFragmentByTag(FRAG_TAG_WHATS_NEW) == null) {
+                                        WhatsNewDialog().show(parentFragmentManager, FRAG_TAG_WHATS_NEW)
+                                    }
+                                    listViewModel.dismissBanner()
+                                },
+                                dismiss = { listViewModel.dismissBanner() },
+                            )
+
+                        null -> {}
                     }
-                )
+                }
             }
         }
+        ViewCompat.requestApplyInsets(binding.toolbar)
         return binding.root
     }
 
@@ -455,26 +560,36 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         taskAdapter.setDataSource(adapter)
     }
 
-    private fun setupMenu(appBar: Toolbar) {
+    private fun setupToolbarMenu() {
+        val toolbar = binding.toolbar
+        toolbar.setOnMenuItemClickListener(this)
+        toolbar.overflowIcon = getDrawable(requireContext(), R.drawable.ic_outline_settings_24px)
+        val menu = toolbar.menu
+        menu.clear()
+        toolbar.inflateMenu(R.menu.menu_task_list_fragment_top)
+        when (filter) {
+            is CaldavFilter -> R.menu.menu_caldav_list_fragment
+            is CustomFilter -> R.menu.menu_custom_filter
+            is TagFilter -> R.menu.menu_tag_view_fragment
+            is PlaceFilter -> R.menu.menu_location_list_fragment
+            else -> null
+        }?.let {
+            toolbar.inflateMenu(it)
+        }
+        search = binding.toolbar.menu.findItem(R.id.menu_search).apply {
+            setOnActionExpandListener(this@TaskListFragment)
+            isVisible = false
+        }
+    }
+
+    private fun setupBottomAppBarMenu() {
+        val appBar = binding.bottomAppBar
         val menu = appBar.menu
         menu.clear()
         if (filter is PlaceFilter) {
             appBar.inflateMenu(R.menu.menu_location_actions)
         }
         appBar.inflateMenu(R.menu.menu_task_list_fragment_bottom)
-        when (filter) {
-            is CaldavFilter -> R.menu.menu_caldav_list_fragment
-            is CustomFilter -> R.menu.menu_custom_filter
-            is GtasksFilter -> R.menu.menu_gtasks_list_fragment
-            is TagFilter -> R.menu.menu_tag_view_fragment
-            is PlaceFilter -> R.menu.menu_location_list_fragment
-            else -> null
-        }?.let {
-            appBar.inflateMenu(it)
-        }
-        if (appBar is BottomAppBar) {
-            menu.removeItem(R.id.menu_search)
-        }
         val hidden = menu.findItem(R.id.menu_show_unstarted)
         val completed = menu.findItem(R.id.menu_show_completed)
         if (!taskAdapter.supportsHiddenTasks() || !filter.supportsHiddenTasks()) {
@@ -496,12 +611,23 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             menu.findItem(R.id.menu_expand_subtasks).isVisible = false
         }
         menu.findItem(R.id.menu_voice_add).isVisible = device.voiceInputAvailable() && filter.isWritable
-        search = binding.toolbar.menu.findItem(R.id.menu_search).setOnActionExpandListener(this)
         menu.findItem(R.id.menu_clear_completed).isVisible = filter.isWritable
     }
 
     override fun onMenuItemClick(item: MenuItem): Boolean {
+        Timber.d("onMenuItemClick($item)")
         return when (item.itemId) {
+            R.id.menu_settings -> {
+                settingsLauncher.launch(Intent(context, MainPreferences::class.java))
+                true
+            }
+            R.id.menu_search -> {
+                if (!search.isActionViewExpanded) {
+                    search.isVisible = true
+                    search.expandActionView()
+                }
+                true
+            }
             R.id.menu_voice_add -> {
                 safeStartActivityForResult(
                         Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
@@ -533,14 +659,12 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 item.isChecked = !item.isChecked
                 preferences.showHidden = item.isChecked
                 loadTaskListContent()
-                localBroadcastManager.broadcastRefresh()
                 true
             }
             R.id.menu_show_completed -> {
                 item.isChecked = !item.isChecked
                 preferences.showCompleted = item.isChecked
                 loadTaskListContent()
-                localBroadcastManager.broadcastRefresh()
                 true
             }
             R.id.menu_clear_completed -> {
@@ -576,15 +700,12 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 true
             }
             R.id.menu_caldav_list_fragment -> {
-                val calendar = (filter as CaldavFilter).calendar
-                lifecycleScope.launch {
-                    val account = caldavDao.getAccountByUuid(calendar.account!!)
-                    listSettingsRequest.launch(
-                        Intent(activity, account!!.listSettingsClass())
-                            .putExtra(BaseCaldavCalendarSettingsActivity.EXTRA_CALDAV_ACCOUNT, account)
-                            .putExtra(BaseCaldavCalendarSettingsActivity.EXTRA_CALDAV_CALENDAR, calendar)
-                    )
-                }
+                val filter = filter as? CaldavFilter ?: return false
+                listSettingsRequest.launch(
+                    Intent(activity, filter.account.listSettingsClass())
+                        .putExtra(BaseCaldavCalendarSettingsActivity.EXTRA_CALDAV_ACCOUNT, filter.account)
+                        .putExtra(BaseCaldavCalendarSettingsActivity.EXTRA_CALDAV_CALENDAR, filter.calendar)
+                )
                 true
             }
             R.id.menu_location_settings -> {
@@ -592,13 +713,6 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 listSettingsRequest.launch(
                     Intent(activity, PlaceSettingsActivity::class.java)
                             .putExtra(PlaceSettingsActivity.EXTRA_PLACE, place as Parcelable)
-                )
-                true
-            }
-            R.id.menu_gtasks_list_settings -> {
-                listSettingsRequest.launch(
-                    Intent(activity, GoogleTaskListSettingsActivity::class.java)
-                            .putExtra(GoogleTaskListSettingsActivity.EXTRA_STORE_DATA, (filter as GtasksFilter).list)
                 )
                 true
             }
@@ -638,7 +752,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     }
 
     private fun createNewTask() {
-       lifecycleScope.launch {
+        lifecycleScope.launch {
             shortcutManager.reportShortcutUsed(ShortcutManager.SHORTCUT_NEW_TASK)
             onTaskListItemClicked(addTask(""))
             firebase.addTask("fab")
@@ -646,20 +760,21 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     }
 
     private suspend fun addTask(title: String): Task {
-        return taskCreator.createWithValues(filter, title)
+        return taskCreator.createWithValues(filter, title).copy(remoteId = null)
     }
 
     private fun setupRefresh(layout: SwipeRefreshLayout) {
         layout.setOnRefreshListener(this)
         layout.setColorSchemeColors(
-                colorProvider.getPriorityColor(0, true),
-                colorProvider.getPriorityColor(1, true),
-                colorProvider.getPriorityColor(2, true),
-                colorProvider.getPriorityColor(3, true))
+                colorProvider.getPriorityColor(0),
+                colorProvider.getPriorityColor(1),
+                colorProvider.getPriorityColor(2),
+                colorProvider.getPriorityColor(3))
     }
 
     override fun onResume() {
         super.onResume()
+        listViewModel.invalidate()
         localBroadcastManager.registerTaskCompletedReceiver(repeatConfirmationReceiver)
     }
 
@@ -670,11 +785,17 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     private fun makeSnackbar(text: String): Snackbar? = activity?.let {
         Snackbar.make(binding.taskListCoordinator, text, 4000)
                 .setAnchorView(R.id.fab)
-                .setTextColor(it.getColor(R.color.snackbar_text_color))
-                .setActionTextColor(it.getColor(R.color.snackbar_action_color))
-                .apply {
-                    view.setBackgroundColor(it.getColor(R.color.snackbar_background))
-                }
+                .setBackgroundTint(it.getColor(R.color.dialog_background))
+                .setTextColor(it.getColor(R.color.text_primary))
+                .setActionTextColor(themeColor.primaryColor)
+            .apply {
+                val offset = TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    16f,
+                    context.resources.displayMetrics
+                )
+                view.translationY = -offset
+            }
     }
 
     override fun onPause() {
@@ -704,16 +825,9 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         }
     }
 
-    private suspend fun onTaskDelete(task: Task) {
-        taskEditEventBus.emit(TaskEditEvent.Discard(task.id))
-        timerPlugin.stopTimer(task)
-        taskAdapter.onTaskDeleted(task)
-        loadTaskListContent()
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
-            VOICE_RECOGNITION_REQUEST_CODE -> if (resultCode == Activity.RESULT_OK) {
+            VOICE_RECOGNITION_REQUEST_CODE -> if (resultCode == RESULT_OK) {
                 lifecycleScope.launch {
                     val match: List<String>? = data!!.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                     if (!match.isNullOrEmpty() && match[0].isNotEmpty()) {
@@ -757,19 +871,14 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     override fun onMenuItemActionExpand(item: MenuItem): Boolean {
         search.setOnQueryTextListener(this)
         listViewModel.setSearchQuery("")
-        if (preferences.isTopAppBar) {
-            binding.toolbar.menu.forEach { it.isVisible = false }
-        }
         return true
     }
 
     override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
+        search.isVisible = false
         search.setOnQueryTextListener(null)
         listViewModel.setFilter(filter)
         listViewModel.setSearchQuery(null)
-        if (preferences.isTopAppBar) {
-            setupMenu(binding.toolbar)
-        }
         return true
     }
 
@@ -822,7 +931,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                         .filterNot { it.readOnly }
                         .takeIf { it.isNotEmpty() }
                         ?.let {
-                            newPriorityPicker(preferences.getBoolean(R.string.p_desaturate_colors, false), it)
+                            newPriorityPicker(it)
                                 .show(parentFragmentManager, FRAG_TAG_PRIORITY_PICKER)
                         }
                 }
@@ -961,7 +1070,14 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         val result = withContext(NonCancellable) {
             listViewModel.markDeleted(tasks)
         }
-        result.forEach { onTaskDelete(it) }
+        result.forEach {
+            timerPlugin.stopTimer(it)
+            taskAdapter.onTaskDeleted(it)
+        }
+        loadTaskListContent()
+        if (tasks.contains(mainViewModel.state.value.task?.id)) {
+            mainViewModel.setTask(null)
+        }
         makeSnackbar(R.string.delete_multiple_tasks_confirmation, result.size.toString())?.show()
     }
 
@@ -1043,10 +1159,8 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 val tasks =
                     (intent.getSerializableExtra(EXTRAS_TASK_ID) as? ArrayList<Long>)
                         ?.let {
-                            // hack to wait for task save transaction to complete
-                            database.withTransaction {
-                                taskDao.fetch(it)
-                            }
+                            Timber.d("Repeating tasks: $it")
+                            taskDao.fetch(it)
                         }
                         ?.filterNot { it.readOnly }
                         ?.takeIf { it.isNotEmpty() }
@@ -1093,6 +1207,7 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             }
         }
     }
+
     // *** TaskDrawer
     private fun createNewTask(task: Task) {
         lifecycleScope.launch {
@@ -1103,14 +1218,15 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
     }
 
     // *** TaskDrawer
-    private fun launchTaskDrawer () {
+    private fun launchTaskDrawer (task: Task) {
         val fragmentManager = parentFragmentManager
         if (fragmentManager.findFragmentByTag(TaskDrawerFragment.FRAG_TAG_TASK_DRAWER) == null) {
             TaskDrawerFragment
                 .newTaskDrawer(
                     this@TaskListFragment,
                     TaskDrawerFragment.REQUEST_EDIT_TASK,
-                    filter
+                    filter,
+                    task
                 )
                 .show(fragmentManager, TaskDrawerFragment.FRAG_TAG_TASK_DRAWER)
         }
@@ -1121,17 +1237,10 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
         const val ACTION_DELETED = "action_deleted"
         private const val EXTRA_SELECTED_TASK_IDS = "extra_selected_task_ids"
         private const val VOICE_RECOGNITION_REQUEST_CODE = 1234
-        private const val EXTRA_FILTER = "extra_filter"
+        const val EXTRA_FILTER = "extra_filter"
         private const val FRAG_TAG_DATE_TIME_PICKER = "frag_tag_date_time_picker"
         private const val FRAG_TAG_PRIORITY_PICKER = "frag_tag_priority_picker"
+        private const val FRAG_TAG_WHATS_NEW = "frag_tag_whats_new"
         private const val REQUEST_TAG_TASKS = 10106
-
-        fun newTaskListFragment(filter: Filter): TaskListFragment {
-            val fragment = TaskListFragment()
-            val bundle = Bundle()
-            bundle.putParcelable(EXTRA_FILTER, filter)
-            fragment.arguments = bundle
-            return fragment
-        }
     }
 }

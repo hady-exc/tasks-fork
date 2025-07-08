@@ -1,4 +1,296 @@
-### 14.2.1 (2024-02-03)
+### 14.7 (2025-05-03)
+
+* Add support for Microsoft To Do work & school accounts [#3267](https://github.com/tasks/tasks/issues/3267)
+* Add ability to rename or delete local account
+* Prompt to sign in or import backup on first launch
+* @BeaterGhalio: Fix back button closing app after search [#3426](https://github.com/tasks/tasks/issues/3426)
+* @codokie: Automirrored icons fix [#3499](https://github.com/tasks/tasks/pull/3499)
+* @codokie: Fix ltr-rtl alignment for text input [#3489](https://github.com/tasks/tasks/pull/3489)
+* Use system language picker on Android 33+
+* Don't show 'due date' as a start date option for DAVx5, EteSync, DecSync CC [#1558](https://github.com/tasks/tasks/issues/1558)
+* Prevent attempts to delete or rename Microsoft To Do default list
+* Don't handle system 'Clear storage' button
+* Update minimum Android version to 8
+* Fix backup import dropping tags [#3555](https://github.com/tasks/tasks/issues/3555)
+* Fix start date chip when grouping by start date [#3509](https://github.com/tasks/tasks/issues/3509)
+* Update translations
+  * Brazilian Portuguese - @sobeitnow0, dedakir923
+  * Czech - @Fjuro
+  * Dutch - Jay Tromp
+  * German - min7-i
+  * Hebrew - Xo
+  * Portuguese - @wm-pucrs
+  * Russian - @hady-exc, Maksim_220 Кабанов
+  * Slovak - @jose1711
+  * Spanish - Nucl3arSnake, @diamondtipdr
+  * Tamil - @TamilNeram
+
+### 14.6.2 (2025-04-06)
+
+* Show error indicators if 'When started' or 'When due' reminders are used
+  without start or due times
+* Fix delay when saving tasks
+* Fix populating clock picker with initial value instead of 00:00
+* Fix displaying selected calendar month
+* Fix grouping by start date in descending order
+* Update translations
+  * Arabic - abdelbasset jabrane
+  * Danish - @catsnote
+  * Esperanto - Don Zouras
+  * German - @Kachelkaiser
+  * Hebrew - @elid34
+  * Italian - @Fs00
+  * Slovak - @jose1711
+  * Turkish - @emintufan
+
+### 14.6.1 (2025-03-30)
+
+* Restore default sort mode for existing installs
+* Fix grouping by due date descending
+* Remove shadow from launcher icons
+
+### 14.6 (2025-03-25)
+
+* Add dynamic theme color - requires pro subscription
+* Update translation
+  * Brazilian Portuguese - dedakir923
+  * Bulgarian - 109247019824
+  * Chinese (Simplified) - Sketch6580
+  * Estonian - Priit Jõerüüt
+  * Italian - @ppasserini
+  * Japanese - YuzuMikan
+  * Swedish - @Ziron
+  * Ukrainian - @IhorHordiichuk
+
+### 14.5.4 (2025-03-24)
+
+* Updated remaining date and time pickers to Material 3
+  * App will remember if you change calendar or clock to text input
+  * Text input now supported on start and due date pickers
+  * Remove calendar and clock mode settings
+* Open date picker to currently selected month
+* Replaced upgrade pop-up with a banner [#1429](https://github.com/tasks/tasks/issues/1429)
+* @hady-exc: Fix date picker time zone issues [#3248](https://github.com/tasks/tasks/pull/3248)
+* Fix date time picker font scaling issues [#3437](https://github.com/tasks/tasks/issues/3437)
+* Fix save task on keyboard done [#3288](https://github.com/tasks/tasks/issues/3288)
+* Fix applying date time when dismissing date time pickers
+* Fix 3 button navigation bar padding in landscape mode
+* Fix out of memory errors in backup import/export
+* Update translations
+  * Brazilian Portuguese - dedakir923
+  * Bulgarian - 109247019824
+  * Chinese (Simplified) - Sketch6580
+  * Dutch - @fvbommel
+  * Estonian - Priit Jõerüüt
+  * French - @FlorianLeChat
+  * German - @franconian
+  * Hungarian - Kaci
+  * Italian - @ppasserini
+  * Romanian - @ygorigor
+  * Tamil - @TamilNeram
+  * Turkish - @emintufan
+
+### 14.5.3 (2025-03-20)
+
+* Updated date and time pickers to Material 3
+* Remove 'Start of week' preference
+  * This feature can't be supported with Material 3 calendars
+
+### 14.5.2 (2025-03-15)
+
+* Fix items hidden under menu search bar [#3406](https://github.com/tasks/tasks/issues/3406)
+* Attempt to fix layout on some foldables
+* Fix checking for tasks.org account [#3397](https://github.com/tasks/tasks/issues/3397)
+* Slightly reduce donation nagging frequency [#3397](https://github.com/tasks/tasks/issues/3397)
+* Update translations
+  * Danish - Øjvind Fritjof Arnfred
+  * Hungarian - Kaci
+  * Malayalam - Clouds Liberty
+  * Russian - @GREAT-DNG
+  * Swedish - @bittin
+  * Tamil - @TamilNeram
+
+### 14.5.1 (2025-03-11)
+
+* Fix performance issue when opening search
+* Fix Microsoft To Do authentication crash
+* Fix crash on task list screen
+* Update translation
+  * Brazilian Portuguese - dedakir923
+  * Bulgarian - 109247019824
+  * Chinese (Simplified) - 大王叫我来巡山
+  * Dutch - @fvbommel
+  * Esperanto - Don Zouras
+  * Estonian - Priit Jõerüüt
+  * French - @FlorianLeChat
+  * German - Colorful Rhino
+  * Italian - @ppasserini
+  * Kannada - Abilash S
+  * Persian - @mamad-zahiri
+  * Ukrainian - @IhorHordiichuk
+
+### 14.5 (2025-03-04)
+
+* Material 3 - work in progress
+* Side navigation drawer
+* Improve support for foldables
+* Improve edge-to-edge support
+* Remove options for top app bar and disabling collapsing app bar
+  * Some features are being removed in order to make development easier for the
+    upcoming desktop app. The features may return again in a future release.
+* Save backup files and attachments to Nextcloud [#1289](https://github.com/tasks/tasks/issues/1289)
+* Dismiss notification dialog when pressing cancel [#2116](https://github.com/tasks/tasks/issues/2116)
+* Performance improvements
+* Fix Microsoft To Do sync failure
+* Fix missing list chips for subtasks in custom filters
+* Fix for database timeouts
+* Fix infinite subtask recursion
+* Update translations
+  * Belarusian - @fobo66
+  * Estonian - Priit Jõerüüt
+  * German - Colorful Rhino
+  * Japanese - M_Haruki
+  * Nahuatl - Benjamin Bruce
+  * Slovak - @jose1711
+  * Ukrainian - @IhorHordiichuk
+
+### 14.4.8 (2025-02-04)
+
+* Performance improvements
+* Update translations
+  * German - Colorful Rhino, @Kachelkaiser
+  * Nepali - Sagun Khatri
+
+### 14.4.7 (2025-02-01)
+
+* Database improvements
+* Update translations
+  * Estonian - Priit Jõerüüt
+  * German - @Kachelkaiser
+
+### 14.4.6 (2025-01-29)
+
+* Database performance improvements
+* Additional debug logging
+* Update translations
+  * Danish - ERYpTION
+  * Estonian - Priit Jõerüüt
+  * German - @franconian, Colorful Rhino, @Kachelkaiser
+  * Italian - @ppasserini
+  * Korean - Sunjae Choi
+  * Nepali - Sagun Khatri
+  * Slovak - @jose1711
+  * Swedish - Nick Wick
+
+### 14.4.5 (2025-01-22)
+
+* Performance improvements
+* DAVx5 sync performance improvements
+* Update translations
+  * Bosnian - @hasak
+  * Esperanto - Don Zouras
+  * Estonian - Priit Jõerüüt, @dermezl
+  * Italian - @ppasserini
+  * Nepali - @sagunkhatri
+
+
+### 14.4.4 (2025-01-19)
+
+* Fix list pickers [#3269](https://github.com/tasks/tasks/issues/3269)
+
+### 14.4.3 (2025-01-18)
+
+* Preserve reminder recurrence when copying tasks
+* Refresh task list after changing settings
+* Fix missing chips for local lists
+* Fix changes being lost when completing task from edit screen
+* Update translations
+  * German - @franconian
+  * Turkish - @emintufan
+  * Ukrainian - @IhorHordiichuk
+
+### 14.4.2 (2025-01-16)
+
+* Fix crash on missing account
+* Update translations
+  * Bulgarian - 109247019824
+  * Chinese (Simplified) - Sketch6580
+  * Croatian - @milotype
+  * Dutch - @fvbommel
+  * Esperanto - Don Zouras
+  * French - @FlorianLeChat, @CennoxX
+  * German - @franconian
+  * Hungarian - Kaci
+  * Italian - @ppasserini
+  * Russian - @hady-exc
+  * Slovak - @jose1711
+  * Ukrainian - @IhorHordiichuk
+
+### 14.4.1 (2025-01-11)
+
+* Microsoft To Do support [#2011](https://github.com/tasks/tasks/issues/2011)
+  * This feature is in early access, please report any bugs!
+  * Enable under 'Advanced' settings
+* Add configuration option for new lines in titles
+* @TonSilver - Copy comments to clipboard with long press [#3212](https://github.com/tasks/tasks/pull/3212)
+* @jheld - Attempt to fix F-Droid build with colorpicker fork [#2028](https://github.com/tasks/tasks/issues/2028)
+* Subscription changes
+  * Multiple Google Task accounts are now free to use
+  * Tasker plugins are now free to use
+* Fix crash on empty shortcut labels
+* Fix missing settings button on Android 10 and below
+* Update translations
+  * Bulgarian - 109247019824
+  * Chinese (Simplified) - 大王叫我来巡山, Sketch6580
+  * Czech - @AtmosphericIgnition
+  * Dutch - @fvbommel
+  * Esperanto - Don Zouras
+  * French - @FlorianLeChat, @lfavole
+  * German - @franconian, Colorful Rhino
+  * Hungarian - Kaci
+  * Italian - @ppasserini
+  * Slovak - @jose1711
+  * Swedish - @Ziron, @bittin
+  * Turkish - @emintufan
+
+### 14.3.1 (2025-01-02)
+
+* Fix edit screen disappearing on rotation
+* Fix notification bundling issue
+* Fix scrolling in custom filter settings
+* Remove map theme and desaturation options
+* Update translations
+  * Bulgarian - @StoyanDimitrov
+  * Chinese (Simplified) - 大王叫我来巡山
+  * Dutch - @fvbommel
+  * French - @FlorianLeChat
+  * German - @p-rogalski
+  * Italian - @ppasserini
+  * Korean - Sunjae Choi
+  * Swedish - @bittin
+
+### 14.3 (2024-12-24)
+
+* "Add widget to home screen" shortcut in list settings
+* "Add shortcut to home screen" shortcut in list settings
+  * Shortcuts use list icon and color
+* Fix long running sync indicators [#3045](https://github.com/tasks/tasks/issues/3045)
+* @hady-exc: Migrate list setting screens to Compose [#3163](https://github.com/tasks/tasks/pull/3163)
+* Update translations
+  * Bosnian - @hasak
+  * Bulgarian - @StoyanDimitrov
+  * Chinese (Simplified) - 大王叫我来巡山
+  * Croatian - @milotype
+  * Esperanto - Don Zouras
+  * Finnish - @pHamala, @Ricky-Tigg
+  * German - @p-rogalski, @franconian, @Atalanttore
+  * Hungarian - Kaci
+  * Italian - @ppasserini
+  * Korean - Sunjae Choi
+  * Spanish - gallegonovato
+  * Swedish - Nick Wick
+
+### 14.2.1 (2024-12-03)
 
 * Fix save button when 'Back button saves task' is enabled [#3149](https://github.com/tasks/tasks/issues/3149)
 * Fix customizing edit screen order screen

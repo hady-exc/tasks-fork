@@ -2,11 +2,9 @@ package com.todoroo.astrid.adapter
 
 import com.natpryce.makeiteasy.MakeItEasy.with
 import com.natpryce.makeiteasy.PropertyValue
-import org.tasks.filters.GtasksFilter
 import com.todoroo.astrid.dao.TaskDao
 import com.todoroo.astrid.service.TaskMover
 import dagger.hilt.android.testing.HiltAndroidTest
-import dagger.hilt.android.testing.UninstallModules
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -17,10 +15,12 @@ import org.tasks.data.TaskContainer
 import org.tasks.data.TaskListQuery.getQuery
 import org.tasks.data.dao.CaldavDao
 import org.tasks.data.dao.GoogleTaskDao
+import org.tasks.data.entity.CaldavAccount
+import org.tasks.data.entity.CaldavAccount.Companion.TYPE_GOOGLE_TASKS
 import org.tasks.data.entity.CaldavCalendar
 import org.tasks.data.entity.Task
+import org.tasks.filters.CaldavFilter
 import org.tasks.injection.InjectingTestCase
-import org.tasks.injection.ProductionModule
 import org.tasks.makers.CaldavTaskMaker.CALENDAR
 import org.tasks.makers.CaldavTaskMaker.TASK
 import org.tasks.makers.CaldavTaskMaker.newCaldavTask
@@ -29,7 +29,6 @@ import org.tasks.makers.TaskMaker.newTask
 import org.tasks.preferences.Preferences
 import javax.inject.Inject
 
-@UninstallModules(ProductionModule::class)
 @HiltAndroidTest
 class GoogleTaskManualSortAdapterTest : InjectingTestCase() {
     @Inject lateinit var taskDao: TaskDao
@@ -41,7 +40,10 @@ class GoogleTaskManualSortAdapterTest : InjectingTestCase() {
 
     private lateinit var adapter: GoogleTaskManualSortAdapter
     private val tasks = ArrayList<TaskContainer>()
-    private val filter = GtasksFilter(CaldavCalendar(uuid = "1234"))
+    private val filter = CaldavFilter(
+        calendar = CaldavCalendar(uuid = "1234"),
+        account = CaldavAccount(accountType = TYPE_GOOGLE_TASKS)
+    )
     private val dataSource = object : TaskAdapterDataSource {
         override fun getItem(position: Int) = tasks[position]
 
@@ -421,7 +423,7 @@ class GoogleTaskManualSortAdapterTest : InjectingTestCase() {
     }
 
     private fun move(from: Int, to: Int, indent: Int = 0) = runBlocking {
-        tasks.addAll(taskDao.fetchTasks { getQuery(preferences, filter) })
+        tasks.addAll(taskDao.fetchTasks(getQuery(preferences, filter)))
         val adjustedTo = if (from < to) to + 1 else to
         adapter.moved(from, adjustedTo, indent)
     }
