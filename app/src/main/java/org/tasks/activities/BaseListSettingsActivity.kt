@@ -218,49 +218,6 @@ abstract class BaseListSettingsActivity : AppCompatActivity(), ColorPalettePicke
         }
     }
 
-    /** Standard @Compose view content for descendants. Caller must wrap it to TasksTheme{} */
-    @Composable
-    protected fun baseSettingsContent(
-        title: String = toolbarTitle ?: "",
-        requestKeyboard: Boolean = isNew,
-        optionButton: @Composable () -> Unit = { if (!isNew) DeleteButton { promptDelete() } },
-        extensionContent: @Composable ColumnScope.() -> Unit = {}
-    ) {
-        SettingsSurface {
-            Toolbar(
-                title = title,
-                save = { lifecycleScope.launch { save() } },
-                optionButton = optionButton
-            )
-            ProgressBar(showProgress)
-            TitleInput(
-                text = textState, error = errorState, requestKeyboard = requestKeyboard,
-                modifier = Modifier.padding(horizontal = Constants.KEYLINE_FIRST)
-            )
-            Column(modifier = Modifier.fillMaxWidth()) {
-                SelectColorRow(
-                    color = colorState,
-                    selectColor = { showThemePicker() },
-                    clearColor = { clearColor() })
-                SelectIconRow(
-                    icon = selectedIcon.value ?: defaultIcon,
-                    selectIcon = { showIconPicker() })
-                extensionContent()
-
-                PromptAction(
-                    showDialog = promptDelete,
-                    title = stringResource(id = R.string.delete_tag_confirmation, title),
-                    onAction = { lifecycleScope.launch { delete() } }
-                )
-                PromptAction(
-                    showDialog = promptDiscard,
-                    title = stringResource(id = R.string.discard_changes),
-                    onAction = { lifecycleScope.launch { finish() } }
-                )
-            }
-        }
-    }
-
     companion object {
         private const val FRAG_TAG_COLOR_PICKER = "frag_tag_color_picker"
 
