@@ -71,12 +71,13 @@
   <com.google.android.material.bottomappbar.BottomAppBar
       android:id="@+id/bottomAppBar"
       style="@style/Widget.Material3.BottomAppBar"
-      android:theme="@style/ToolbarTheme"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_gravity="bottom"
+      android:theme="@style/ToolbarTheme"
+      app:backgroundTint="@color/blue_grey_500"
       app:hideOnScroll="true"
-      app:navigationIcon="@drawable/ic_outline_menu_24px"/>
+      app:navigationIcon="@drawable/ic_outline_menu_24px" />
 
   <com.google.android.material.floatingactionbutton.FloatingActionButton
       android:id="@+id/fab"
