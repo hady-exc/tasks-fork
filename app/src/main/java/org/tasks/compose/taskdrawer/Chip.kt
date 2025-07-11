@@ -11,6 +11,8 @@ import androidx.compose.material3.InputChip
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.currentWindowDpSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,13 +22,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 private val clearIcon = Icons.Outlined.Close
-private val widthShort = 59.dp
-private val widthLong = 122.dp // e.g. widthShort * 2 + 4.dp (the gap)
+private val gap = 4.dp
 
 @Composable
 fun IconChip(icon: ImageVector, contentColor: Color = Color.Unspecified, action: (() -> Unit)) =
     Chip(null, null, action, null, icon, contentColor)
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun Chip (
     title: String?,
@@ -36,6 +38,13 @@ fun Chip (
     titleIcon: ImageVector? = null,
     contentColor: Color = Color.Unspecified,
 ) {
+    val screenWidth = currentWindowDpSize().width
+    val widthShort = if (screenWidth <= 400.dp) {
+        (screenWidth - 32.dp - gap * 5) / 5
+    } else {
+        (screenWidth - 32.dp - gap * 6) / 6
+    }
+    val widthLong = widthShort * 2 + 4.dp
     val width = if (title == null) widthShort else widthLong
     InputChip(
         selected = false,
