@@ -39,11 +39,14 @@ fun Chip (
     contentColor: Color = Color.Unspecified,
 ) {
     val screenWidth = currentWindowDpSize().width
-    val widthShort = if (screenWidth <= 400.dp) {
+    val widthShort = (screenWidth - 32.dp - gap * 5) / 5
+/*
+        if (screenWidth <= 400.dp) {
         (screenWidth - 32.dp - gap * 5) / 5
     } else {
         (screenWidth - 32.dp - gap * 6) / 6
     }
+*/
     val widthLong = widthShort * 2 + 4.dp
     val width = if (title == null) widthShort else widthLong
     InputChip(
@@ -65,11 +68,16 @@ fun Chip (
                 }
             }
             titleIcon?.let {
-                Icon(
-                    imageVector = titleIcon,
-                    contentDescription = null,
-                    tint = if (contentColor == Color.Unspecified) LocalContentColor.current else contentColor
-                )
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = titleIcon,
+                        contentDescription = null,
+                        tint = if (contentColor == Color.Unspecified) LocalContentColor.current else contentColor
+                    )
+                }
             }
         },
         leadingIcon = {

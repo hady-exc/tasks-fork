@@ -183,7 +183,7 @@ fun TaskEditDrawer(
                 var total = 0
                 var index = 0
                 val chipsOrder = remember { vm.viewState.value.displayOrder }
-                while (total < 5 && index < chipsOrder.size) {
+                while (total < 4 && index < chipsOrder.size) {
                     when (chipsOrder[index++]) {
                         TAG_DESCRIPTION -> {
                             DescriptionChip(
