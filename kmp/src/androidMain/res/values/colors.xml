@@ -97,4 +97,6 @@
     <color name="blue_grey_200">#A9C0CC</color>
     <color name="blue_grey_400">#78909c</color>
     <color name="blue_grey_500">#607d8b</color>
+    <color name="blue_gray_600">#4F6773</color>
+    <color name="blue_gray_700">#3E5059</color>
 </resources>

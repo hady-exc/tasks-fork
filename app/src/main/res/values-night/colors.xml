@@ -15,5 +15,6 @@
   <color name="input_popup_background">#191c1f</color>
   <color name="input_popup_fade">#32383e</color>
   <color name="input_popup_foreground">@color/white_38</color>
+  <color name="bottom_bar">#3E5059</color>
 
 </resources>
