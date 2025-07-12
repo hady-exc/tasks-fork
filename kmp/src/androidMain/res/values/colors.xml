@@ -94,6 +94,7 @@
     <color name="grey_900">#212121</color>
 
     <color name="blue_grey_100">#CFD8DC</color>
+    <color name="blue_grey_200">#A9C0CC</color>
     <color name="blue_grey_400">#78909c</color>
     <color name="blue_grey_500">#607d8b</color>
 </resources>

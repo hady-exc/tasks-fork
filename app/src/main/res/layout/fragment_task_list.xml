@@ -75,7 +75,7 @@
       android:layout_height="wrap_content"
       android:layout_gravity="bottom"
       android:theme="@style/ToolbarTheme"
-      app:backgroundTint="@color/blue_grey_500"
+      app:backgroundTint="#A9C0CC"
       app:hideOnScroll="true"
       app:navigationIcon="@drawable/ic_outline_menu_24px" />
 
