@@ -61,7 +61,6 @@ import org.tasks.time.startOfDay
 import org.tasks.ui.CalendarControlSet
 import org.tasks.ui.LocationControlSet
 import org.tasks.ui.TaskEditViewModel
-import timber.log.Timber
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class,
     ExperimentalMaterial3Api::class
@@ -158,7 +157,6 @@ fun TaskEditDrawer(
                 save()
                 startDate = initialDay
                 startTime = initialTime
-                Timber.d("****** resetting startDate to $startDate ******")
             },
             close = close
         )
@@ -225,6 +223,7 @@ fun TaskEditDrawer(
                                 setRecurrence = { vm.setRecurrence(it) },
                                 repeatFrom = state.value.task.repeatFrom,
                                 onRepeatFromChanged = { vm.setRepeatFrom(it) },
+                                accountType = state.value.list.account.accountType,
                                 pickCustomRecurrence = pickCustomRecurrence
                             )
                             total++
@@ -238,7 +237,6 @@ fun TaskEditDrawer(
                                     startDate = day
                                     startTime = time
                                     vm.setStartDate(packDateTime(vm.dueDate.value))
-                                    Timber.d("****** SETTING startDate to $day ******")
                                 },
                                 { runBlocking {
                                     getRelativeDateTime(

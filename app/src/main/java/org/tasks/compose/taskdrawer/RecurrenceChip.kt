@@ -25,6 +25,7 @@ fun RecurrenceChip (
     setRecurrence: (String?) -> Unit,
     repeatFrom: @Task.RepeatFrom Int,
     onRepeatFromChanged: (@Task.RepeatFrom Int) -> Unit,
+    accountType: Int,
     pickCustomRecurrence: (String?) -> Unit,
 ) {
     val showDialog = remember { mutableIntStateOf(0) }
@@ -54,7 +55,7 @@ fun RecurrenceChip (
             .rememberCustomRecurrencePickerState(
                 rrule = recurrence.recurrence,
                 dueDate = null,
-                accountType = 0, //
+                accountType = accountType,
                 locale = Locale.getDefault()
             )
         val context = LocalContext.current
