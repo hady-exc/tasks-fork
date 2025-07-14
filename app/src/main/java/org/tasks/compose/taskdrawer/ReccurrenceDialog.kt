@@ -49,6 +49,7 @@ fun RecurrenceDialog (
             setRecurrence(null)
         } else if (i == 5) {
             peekCustomRecurrence(recurrence.recurrence)
+            return
         } else {
             setRecurrence(
                 newRecur().apply {
