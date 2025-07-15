@@ -1,5 +1,7 @@
 package org.tasks.compose.taskdrawer
 
+/* This is mostly a copy of the BasicRecurrenceDialog with UI made @Composable  */
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -49,7 +51,7 @@ fun RecurrenceDialog (
             setRecurrence(null)
         } else if (i == 5) {
             peekCustomRecurrence(recurrence.recurrence)
-            return
+            return // to avoid dismiss() call
         } else {
             setRecurrence(
                 newRecur().apply {
@@ -151,4 +153,3 @@ fun SelectableText (
         Text(text = text, textDecoration = TextDecoration.Underline)
     }
 }
-

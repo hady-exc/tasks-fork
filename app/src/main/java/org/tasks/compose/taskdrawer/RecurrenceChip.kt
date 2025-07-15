@@ -28,7 +28,13 @@ fun RecurrenceChip (
     accountType: Int,
     pickCustomRecurrence: (String?) -> Unit,
 ) {
-    val showDialog = remember { mutableIntStateOf(0) }
+    val context = LocalContext.current
+    val preferences = remember { Preferences(context) }
+
+    val NO_DIALOG = 0
+    val BASIC_DIALOG = 1
+    val CUSTOM_DIALOG = 2
+    val showDialog = remember { mutableIntStateOf(NO_DIALOG) }
 
     if (recurrence.rrule == null) {
         IconChip(icon = repeatIcon, action = { showDialog.intValue = 1})
@@ -36,48 +42,48 @@ fun RecurrenceChip (
         Chip(
             title = recurrence.title(recurrence.selectionIndex(), true),
             leading = repeatIcon,
-            action = { showDialog.intValue = 1 },
+            action = { showDialog.intValue = BASIC_DIALOG },
             delete = { setRecurrence(null) }
         )
     }
 
-    if (showDialog.intValue == 1) {
-        RecurrenceDialog(
-            dismiss = { showDialog.intValue = 0 },
+    when (showDialog.intValue) {
+        BASIC_DIALOG -> RecurrenceDialog(
+            dismiss = { showDialog.intValue = NO_DIALOG },
             recurrence = recurrence,
             setRecurrence = setRecurrence,
             repeatFrom = repeatFrom,
             onRepeatFromChanged = onRepeatFromChanged,
-            peekCustomRecurrence = { showDialog.intValue = 2 }
+            peekCustomRecurrence = { showDialog.intValue = CUSTOM_DIALOG }
         )
-    } else if (showDialog.intValue == 2) {
-        val state = CustomRecurrencePickerState
-            .rememberCustomRecurrencePickerState(
-                rrule = recurrence.recurrence,
-                dueDate = null,
-                accountType = accountType,
-                locale = Locale.getDefault()
-            )
-        val context = LocalContext.current
-        val preferences = Preferences(context)
+        CUSTOM_DIALOG -> {
+            val state = CustomRecurrencePickerState
+                .rememberCustomRecurrencePickerState(
+                    rrule = recurrence.recurrence,
+                    dueDate = null,
+                    accountType = accountType,
+                    locale = Locale.getDefault()
+                )
 
-        CustomRecurrencePicker(
-            state = state.state.collectAsStateWithLifecycle().value,
-            save = {
-                setRecurrence(state.getRecur())
-                showDialog.intValue = 0
-            },
-            discard = { showDialog.intValue = 0 },
-            setInterval = { state.setInterval(it) },
-            setSelectedFrequency = { state.setFrequency(it) },
-            setEndDate = { state.setEndDate(it) },
-            setSelectedEndType = { state.setEndType(it) },
-            setOccurrences = { state.setOccurrences(it) },
-            toggleDay = { state.toggleDay(it) },
-            setMonthSelection = { state.setMonthSelection(it) },
-            calendarDisplayMode = preferences.calendarDisplayMode,
-            setDisplayMode = { preferences.calendarDisplayMode = it }
-        )
+            CustomRecurrencePicker(
+                state = state.state.collectAsStateWithLifecycle().value,
+                save = {
+                    setRecurrence(state.getRecur())
+                    showDialog.intValue = 0
+                },
+                discard = { showDialog.intValue = NO_DIALOG },
+                setInterval = { state.setInterval(it) },
+                setSelectedFrequency = { state.setFrequency(it) },
+                setEndDate = { state.setEndDate(it) },
+                setSelectedEndType = { state.setEndType(it) },
+                setOccurrences = { state.setOccurrences(it) },
+                toggleDay = { state.toggleDay(it) },
+                setMonthSelection = { state.setMonthSelection(it) },
+                calendarDisplayMode = preferences.calendarDisplayMode,
+                setDisplayMode = { preferences.calendarDisplayMode = it }
+            )
+        }
+        else -> Unit
     }
 }
 
