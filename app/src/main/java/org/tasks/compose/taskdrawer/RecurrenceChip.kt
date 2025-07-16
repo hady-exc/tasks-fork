@@ -8,10 +8,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.tasks.compose.pickers.CustomRecurrenceEdit
 import org.tasks.data.entity.Task
 import org.tasks.preferences.Preferences
 import org.tasks.repeats.BasicRecurrencePicker
+import org.tasks.repeats.CustomRecurrenceEdit
 import org.tasks.repeats.RecurrenceHelper
 import org.tasks.repeats.CustomRecurrenceEditState
 import java.util.Locale
