@@ -11,6 +11,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.tasks.compose.pickers.CustomRecurrencePicker
 import org.tasks.data.entity.Task
 import org.tasks.preferences.Preferences
+import org.tasks.repeats.BasicRecurrencePicker
+import org.tasks.repeats.RecurrenceHelper
 import org.tasks.repeats.CustomRecurrencePickerState
 import java.util.Locale
 
@@ -67,7 +69,7 @@ fun RecurrencePickerDialog (
 
     val basicDialog = remember { mutableStateOf(true) }
     if (basicDialog.value) {
-        RecurrenceDialog(
+        BasicRecurrencePicker(
             dismiss = dismiss,
             recurrence = recurrence,
             setRecurrence = onRecurrenceChanged,

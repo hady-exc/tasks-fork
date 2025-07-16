@@ -49,6 +49,7 @@ import org.tasks.date.DateTimeUtils.toDateTime
 import org.tasks.dialogs.StartDatePicker
 import org.tasks.extensions.Context.is24HourFormat
 import org.tasks.kmp.org.tasks.taskedit.TaskEditViewState
+import org.tasks.repeats.RecurrenceHelper
 import org.tasks.ui.TaskEditViewModel.Companion.TAG_DESCRIPTION
 import org.tasks.ui.TaskEditViewModel.Companion.TAG_DUE_DATE
 import org.tasks.ui.TaskEditViewModel.Companion.TAG_LIST

@@ -1,7 +1,8 @@
-package org.tasks.compose.taskdrawer
+package org.tasks.repeats
 
 /* This is mostly a copy of the BasicRecurrenceDialog with UI made @Composable  */
 
+import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,14 +30,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import com.google.common.collect.Lists
+import net.fortuna.ical4j.model.Recur
 import org.tasks.R
+import org.tasks.analytics.Firebase
 import org.tasks.compose.Constants.TextButton
 import org.tasks.data.entity.Task
+import org.tasks.preferences.Preferences
 import org.tasks.repeats.RecurrenceUtils.newRecur
+import timber.log.Timber
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecurrenceDialog (
+fun BasicRecurrencePicker (
     dismiss: () -> Unit,
     recurrence: String?,
     setRecurrence: (String?) -> Unit,
@@ -157,4 +164,69 @@ fun SelectableText (
         Spacer(modifier = Modifier.width(4.dp))
         Text(text = text, textDecoration = TextDecoration.Underline)
     }
+}
+
+class RecurrenceHelper (
+    context: Context,
+    val recurrence: String?
+) {
+    val repeatRuleToString = RepeatRuleToString(context,Locale.getDefault(),Firebase(context, Preferences(context)))
+    val rrule = recurrence
+        .takeIf { !it.isNullOrBlank() }
+        ?.let {
+            try {
+                newRecur(it)
+            } catch (e: Exception) {
+                Timber.e(e)
+                null
+            }
+        }
+
+    private val titles: MutableList<String> =
+        Lists.newArrayList(*context.resources.getStringArray(R.array.repeat_options))
+    private val ruleTitle = if (isCustomValue()) repeatRuleToString.toString(recurrence)!! else titles[5]
+
+    fun title(index: Int, short: Boolean = false): String =
+        if (short || index < 5) titles[index]
+        else ruleTitle
+
+    fun isCustomValue(): Boolean {
+        if (rrule == null) {
+            return false
+        }
+        val frequency = rrule.frequency
+        return (frequency == Recur.Frequency.WEEKLY || frequency == Recur.Frequency.MONTHLY) && !rrule.dayList.isEmpty()
+                || frequency == Recur.Frequency.HOURLY
+                || frequency == Recur.Frequency.MINUTELY
+                || rrule.until != null
+                || rrule.interval > 1
+                || rrule.count > 0
+    }
+
+    fun selectionIndex(): Int =
+        when {
+            rrule == null -> 0
+            isCustomValue() -> 5
+            rrule.frequency == Recur.Frequency.DAILY -> 1
+            rrule.frequency == Recur.Frequency.WEEKLY -> 2
+            rrule.frequency == Recur.Frequency.MONTHLY -> 3
+            rrule.frequency == Recur.Frequency.YEARLY -> 4
+            else -> 0
+        }
+
+    fun selectedFrequency(index: Int): Recur.Frequency =
+        when (index) {
+            1 -> Recur.Frequency.DAILY
+            2 -> Recur.Frequency.WEEKLY
+            3 -> Recur.Frequency.MONTHLY
+            4 -> Recur.Frequency.YEARLY
+            else -> throw IllegalArgumentException()
+        }
+}
+
+
+@Composable
+fun rememberRepeatRuleToString(): RepeatRuleToString {
+    val context = LocalContext.current
+    return remember { RepeatRuleToString(context,Locale.getDefault(),Firebase(context, Preferences(context))) }
 }
