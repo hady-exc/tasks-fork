@@ -36,7 +36,7 @@ import java.util.Calendar
 import java.util.Calendar.DAY_OF_WEEK_IN_MONTH
 import java.util.Locale
 
-class CustomRecurrencePickerState(
+class CustomRecurrenceEditState(
     rrule: String?,
     dueDate: Long?,
     val accountType: Int,
@@ -238,8 +238,8 @@ class CustomRecurrencePickerState(
                 else -> throw IllegalArgumentException()
             }
 
-        val Saver: Saver<CustomRecurrencePickerState, Bundle> = Saver(
-            save = { original: CustomRecurrencePickerState ->
+        val Saver: Saver<CustomRecurrenceEditState, Bundle> = Saver(
+            save = { original: CustomRecurrenceEditState ->
                 Bundle().apply {
                     putString("rrule", original.getRecur())
                     putLong("dueDate", original.state.value.dueDate)
@@ -248,7 +248,7 @@ class CustomRecurrencePickerState(
                 }
             },
             restore = { bundle ->
-                CustomRecurrencePickerState(
+                CustomRecurrenceEditState(
                     rrule = bundle.getString("rrule"),
                     dueDate = bundle.getLong("dueDate"),
                     accountType = bundle.getInt("accountType"),
@@ -263,8 +263,8 @@ class CustomRecurrencePickerState(
             dueDate: Long?,
             accountType: Int,
             locale: Locale = Locale.getDefault()
-        ): CustomRecurrencePickerState {
-            return rememberSaveable(saver = Saver) { CustomRecurrencePickerState(rrule, dueDate, accountType, locale) }
+        ): CustomRecurrenceEditState {
+            return rememberSaveable(saver = Saver) { CustomRecurrenceEditState(rrule, dueDate, accountType, locale) }
         }
     }
 

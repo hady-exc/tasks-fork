@@ -8,12 +8,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.tasks.compose.pickers.CustomRecurrencePicker
+import org.tasks.compose.pickers.CustomRecurrenceEdit
 import org.tasks.data.entity.Task
 import org.tasks.preferences.Preferences
 import org.tasks.repeats.BasicRecurrencePicker
 import org.tasks.repeats.RecurrenceHelper
-import org.tasks.repeats.CustomRecurrencePickerState
+import org.tasks.repeats.CustomRecurrenceEditState
 import java.util.Locale
 
 private val repeatIcon = Icons.Outlined.Repeat
@@ -79,7 +79,7 @@ fun RecurrencePickerDialog (
             recurrenceHelper = recurrenceHelper
         )
     } else {
-        val state = CustomRecurrencePickerState
+        val state = CustomRecurrenceEditState
             .rememberCustomRecurrencePickerState(
                 rrule = recurrence,
                 dueDate = null,
@@ -87,7 +87,7 @@ fun RecurrencePickerDialog (
                 locale = Locale.getDefault()
             )
 
-        CustomRecurrencePicker(
+        CustomRecurrenceEdit(
             state = state.state.collectAsStateWithLifecycle().value,
             save = {
                 onRecurrenceChanged(state.getRecur())
@@ -107,10 +107,3 @@ fun RecurrencePickerDialog (
     }
 }
 
-/*
-@Composable
-fun rememberRepeatRuleToString(): RepeatRuleToString {
-    val context = LocalContext.current
-    return remember { RepeatRuleToString(context,Locale.getDefault(),Firebase(context, Preferences(context))) }
-}
-*/

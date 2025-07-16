@@ -1,4 +1,4 @@
-package org.tasks.compose.pickers
+package org.tasks.repeats
 
 /*
 *  This file is a copy of the CustomRecurrence.kt
@@ -65,8 +65,8 @@ import org.tasks.compose.OutlinedBox
 import org.tasks.compose.OutlinedNumberInput
 import org.tasks.compose.OutlinedSpinner
 import org.tasks.compose.border
+import org.tasks.compose.pickers.DatePickerDialog
 import org.tasks.kmp.org.tasks.time.getRelativeDay
-import org.tasks.repeats.CustomRecurrencePickerState
 import org.tasks.themes.TasksTheme
 import java.time.DayOfWeek
 import java.time.format.TextStyle
@@ -74,8 +74,8 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CustomRecurrencePicker(
-    state: CustomRecurrencePickerState.ViewState,
+fun CustomRecurrenceEdit(
+    state: CustomRecurrenceEditState.ViewState,
     save: () -> Unit,
     discard: () -> Unit,
     setInterval: (Int) -> Unit,
@@ -448,8 +448,8 @@ private val Recur.Frequency.plural: Int
 @Composable
 private fun WeeklyPreview() {
     TasksTheme {
-        CustomRecurrencePicker(
-            state = CustomRecurrencePickerState.ViewState(frequency = Recur.Frequency.WEEKLY),
+        CustomRecurrenceEdit(
+            state = CustomRecurrenceEditState.ViewState(frequency = Recur.Frequency.WEEKLY),
             save = {},
             discard = {},
             setSelectedFrequency = {},
@@ -471,8 +471,8 @@ private fun WeeklyPreview() {
 @Composable
 private fun MonthlyPreview() {
     TasksTheme {
-        CustomRecurrencePicker (
-            state = CustomRecurrencePickerState.ViewState(frequency = Recur.Frequency.MONTHLY),
+        CustomRecurrenceEdit (
+            state = CustomRecurrenceEditState.ViewState(frequency = Recur.Frequency.MONTHLY),
             save = {},
             discard = {},
             setSelectedFrequency = {},
@@ -494,8 +494,8 @@ private fun MonthlyPreview() {
 @Composable
 private fun MinutelyPreview() {
     TasksTheme {
-        CustomRecurrencePicker(
-            state = CustomRecurrencePickerState.ViewState(frequency = Recur.Frequency.MINUTELY),
+        CustomRecurrenceEdit(
+            state = CustomRecurrenceEditState.ViewState(frequency = Recur.Frequency.MINUTELY),
             save = {},
             discard = {},
             setSelectedFrequency = {},
@@ -517,8 +517,8 @@ private fun MinutelyPreview() {
 @Composable
 private fun HourlyPreview() {
     TasksTheme {
-        CustomRecurrencePicker(
-            state = CustomRecurrencePickerState.ViewState(frequency = Recur.Frequency.HOURLY),
+        CustomRecurrenceEdit(
+            state = CustomRecurrenceEditState.ViewState(frequency = Recur.Frequency.HOURLY),
             save = {},
             discard = {},
             setSelectedFrequency = {},
@@ -540,8 +540,8 @@ private fun HourlyPreview() {
 @Composable
 private fun DailyPreview() {
     TasksTheme {
-        CustomRecurrencePicker(
-            state = CustomRecurrencePickerState.ViewState(frequency = Recur.Frequency.DAILY),
+        CustomRecurrenceEdit(
+            state = CustomRecurrenceEditState.ViewState(frequency = Recur.Frequency.DAILY),
             save = {},
             discard = {},
             setSelectedFrequency = {},
@@ -563,8 +563,8 @@ private fun DailyPreview() {
 @Composable
 private fun YearlyPreview() {
     TasksTheme {
-        CustomRecurrencePicker(
-            state = CustomRecurrencePickerState.ViewState(frequency = Recur.Frequency.YEARLY),
+        CustomRecurrenceEdit(
+            state = CustomRecurrenceEditState.ViewState(frequency = Recur.Frequency.YEARLY),
             save = {},
             discard = {},
             setSelectedFrequency = {},
