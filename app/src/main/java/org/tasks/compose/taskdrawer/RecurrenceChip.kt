@@ -24,7 +24,6 @@ fun RecurrenceChip (
     repeatFrom: @Task.RepeatFrom Int,
     onRepeatFromChanged: (@Task.RepeatFrom Int) -> Unit,
     accountType: Int,
-    pickCustomRecurrence: (String?) -> Unit,
 ) {
     val showPicker = remember { mutableStateOf(false) }
 

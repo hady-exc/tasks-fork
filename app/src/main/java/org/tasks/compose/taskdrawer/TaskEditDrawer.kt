@@ -75,7 +75,6 @@ fun TaskEditDrawer(
     pickList: () -> Unit,
     pickTags: () -> Unit,
     pickLocation: () -> Unit,
-    pickCustomRecurrence: (String?) -> Unit,
     pickCalendar: () -> Unit,
     setTimer: (Boolean) -> Unit
 ) {
@@ -222,8 +221,7 @@ fun TaskEditDrawer(
                                 setRecurrence = { vm.setRecurrence(it) },
                                 repeatFrom = vm.viewState.collectAsStateWithLifecycle().value.task.repeatFrom,
                                 onRepeatFromChanged = { vm.setRepeatFrom(it) },
-                                accountType = state.value.list.account.accountType,
-                                pickCustomRecurrence = pickCustomRecurrence
+                                accountType = state.value.list.account.accountType
                             )
                             total++
                         }

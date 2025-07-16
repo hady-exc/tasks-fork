@@ -102,12 +102,6 @@ class TaskDrawerFragment: DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-/*
-        val arguments = requireArguments()
-        val filter = arguments.getParcelable<Filter>(EXTRA_FILTER)!!
-        val task = arguments.getParcelable<Task>(EXTRA_TASK)!!
-        vm.initViewModel(filter, task, getOrder())
-*/
         val composeView = ComposeView(context)
         composeView.setContent { TaskEditDrawerContent() }
         initLaunchers()
@@ -157,11 +151,6 @@ class TaskDrawerFragment: DialogFragment() {
                 if (result.resultCode == RESULT_OK) {
                     val rrule = result.data?.getStringExtra(CustomRecurrenceActivity.EXTRA_RRULE)
                     vm.setRecurrence(rrule)
-/*
-                    if (rrule?.isNotBlank() == true && vm.dueDate == 0L ) {
-                        vm.dueDate = (currentTimeMillis().startOfDay())
-                    }
-*/
                 }
             }
         locationPickerLauncher =
@@ -259,13 +248,6 @@ class TaskDrawerFragment: DialogFragment() {
                         lifecycleScope.launch {
                             vm.save()
                             vm.resetToOriginal()
-/*
-                            vm.saveTask(
-                                filter = vm.filter.value,
-                                task = vm.retrieveTask(),
-                                location = vm.location
-                            )
-*/
                         }
                     },
                     edit = {
@@ -282,26 +264,6 @@ class TaskDrawerFragment: DialogFragment() {
                     },
                     pickTags = this@TaskDrawerFragment::pickTags,
                     pickLocation = this@TaskDrawerFragment::pickLocation,
-                    pickCustomRecurrence = {
-                        lifecycleScope.launch {
-                            val accountType = vm.viewState.value.list
-                                .let {
-                                    if (it is CaldavFilter) it.account else null
-                                }
-                                ?.let { caldavDao.getAccountByUuid(it.uuid!!) }
-                                ?.accountType
-                                ?: CaldavAccount.TYPE_LOCAL
-
-                            customRecurrencePickerLauncher.launch(
-                                CustomRecurrenceActivity.newIntent(
-                                    context = requireContext(),
-                                    rrule = vm.viewState.value.task.recurrence,
-                                    dueDate = vm.viewState.value.task.dueDate,
-                                    accountType = accountType
-                                )
-                            )
-                        }
-                    },
                     pickCalendar = this@TaskDrawerFragment::pickCalendar,
                     setTimer = this@TaskDrawerFragment::setTimer
                 )
