@@ -216,12 +216,11 @@ fun TaskEditDrawer(
                         }
                         RepeatControlSet.TAG -> {
                             RecurrenceChip(
-                                recurrence = RecurrenceHelper (
+                                recurrence = RecurrenceHelper(
                                     LocalContext.current,
-                                    rememberRepeatRuleToString(),
                                     state.value.task.recurrence ),
                                 setRecurrence = { vm.setRecurrence(it) },
-                                repeatFrom = state.value.task.repeatFrom,
+                                repeatFrom = vm.viewState.collectAsStateWithLifecycle().value.task.repeatFrom,
                                 onRepeatFromChanged = { vm.setRepeatFrom(it) },
                                 accountType = state.value.list.account.accountType,
                                 pickCustomRecurrence = pickCustomRecurrence

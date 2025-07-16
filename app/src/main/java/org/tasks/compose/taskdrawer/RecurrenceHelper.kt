@@ -1,18 +1,23 @@
 package org.tasks.compose.taskdrawer
 
 import android.content.Context
+import androidx.appcompat.app.AppCompatActivity
 import com.google.common.collect.Lists
 import net.fortuna.ical4j.model.Recur
 import org.tasks.R
+import org.tasks.analytics.Firebase
+import org.tasks.preferences.Preferences
 import org.tasks.repeats.RecurrenceUtils.newRecur
 import org.tasks.repeats.RepeatRuleToString
 import timber.log.Timber
+import java.util.Locale
 
 class RecurrenceHelper (
     context: Context,
-    private val repeatRuleToString: RepeatRuleToString,
+    //repeatRuleToString: RepeatRuleToString,
     val recurrence: String?
 ) {
+    val repeatRuleToString = RepeatRuleToString(context,Locale.getDefault(),Firebase(context, Preferences(context)))
     val rrule = recurrence
         .takeIf { !it.isNullOrBlank() }
         ?.let {

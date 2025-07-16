@@ -25,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -37,26 +38,28 @@ import org.tasks.repeats.RecurrenceUtils.newRecur
 @Composable
 fun RecurrenceDialog (
     dismiss: () -> Unit,
-    recurrence: RecurrenceHelper,
+    recurrence: String?,
     setRecurrence: (String?) -> Unit,
-    repeatFrom: @Task.RepeatFrom Int,
-    onRepeatFromChanged: (@Task.RepeatFrom Int) -> Unit,
-    peekCustomRecurrence: (String?) -> Unit
+    peekCustomRecurrence: () -> Unit,
+    recurrenceHelper: RecurrenceHelper?,
+    repeatFrom: @Task.RepeatFrom Int = Task.RepeatFrom.COMPLETION_DATE,
+    onRepeatFromChanged: ((@Task.RepeatFrom Int) -> Unit)? = null,
 ) {
 
-    val selected = recurrence.selectionIndex()
+    val helper = recurrenceHelper ?: RecurrenceHelper(LocalContext.current, recurrence)
+    val selected = helper.selectionIndex()
 
     fun setSelection(i: Int) {
         if (i == 0) {
             setRecurrence(null)
         } else if (i == 5) {
-            peekCustomRecurrence(recurrence.recurrence)
+            peekCustomRecurrence()
             return // to avoid dismiss() call
         } else {
             setRecurrence(
                 newRecur().apply {
                     interval = 1
-                    setFrequency(recurrence.selectedFrequency(i).name)
+                    setFrequency(helper.selectedFrequency(i).name)
                 }.toString()
             )
         }
@@ -68,56 +71,58 @@ fun RecurrenceDialog (
     ) {
         Card {
             Column (modifier = Modifier.padding(16.dp)) {
-                Row (modifier = Modifier.padding(start = 12.dp, top = 12.dp, bottom = 12.dp)){
-                    Text(
-                        text = stringResource(id = R.string.repeats_from),
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    var expanded by remember { mutableStateOf(false) }
-                    Text(
-                        text = stringResource(
-                            id = if (repeatFrom == Task.RepeatFrom.COMPLETION_DATE)
-                                R.string.repeat_type_completion
-                            else
-                                R.string.repeat_type_due
-                        ),
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            textDecoration = TextDecoration.Underline,
-                        ),
-                        modifier = Modifier.clickable { expanded = true },
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                        DropdownMenuItem(
-                            onClick = {
-                                expanded = false
-                                onRepeatFromChanged(Task.RepeatFrom.DUE_DATE)
-                            },
-                            text = {
-                                Text(
-                                    text = stringResource(id = R.string.repeat_type_due),
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                )
-                            }
+                onRepeatFromChanged?.let {
+                    Row (modifier = Modifier.padding(start = 12.dp, top = 12.dp, bottom = 12.dp)){
+                        Text(
+                            text = stringResource(id = R.string.repeats_from),
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
-                        DropdownMenuItem(
-                            onClick = {
-                                expanded = false
-                                onRepeatFromChanged(Task.RepeatFrom.COMPLETION_DATE)
-                            },
-                            text = {
-                                Text(
-                                    text = stringResource(id = R.string.repeat_type_completion),
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                )
-                            }
+                        Spacer(modifier = Modifier.width(4.dp))
+                        var expanded by remember { mutableStateOf(false) }
+                        Text(
+                            text = stringResource(
+                                id = if (repeatFrom == Task.RepeatFrom.COMPLETION_DATE)
+                                    R.string.repeat_type_completion
+                                else
+                                    R.string.repeat_type_due
+                            ),
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                textDecoration = TextDecoration.Underline,
+                            ),
+                            modifier = Modifier.clickable { expanded = true },
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
+                        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                            DropdownMenuItem(
+                                onClick = {
+                                    expanded = false
+                                    onRepeatFromChanged(Task.RepeatFrom.DUE_DATE)
+                                },
+                                text = {
+                                    Text(
+                                        text = stringResource(id = R.string.repeat_type_due),
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                    )
+                                }
+                            )
+                            DropdownMenuItem(
+                                onClick = {
+                                    expanded = false
+                                    onRepeatFromChanged(Task.RepeatFrom.COMPLETION_DATE)
+                                },
+                                text = {
+                                    Text(
+                                        text = stringResource(id = R.string.repeat_type_completion),
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                    )
+                                }
+                            )
+                        }
                     }
                 }
                 for (i in 0..5) {
                     SelectableText(
-                        text = recurrence.title(i),
+                        text = helper.title(i),
                         index = i,
                         selected = selected,
                         setSelection = { setSelection(i) }
