@@ -259,13 +259,6 @@ class TaskDrawerFragment: DialogFragment() {
                         lifecycleScope.launch {
                             vm.save()
                             vm.resetToOriginal()
-/*
-                            vm.saveTask(
-                                filter = vm.filter.value,
-                                task = vm.retrieveTask(),
-                                location = vm.location
-                            )
-*/
                         }
                     },
                     edit = {

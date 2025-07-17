@@ -282,6 +282,7 @@ class TaskEditViewModel @Inject constructor(
         ringNonstop = task.isNotifyModeNonstop
         ringFiveTimes = task.isNotifyModeFive
         //assert(!hasChanges())
+        cleared = false
     }
 
     @MainThread
