@@ -481,7 +481,7 @@
     <string name="action_new_task">Nieuwe taak</string>
     <string name="sort_created_group">Gemaakt %s</string>
     <string name="sort_modified_group">Bewerkt %s</string>
-    <string name="astrid_sort_order_summary">Schakel Astrids handmatige sorteermodus in voor \'Mijn taken\', \'Vandaag\' en tags. Deze sorteermodus wordt in een toekomstige update vervangen door \'Mijn volgorde\'.</string>
+    <string name="astrid_sort_order_summary">Schakel Astrids handmatige sorteermodus in voor \'Mijn taken\', \'Vandaag\' en tags. Deze sorteermodus wordt in een toekomstige update vervangen door \'Mijn volgorde\'</string>
     <string name="astrid_sort_order">Astrid\'s handmatig sorteren</string>
     <string name="on_launch">Bij het starten</string>
     <string name="lists">Lijsten</string>
@@ -606,7 +606,6 @@
     <string name="next_sunday">Volgende zondag</string>
     <string name="markdown_description">Sta Markdown toe in titel en beschrijving</string>
     <string name="markdown">Markdown</string>
-    <string name="chat_libera">Bezoek #tasks op Libera Chat</string>
     <string name="now">Nu</string>
     <string name="when_started">Bij beginnen</string>
     <string name="completion_sound">Geluid afspelen bij afronden</string>
@@ -654,7 +653,7 @@
     <string name="consent_agree">Akkoord</string>
     <string name="consent_deny">Niet nu</string>
     <string name="sign_in_to_tasks_disclosure">Uw e-mailadres en account-ID worden verzonden naar Tasks.org en opgeslagen. Deze informatie wordt gebruikt voor authenticatie en om u te voorzien van belangrijke servicegerelateerde aankondigingen. Deze informatie wordt met niemand gedeeld.</string>
-    <string name="default_reminder">Standaard Herinnering</string>
+    <string name="default_reminder">Standaardherinnering</string>
     <string name="rmd_time_description">Toon meldingen voor taken zonder vervaltijd</string>
     <string name="sort_list">Op lijstvolgorde</string>
     <string name="sort_sorting">Sorteren</string>
@@ -678,7 +677,6 @@
     <string name="repeat_monthly_on_day_number">Maandelijks op dag %1d</string>
     <string name="change_priority">Prioriteit veranderen</string>
     <string name="theme_dynamic">Dynamisch</string>
-    <string name="clear_completed_tasks_count">%s wordt verwijderd</string>
     <string name="show_edit_screen_without_unlock">Toon het bewerkingscherm zonder ontsluiting</string>
     <string name="donate_nag">Overweeg om uw steun te tonen met een schenking!</string>
     <string name="donate_today">Doe vandaag een schenking</string>
@@ -720,4 +718,7 @@
     <string name="banner_app_updated_title">App geüpdatet</string>
     <string name="banner_app_updated_description">Tasks is zojuist geüpdatet naar %s. Wil je de release-opmerkingen zien?</string>
     <string name="multiline_title_off">Druk op Gereed om de taak op te slaan</string>
+    <string name="continue_without_sync">Doorgaan zonder synchronisatie</string>
+    <string name="help_me_choose">Help me kiezen</string>
+    <string name="delete_tasks_warning">%s wordt verwijderd. Dit kan niet ongedaan worden gemaakt!</string>
 </resources>

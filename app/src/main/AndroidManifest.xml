@@ -72,6 +72,18 @@
   <!-- ****************************** -->
   <uses-permission android:name="android.permission.READ_SYNC_STATS" />
 
+  <!-- ******************************** -->
+  <!-- Microsoft Authentication Library -->
+  <!-- ******************************** -->
+
+  <uses-permission android:name="android.permission.GET_ACCOUNTS" tools:node="remove" />
+  <uses-feature
+      android:name="android.hardware.nfc"
+      android:required="false" />
+  <uses-feature
+      android:name="android.hardware.usb.host"
+      android:required="false" />
+
   <!-- ****************************************** -->
   <!-- Exclude OpenTasks and jtxBoard permissions -->
   <!-- ****************************************** -->
@@ -269,6 +281,7 @@
         <data android:mimeType="text/plain" />
         <data android:mimeType="image/*" />
         <data android:mimeType="audio/*" />
+        <data android:mimeType="video/*"/>
         <data android:mimeType="application/*" />
       </intent-filter>
       <intent-filter>
@@ -617,7 +630,7 @@
         android:name="com.todoroo.astrid.activity.MainActivity"
         android:exported="true"
         android:launchMode="singleTask"
-        android:theme="@style/Theme.App.Starting"
+        android:theme="@style/Tasks"
         android:windowSoftInputMode="adjustResize">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
@@ -1012,20 +1025,6 @@
     <meta-data android:name="com.samsung.android.keepalive.density" android:value="true"/>
     <!-- Version >= 3.0. DeX Dual Mode support -->
     <meta-data android:name="com.samsung.android.multidisplay.keep_process_alive" android:value="true"/>
-
-    <activity
-        android:name="com.microsoft.identity.client.BrowserTabActivity"
-        android:exported="true">
-        <intent-filter>
-            <action android:name="android.intent.action.VIEW" />
-            <category android:name="android.intent.category.DEFAULT" />
-            <category android:name="android.intent.category.BROWSABLE" />
-            <data
-                android:host="${applicationId}"
-                android:path="@string/microsoft_oauth_path"
-                android:scheme="msauth" />
-        </intent-filter>
-    </activity>
 
   </application>
 

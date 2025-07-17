@@ -1,3 +1,72 @@
+### 14.7.4 (2025-07-12)
+
+* @devn1x: Fix escaping quotes in iCalendar [#3645](https://github.com/tasks/tasks/pull/3645)
+* Limit widget to 25 items on Android 16+
+  * Android 16 nerfed widget performance 😢
+* Fix bug when reconfiguring widget
+* Fix default widget group sort order
+* Update translations
+  * Catalan - pitroig
+  * Chinese (Simplified) - 大王叫我来巡山
+  * Croatian - @milotype
+  * German - @Kachelkaiser
+  * Serbian - @vale-decem
+  * Swedish - Nick Wick
+  * Tamil - @TamilNeram
+
+### 14.7.3 (2025-06-13)
+
+* Fix dynamic color
+* Fix Microsoft To Do sync failure
+* Fix crash after deleting last list
+* Fix notifications when 'Alarms & reminders' not allowed
+* Update translations
+  * Bulgarian - 109247019824
+  * Dutch - @fvbommel
+  * Esperanto - Don Zouras
+  * French - @FlorianLeChat
+  * Hebrew - Xo
+  * Japanese - M_Haruki
+  * Persian - @theuser17
+  * Portuguese - @nero-bratti
+  * Romanian - @ygorigor
+  * Russian - @yurtpage
+  * Spanish - @orionn333
+  * Swedish - @Nicklasfox
+  * Turkish - @emintufan
+
+### 14.7.2 (2025-05-23)
+
+* Remove Microsoft Authentication Library from F-Droid builds [#3581](https://github.com/tasks/tasks/issues/3581)
+* Remove contacts permission added by Microsoft Authentication Library
+* Enable video attachments
+* Fix wallpaper theme
+* Fix handling multiple attachments
+* Update translations
+  * Arabic - abdelbasset jabrane
+  * Bulgarian - 109247019824
+  * Catalan - @Crashillo
+  * Czech - @Fjuro
+  * Danish - @catsnote
+  * Dutch - @fvbommel
+  * Esperanto - Don Zouras
+  * Estonian - Priit Jõerüüt
+  * Hungarian - Kaci
+  * Italian - @ppasserini
+  * Turkish - @emintufan
+  * Ukrainian - @IhorHordiichuk
+
+### 14.7.1 (2025-05-04)
+
+* Fix app closing itself automatically [#3366](https://github.com/tasks/tasks/issues/3366)
+* Automatically set default list when connecting Microsoft To Do account
+* Update translations
+  * Arabic - abdelbasset jabrane, @kemo-1
+  * Brazilian Portuguese - Jose Delvani
+  * Chinese (Simplified) - Sketch6580
+  * French - @FlorianLeChat
+  * German - @Kachelkaiser
+
 ### 14.7 (2025-05-03)
 
 * Add support for Microsoft To Do work & school accounts [#3267](https://github.com/tasks/tasks/issues/3267)
@@ -11,7 +80,7 @@
 * Prevent attempts to delete or rename Microsoft To Do default list
 * Don't handle system 'Clear storage' button
 * Update minimum Android version to 8
-* Fix backup import dropping tags [#3555](https://github.com/tasks/tasks/issues/3555)
+* Fix backup import dropping tags [#3556](https://github.com/tasks/tasks/issues/3556)
 * Fix start date chip when grouping by start date [#3509](https://github.com/tasks/tasks/issues/3509)
 * Update translations
   * Brazilian Portuguese - @sobeitnow0, dedakir923

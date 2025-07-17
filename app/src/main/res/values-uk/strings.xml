@@ -626,7 +626,6 @@
     <string name="next_sunday">Наступної Нд</string>
     <string name="markdown_description">Увімкнути Markdown у заголовку та описі</string>
     <string name="markdown">Markdown</string>
-    <string name="chat_libera">Долучайтеся до #tasks у чаті Libera</string>
     <string name="now">Зараз</string>
     <string name="when_started">Після запуску</string>
     <string name="completion_sound">Відтворювати звук завершення</string>
@@ -707,7 +706,6 @@
     <string name="repeat_monthly_on_day_number">Щомісяця у %1d</string>
     <string name="repeat_monthly_on_the_nth_weekday">Щомісяця %1$s %2$s</string>
     <string name="change_priority">Змінити пріоритет</string>
-    <string name="clear_completed_tasks_count">%s буде видалено</string>
     <string name="theme_dynamic">Динамічна</string>
     <string name="donate_today">Підтримати сьогодні</string>
     <string name="show_edit_screen_without_unlock">Показувати екран редагування без розблокування</string>
@@ -750,4 +748,7 @@
     <string name="banner_app_updated_title">Застосунок оновлено</string>
     <string name="banner_app_updated_description">Tasks щойно оновлено до %s. Переглянете примітки до випуску?</string>
     <string name="multiline_title_off">Натисніть готово, щоб зберегти завдання</string>
+    <string name="continue_without_sync">Продовжити без синхронізації</string>
+    <string name="help_me_choose">Допоможіть обрати</string>
+    <string name="delete_tasks_warning">%s буде видалено. Дію неможливо скасувати!</string>
 </resources>
