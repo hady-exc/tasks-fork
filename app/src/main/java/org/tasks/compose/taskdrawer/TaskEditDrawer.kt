@@ -49,6 +49,7 @@ import org.tasks.date.DateTimeUtils.toDateTime
 import org.tasks.dialogs.StartDatePicker
 import org.tasks.extensions.Context.is24HourFormat
 import org.tasks.kmp.org.tasks.taskedit.TaskEditViewState
+import org.tasks.repeats.RecurrenceHelper
 import org.tasks.ui.TaskEditViewModel.Companion.TAG_DESCRIPTION
 import org.tasks.ui.TaskEditViewModel.Companion.TAG_DUE_DATE
 import org.tasks.ui.TaskEditViewModel.Companion.TAG_LIST
@@ -61,7 +62,6 @@ import org.tasks.time.startOfDay
 import org.tasks.ui.CalendarControlSet
 import org.tasks.ui.LocationControlSet
 import org.tasks.ui.TaskEditViewModel
-import timber.log.Timber
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class,
     ExperimentalMaterial3Api::class
@@ -76,7 +76,6 @@ fun TaskEditDrawer(
     pickList: () -> Unit,
     pickTags: () -> Unit,
     pickLocation: () -> Unit,
-    pickCustomRecurrence: (String?) -> Unit,
     pickCalendar: () -> Unit,
     setTimer: (Boolean) -> Unit
 ) {
@@ -158,7 +157,6 @@ fun TaskEditDrawer(
                 save()
                 startDate = initialDay
                 startTime = initialTime
-                Timber.d("****** resetting startDate to $startDate ******")
             },
             close = close
         )
@@ -218,14 +216,14 @@ fun TaskEditDrawer(
                         }
                         RepeatControlSet.TAG -> {
                             RecurrenceChip(
-                                recurrence = RecurrenceHelper (
+                                recurrenceHelper = RecurrenceHelper(
                                     LocalContext.current,
-                                    rememberRepeatRuleToString(),
                                     state.value.task.recurrence ),
                                 setRecurrence = { vm.setRecurrence(it) },
-                                repeatFrom = state.value.task.repeatFrom,
+                                repeatFrom = vm.viewState.collectAsStateWithLifecycle().value.task.repeatFrom,
                                 onRepeatFromChanged = { vm.setRepeatFrom(it) },
-                                pickCustomRecurrence = pickCustomRecurrence
+                                accountType = state.value.list.account.accountType,
+                                dueDate = vm.dueDate.collectAsStateWithLifecycle().value
                             )
                             total++
                         }
@@ -238,7 +236,6 @@ fun TaskEditDrawer(
                                     startDate = day
                                     startTime = time
                                     vm.setStartDate(packDateTime(vm.dueDate.value))
-                                    Timber.d("****** SETTING startDate to $day ******")
                                 },
                                 { runBlocking {
                                     getRelativeDateTime(

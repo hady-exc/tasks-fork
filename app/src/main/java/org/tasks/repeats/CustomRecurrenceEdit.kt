@@ -1,4 +1,10 @@
-package org.tasks.compose.pickers
+package org.tasks.repeats
+
+/*
+*  This file is a copy of the CustomRecurrence.kt
+*  The function CustomRecurrence is renamed to CustomRecurrencePicker to avoid name conflicts, and
+*  CustomRecurrencePickerState is used instead of the CustomRecurrenceViewModel
+*/
 
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
@@ -48,6 +54,8 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.os.ConfigurationCompat
 import kotlinx.coroutines.runBlocking
 import net.fortuna.ical4j.model.Recur
@@ -57,8 +65,8 @@ import org.tasks.compose.OutlinedBox
 import org.tasks.compose.OutlinedNumberInput
 import org.tasks.compose.OutlinedSpinner
 import org.tasks.compose.border
+import org.tasks.compose.pickers.DatePickerDialog
 import org.tasks.kmp.org.tasks.time.getRelativeDay
-import org.tasks.repeats.CustomRecurrenceViewModel
 import org.tasks.themes.TasksTheme
 import java.time.DayOfWeek
 import java.time.format.TextStyle
@@ -66,8 +74,8 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CustomRecurrence(
-    state: CustomRecurrenceViewModel.ViewState,
+fun CustomRecurrenceEdit(
+    state: CustomRecurrenceEditState.ViewState,
     save: () -> Unit,
     discard: () -> Unit,
     setInterval: (Int) -> Unit,
@@ -80,117 +88,124 @@ fun CustomRecurrence(
     calendarDisplayMode: DisplayMode,
     setDisplayMode: (DisplayMode) -> Unit,
 ) {
-    BackHandler {
-        save()
-    }
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-                    actionIconContentColor = MaterialTheme.colorScheme.onSurface,
-                ),
-                title = {
-                    Text(
-                        text = stringResource(id = R.string.repeats_custom_recurrence),
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = save) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = stringResource(id = R.string.save),
-                            tint = MaterialTheme.colorScheme.onSurface,
-                        )
-                    }
-                },
-                actions = {
-                    TextButton(onClick = discard) {
+    Dialog(
+        onDismissRequest = { discard() },
+        properties = DialogProperties(
+            dismissOnBackPress = true,
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false
+        )
+    ) {
+        BackHandler { save() }
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        titleContentColor = MaterialTheme.colorScheme.onSurface,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                        actionIconContentColor = MaterialTheme.colorScheme.onSurface,
+                    ),
+                    title = {
                         Text(
-                            text = stringResource(id = R.string.cancel),
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                fontFeatureSettings = "c2sc, smcp"
-                            )
+                            text = stringResource(id = R.string.repeats_custom_recurrence),
                         )
-                    }
-                },
-            )
-        }
-    ) { padding ->
-        Surface(
-            color = MaterialTheme.colorScheme.surface,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-        ) {
-            Column {
-                Spacer(modifier = Modifier.height(16.dp))
-                Header(R.string.repeats_every)
-                Spacer(modifier = Modifier.height(16.dp))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                ) {
-                    OutlinedNumberInput(
-                        number = state.interval,
-                        onTextChanged = setInterval,
-                    )
-                    val context = LocalContext.current
-                    val options by remember(state.interval, state.frequency) {
-                        derivedStateOf {
-                            state.frequencyOptions.map {
-                                context.resources.getQuantityString(
-                                    it.plural,
-                                    state.interval,
-                                    state.interval,
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = save) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                                contentDescription = stringResource(id = R.string.save),
+                                tint = MaterialTheme.colorScheme.onSurface,
+                            )
+                        }
+                    },
+                    actions = {
+                        TextButton(onClick = discard) {
+                            Text(
+                                text = stringResource(id = R.string.cancel),
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    fontFeatureSettings = "c2sc, smcp"
                                 )
+                            )
+                        }
+                    },
+                )
+            }
+        ) { padding ->
+            Surface(
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+            ) {
+                Column {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Header(R.string.repeats_every)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                    ) {
+                        OutlinedNumberInput(
+                            number = state.interval,
+                            onTextChanged = setInterval,
+                        )
+                        val context = LocalContext.current
+                        val options by remember(state.interval, state.frequency) {
+                            derivedStateOf {
+                                state.frequencyOptions.map {
+                                    context.resources.getQuantityString(
+                                        it.plural,
+                                        state.interval,
+                                        state.interval,
+                                    )
+                                }
                             }
                         }
+                        OutlinedSpinner(
+                            text = pluralStringResource(
+                                id = state.frequency.plural,
+                                count = state.interval
+                            ),
+                            options = options,
+                            onSelected = { setSelectedFrequency(state.frequencyOptions[it]) },
+                        )
                     }
-                    OutlinedSpinner(
-                        text = pluralStringResource(
-                            id = state.frequency.plural,
-                            count = state.interval
-                        ),
-                        options = options,
-                        onSelected = { setSelectedFrequency(state.frequencyOptions[it]) },
-                    )
-                }
-                if (state.frequency == Recur.Frequency.WEEKLY) {
-                    WeekdayPicker(
-                        daysOfWeek = state.daysOfWeek,
-                        selected = state.selectedDays,
-                        toggle = toggleDay,
-                    )
-                } else if (state.frequency == Recur.Frequency.MONTHLY && !state.isMicrosoftTask) {
-                    MonthlyPicker(
-                        monthDay = state.monthDay,
-                        dayNumber = state.dueDayOfMonth,
-                        dayOfWeek = state.dueDayOfWeek,
-                        nthWeek = state.nthWeek,
-                        isLastWeek = state.lastWeekDayOfMonth,
-                        locale = state.locale,
-                        onSelected = setMonthSelection,
-                    )
-                }
-                if (!state.isMicrosoftTask) {
-                    Divider(
-                        modifier = Modifier.padding(vertical = if (state.frequency == Recur.Frequency.WEEKLY) 11.dp else 16.dp),
-                        color = border()
-                    )
-                    EndsPicker(
-                        selection = state.endSelection,
-                        endDate = state.endDate,
-                        endOccurrences = state.endCount,
-                        setEndDate = setEndDate,
-                        setSelection = setSelectedEndType,
-                        setOccurrences = setOccurrences,
-                        calendarDisplayMode = calendarDisplayMode,
-                        setDisplayMode = setDisplayMode,
-                    )
+                    if (state.frequency == Recur.Frequency.WEEKLY) {
+                        WeekdayPicker(
+                            daysOfWeek = state.daysOfWeek,
+                            selected = state.selectedDays,
+                            toggle = toggleDay,
+                        )
+                    } else if (state.frequency == Recur.Frequency.MONTHLY && !state.isMicrosoftTask) {
+                        MonthlyPicker(
+                            monthDay = state.monthDay,
+                            dayNumber = state.dueDayOfMonth,
+                            dayOfWeek = state.dueDayOfWeek,
+                            nthWeek = state.nthWeek,
+                            isLastWeek = state.lastWeekDayOfMonth,
+                            locale = state.locale,
+                            onSelected = setMonthSelection,
+                        )
+                    }
+                    if (!state.isMicrosoftTask) {
+                        Divider(
+                            modifier = Modifier.padding(vertical = if (state.frequency == Recur.Frequency.WEEKLY) 11.dp else 16.dp),
+                            color = border()
+                        )
+                        EndsPicker(
+                            selection = state.endSelection,
+                            endDate = state.endDate,
+                            endOccurrences = state.endCount,
+                            setEndDate = setEndDate,
+                            setSelection = setSelectedEndType,
+                            setOccurrences = setOccurrences,
+                            calendarDisplayMode = calendarDisplayMode,
+                            setDisplayMode = setDisplayMode,
+                        )
+                    }
                 }
             }
         }
@@ -433,8 +448,8 @@ private val Recur.Frequency.plural: Int
 @Composable
 private fun WeeklyPreview() {
     TasksTheme {
-        CustomRecurrence(
-            state = CustomRecurrenceViewModel.ViewState(frequency = Recur.Frequency.WEEKLY),
+        CustomRecurrenceEdit(
+            state = CustomRecurrenceEditState.ViewState(frequency = Recur.Frequency.WEEKLY),
             save = {},
             discard = {},
             setSelectedFrequency = {},
@@ -456,8 +471,8 @@ private fun WeeklyPreview() {
 @Composable
 private fun MonthlyPreview() {
     TasksTheme {
-        CustomRecurrence(
-            state = CustomRecurrenceViewModel.ViewState(frequency = Recur.Frequency.MONTHLY),
+        CustomRecurrenceEdit (
+            state = CustomRecurrenceEditState.ViewState(frequency = Recur.Frequency.MONTHLY),
             save = {},
             discard = {},
             setSelectedFrequency = {},
@@ -479,8 +494,8 @@ private fun MonthlyPreview() {
 @Composable
 private fun MinutelyPreview() {
     TasksTheme {
-        CustomRecurrence(
-            state = CustomRecurrenceViewModel.ViewState(frequency = Recur.Frequency.MINUTELY),
+        CustomRecurrenceEdit(
+            state = CustomRecurrenceEditState.ViewState(frequency = Recur.Frequency.MINUTELY),
             save = {},
             discard = {},
             setSelectedFrequency = {},
@@ -502,8 +517,8 @@ private fun MinutelyPreview() {
 @Composable
 private fun HourlyPreview() {
     TasksTheme {
-        CustomRecurrence(
-            state = CustomRecurrenceViewModel.ViewState(frequency = Recur.Frequency.HOURLY),
+        CustomRecurrenceEdit(
+            state = CustomRecurrenceEditState.ViewState(frequency = Recur.Frequency.HOURLY),
             save = {},
             discard = {},
             setSelectedFrequency = {},
@@ -525,8 +540,8 @@ private fun HourlyPreview() {
 @Composable
 private fun DailyPreview() {
     TasksTheme {
-        CustomRecurrence(
-            state = CustomRecurrenceViewModel.ViewState(frequency = Recur.Frequency.DAILY),
+        CustomRecurrenceEdit(
+            state = CustomRecurrenceEditState.ViewState(frequency = Recur.Frequency.DAILY),
             save = {},
             discard = {},
             setSelectedFrequency = {},
@@ -548,8 +563,8 @@ private fun DailyPreview() {
 @Composable
 private fun YearlyPreview() {
     TasksTheme {
-        CustomRecurrence(
-            state = CustomRecurrenceViewModel.ViewState(frequency = Recur.Frequency.YEARLY),
+        CustomRecurrenceEdit(
+            state = CustomRecurrenceEditState.ViewState(frequency = Recur.Frequency.YEARLY),
             save = {},
             discard = {},
             setSelectedFrequency = {},
