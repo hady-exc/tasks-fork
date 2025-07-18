@@ -2,55 +2,86 @@ package org.tasks.compose.taskdrawer
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Repeat
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import org.tasks.analytics.Firebase
+import net.fortuna.ical4j.model.Recur
+import net.fortuna.ical4j.model.WeekDay
 import org.tasks.data.entity.Task
-import org.tasks.preferences.Preferences
-import org.tasks.repeats.RepeatRuleToString
+import org.tasks.repeats.RecurrenceHelper
+import org.tasks.repeats.RecurrencePickerDialog
+import org.tasks.repeats.RecurrenceUtils.newRecur
+import org.tasks.time.DateTime
+import org.tasks.time.DateTimeUtils2.currentTimeMillis
 
 private val repeatIcon = Icons.Outlined.Repeat
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecurrenceChip (
-    recurrence: RecurrenceHelper,
+    recurrence: String?,
     setRecurrence: (String?) -> Unit,
     repeatFrom: @Task.RepeatFrom Int,
     onRepeatFromChanged: (@Task.RepeatFrom Int) -> Unit,
-    pickCustomRecurrence: (String?) -> Unit,
+    accountType: Int,
+    dueDate: Long
 ) {
-    val showRecurrenceDialog = remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val recurrenceHelper = remember { RecurrenceHelper(context) }
+    recurrenceHelper.setRecurrence(recurrence)
 
-    if (recurrence.rrule == null) {
-        IconChip(icon = repeatIcon, action = { showRecurrenceDialog.value = true})
+    val showPicker = remember { mutableStateOf(false) }
+
+    if (recurrenceHelper.rrule == null) {
+        IconChip(icon = repeatIcon, action = { showPicker.value = true })
     } else {
         Chip(
-            title = recurrence.title(recurrence.selectionIndex(), true),
+            title = recurrenceHelper.title(recurrenceHelper.selectionIndex()),
             leading = repeatIcon,
-            action = { showRecurrenceDialog.value = true },
+            action = { showPicker.value = true },
             delete = { setRecurrence(null) }
         )
     }
 
-    if (showRecurrenceDialog.value) {
-        RecurrenceDialog(
-            dismiss = { showRecurrenceDialog.value = false },
-            recurrence = recurrence,
-            setRecurrence = setRecurrence,
+    if (showPicker.value) {
+        RecurrencePickerDialog(
+            dismiss = { showPicker.value = false },
+            recurrence = recurrenceHelper.recurrence,
+            onRecurrenceChanged = setRecurrence,
             repeatFrom = repeatFrom,
             onRepeatFromChanged = onRepeatFromChanged,
-            peekCustomRecurrence = pickCustomRecurrence
+            accountType = accountType,
         )
     }
+
+    fun onDueDateChanged() {
+        // TODO: move to view model
+        recurrenceHelper.recurrence?.takeIf { it.isNotBlank() }?.let { recurrence ->
+            val recur = newRecur(recurrence)
+            if (recur.frequency == Recur.Frequency.MONTHLY && recur.dayList.isNotEmpty()) {
+                val weekdayNum = recur.dayList[0]
+                val dateTime =
+                    DateTime(dueDate.let { if (it > 0) it else currentTimeMillis() })
+                val num: Int
+                val dayOfWeekInMonth = dateTime.dayOfWeekInMonth
+                num = if (weekdayNum.offset == -1 || dayOfWeekInMonth == 5) {
+                    if (dayOfWeekInMonth == dateTime.maxDayOfWeekInMonth) -1 else dayOfWeekInMonth
+                } else {
+                    dayOfWeekInMonth
+                }
+                recur.dayList.let {
+                    it.clear()
+                    it.add(WeekDay(dateTime.weekDay, num))
+                }
+                setRecurrence(recur.toString())
+            }
+        }
+    }
+
+    LaunchedEffect(dueDate) { onDueDateChanged() }
+
 }
 
-@Composable
-fun rememberRepeatRuleToString(): RepeatRuleToString {
-    val context = LocalContext.current
-    val config = LocalConfiguration.current
-    val locale = config.locales.get(0)
-    return remember { RepeatRuleToString(context,locale,Firebase(context, Preferences(context))) }
-}
