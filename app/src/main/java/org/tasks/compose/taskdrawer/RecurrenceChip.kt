@@ -39,7 +39,7 @@ fun RecurrenceChip (
         IconChip(icon = repeatIcon, action = { showPicker.value = true })
     } else {
         Chip(
-            title = recurrenceHelper.title(recurrenceHelper.selectionIndex(), true),
+            title = recurrenceHelper.title(recurrenceHelper.selectionIndex()),
             leading = repeatIcon,
             action = { showPicker.value = true },
             delete = { setRecurrence(null) }

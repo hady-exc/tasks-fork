@@ -2,8 +2,8 @@ package org.tasks.repeats
 
 /*
 *  This file is a copy of the CustomRecurrence.kt
-*  The function CustomRecurrence is renamed to CustomRecurrencePicker to avoid name conflicts, and
-*  CustomRecurrencePickerState is used instead of the CustomRecurrenceViewModel
+*  The function CustomRecurrence is renamed to CustomRecurrenceEdit to avoid name conflicts, and
+*  CustomRecurrenceEditState is used instead of the CustomRecurrenceViewModel
 */
 
 import android.content.res.Configuration

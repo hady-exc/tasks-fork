@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.BasicAlertDialog
@@ -56,20 +57,19 @@ fun BasicRecurrencePicker (
     val helper = remember { RecurrenceHelper(context) }
     helper.setRecurrence(recurrence)
 
-    fun setSelection(i: Int) {
-        when (i) {
-            0 -> {
-                setRecurrence(null)
-            }
+    fun setSelection(index: Int) {
+        when (index) {
+            0 -> setRecurrence(null)
             5 -> {
                 peekCustomRecurrence()
                 return // to avoid dismiss() call
             }
+            6 -> Unit
             else -> {
                 setRecurrence(
                     newRecur().apply {
                         interval = 1
-                        setFrequency(helper.selectedFrequency(i).name)
+                        setFrequency(helper.selectedFrequency(index).name)
                     }.toString()
                 )
             }
@@ -83,6 +83,7 @@ fun BasicRecurrencePicker (
         Card {
             Column (modifier = Modifier.padding(16.dp)) {
                 onRepeatFromChanged?.let {
+                    Spacer(modifier = Modifier.height(16.dp))
                     Row (modifier = Modifier.padding(start = 12.dp, top = 12.dp, bottom = 12.dp)){
                         Text(
                             text = stringResource(id = R.string.repeats_from),
@@ -130,6 +131,15 @@ fun BasicRecurrencePicker (
                             )
                         }
                     }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                if (helper.isCustomValue()) {
+                    SelectableText(
+                        text = helper.repeatRuleToString.toString(recurrence)!!,
+                        index = 6,
+                        selected = 6,
+                        setSelection = { setSelection(6) }
+                    )
                 }
                 for (i in 0..5) {
                     SelectableText(
@@ -194,8 +204,8 @@ class RecurrenceHelper (
         Lists.newArrayList(*context.resources.getStringArray(R.array.repeat_options))
     private val ruleTitle = if (isCustomValue()) repeatRuleToString.toString(recurrence)!! else titles[5]
 
-    fun title(index: Int, short: Boolean = false): String =
-        if (short || index < 5) titles[index]
+    fun title(index: Int): String =
+        if (index < 5) titles[index]
         else ruleTitle
 
     fun isCustomValue(): Boolean {
@@ -214,7 +224,7 @@ class RecurrenceHelper (
     fun selectionIndex(): Int =
         when {
             rrule == null -> 0
-            isCustomValue() -> 5
+            isCustomValue() -> 6
             rrule!!.frequency == Recur.Frequency.DAILY -> 1
             rrule!!.frequency == Recur.Frequency.WEEKLY -> 2
             rrule!!.frequency == Recur.Frequency.MONTHLY -> 3
