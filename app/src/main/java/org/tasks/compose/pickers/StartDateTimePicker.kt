@@ -30,14 +30,14 @@ fun StartDateTimePicker (
     accept: () -> Unit,
     dismiss: () -> Unit,
     autoclose: Boolean,
-    showDueDate: Boolean
+    showDueDate: Boolean,
+    onDismissHandler: BaseDateTimePicker.OnDismissHandler? = null
 ) {
     val context = LocalContext.current
     val preferences = remember { Preferences(context) }
     val state = rememberDatePickerState(
         initialDisplayMode = remember { preferences.calendarDisplayMode },
     )
-    val onDismissHandler: BaseDateTimePicker.OnDismissHandler? = null // TODO(): rethink
 
     val today = remember { newDateTime().startOfDay() }
 
@@ -65,7 +65,7 @@ fun StartDateTimePicker (
         state = state,
         showButtons = !autoclose,
         setDisplayMode = { preferences.calendarDisplayMode = it },
-        cancel = { onDismissHandler?.onDismiss() ?: dismiss() },
+        cancel = { dismiss(); onDismissHandler?.onDismiss() },
         accept = accept,
         dateShortcuts = {
             StartDateShortcuts(

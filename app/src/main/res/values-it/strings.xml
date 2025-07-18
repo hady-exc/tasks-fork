@@ -452,7 +452,7 @@
     <string name="subtasks">Attività secondaria</string>
     <string name="TEA_timer_controls">Timer</string>
     <string name="chip_appearance">Aspetto icona</string>
-    <string name="chips">Icone</string>
+    <string name="chips">Smart Chips</string>
     <string name="custom_filter_not">NON</string>
     <string name="custom_filter_or">O</string>
     <string name="custom_filter_and">E</string>
@@ -623,7 +623,6 @@
     <string name="next_sunday">Domenica prossima</string>
     <string name="markdown_description">Abilita la formattazione Markdown nel titolo e nella descrizione</string>
     <string name="markdown">Markdown</string>
-    <string name="chat_libera">Unisciti a #tasks su Libera Chat</string>
     <string name="now">Ora</string>
     <string name="when_started">Alla data di inizio</string>
     <string name="completion_sound">Suono di completamento</string>
@@ -700,7 +699,6 @@
     <string name="repeat_monthly_on_the_nth_weekday">Mensilmente il %1$s %2$s</string>
     <string name="change_priority">Cambia priorità</string>
     <string name="theme_dynamic">Dinamico</string>
-    <string name="clear_completed_tasks_count">%s sarà cancellato</string>
     <string name="donate_today">Dona ora</string>
     <string name="donate_nag">Dimostra il tuo sostegno con una donazione!</string>
     <string name="donate_maybe_later">Forse più tardi</string>
@@ -742,4 +740,7 @@
     <string name="banner_app_updated_title">App aggiornata</string>
     <string name="banner_app_updated_description">Tasks è stata aggiornata a %s. Vuoi vedere le note di rilascio?</string>
     <string name="multiline_title_off">Premi il tasto di conferma per salvare l\'attività</string>
+    <string name="continue_without_sync">Continua senza sincronizzazione</string>
+    <string name="help_me_choose">Aiutami a scegliere</string>
+    <string name="delete_tasks_warning">%s verrà cancellato. L\'operazione non può essere annullata!</string>
 </resources>

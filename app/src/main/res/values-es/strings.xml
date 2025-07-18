@@ -19,7 +19,7 @@
     <string name="TLA_no_items">No hay tareas aquí.</string>
     <string name="TLA_menu_sort">Ordenar</string>
     <string name="TLA_menu_search">Buscar</string>
-    <string name="TLA_menu_settings">Configuraciones</string>
+    <string name="TLA_menu_settings">Ajustes</string>
     <string name="TAd_actionEditTask">Editar</string>
     <string name="action_call">Llamar</string>
     <string name="action_open">Abrir</string>
@@ -82,7 +82,7 @@
     <string name="default_location_reminder_on_arrival">A la llegada</string>
     <string name="default_location_reminder_on_departure">A la salida</string>
     <string name="default_location_reminder_on_arrival_or_departure">A la salida y llegada</string>
-    <string name="BFE_Active">Mis Tareas</string>
+    <string name="BFE_Active">Mis tareas</string>
     <string name="BFE_Recent">Recién modificadas</string>
     <string name="CFA_button_add">Añadir Criterio</string>
     <string name="CFC_dueBefore_text">Vence el: ?</string>
@@ -623,7 +623,6 @@
     <string name="next_sunday">Próximo domingo</string>
     <string name="markdown_description">Activar Markdown en el título y la descripción</string>
     <string name="markdown">Markdown</string>
-    <string name="chat_libera">Únase a #tasks en Libera Chat</string>
     <string name="now">Ahora</string>
     <string name="when_started">Cuando comience</string>
     <string name="completion_sound">Reproducir el sonido de finalización</string>
@@ -699,7 +698,6 @@
     <string name="repeats_after">Después</string>
     <string name="repeats_ends">Termina</string>
     <string name="change_priority">Prioridad de cambio</string>
-    <string name="clear_completed_tasks_count">%s será(n) eliminada(s)</string>
     <string name="theme_dynamic">Dinámico</string>
     <string name="swipe_to_snooze_title">Desliza el dedo para repetir</string>
     <string name="swipe_to_snooze_time_1_hour">después de 1 hora</string>
@@ -742,4 +740,7 @@
     <string name="price_per_month_with_currency">mes</string>
     <string name="multiline_title_off">Presione en Hecho para guardar la tarea</string>
     <string name="comment">Anotación.</string>
+    <string name="continue_without_sync">Continua sin sincronizar</string>
+    <string name="help_me_choose">Ayudame a escoger</string>
+    <string name="delete_tasks_warning">%s será eliminado. ¡Esto no se puede deshacer!</string>
 </resources>

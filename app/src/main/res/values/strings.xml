@@ -404,7 +404,6 @@ File %1$s contained %2$s.\n\n
   <string name="widget_due_date_below_title">Below title</string>
   <string name="widget_due_date_hidden">Hidden</string>
   <string name="clear_completed_tasks_confirmation">Clear completed tasks?</string>
-  <string name="clear_completed_tasks_count">%s will be deleted</string>
   <string name="copy_multiple_tasks_confirmation">%s copied</string>
   <string name="delete_multiple_tasks_confirmation">%s deleted</string>
   <string name="delete_selected_tasks">Delete selected tasks?</string>
@@ -419,7 +418,7 @@ File %1$s contained %2$s.\n\n
   <string name="error_adding_account">Error: %s</string>
   <string name="notification_disable_battery_optimizations_description">Battery optimizations may delay notifications</string>
   <string name="bundle_notifications">Bundle notifications</string>
-  <string name="default_reminder">Default Reminder</string>
+  <string name="default_reminder">Default reminder</string>
   <string name="badges">Badges</string>
   <string name="list">List</string>
   <string name="repeats_from">Repeats from</string>
@@ -634,7 +633,6 @@ File %1$s contained %2$s.\n\n
   <string name="current_subscription">Current subscription: %s</string>
   <string name="follow_reddit">Join r/tasks</string>
   <string name="follow_twitter">Follow @tasks_org</string>
-  <string name="chat_libera">Join #tasks on Libera Chat</string>
   <string name="social">Social</string>
   <string name="support">Support</string>
   <string name="issue_tracker">Issue tracker</string>
@@ -728,4 +726,5 @@ File %1$s contained %2$s.\n\n
   <string name="sync_warning_google_tasks_title">About Google Task sync</string>
   <string name="sync_warning_google_tasks">Not all task details sync with Google Tasks</string>
   <string name="button_learn_more">Learn more</string>
+  <string name="widget_view_more_tasks">View more tasks</string>
 </resources>

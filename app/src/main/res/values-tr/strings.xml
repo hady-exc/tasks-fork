@@ -606,7 +606,6 @@
     <string name="next_sunday">Sonraki Pzr</string>
     <string name="markdown_description">Başlık ve açıklamada Markdown\'ı etkinleştir</string>
     <string name="markdown">Markdown</string>
-    <string name="chat_libera">Libera Chat\'te #tasks kanalına katıl</string>
     <string name="now">Şimdi</string>
     <string name="when_started">Başladığında</string>
     <string name="completion_sound">Tamamlandığında ses çal</string>
@@ -654,7 +653,7 @@
     <string name="consent_agree">Kabul et</string>
     <string name="consent_deny">Şimdi değil</string>
     <string name="sign_in_to_tasks_disclosure">E-posta adresiniz ve hesap kimliğiniz Tasks.org tarafından iletilecek ve saklanacaktır. Bu bilgiler kimlik doğrulama ve hizmetle ilgili önemli duyuruları size sağlamak için kullanılacaktır. Bu bilgiler hiç kimse ile paylaşılmayacaktır.</string>
-    <string name="default_reminder">Öntanımlı Anımsatıcı</string>
+    <string name="default_reminder">Öntanımlı anımsatıcı</string>
     <string name="rmd_time_description">Bitiş zamanı olmayan görevler için bildirimleri göster</string>
     <string name="sort_list">Listeye göre</string>
     <string name="repeats_ends">Biter</string>
@@ -677,7 +676,6 @@
     <string name="sort_descending">Azalan</string>
     <string name="sort_grouping">Kümeleme</string>
     <string name="change_priority">Önceliği değiştir</string>
-    <string name="clear_completed_tasks_count">%s silinecek</string>
     <string name="theme_dynamic">Dinamik</string>
     <string name="swipe_to_snooze_time_immediately">hemen</string>
     <string name="swipe_to_snooze_time_30_minutes">30 dakika sonra</string>
@@ -720,4 +718,7 @@
     <string name="banner_app_updated_description">Tasks %s sürümüne güncellendi. Dağıtım notlarını görmek ister misiniz?</string>
     <string name="banner_app_updated_title">Uygulama güncellendi</string>
     <string name="multiline_title_off">Tamamlandıya basarak görevi kaydet</string>
+    <string name="delete_tasks_warning">%s silinecek. Bu geri alınamaz!</string>
+    <string name="continue_without_sync">Eşzamanlamadan sürdür</string>
+    <string name="help_me_choose">Seçmeme yardım et</string>
 </resources>

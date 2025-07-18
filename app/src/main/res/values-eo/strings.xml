@@ -521,7 +521,6 @@
     <string name="backups_ignore_warnings">Ignori avertojn</string>
     <string name="follow_reddit">Aniĝi al r/tasks</string>
     <string name="follow_twitter">Sekvi @tasks_org</string>
-    <string name="chat_libera">Aniĝi al #tasks ĉe Libera Chat</string>
     <string name="privacy">Privateco</string>
     <string name="google_play_subscribers">Abonantoj de Google Play</string>
     <string name="github_sponsor">Sponsoro</string>
@@ -543,7 +542,7 @@
     <string name="customize_edit_screen_summary">Rearanĝi aŭ forigi kampojn</string>
     <string name="widget_due_date_hidden">Kaŝita</string>
     <string name="widget_row_settings">Agordoj de vico</string>
-    <string name="default_reminder">Defaŭlta Memorigo</string>
+    <string name="default_reminder">Defaŭlta memorigo</string>
     <string name="decsync_selection_description">Perdosiersistema sinkronigo</string>
     <string name="repeats_single_on">Ripetiĝas %1$s je %2$s</string>
     <string name="google_drive_backup">Savkopio de Google Drive</string>
@@ -658,7 +657,6 @@
     <string name="wearable_notifications">Sciigoj per portebla aparataro</string>
     <string name="android_auto_backup_device_summary">Vi devas ankaŭ doni permeson al savkopia servo per viaj aparataj agordoj. Ne ĉiuj aparatoj provizas savkopian servon.</string>
     <string name="sign_in_to_tasks_disclosure">Via retpoŝtadreso kaj konta ID estos transsendita kaj konservita de Tasks.org. Ĉi tiu informo estos uzata por aŭtentigi kaj por provizi al vi gravajn anoncojn rilate al servo. Ĉi tiu informo ne estos diskongita al iu ajn.</string>
-    <string name="clear_completed_tasks_count">%s estos forigitaj</string>
     <string name="repeats_every">Ripetiĝas ĉiu</string>
     <string name="badges_description">Vidigi nombro da taskoj sur lanĉpiktogramo de Tasks. Ne ĉiuj lanĉiloj subtenas ĉi tiajn simbolojn.</string>
     <string name="caldav_account_description">Bezonas konton de CalDAV servprovizanto aŭ memgastigan servilon. Por trovi servprovizanton vizitu task.org/caldav</string>
@@ -720,4 +718,7 @@
     <string name="multiline_title_off">Premu Finite por konservi taskon</string>
     <string name="banner_app_updated_title">Ĝisdatigo de Aplikaĵo</string>
     <string name="banner_app_updated_description">Tasks estis ĝisdatigita al %s. Ĉu vi deziras legi la eldonajn notojn?</string>
+    <string name="delete_tasks_warning">Forigas %s. Ne eblas malfari tion!</string>
+    <string name="continue_without_sync">Daŭrigi sen sinkronigo</string>
+    <string name="help_me_choose">Helpu min elekti</string>
 </resources>

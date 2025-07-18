@@ -8,39 +8,38 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.fortuna.ical4j.model.Recur
 import net.fortuna.ical4j.model.WeekDay
 import org.tasks.data.entity.Task
-import org.tasks.preferences.Preferences
-import org.tasks.repeats.BasicRecurrencePicker
-import org.tasks.repeats.CustomRecurrenceEdit
 import org.tasks.repeats.RecurrenceHelper
-import org.tasks.repeats.CustomRecurrenceEditState
+import org.tasks.repeats.RecurrencePickerDialog
 import org.tasks.repeats.RecurrenceUtils.newRecur
 import org.tasks.time.DateTime
 import org.tasks.time.DateTimeUtils2.currentTimeMillis
-import java.util.Locale
 
 private val repeatIcon = Icons.Outlined.Repeat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecurrenceChip (
-    recurrenceHelper: RecurrenceHelper,
+    recurrence: String?,
     setRecurrence: (String?) -> Unit,
     repeatFrom: @Task.RepeatFrom Int,
     onRepeatFromChanged: (@Task.RepeatFrom Int) -> Unit,
     accountType: Int,
     dueDate: Long
 ) {
+    val context = LocalContext.current
+    val recurrenceHelper = remember { RecurrenceHelper(context) }
+    recurrenceHelper.setRecurrence(recurrence)
+
     val showPicker = remember { mutableStateOf(false) }
 
     if (recurrenceHelper.rrule == null) {
         IconChip(icon = repeatIcon, action = { showPicker.value = true })
     } else {
         Chip(
-            title = recurrenceHelper.title(recurrenceHelper.selectionIndex(), true),
+            title = recurrenceHelper.title(recurrenceHelper.selectionIndex()),
             leading = repeatIcon,
             action = { showPicker.value = true },
             delete = { setRecurrence(null) }
@@ -55,7 +54,6 @@ fun RecurrenceChip (
             repeatFrom = repeatFrom,
             onRepeatFromChanged = onRepeatFromChanged,
             accountType = accountType,
-            recurrenceHelper = recurrenceHelper
         )
     }
 
@@ -85,59 +83,5 @@ fun RecurrenceChip (
 
     LaunchedEffect(dueDate) { onDueDateChanged() }
 
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun RecurrencePickerDialog (
-    dismiss: () -> Unit,
-    recurrence: String?,
-    onRecurrenceChanged: (String?) -> Unit,
-    repeatFrom: @Task.RepeatFrom Int,
-    onRepeatFromChanged: (@Task.RepeatFrom Int) -> Unit,
-    accountType: Int,
-    recurrenceHelper: RecurrenceHelper? = null
-) {
-    val context = LocalContext.current
-    val preferences = remember { Preferences(context) }
-
-    val basicDialog = remember { mutableStateOf(true) }
-    if (basicDialog.value) {
-        BasicRecurrencePicker(
-            dismiss = dismiss,
-            recurrence = recurrence,
-            setRecurrence = onRecurrenceChanged,
-            repeatFrom = repeatFrom,
-            onRepeatFromChanged = { onRepeatFromChanged(it) },
-            peekCustomRecurrence = { basicDialog.value = false },
-            recurrenceHelper = recurrenceHelper
-        )
-    } else {
-        val state = CustomRecurrenceEditState
-            .rememberCustomRecurrencePickerState(
-                rrule = recurrence,
-                dueDate = null,
-                accountType = accountType,
-                locale = Locale.getDefault()
-            )
-
-        CustomRecurrenceEdit(
-            state = state.state.collectAsStateWithLifecycle().value,
-            save = {
-                onRecurrenceChanged(state.getRecur())
-                dismiss()
-            },
-            discard = dismiss,
-            setInterval = { state.setInterval(it) },
-            setSelectedFrequency = { state.setFrequency(it) },
-            setEndDate = { state.setEndDate(it) },
-            setSelectedEndType = { state.setEndType(it) },
-            setOccurrences = { state.setOccurrences(it) },
-            toggleDay = { state.toggleDay(it) },
-            setMonthSelection = { state.setMonthSelection(it) },
-            calendarDisplayMode = preferences.calendarDisplayMode,
-            setDisplayMode = { preferences.calendarDisplayMode = it }
-        )
-    }
 }
 

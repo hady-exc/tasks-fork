@@ -21,15 +21,15 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -49,11 +49,6 @@ import org.tasks.date.DateTimeUtils.toDateTime
 import org.tasks.dialogs.StartDatePicker
 import org.tasks.extensions.Context.is24HourFormat
 import org.tasks.kmp.org.tasks.taskedit.TaskEditViewState
-import org.tasks.repeats.RecurrenceHelper
-import org.tasks.ui.TaskEditViewModel.Companion.TAG_DESCRIPTION
-import org.tasks.ui.TaskEditViewModel.Companion.TAG_DUE_DATE
-import org.tasks.ui.TaskEditViewModel.Companion.TAG_LIST
-import org.tasks.ui.TaskEditViewModel.Companion.TAG_PRIORITY
 import org.tasks.kmp.org.tasks.time.DateStyle
 import org.tasks.kmp.org.tasks.time.getRelativeDateTime
 import org.tasks.preferences.Preferences
@@ -62,6 +57,10 @@ import org.tasks.time.startOfDay
 import org.tasks.ui.CalendarControlSet
 import org.tasks.ui.LocationControlSet
 import org.tasks.ui.TaskEditViewModel
+import org.tasks.ui.TaskEditViewModel.Companion.TAG_DESCRIPTION
+import org.tasks.ui.TaskEditViewModel.Companion.TAG_DUE_DATE
+import org.tasks.ui.TaskEditViewModel.Companion.TAG_LIST
+import org.tasks.ui.TaskEditViewModel.Companion.TAG_PRIORITY
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class,
     ExperimentalMaterial3Api::class
@@ -216,9 +215,7 @@ fun TaskEditDrawer(
                         }
                         RepeatControlSet.TAG -> {
                             RecurrenceChip(
-                                recurrenceHelper = RecurrenceHelper(
-                                    LocalContext.current,
-                                    state.value.task.recurrence ),
+                                recurrence = state.value.task.recurrence,
                                 setRecurrence = { vm.setRecurrence(it) },
                                 repeatFrom = vm.viewState.collectAsStateWithLifecycle().value.task.repeatFrom,
                                 onRepeatFromChanged = { vm.setRepeatFrom(it) },

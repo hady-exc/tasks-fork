@@ -396,7 +396,7 @@
     <string name="show_advanced_settings">显示高级设置</string>
     <string name="caldav_account_description">需要一个 CalDAV 服务供应商账号或一个自托管服务器。访问 tasks.org/caldav 寻找服务供应商</string>
     <string name="etesync_account_description">需要一个 EteSync.com 账号或一个自托管服务器</string>
-    <string name="help_and_feedback">帮助&amp;反馈</string>
+    <string name="help_and_feedback">帮助和反馈</string>
     <string name="documentation">文档</string>
     <string name="preferences_look_and_feel">外观</string>
     <string name="preferences_advanced">高级</string>
@@ -600,7 +600,6 @@
     <string name="next_sunday">下周日</string>
     <string name="markdown_description">在任务标题和描述中启用 Markdown</string>
     <string name="markdown">Markdown</string>
-    <string name="chat_libera">加入 Libera Chat 上的 #tasks</string>
     <string name="now">现在</string>
     <string name="when_started">开始后</string>
     <string name="completion_sound">播放完成声音</string>
@@ -666,7 +665,6 @@
     <string name="repeat_monthly_on_day_number">每月 %1d 日</string>
     <string name="repeat_monthly_on_the_nth_weekday">每月的%1$s%2$s</string>
     <string name="change_priority">更改优先级</string>
-    <string name="clear_completed_tasks_count">%s 将被删除</string>
     <string name="theme_dynamic">动态</string>
     <string name="swipe_to_snooze_time_description">清除的通知将被推迟并于 %s 被再次创建</string>
     <string name="swipe_to_snooze_time_immediately">立即</string>
