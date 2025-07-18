@@ -31,8 +31,8 @@ import net.fortuna.ical4j.model.WeekDay
 import org.tasks.R
 import org.tasks.compose.DisabledText
 import org.tasks.compose.TaskEditRow
-import org.tasks.compose.taskdrawer.RecurrencePickerDialog
 import org.tasks.data.entity.Task
+import org.tasks.repeats.RecurrencePickerDialog
 import org.tasks.repeats.RecurrenceUtils.newRecur
 import org.tasks.repeats.rememberRepeatRuleToString
 import org.tasks.themes.TasksTheme

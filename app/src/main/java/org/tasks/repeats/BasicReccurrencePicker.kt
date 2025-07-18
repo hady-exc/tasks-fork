@@ -48,12 +48,11 @@ fun BasicRecurrencePicker (
     recurrence: String?,
     setRecurrence: (String?) -> Unit,
     peekCustomRecurrence: () -> Unit,
-    recurrenceHelper: RecurrenceHelper?,
     repeatFrom: @Task.RepeatFrom Int = Task.RepeatFrom.COMPLETION_DATE,
     onRepeatFromChanged: ((@Task.RepeatFrom Int) -> Unit)? = null,
 ) {
 
-    val helper = recurrenceHelper ?: RecurrenceHelper(LocalContext.current, recurrence)
+    val helper = RecurrenceHelper(LocalContext.current, recurrence)
     val selected = helper.selectionIndex()
 
     fun setSelection(i: Int) {
