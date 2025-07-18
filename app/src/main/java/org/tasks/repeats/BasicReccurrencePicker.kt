@@ -52,22 +52,27 @@ fun BasicRecurrencePicker (
     onRepeatFromChanged: ((@Task.RepeatFrom Int) -> Unit)? = null,
 ) {
 
-    val helper = RecurrenceHelper(LocalContext.current, recurrence)
-    val selected = helper.selectionIndex()
+    val context = LocalContext.current
+    val helper = remember { RecurrenceHelper(context) }
+    helper.setRecurrence(recurrence)
 
     fun setSelection(i: Int) {
-        if (i == 0) {
-            setRecurrence(null)
-        } else if (i == 5) {
-            peekCustomRecurrence()
-            return // to avoid dismiss() call
-        } else {
-            setRecurrence(
-                newRecur().apply {
-                    interval = 1
-                    setFrequency(helper.selectedFrequency(i).name)
-                }.toString()
-            )
+        when (i) {
+            0 -> {
+                setRecurrence(null)
+            }
+            5 -> {
+                peekCustomRecurrence()
+                return // to avoid dismiss() call
+            }
+            else -> {
+                setRecurrence(
+                    newRecur().apply {
+                        interval = 1
+                        setFrequency(helper.selectedFrequency(i).name)
+                    }.toString()
+                )
+            }
         }
         dismiss()
     }
@@ -130,7 +135,7 @@ fun BasicRecurrencePicker (
                     SelectableText(
                         text = helper.title(i),
                         index = i,
-                        selected = selected,
+                        selected = helper.selectionIndex(),
                         setSelection = { setSelection(i) }
                     )
                 }
@@ -165,21 +170,25 @@ fun SelectableText (
     }
 }
 
+/**
+ *  Helper object over recurrence string, to share basic access to rrule and to avoid reloading
+ *  R.array.repeat_options during each recomposition
+ *  Intended use:
+ *
+ *      val helper = remember { RecurrenceHelper(context) }
+ *      helper.setRecurrence(recurrence)
+ *      ...
+ *      Text(text = helper.title(selectedIndex), ...)
+ */
 class RecurrenceHelper (
     context: Context,
-    val recurrence: String?
 ) {
     val repeatRuleToString = RepeatRuleToString(context,Locale.getDefault(),Firebase(context, Preferences(context)))
-    val rrule = recurrence
-        .takeIf { !it.isNullOrBlank() }
-        ?.let {
-            try {
-                newRecur(it)
-            } catch (e: Exception) {
-                Timber.e(e)
-                null
-            }
-        }
+    private var _recurrence: String? = null
+    val recurrence: String? get() = _recurrence
+
+    private var _rrule: Recur? = null
+    val rrule: Recur? get() = _rrule
 
     private val titles: MutableList<String> =
         Lists.newArrayList(*context.resources.getStringArray(R.array.repeat_options))
@@ -193,23 +202,23 @@ class RecurrenceHelper (
         if (rrule == null) {
             return false
         }
-        val frequency = rrule.frequency
-        return (frequency == Recur.Frequency.WEEKLY || frequency == Recur.Frequency.MONTHLY) && !rrule.dayList.isEmpty()
+        val frequency = rrule!!.frequency
+        return (frequency == Recur.Frequency.WEEKLY || frequency == Recur.Frequency.MONTHLY) && !rrule!!.dayList.isEmpty()
                 || frequency == Recur.Frequency.HOURLY
                 || frequency == Recur.Frequency.MINUTELY
-                || rrule.until != null
-                || rrule.interval > 1
-                || rrule.count > 0
+                || rrule!!.until != null
+                || rrule!!.interval > 1
+                || rrule!!.count > 0
     }
 
     fun selectionIndex(): Int =
         when {
             rrule == null -> 0
             isCustomValue() -> 5
-            rrule.frequency == Recur.Frequency.DAILY -> 1
-            rrule.frequency == Recur.Frequency.WEEKLY -> 2
-            rrule.frequency == Recur.Frequency.MONTHLY -> 3
-            rrule.frequency == Recur.Frequency.YEARLY -> 4
+            rrule!!.frequency == Recur.Frequency.DAILY -> 1
+            rrule!!.frequency == Recur.Frequency.WEEKLY -> 2
+            rrule!!.frequency == Recur.Frequency.MONTHLY -> 3
+            rrule!!.frequency == Recur.Frequency.YEARLY -> 4
             else -> 0
         }
 
@@ -221,8 +230,21 @@ class RecurrenceHelper (
             4 -> Recur.Frequency.YEARLY
             else -> throw IllegalArgumentException()
         }
-}
 
+    fun setRecurrence(recurrence: String?) {
+        _recurrence = recurrence
+        _rrule = recurrence
+            .takeIf { !it.isNullOrBlank() }
+            ?.let {
+                try {
+                    newRecur(it)
+                } catch (e: Exception) {
+                    Timber.e(e)
+                    null
+                }
+            }
+    }
+}
 
 @Composable
 fun rememberRepeatRuleToString(): RepeatRuleToString {

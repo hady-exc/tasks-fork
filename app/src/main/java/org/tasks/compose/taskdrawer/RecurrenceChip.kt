@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import net.fortuna.ical4j.model.Recur
 import net.fortuna.ical4j.model.WeekDay
 import org.tasks.data.entity.Task
@@ -21,13 +22,17 @@ private val repeatIcon = Icons.Outlined.Repeat
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecurrenceChip (
-    recurrenceHelper: RecurrenceHelper,
+    recurrence: String?,
     setRecurrence: (String?) -> Unit,
     repeatFrom: @Task.RepeatFrom Int,
     onRepeatFromChanged: (@Task.RepeatFrom Int) -> Unit,
     accountType: Int,
     dueDate: Long
 ) {
+    val context = LocalContext.current
+    val recurrenceHelper = remember { RecurrenceHelper(context) }
+    recurrenceHelper.setRecurrence(recurrence)
+
     val showPicker = remember { mutableStateOf(false) }
 
     if (recurrenceHelper.rrule == null) {
