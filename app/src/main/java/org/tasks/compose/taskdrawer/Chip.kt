@@ -1,11 +1,13 @@
 package org.tasks.compose.taskdrawer
 
+import android.content.res.Configuration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.AddAlarm
+import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material3.Icon
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.LocalContentColor
@@ -19,9 +21,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
-private val clearIcon = Icons.Outlined.Close
+private val clearIcon = Icons.Outlined.Cancel
 private val gap = 4.dp
 
 @Composable
@@ -49,6 +52,7 @@ fun Chip (
 */
     val widthLong = widthShort * 2 + 4.dp
     val width = if (title == null) widthShort else widthLong
+
     InputChip(
         selected = false,
         onClick = action,
@@ -103,3 +107,46 @@ fun Chip (
     )
 }
 
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun FullChipPreview() {
+    Chip(
+        title = "Long long title",
+        leading = Icons.Outlined.AddAlarm,
+        action = {},
+        delete = {}
+    )
+}
+
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun ShortChipPreview() {
+    Chip(
+        title = "Short",
+        leading = Icons.Outlined.AddAlarm,
+        action = {},
+        //delete = {}
+    )
+}
+
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun NoDeleteChipPreview() {
+    Chip(
+        title = "Long long title",
+        leading = Icons.Outlined.AddAlarm,
+        action = {},
+    )
+}
+
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun IconChipPreview() {
+    IconChip(
+        icon = Icons.Outlined.AddAlarm,
+    ) {}
+}
