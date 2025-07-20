@@ -174,7 +174,7 @@ fun TaskEditDrawer(
             FlowRow (
                 Modifier.wrapContentHeight(),
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalArrangement = Arrangement.Center,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
                 overflow = FlowRowOverflow.Clip
             ) {
                 var total = 0
