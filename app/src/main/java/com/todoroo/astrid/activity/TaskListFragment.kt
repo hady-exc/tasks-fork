@@ -12,6 +12,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.os.Bundle
 import android.os.Parcelable
 import android.speech.RecognizerIntent
@@ -357,7 +358,17 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             recyclerView = bodyStandard.recyclerView
             //fab.setOnClickListener { createNewTask() }
             fab.setOnClickListener {     // *** TaskDrawer
-                lifecycleScope.launch { launchTaskDrawer(addTask("")) }
+                val configuration = requireContext().resources.configuration
+                /* the condition below is an heuristic way to check if the ListDetailsScaffold have two
+                 * panes expanded. TODO: find more correct way
+                 */
+                if (configuration.screenWidthDp <500 && configuration.orientation == ORIENTATION_PORTRAIT) {
+                    // in single-pane mode run TaskEditDrawerFragment
+                    lifecycleScope.launch { launchTaskDrawer(addTask("")) }
+                } else {
+                    // in double-pane mode run regular TaskEditFragment
+                    createNewTask()
+                }
             }
             fab.isVisible = filter.isWritable
         }

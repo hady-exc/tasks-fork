@@ -1,5 +1,6 @@
 package org.tasks.compose.taskdrawer
 
+import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -123,6 +125,15 @@ fun TaskEditDrawer(
 
     LaunchedEffect(dueDate.value) {
         vm.setStartDate(packDateTime(dueDate.value))
+    }
+
+    val configuration = LocalConfiguration.current
+    fun isTwoPane() = // heuristic, exact value belongs to ListDetailPaneScaffold and no good way to get here found yet
+        (configuration.screenWidthDp > 500 ||
+            configuration.orientation == ORIENTATION_LANDSCAPE)
+
+    LaunchedEffect(configuration) {
+        if (isTwoPane()) edit()
     }
 
     Column(
