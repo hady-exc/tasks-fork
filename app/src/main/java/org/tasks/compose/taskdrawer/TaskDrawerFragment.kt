@@ -47,12 +47,10 @@ import org.tasks.data.dao.LocationDao
 import org.tasks.data.dao.TagDao
 import org.tasks.data.dao.TagDataDao
 import org.tasks.data.dao.TaskAttachmentDao
-import org.tasks.data.entity.CaldavAccount
 import org.tasks.data.entity.Geofence
 import org.tasks.data.entity.Place
 import org.tasks.data.entity.TagData
 import org.tasks.data.entity.Task
-import org.tasks.filters.CaldavFilter
 import org.tasks.filters.Filter
 import org.tasks.location.GeofenceApi
 import org.tasks.location.LocationPickerActivity
@@ -130,6 +128,7 @@ class TaskDrawerFragment: DialogFragment() {
 
     override fun dismiss() {
         vm.clear()
+        sendTaskToEdit(vm.getTask(), 0)
         super.dismiss()
     }
 
@@ -141,8 +140,8 @@ class TaskDrawerFragment: DialogFragment() {
                 @Suppress("DEPRECATION")
                 (intent.getParcelableArrayListExtra<TagData>(TagPickerActivity.EXTRA_SELECTED)
                     ?: ArrayList<TagData>())
-                    .let {
-                        vm.setTags(it.toPersistentSet())
+                    .let { array ->
+                        vm.setTags(array.toPersistentSet())
                     }
             }
         }
@@ -208,10 +207,10 @@ class TaskDrawerFragment: DialogFragment() {
 
     }
 
-    private fun sendTaskToEdit(task: Task) {
+    private fun sendTaskToEdit(task: Task, result: Int = RESULT_OK) {
         val intent = Intent()
         intent.putExtra(EXTRA_TASK,task)
-        targetFragment?.onActivityResult(targetRequestCode, RESULT_OK, intent)
+        targetFragment?.onActivityResult(targetRequestCode, result, intent)
     }
 
     @OptIn(ExperimentalMaterial3Api::class)

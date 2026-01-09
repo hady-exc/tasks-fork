@@ -359,12 +359,17 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
             //fab.setOnClickListener { createNewTask() }
             fab.setOnClickListener {     // *** TaskDrawer
                 val configuration = requireContext().resources.configuration
-                /* the condition below is an heuristic way to check if the ListDetailsScaffold have two
-                 * panes expanded. TODO: find more correct way
+                /* the condition below is a heuristic way to check if the ListDetailsScaffold
+                 * have two panes expanded. TODO: find more correct way
                  */
                 if (configuration.screenWidthDp <500 && configuration.orientation == ORIENTATION_PORTRAIT) {
                     // in single-pane mode run TaskEditDrawerFragment
                     lifecycleScope.launch { launchTaskDrawer(addTask("")) }
+                    /* bottomAppBar and fab are switched off and on to reduce blinking
+                    * while TaskDrawer is starting and closing
+                    * TODO: find better solution */
+                    bottomAppBar.isVisible = false
+                    fab.isVisible = false
                 } else {
                     // in double-pane mode run regular TaskEditFragment
                     createNewTask()
@@ -865,11 +870,18 @@ class TaskListFragment : Fragment(), OnRefreshListener, Toolbar.OnMenuItemClickL
                 finishActionMode()
             }
             // *** TaskDrawer
-            TaskDrawerFragment.REQUEST_EDIT_TASK -> if (resultCode == RESULT_OK) {
-                val task = data?.getParcelableExtra<Task>(TaskDrawerFragment.EXTRA_TASK)
-                task?.let {
-                    createNewTask(task)
+            TaskDrawerFragment.REQUEST_EDIT_TASK -> {
+                if (resultCode == RESULT_OK) {
+                    val task = data?.getParcelableExtra<Task>(TaskDrawerFragment.EXTRA_TASK)
+                    task?.let {
+                        createNewTask(task)
+                    }
                 }
+                /* bottomAppBar and fab are switched off and on to reduce blinking
+                * while TaskDrawer is starting and closing
+                * TODO: find better solution */
+                binding.bottomAppBar.isVisible = true
+                binding.fab.isVisible = filter.isWritable
             }
             else -> super.onActivityResult(requestCode, resultCode, data)
         }
