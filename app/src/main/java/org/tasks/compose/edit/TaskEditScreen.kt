@@ -74,6 +74,7 @@ import org.tasks.ui.TaskEditViewModel.Companion.TAG_DESCRIPTION
 import org.tasks.ui.TaskEditViewModel.Companion.TAG_DUE_DATE
 import org.tasks.ui.TaskEditViewModel.Companion.TAG_LIST
 import org.tasks.ui.TaskEditViewModel.Companion.TAG_PRIORITY
+import org.tasks.ui.TaskEditViewModel.Companion.TAG_START_DATE
 import org.tasks.ui.TaskEditViewModel.Companion.TAG_TITLE
 import org.tasks.utility.copyToClipboard
 import timber.log.Timber
@@ -273,7 +274,19 @@ fun TaskEditScreen(
                         )
 
                     CalendarControlSet.TAG -> AndroidFragment<CalendarControlSet>()
-                    StartDateControlSet.TAG -> AndroidFragment<StartDateControlSet>()
+                    //StartDateControlSet.TAG -> AndroidFragment<StartDateControlSet>()
+                    TAG_START_DATE -> {
+                        StartDateRow(
+                            current = editViewModel.startDate.collectAsStateWithLifecycle().value,
+                            setCurrent = { editViewModel.setStartDate(it) },
+                            dueDate = editViewModel.dueDate.collectAsStateWithLifecycle().value,
+                            isNew = viewState.isNew,
+                            hasStartAlarm = remember (viewState.alarms) {
+                                viewState.alarms.any { it.type == Alarm.TYPE_REL_START }
+                            },
+                            showDueDate = !viewState.list.account.isOpenTasks
+                        )
+                    }
                     ReminderControlSet.TAG -> AndroidFragment<ReminderControlSet>()
                     LocationControlSet.TAG -> AndroidFragment<LocationControlSet>()
                     FilesControlSet.TAG -> AndroidFragment<FilesControlSet>()
